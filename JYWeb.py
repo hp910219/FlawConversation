@@ -56,15 +56,15 @@ def tcm_api():
             headers['authorization'] = auth
         request_params['headers'] = headers
         try:
-            rq = requests.request(method, api_url, **request_params)
+            response = requests.request(method, api_url, **request_params)
         except Exception, e:
             error_message = str(e)
-            rq = None
-        if rq is not None:
-            if rq.status_code != 200:
-                error_message = "%s %s %d %s" % (api_url, "POST", rq.status_code, rq.text)
+            response = None
+        if response is not None:
+            if response.status_code != 200:
+                error_message = "%s %s %d %s" % (api_url, "POST", response.status_code, response.text)
             else:
-                response_data = rq.json()
+                response_data = response.json()
                 status = response_data.get('status')
                 if success_status is None:
                     return jsonify(response_data)
