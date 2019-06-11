@@ -3,6 +3,7 @@
 import json
 import os
 import requests
+
 from flask import Flask, jsonify, request, render_template
 from flask_cors import CORS
 from config import read_conf
@@ -54,16 +55,21 @@ def tcm_api():
         if auth:
             headers['authorization'] = auth
         request_params['headers'] = headers
-        rq = requests.request(method, api_url, **request_params)
-        if rq.status_code != 200:
-            error_message = "%s %s %d %s" % (api_url, "POST", rq.status_code, rq.text)
-        else:
-            response_data = rq.json()
-            status = response_data.get('status')
-            if success_status is None:
-                return jsonify(response_data)
-            if success_status == str(response_data['status']):
-                return jsonify(response_data)
+        try:
+            rq = requests.request(method, api_url, **request_params)
+        except Exception, e:
+            error_message = str(e)
+            rq = None
+        if rq is not None:
+            if rq.status_code != 200:
+                error_message = "%s %s %d %s" % (api_url, "POST", rq.status_code, rq.text)
+            else:
+                response_data = rq.json()
+                status = response_data.get('status')
+                if success_status is None:
+                    return jsonify(response_data)
+                if success_status == str(response_data['status']):
+                    return jsonify(response_data)
     error_message += u'【访问地址】：%s\n' % request.url
     error_message += u'【请求方式】：%s\n' % method
     error_message += u'【请求服务】：%s:%s\n' % (api_service, endpoint)
