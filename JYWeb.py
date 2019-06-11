@@ -50,6 +50,7 @@ def tcm_api():
         error_message = u'暂无此服务：%s. 目前服务有：%s' % (api_service, ports.keys())
     else:
         api_url = endpoint + ':' + ports[api_service] + url
+        send_msg_by_dd(api_url)
         request_params = {'json': data} if method != 'GET' else {'params': data}
         headers = {'Content-Type': 'application/json'}
         if auth:
