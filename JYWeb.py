@@ -49,7 +49,7 @@ def tcm_api():
     elif api_service not in ports:
         error_message = u'暂无此服务：%s. 目前服务有：%s' % (api_service, ports.keys())
     else:
-        api_url = endpoint + url
+        api_url = endpoint + ':' + ports[api_service] + url
         request_params = {'json': data} if method != 'GET' else {'params': data}
         headers = {'Content-Type': 'application/json'}
         if auth:
@@ -70,10 +70,11 @@ def tcm_api():
                     return jsonify(response_data)
                 if success_status == str(response_data['status']):
                     return jsonify(response_data)
+        error_message += u'【api】：%s\n' % api_url
     error_message += u'【访问地址】：%s\n' % request.url
     error_message += u'【请求方式】：%s\n' % method
     error_message += u'【请求服务】：%s:%s\n' % (api_service, endpoint)
-    error_message += u'【api】：%s\n' % url
+
     error_message += u'【请求数据】：%s\n' % json.dumps(data)
     if status is not None:
         error_message += u'【状态码】:%d\n' % status
