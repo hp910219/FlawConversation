@@ -53,7 +53,7 @@ def tcm_api():
         request_params = {'json': data} if method != 'GET' else {'params': data}
         headers = {'Content-Type': 'application/json'}
         if auth:
-            headers['authorization'] = auth
+            headers['Authorization'] = auth
         request_params['headers'] = headers
         try:
             response = requests.request(method, api_url, **request_params)
@@ -66,16 +66,13 @@ def tcm_api():
             else:
                 response_data = response.json()
                 status = response_data.get('status')
+        error_message += u'【请求服务】：%s\n' % api_service
         error_message += u'【api】：%s\n' % api_url
     error_message += u'【访问地址】：%s\n' % request.url
     error_message += u'【请求方式】：%s\n' % method
-    error_message += u'【请求服务】：%s\n' % api_service
-
     error_message += u'【请求数据】：%s\n' % json.dumps(data)
     if status is not None:
         error_message += u'【状态码】:%d\n' % status
-    if response_data is not None:
-        error_message += u'【请求数据】：%s\n' % json.dumps(data)
     error_message += u'【返回数据】：%s\n' % json.dumps(response_data)
     # if self.is_print:
     #     print error_message
