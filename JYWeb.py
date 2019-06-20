@@ -10,7 +10,9 @@ from config import read_conf
 from jy_word.web_tool import send_msg_by_dd, get_host
 
 app = Flask(__name__)
-app.config['MAX_CONTENT_LENGTH'] = 5 * 1024*1024*1024
+app.config.update(
+    MAX_CONTENT_LENGTH=5 * 1024 * 1024* 1024
+)
 CORS(app, supports_credentials=True)
 
 
