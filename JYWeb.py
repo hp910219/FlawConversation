@@ -10,6 +10,7 @@ from config import read_conf
 from jy_word.web_tool import send_msg_by_dd, get_host
 
 app = Flask(__name__)
+app.config['MAX_CONTENT_LENGTH'] = 5 * 1024*1024*1024
 CORS(app, supports_credentials=True)
 
 
@@ -108,5 +109,6 @@ def upload_report():
 
 
 if __name__ == '__main__':
-    host_info = get_host(9002)
-    app.run(host=host_info.get('ip'), port=9002)
+    port = 9004
+    host_info = get_host(port)
+    app.run(host=host_info.get('ip'), port=port)
