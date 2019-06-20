@@ -76,8 +76,9 @@ def tcm_api():
     error_message += u'【返回数据】：%s\n' % json.dumps(response_data)
     # if self.is_print:
     #     print error_message
+    mobile = '18706745482' if 'success' not in error_message else '15538819853'
     try:
-        send_msg_by_dd(error_message, env=env)
+        send_msg_by_dd(error_message, env=env, mobile=mobile)
     except:
         print(error_message)
     return jsonify(response_data)
