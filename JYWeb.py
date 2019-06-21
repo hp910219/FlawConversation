@@ -4,16 +4,14 @@ import json
 import os
 import requests
 
-from flask import Flask, jsonify, request, render_template
-from flask_cors import CORS
+from flask import jsonify, request, render_template
 from config import read_conf
 from jy_word.web_tool import send_msg_by_dd, get_host
 
-app = Flask(__name__)
-app.config.update(
-    MAX_CONTENT_LENGTH=5 * 1024 * 1024* 1024
-)
-CORS(app, supports_credentials=True)
+from create_app import create_app
+
+
+app = create_app()
 
 
 @app.route('/')
@@ -79,7 +77,7 @@ def tcm_api():
     error_message += u'【返回数据】：%s\n' % json.dumps(response_data)
     # if self.is_print:
     #     print error_message
-    mobile = '18706745482' if 'success' not in error_message else '15538819853'
+    mobile = '18706745482'
     try:
         send_msg_by_dd(error_message, env=env, mobile=mobile)
     except:
@@ -89,25 +87,29 @@ def tcm_api():
 
 @app.route("/tcm/upload/file/", methods=["POST", 'OPTIONS'])
 def upload_report():
-    # try:
-    conf = read_conf()
-    if isinstance(conf, str):
-        return conf
-    file_dir = conf.get('file_dir')
-    if file_dir is None:
-        return 'file_dir not in config.conf'
-    if len(request.files) == 0:
-        return jsonify({"success": False, "message": 'select file'})
-    for k in request.files:
-        f = request.files[k]
-        name_array = f.filename.split('.')
-        dir_path = os.path.join(file_dir, name_array[-1])
-        if os.path.exists(dir_path) is False:
-            os.makedirs(dir_path)
-        path = os.path.join(dir_path, '.'.join(name_array[-2:]))
-        f.save(path)
-        return jsonify({'path': path, "message": 'success'})
-    return jsonify({'len': len(request.files)})
+    try:
+        conf = read_conf()
+        if isinstance(conf, str):
+            return conf
+        file_dir = conf.get('file_dir')
+        if file_dir is None:
+            return 'file_dir not in config.conf'
+        if len(request.files) == 0:
+            return jsonify({"success": False, "message": 'select file'})
+        for k in request.files:
+            f = request.files[k]
+            name_array = f.filename.split('.')
+            dir_path = os.path.join(file_dir, name_array[-1])
+            if os.path.exists(dir_path) is False:
+                os.makedirs(dir_path)
+            path = os.path.join(dir_path, '.'.join(name_array[-2:]))
+            f.save(path)
+            return jsonify({'path': path, "message": 'success'})
+        return jsonify({'len': len(request.files)})
+    except Exception, e:
+        send_msg_by_dd(str(e))
+        return jsonify({'message': str(e)})
+
 
 
 if __name__ == '__main__':
