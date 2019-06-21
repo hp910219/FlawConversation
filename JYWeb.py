@@ -78,10 +78,11 @@ def tcm_api():
     # if self.is_print:
     #     print error_message
     mobile = '18706745482'
-    try:
-        send_msg_by_dd(error_message, env=env, mobile=mobile)
-    except:
-        print(error_message)
+    if 'success' not in error_message:
+        try:
+            send_msg_by_dd(error_message, env=env, mobile=mobile)
+        except:
+            print(error_message)
     return jsonify(response_data)
 
 
@@ -113,6 +114,6 @@ def upload_report():
 
 
 if __name__ == '__main__':
-    port = 9004
+    port = 9002
     host_info = get_host(port)
     app.run(host=host_info.get('ip'), port=port)
