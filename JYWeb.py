@@ -9,6 +9,7 @@ from config import read_conf
 from jy_word.web_tool import send_msg_by_dd, get_host
 
 from create_app import create_app
+from create_auth_code import create_strs, my_file, auth_code_path
 
 
 app = create_app()
@@ -110,6 +111,27 @@ def upload_report():
         send_msg_by_dd(str(e))
         return jsonify({'message': str(e)})
 
+
+@app.route("/tcm/auth/code/", methods=["GET", "POST", 'OPTIONS'])
+def auth_code():
+    items = create_strs(1000)
+    return jsonify(items)
+
+
+@app.route("/tcm/code/crud/", methods=["GET", "POST", "PUT", "DELETE"])
+def auth_code_crud():
+    items = create_strs(1000)
+    rq = request.args.to_dict() if request.method == 'GET'else request.json
+    f_items = filter(lambda x: x['code'] == rq.get('code'), items)
+    if len(f_items) == 0:
+        return jsonify({'message': '邀请码不存在'})
+    f_item = f_items[0]
+    if request.method == 'GET':
+        return jsonify(f_item)
+    if request.method == 'PUT':
+        f_item.update(rq)
+    my_file.write(auth_code_path, items)
+    return jsonify(f_item)
 
 
 if __name__ == '__main__':
