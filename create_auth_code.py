@@ -25,7 +25,7 @@ def create_str(length):
     return random_str
 
 
-def create_strs(num):
+def create_strs(num, belong=None):
     items = my_file.read(auth_code_path) or []
     for i in range(len(items), num):
         item = {}
@@ -34,10 +34,12 @@ def create_strs(num):
             f_items = filter(lambda x: x['code'] == random_str, items)
             if len(f_items) == 0:
                 item['code'] = random_str
-                item['is_used'] = False
+                if belong:
+                    item['belong'] = belong
                 break
         items.append(item)
     my_file.write(auth_code_path, items)
+    items.reverse()
     return items
 
 
