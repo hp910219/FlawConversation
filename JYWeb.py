@@ -122,6 +122,9 @@ def auth_code():
 def auth_code_crud():
     items = create_strs(1000)
     rq = request.args.to_dict() if request.method == 'GET'else request.json
+    if request.method == 'POST':
+        items = create_strs(len(items) + int(rq.get('num')), rq.get('belong'))
+        return jsonify(items)
     f_items = filter(lambda x: x['code'] == rq.get('code'), items)
     if len(f_items) == 0:
         return jsonify({'message': '邀请码不存在'})
