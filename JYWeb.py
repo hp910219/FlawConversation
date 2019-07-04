@@ -6,23 +6,24 @@ import requests
 
 from flask import jsonify, request, render_template
 from config import read_conf
-from jy_word.web_tool import send_msg_by_dd, get_host
+from jy_word.web_tool import send_msg_by_dd, get_host, format_time
 
 from create_app import create_app
 from create_auth_code import create_strs, my_file, auth_code_path
 
 
 app = create_app()
+restart_time = format_time(frm='%Y%m%d%H%M%S')
 
 
 @app.route('/')
 def hello_world():
-    return render_template('index.html')
+    return render_template('index.html', restart_time=restart_time)
 
 
 @app.errorhandler(404)
 def page_not_found(e):
-    return render_template('index.html')
+    return render_template('index.html', restart_time=restart_time)
 
 
 @app.route("/tcm/api/", methods=["GET", "POST", "PUT", "DELETE"])
