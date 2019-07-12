@@ -71,6 +71,7 @@ def tcm_api():
                 status = response_data.get('status')
         error_message += u'【请求服务】：%s\n' % api_service
         error_message += u'【api】：%s\n' % api_url
+    error_message += u'【访问ip】：%s\n' % request.remote_addr
     error_message += u'【访问地址】：%s\n' % request.url
     error_message += u'【请求方式】：%s\n' % method
     error_message += u'【请求数据】：%s\n' % json.dumps(data)
