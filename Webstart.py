@@ -1,5 +1,6 @@
 #! /usr/bin/env python
 # coding: utf-8
+import base64
 import json
 import os
 import requests
@@ -78,6 +79,11 @@ def tcm_api():
     if status is not None:
         error_message += u'【状态码】:%d\n' % status
     error_message += u'【返回数据】：%s\n' % json.dumps(response_data)
+    try:
+        sss = base64.b64decode(auth).decode()
+        error_message += u'【用户名】：%s\n' % sss.split(':')[0]
+    except:
+        error_message += ''
     # if self.is_print:
     #     print error_message
     if 'success' not in error_message.lower():
