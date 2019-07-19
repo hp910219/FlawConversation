@@ -40,7 +40,9 @@ def tcm_api():
     url = request.headers.get('API-URL')
     api_service = request.headers.get('API-SERVICE')
     success_status = request.headers.get('SUCCESS-STATUS')
-
+    api_method = request.headers.get('API-METHOD')
+    if api_method is not None:
+        method = api_method
     auth = request.headers.get('Authorization')
     # start
     error_message = ''
