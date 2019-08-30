@@ -1,16 +1,16 @@
 #! /usr/bin/env python
 # coding: utf-8
-import base64
-import json
 import os
-import requests
+import random
+import hashlib
 
-from flask import jsonify, request, render_template
+from flask import jsonify, request, render_template, redirect, send_from_directory
 from config import read_conf
 from jy_word.web_tool import send_msg_by_dd, get_host, format_time
 
-from create_app import create_app
+from create_app import create_app, sort_request1
 from create_auth_code import create_strs, my_file, auth_code_path
+from views.generate_report import generate_word
 
 
 app = create_app()
@@ -29,12 +29,6 @@ def page_not_found(e):
 
 @app.route("/tcm/api/", methods=["GET", "POST", "PUT", "DELETE"])
 def tcm_api():
-    # 配置文件
-    conf = read_conf()
-    ports = conf.get('ports')
-    endpoint = conf.get('endpoint')
-    env = conf.get('env')
-    # 请求相关
     method = request.method
     data = request.args if method == 'GET' else request.json
     url = request.headers.get('API-URL')
@@ -43,58 +37,7 @@ def tcm_api():
     api_method = request.headers.get('API-METHOD')
     if api_method is not None:
         method = api_method
-    auth = request.headers.get('Authorization')
-    # start
-    error_message = ''
-    response_data = None
-    status = None
-    if isinstance(conf, str):
-        error_message = conf
-    if ports is None:
-        error_message = 'No ports found in config.conf'
-    elif api_service not in ports:
-        error_message = u'暂无此服务：%s. 目前服务有：%s\n' % (api_service, ports.keys())
-    else:
-        api_url = endpoint + ':' + ports[api_service] + url
-        request_params = {'json': data} if method != 'GET' else {'params': data}
-        headers = {'Content-Type': 'application/json'}
-        if auth:
-            headers['Authorization'] = auth
-        request_params['headers'] = headers
-        try:
-            response = requests.request(method, api_url, **request_params)
-        except Exception, e:
-            error_message = '%s\n' % str(e)
-            response = None
-        if response is not None:
-            if response.status_code != 200:
-                error_message = "%s %s %d %s\n" % (api_url, "POST", response.status_code, response.text)
-            else:
-                response_data = response.json()
-                status = response_data.get('status')
-        error_message += u'【请求服务】：%s\n' % api_service
-        error_message += u'【api】：%s\n' % api_url
-    error_message += u'【访问ip】：%s\n' % request.remote_addr
-    error_message += u'【访问地址】：%s\n' % request.url
-    error_message += u'【请求方式】：%s\n' % method
-    error_message += u'【请求数据】：%s\n' % json.dumps(data)
-    if status is not None:
-        error_message += u'【状态码】:%d\n' % status
-    error_message += u'【返回数据】：%s\n' % json.dumps(response_data)
-    try:
-        sss = base64.b64decode(str(auth).split(' ')[-1]).decode()
-        error_message += u'【用户名】：%s\n' % sss.split(':')[0]
-    except:
-        import traceback
-        traceback.print_exc()
-        error_message += ''
-    # if self.is_print:
-    #     print error_message
-    if 'success' not in error_message.lower():
-        try:
-            send_msg_by_dd(error_message, env=env)
-        except:
-            print(error_message)
+    response_data = sort_request1(method, url, api_service, data=data)
     return jsonify(response_data)
 
 
@@ -122,6 +65,49 @@ def upload_report():
     except Exception, e:
         send_msg_by_dd(str(e))
         return jsonify({'message': str(e)})
+
+
+@app.route("/tcm/download/report/", methods=["POST"])
+def auth_down_report():
+    # file_path = 'sss'
+    rq = request.json
+    sample_detail, patient_detail, diagnosis = None, None, None
+    if rq is not None:
+        sample_no = rq.get('sample_no')
+        res = sort_request1('POST', '/api/v2/sample/detail/%s/' % sample_no)
+        if res is not None:
+            sample_detail = res.get('data')
+            if sample_detail is not None:
+                patient_no = sample_detail.get('patient_no')
+                template = sample_detail.get('template')
+                res_patient = sort_request1('GET', '/api/v2/patient/detail/%s/' % patient_no)
+                if res_patient is not None:
+                    patient_detail = res_patient.get('data')
+                res_diagnosis = sort_request1('GET', '/api/v2/detection/diagnosis', data={'sample_no': sample_no})
+                if res_diagnosis is not None:
+                    diagnosis = res_diagnosis.get('data')
+    file_path = generate_word({
+        'sample_detail': sample_detail,
+        'patient_detail': patient_detail,
+        'diagnosis': diagnosis or []
+    })
+    return jsonify({'file_path': file_path})
+
+
+@app.route('/tcm/download/', methods=["GET", "POST", "PUT", "DELETE", 'OPTIONS'])
+def download_file():
+    rq = request.args.to_dict()
+    file_path = rq.get('file_path')
+    dir_name = os.path.dirname(file_path)
+    file_name = os.path.relpath(file_path, dir_name)
+    # file_name = rq.get('file_name')
+    attachment_filename = rq.get('attachment_filename')
+    if attachment_filename is None:
+        attachment_filename = file_name
+    # print dir_name
+    # print file_name
+    # print attachment_filename
+    return send_from_directory(dir_name, file_name, as_attachment=True, attachment_filename=attachment_filename)
 
 
 @app.route("/tcm/auth/code/", methods=["GET", "POST", 'OPTIONS'])
@@ -152,4 +138,6 @@ def auth_code_crud():
 if __name__ == '__main__':
     port = 9002
     host_info = get_host(port)
+    text = '/detection/admin/'
+    '98a749a93a86d15af5b9634c2db53f71'
     app.run(host=host_info.get('ip'), port=port)
