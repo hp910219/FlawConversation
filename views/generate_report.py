@@ -412,7 +412,8 @@ def write_item(item):
                 if info not in imgs:
                     imgs.append(info)
             elif tag == 'upload':
-                files.append(value)
+                if value and value not in ['NA']:
+                    files.append(value)
             for v in values:
                 paras += p.write(para_setting(line=12, rule='auto', ind=ind), r_tcm.text(v, 10))
             return {
@@ -580,7 +581,10 @@ def generate_word(data):
     if os.path.exists(dir_name) is False:
         os.makedirs(dir_name)
     for ff in files:
-        shutil.copy(ff, dir_name)
+        if os.path.isfile(ff):
+            shutil.copy(ff, dir_name)
+        else:
+            del ff
     zip_status = zip_dir('', dir_name, zip_name)
     if zip_status == 5:
         del_file(dir_name)
