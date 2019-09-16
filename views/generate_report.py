@@ -5,11 +5,14 @@ __author__ = 'huohuo'
 import json
 import math
 import os
+import shutil
 
 from jy_word.File import File
 from jy_word.Word import Run, HyperLink, Paragraph, Set_page, Table, Tc, Tr
-from jy_word.Word import get_imgs, write_pkg_parts
-from jy_word.web_tool import test_chinese, format_time
+from jy_word.Word import write_pkg_parts, get_img_info
+from jy_word.web_tool import test_chinese, format_time, sex2str, zip_dir, del_file
+
+from config import read_conf
 my_file = File()
 
 r_tcm = Run(family='微软雅黑')
@@ -285,15 +288,17 @@ def write_common(patient_detail, history_info):
     trs = ''
     w = 1200
     w1 = [w * 2] + [w * 5]
+    for k in patient_detail:
+        print k, patient_detail[k], patient_detail[k] or 'nssss'
     items = [
         {'ws': [w*7], 'text': ['人口学资料'], 'fill': gray, 'weight': 1},
-        {'ws': w1, 'text': ['性别', patient_detail.get('sex') or '未知']},
-        {'ws': w1, 'text': ['出生日期', patient_detail.get('birth') or '未知']},
-        {'ws': w1, 'text': ['民族', patient_detail.get('native') or '未知']},
+        {'ws': w1, 'text': ['性别', sex2str(patient_detail.get('sex'))]},
+        {'ws': w1, 'text': ['出生日期', patient_detail.get('birth') or '']},
+        {'ws': w1, 'text': ['民族', patient_detail.get('nation') or '未知']},
         {'ws': w1, 'text': ['婚否', patient_detail.get('relationship') or '未知']},
         {'ws': w1, 'text': ['教育程度', patient_detail.get('education') or '未知']},
         {'ws': w1, 'text': ['职业', patient_detail.get('native') or '未知']},
-        {'ws': w1, 'text': ['身高体重', '身高%scm     体重    kg' % patient_detail.get('native') or '']}
+        {'ws': w1, 'text': ['身高体重', '身高     cm     体重    kg']}
     ]
     for item in items:
         if 'weight' not in item:
@@ -305,11 +310,15 @@ def write_common(patient_detail, history_info):
     if history_info is not None:
         items3 = history_info.get('items') or []
     paras += p.write(para_setting(spacing=[0, 2]))
-
-    trs2 = write_gray_tr({'ws': [w*7], 'text': ['基本病史'], 'fill': gray, 'weight': 1})
+    trs2 = write_gray_tr({'ws': [w*7], 'text': ['基本病史'], 'fill': gray, 'weight': 1, 'jc': 'left'})
     for item33 in items3:
-        item_tr = {'ws': w1, 'text': [item33.get('item_name'), item33.get('value') or '无'], 'weight': 0, 'jc': 'left'}
-        trs2 += write_gray_tr(item_tr)
+        value = json.loads(item33.get('value')) or '无'
+        if isinstance(value, list):
+            value = '  '.join(value)
+        if item33.get('tag') == 'monthpicker':
+            value = value.split('T')[0]
+        item_tr = {'ws': w1, 'text': [item33.get('item_name'), value], 'weight': 0, 'jc': 'left'}
+        trs2 += write_gray_tr(item_tr) 
     paras += table.write(trs2, [w] * 7, insideColor='black')
     return paras
 
@@ -334,6 +343,7 @@ def write_dignosis(diagnosis):
     treatment_time = diagnosis.get('treatment_time')
     run = r_tcm.text('%s日期：' % cn, 12, 1) + r_tcm.text(format_time(treatment_time, '%Y年%m月%d日'), 12)
     paras += p.write(para_setting(line=12, rule='auto'), run)
+    imgs, files = [], []
     for template_i in template_info[1:]:
         for block in template_i:
             # [u'block_id', u'items', u'labelCol', u'input_items', u'entry_name', u'text']
@@ -342,10 +352,15 @@ def write_dignosis(diagnosis):
             if len(items) > 0:
                 paras += write_title(entry_name)
                 for item in items:
-                    paras += write_item(item)
+                    item2 = write_item(item)
+                    paras += item2.get('para')
+                    imgs += item2.get('imgs')
+                    files += item2.get('files')
                 paras += para_sect(page_margin=[2.4, 1.67, 0.49, 1.67, 2, 0])
     return {
-        'para': paras
+        'para': paras,
+        'imgs': imgs,
+        'files': files
     }
 
 
@@ -354,6 +369,7 @@ def write_item(item):
     value = item.get('value')
     ind = item.get('ind') or [0, 0]
     imgs = []
+    files = []
     item_name = item.get('item_name')
     paras = ''
     h1 = item.get('h1')
@@ -383,30 +399,48 @@ def write_item(item):
         else:
             values = value.strip('\n').split('\n')
             if value.endswith('.png') or value.endswith('.jpg'):
-                imgs.append(value)
+                info = get_img_info(value)
+                r_pic = r_tcm.picture(15, rId=info.get('rId'), img_info=info)
+                paras += p.write(para_setting(line=24), r_pic)
+                if info not in imgs:
+                    imgs.append(info)
+            elif tag == 'upload':
+                files.append(value)
             for v in values:
                 paras += p.write(para_setting(line=12, rule='auto', ind=ind), r_tcm.text(v, 10))
-            return paras
+            return {
+                'para': paras,
+                'imgs': imgs,
+                'files': files
+            }
 
     if isinstance(value, list):
         item_items = item.get('items') or []
         if item.get('is_list'):
-            print item_name
             data = item.get('data') or []
             for d_index, d in enumerate(data):
-                paras += write_item({
+                item2 = write_item({
                     'ind': [2, 0],
                     'item_name': d,
                     'value': value[d_index]
                 })
+                paras += item2.get('para')
+                imgs += item2.get('imgs')
+                files += item2.get('files')
         for item_index, item_item in enumerate(item_items):
             # print type(value[item_index])
             item_item['ind'] = [2, 0]
             item_item['item_name'] = item_item.get('label')
             item_item['value'] = value[item_index]
-
-            paras += write_item(item_item)
-        return paras
+            item2 = write_item(item_item)
+            paras += item2.get('para')
+            imgs += item2.get('imgs')
+            files += item2.get('files')
+        return {
+            'para': paras,
+            'imgs': imgs,
+            'files': files
+        }
 
     run = run0 + r_tcm.text(value, 10)
     # if item.get('is_list'):
@@ -415,13 +449,16 @@ def write_item(item):
     #         print d
 
     # print tag, item.keys()
-    return paras + p.write(para_setting(line=12, rule='auto', ind=ind), run)
+    return {
+        'para': paras + p.write(para_setting(line=12, rule='auto', ind=ind), run),
+        'imgs': imgs,
+        'files': files
+    }
 
 
-def down_common(data, file_name, sort_func):
+def down_common(data, sort_func):
     # my_file.write(file_name.split('.')[0] + '.json', data)
     # print file_name
-    imgs = []
     # img_info_path = os.path.join(static_dir, 'json/img_info_%s.json' % ('_'.join(data['img_dirs'])))
     # # if env.startswith('Development'):
     # if os.path.exists(img_info_path):
@@ -432,11 +469,19 @@ def down_common(data, file_name, sort_func):
     # data['pic'] = pic
     report_data = sort_func(data)
     body = write_body(report_data)
-    pkg = write_pkg_parts(imgs, body, other=report_data.get('other_page'))
+    imgs = report_data.get('imgs') or []
+    files = report_data.get('files') or []
+    file_name = report_data.get('file_name')
+    zip_name = report_data.get('zip_name')
+    imgs2 = []
+    for img in imgs:
+        if img not in imgs2:
+            imgs2.append(img)
+    pkg = write_pkg_parts(imgs2, body, other=report_data.get('other_page'))
     status = False
     while status != 5:
         status = my_file.download(pkg, file_name)
-    return True
+    return files, zip_name
 
 
 def write_body(data):
@@ -457,14 +502,35 @@ def sort_jingan_data(data):
     sample_detail = data.get('sample_detail')
     diagnosis0 = None if len(diagnosis) < 1 else diagnosis[0]
     history_info = None
+    template_name = '普适版'
     if diagnosis0 is not None:
         template_info0 = diagnosis0.get('template_info')
+        template_name = template_name or diagnosis0.get('template_name')
         if template_info0 is not None:
             history_info = template_info0[0][-1]
+    imgs, files = [], []
     for diag in diagnosis:
         sort_diag = write_dignosis(diag)
         chapters += sort_diag.get('para')
+        imgs += sort_diag.get('imgs')
+        files += sort_diag.get('files')
     p_sect = para_sect(page_margin=[2.4, 1.67, 0.49, 1.67, 2, 0])
+
+    patient_name = None
+    if patient_detail:
+        patient_name = patient_detail.get('patient_name')
+
+    action_name = u'%s_%sCRF报告' % (patient_name, template_name)
+    conf = read_conf()
+    if isinstance(conf, str):
+        return conf
+    file_dir = conf.get('file_dir') or '/tmp'
+    report_dir = os.path.join(file_dir, 'report')
+    if os.path.exists(report_dir) is False:
+        os.makedirs(report_dir)
+    file_name = os.path.join(report_dir, u'%s.doc' % action_name)
+    zip_name = os.path.join(report_dir, u'%s.zip' % action_name)
+    files.append(file_name)
     return {
         'other_page': (pkgs, rels),
         'cover': write_cover(patient_detail) + p_sect,
@@ -473,6 +539,10 @@ def sort_jingan_data(data):
         'standard': write_standard(sample_detail) + p_sect,
         'chapters': chapters,
         'common': write_common(patient_detail, history_info) + p_sect,
+        'files': files,
+        'file_name': file_name,
+        'zip_name': zip_name,
+        'imgs': imgs,
         # 'contents': cont.get('paras') + sect1,
         # 'health_record': write_health_jingan(data.get('health_record')) + para_sect([2.54, 2, 0, 1.75, 2, 0], header='rIdHeader0'),
         # 'understand': write_understand() + para_sect([2.54, 2, 0, 1.75, 2, 0], header='rIdHeader1'),
@@ -496,13 +566,23 @@ def sort_jingan_data(data):
 
 
 def generate_word(data):
-    file_name = u'hpp_test1_普适版CRF报告_%s.doc' % (format_time(frm='%Y%m%d%H%M%S'))
-    down_common(data, file_name, sort_jingan_data)
-    return os.path.abspath(file_name)
+    files, zip_name = down_common(data, sort_jingan_data)
+    if os.path.exists(zip_name):
+        os.remove(zip_name)
+    dir_name = '.'.join(zip_name.split('.')[:-1])
+    if os.path.exists(dir_name) is False:
+        os.makedirs(dir_name)
+    for ff in files:
+        shutil.copy(ff, dir_name)
+    zip_status = zip_dir('', dir_name, zip_name)
+    if zip_status == 5:
+        del_file(dir_name)
+        return os.path.abspath(zip_name)
+    return zip_status
 
 
 if __name__ == "__main__":
-    generate_word(get_dignosis() or [])
+    # generate_word(get_dignosis() or [])
     pass
     
 

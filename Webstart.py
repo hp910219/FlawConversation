@@ -102,8 +102,10 @@ def download_file():
     file_name = os.path.relpath(file_path, dir_name)
     # file_name = rq.get('file_name')
     attachment_filename = rq.get('attachment_filename')
+    t = format_time(frm='%Y%m%d%H%M%S')
     if attachment_filename is None:
-        attachment_filename = file_name
+        file_names = file_name.split('.')
+        attachment_filename = '%s_%s.%s' % ('.'.join(file_names[:-1]), t, file_names[-1])
     # print dir_name
     # print file_name
     # print attachment_filename
