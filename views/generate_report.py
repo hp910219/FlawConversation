@@ -312,7 +312,14 @@ def write_common(patient_detail, history_info):
     paras += p.write(para_setting(spacing=[0, 2]))
     trs2 = write_gray_tr({'ws': [w*7], 'text': ['基本病史'], 'fill': gray, 'weight': 1, 'jc': 'left'})
     for item33 in items3:
-        value = json.loads(item33.get('value')) or '无'
+        value = item33.get('value')
+        if value is None:
+            value = '无'
+        else:
+            try:
+                value = json.loads(value)
+            except:
+                value = value
         if isinstance(value, list):
             value = '  '.join(value)
         if item33.get('tag') == 'monthpicker':

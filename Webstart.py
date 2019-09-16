@@ -1,8 +1,7 @@
 #! /usr/bin/env python
 # coding: utf-8
 import os
-import random
-import hashlib
+import traceback
 
 from flask import jsonify, request, render_template, redirect, send_from_directory
 from config import read_conf
@@ -86,12 +85,16 @@ def auth_down_report():
                 res_diagnosis = sort_request1('GET', '/api/v2/detection/diagnosis', data={'sample_no': sample_no})
                 if res_diagnosis is not None:
                     diagnosis = res_diagnosis.get('data')
-    file_path = generate_word({
-        'sample_detail': sample_detail,
-        'patient_detail': patient_detail,
-        'diagnosis': diagnosis or []
-    })
-    return jsonify({'file_path': file_path})
+    try:
+        file_path = generate_word({
+            'sample_detail': sample_detail,
+            'patient_detail': patient_detail,
+            'diagnosis': diagnosis or []
+        })
+        return jsonify({'file_path': file_path})
+    except:
+        send_msg_by_dd(traceback.format_exc())
+        return '发生故障，已通知管理员，请稍后...'
 
 
 @app.route('/tcm/download/', methods=["GET", "POST", "PUT", "DELETE", 'OPTIONS'])
