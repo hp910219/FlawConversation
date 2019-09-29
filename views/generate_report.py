@@ -98,7 +98,6 @@ def write_cover_line(title, before=0.2, text=''):
     runs += r_tcm.tab()
     runs += r_tcm.text('：', 14, 0)
     text = text or ''
-    print text, test_chinese(text), len(text)
     runs += r_tcm.text('       %s%s' % (text, ' ' * (16-len(text)-test_chinese(text))), 14, 0, underline='single', space=True)
     return p.write(para_setting(spacing=[before, 0], ind=[10, 0], tabs=['left', ' ', 4500]), runs)
 
@@ -288,8 +287,6 @@ def write_common(patient_detail, history_info):
     trs = ''
     w = 1200
     w1 = [w * 2] + [w * 5]
-    for k in patient_detail:
-        print k, patient_detail[k], patient_detail[k] or 'nssss'
     items = [
         {'ws': [w*7], 'text': ['人口学资料'], 'fill': gray, 'weight': 1},
         {'ws': w1, 'text': ['性别', sex2str(patient_detail.get('sex'))]},
@@ -308,7 +305,7 @@ def write_common(patient_detail, history_info):
     paras += table.write(trs, [w] * 7, insideColor='black')
     items3 = []
     if history_info is not None:
-        items3 = history_info.get('items') or []
+        items3 = history_info.get('items_info') or []
     paras += p.write(para_setting(spacing=[0, 2]))
     trs2 = write_gray_tr({'ws': [w*7], 'text': ['基本病史'], 'fill': gray, 'weight': 1, 'jc': 'left'})
     for item33 in items3:
@@ -345,6 +342,7 @@ def write_dignosis(diagnosis):
     index_no = diagnosis.get('index_no')
     time_info = times[index_no]
     cn = time_info.get('cn')
+    print cn
     paras += write_title('中医信息采集（%s）' % cn )
     template_info = diagnosis.get('template_info')
     treatment_time = diagnosis.get('treatment_time')
@@ -354,11 +352,15 @@ def write_dignosis(diagnosis):
     for template_i in template_info[1:]:
         for block in template_i:
             # [u'block_id', u'items', u'labelCol', u'input_items', u'entry_name', u'text']
-            items = block.get('items')
-            entry_name = block.get('entry_name')
+            items = block.get('items_info')
+            block_name = block.get('block_name')
+            display_control = block.get('display_control') or {}
+            block.update(display_control)
             if len(items) > 0:
-                paras += write_title(entry_name)
+                paras += write_title(block_name)
                 for item in items:
+                    display_control1 = block.get('display_control') or {}
+                    item.update(display_control1)
                     item2 = write_item(item)
                     paras += item2.get('para')
                     imgs += item2.get('imgs')
@@ -374,6 +376,7 @@ def write_dignosis(diagnosis):
 def write_item(item):
     tag = item.get('tag')
     value = item.get('value')
+
     ind = item.get('ind') or [0, 0]
     imgs = []
     files = []
