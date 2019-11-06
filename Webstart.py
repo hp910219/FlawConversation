@@ -3,9 +3,10 @@
 import os
 import traceback
 
-from flask import jsonify, request, render_template, redirect, send_from_directory
+from flask import jsonify, request, render_template, send_from_directory
 from config import read_conf
-from jy_word.web_tool import send_msg_by_dd, get_host, format_time
+from jy_word.web_tool import send_msg_by_dd, format_time
+from jy_word.File import File
 
 from create_app import create_app, sort_request1
 from create_auth_code import create_strs, my_file, auth_code_path
@@ -18,12 +19,18 @@ restart_time = format_time(frm='%Y%m%d%H%M%S')
 
 @app.route('/')
 def hello_world():
-    return render_template('index.html', restart_time=restart_time)
+    conf = read_conf()
+    system_name = conf.get('system_name')
+    print 'system_name', system_name, conf
+    return render_template('index.html', restart_time=restart_time, system_name=system_name, conf=conf)
 
 
 @app.errorhandler(404)
 def page_not_found(e):
-    return render_template('index.html', restart_time=restart_time)
+    conf = read_conf()
+    system_name = conf.get('system_name')
+    # print 'system_name', system_name
+    return render_template('index.html', restart_time=restart_time, system_name=system_name, conf=conf)
 
 
 @app.route("/tcm/api/", methods=["GET", "POST", "PUT", "DELETE"])
@@ -140,9 +147,40 @@ def auth_code_crud():
     return jsonify(f_item)
 
 
+@app.route('/tcm/file/', methods=['POST'])
+def get_file():
+    rq = request.json
+    pre = rq.get('query_path') or ''
+    postfix = rq.get('postfix') or []
+    root_path = rq.get('root_path') or ''
+    conf = read_conf()
+    if isinstance(conf, str):
+        return conf
+    print conf
+    JINGD_DATA_ROOT = conf.get('jingd_data_root')
+    path = os.path.join(JINGD_DATA_ROOT, root_path, pre)
+    if os.path.exists(path) is False:
+        return 'Path not exists, %s' % path
+    file2 = File(path)
+    data = file2.get_file_list('s', '', postfix=postfix)
+    data['data']['data_root'] = JINGD_DATA_ROOT
+    data['data']['sep'] = os.path.sep
+    return jsonify(data)
+
+
 if __name__ == '__main__':
-    port = 9002
+    port = 9003
+    from jy_word.web_tool import get_host
     host_info = get_host(port)
     text = '/detection/admin/'
     '98a749a93a86d15af5b9634c2db53f71'
-    app.run(host=host_info.get('ip'), port=port)
+    host_ip= host_info.get('ip')
+    from jy_word.web_tool import killport
+    # killport(9005)
+    killport(port)
+    # host_ip = '192.168.105.66'
+    src = r'D:\pythonproject\TCM3\dist\umi.js'
+    des = r'D:\pythonproject\TCMWeb\static\umi.js'
+    import shutil
+    shutil.copy(src, des)
+    app.run(host=host_ip, port=port)
