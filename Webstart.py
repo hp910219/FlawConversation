@@ -157,7 +157,7 @@ def get_file():
     if isinstance(conf, str):
         return conf
     print conf
-    JINGD_DATA_ROOT = conf.get('jingd_data_root')
+    JINGD_DATA_ROOT = os.environ.get('JINGD_DATA_ROOT') or conf.get('jingd_data_root')
     path = os.path.join(JINGD_DATA_ROOT, root_path, pre)
     if os.path.exists(path) is False:
         return 'Path not exists, %s' % path
