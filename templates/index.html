@@ -7,6 +7,9 @@
     <script>
         window.routerBase = "/";
         sessionStorage.setItem('hostname', location.hostname);
+        var system_name = '{{ system_name }}';
+        var system_conf = {{ conf|tojson }};
+        console.log('system_conf', system_conf);
     </script>
 </head>
 <body>
