@@ -21,7 +21,6 @@ restart_time = format_time(frm='%Y%m%d%H%M%S')
 def hello_world():
     conf = read_conf()
     system_name = conf.get('system_name')
-    print 'system_name', system_name, conf
     return render_template('index.html', restart_time=restart_time, system_name=system_name, conf=conf)
 
 
