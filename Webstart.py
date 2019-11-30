@@ -11,6 +11,7 @@ from jy_word.File import File
 from create_app import create_app, sort_request1
 from create_auth_code import create_strs, my_file, auth_code_path
 from views.generate_report import generate_word
+from views.tumor.report_panel import down_panel
 
 
 app = create_app()
@@ -84,7 +85,6 @@ def auth_down_report():
             sample_detail = res.get('data')
             if sample_detail is not None:
                 patient_no = sample_detail.get('patient_no')
-                template = sample_detail.get('template')
                 res_patient = sort_request1('GET', '/api/v2/patient/detail/%s/' % patient_no)
                 if res_patient is not None:
                     patient_detail = res_patient.get('data')
@@ -99,6 +99,38 @@ def auth_down_report():
         })
         return jsonify({'file_path': file_path})
     except:
+        send_msg_by_dd(traceback.format_exc())
+        return '发生故障，已通知管理员，请稍后...'
+
+
+@app.route("/tumor/download/report/", methods=["POST"])
+def tumor_download_panel():
+    # file_path = 'sss'
+    rq = request.json
+    sample_detail, variant_list, overview, item_name = {}, [], {}, ''
+    if rq is not None:
+        sample_no = rq.get('sample_no')
+        item_name = rq.get('item_name')
+        res = sort_request1('GET', '/api/v2/sample/report/%s/' % sample_no)
+        if res is not None:
+            sample_detail = res.get('data') or {}
+        res2 = sort_request1('GET', '/api/v2/tumor/variants/?sample_no=%s' % sample_no)
+        if res2 is not None:
+            variant_list = res2.get('data') or []
+            variant_list = variant_list[:2]
+        res3 = sort_request1('GET', '/api/v2/tumor/overview/?sample_no=%s' % sample_no)
+        if res3 is not None:
+            overview = res3.get('data') or {}
+    try:
+        file_path = down_panel({
+            'item_name': item_name,
+            'overview': overview,
+            'sample_detail': sample_detail,
+            'variant_list': variant_list
+        })
+        return jsonify({'file_path': file_path})
+    except:
+        traceback.print_exc()
         send_msg_by_dd(traceback.format_exc())
         return '发生故障，已通知管理员，请稍后...'
 
