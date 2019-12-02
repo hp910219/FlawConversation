@@ -225,7 +225,8 @@ def write_tc_panel(item):
         tc.set(
             w, tcBorders=border,
             fill=fill, gridSpan=item.get('gridSpan') or 1,
-            vMerge=item.get('vMerge') or ''
+            vMerge=item.get('vMerge') or '',
+            color=item.get('bdColor') or ''
         )
     )
 
@@ -288,6 +289,76 @@ def write_abstract_drug(data):
             })
         trs += tr.write(tcs)
     return table.write(trs)
+
+
+def write_result_drug(data1, data2):
+    items = [
+        {'text': '药物敏感性', 'w': 1500, 'key': 'gene'},
+        {'text': '药物名称', 'w': 1300, 'key': 'drug_name'},
+        {'text': '用药解析', 'w': 6800, 'key': 'drug_description'},
+    ]
+    trs = ''
+    tcs = ''
+    for tc_item in items:
+        tc_item['fill'] = green_bg
+        tcs += write_tc_panel(tc_item)
+    trs += tr.write(tcs)
+    datas = [{'title': '潜在获益药物', 'data': data1}, {'title': '潜在耐药药物', 'data': data2}]
+    for data11 in datas:
+        data = data11.get('data')
+        mingan = data11.get('title')
+        if len(data) == 0:
+            data = [{}]
+        for d_index, d_item in enumerate(data):
+            tcs = ''
+            for tc_index, tc_item1 in enumerate(items):
+                key = tc_item1['key']
+                vMerge = ''
+                text = d_item.get(key) or '/'
+                if tc_index == 0 and len(data) > 1:
+                    if d_index == 0:
+                        vMerge = '<w:vMerge w:val="restart"/>'
+                        text = mingan
+                    else:
+                        vMerge = '<w:vMerge/>'
+                        text = ''
+                tcs += write_tc_panel({
+                    'text': text,
+                    'w': tc_item1.get('w'),
+                    'weight': 0,
+                    'vMerge': vMerge,
+                    'bdColor': green
+                })
+            trs += tr.write(tcs)
+    return table.write(trs, tblBorders=[])
+
+
+def write_result_drug_description(title, data, items):
+    trs = ''
+    tcs = ''
+    for tc_item in items:
+        tc_item['fill'] = green_bg
+        tcs += write_tc_panel(tc_item)
+    trs += tr.write(tcs)
+    # datas = [{'title': '潜在获益药物', 'data': data1}, {'title': '潜在耐药药物', 'data': data2}]
+    # for data11 in datas:
+    #     data = data11.get('data')
+    if len(data) == 0:
+        data = [{}]
+    for d_index, d_item in enumerate(data):
+        tcs = ''
+        for tc_index, tc_item1 in enumerate(items):
+            key = tc_item1['key']
+            text = d_item.get(key) or '/'
+            tcs += write_tc_panel({
+                'text': text,
+                'w': tc_item1.get('w'),
+                'weight': 0,
+                'vMerge': '',
+                'bdColor': green
+            })
+        trs += tr.write(tcs)
+    return h4_panel(title) + table.write(trs, tblBorders=[])
 
 
 def write_abstract_gene(data):
@@ -353,54 +424,218 @@ def write_result1(report_data, cat):
             p_set,
             r_panel.text('基因描述：', size, 1) + r_panel.text(report_item.get(u'cn_intro'))
         )
-    paras += h4_panel(u'潜在获益药物')
-    # vmerge1 = '<w:vMerge w:val="restart"/>' if i == 0 and d == 0 else '<w:vMerge/>'
-    paras += write_abstract_drug(report_data)
-    paras += h4_panel(u'潜在耐药药物')
-    paras += write_abstract_drug([])
-    paras += h4_panel(u'本癌种FDA获批/NCCN指南推荐的靶药基因检出情况')
-    paras += write_abstract_gene(report_data)
+    paras += write_result_drug(report_data, [])
+    paras += p.write(r_panel.text('说明：PMID为PubMed数据库中收录文献的编号，PubMed数据库由美国国家医学图书馆(NLM)所属的国家生物技术信息中心(NCBI)开发，是使用最为广泛的医学文献数据库之一。', '小五'))
+    paras += write_result_drug_description('潜在获益药物说明', report_data, [
+        {'text': '药物名称', 'w': 1300, 'key': 'drug_name'},
+        {'text': '商品名', 'w': 1300, 'key': 'drug_name'},
+        {'text': '药物类型', 'w': 1300, 'key': 'drug_name'},
+        {'text': '审批状态', 'w': 800, 'key': 'drug_name'},
+        {'text': '药物说明', 'w': 4900, 'key': 'drug_description'},
+    ])
     paras += p.write()
-    shuoming = '''说明：
-    1）基因变异命名规则依据人类基因组变异学会（HGVS）建立的基因变异命名方法。
-    2）突变比例：在该位点所有的等位基因中，突变等位基因的占比。 '''
-    for s in shuoming.split('\n'):
-        paras += p.write(para_setting(line=16, rule='exact'), r_panel.text(s, '小五'))
+    paras += write_result_drug_description('相关临床研究', report_data, [
+        {'text': '基因', 'w': 1300, 'key': 'drug_name'},
+        {'text': '入组标准', 'w': 1500, 'key': 'drug_name'},
+        {'text': '适应症', 'w': 1500, 'key': 'drug_name'},
+        {'text': '临床研究\n编号', 'w': 1600, 'key': 'drug_name'},
+        {'text': '临床研究\n分期', 'w': 1600, 'key': 'drug_description'},
+        {'text': '描述', 'w': 2100, 'key': 'drug_description'},
+    ])
+    paras += p.write()
+    paras += write_result_drug_description('检出变异总表', report_data, [
+        {'text': '基因', 'w': 1300, 'key': 'drug_name'},
+        {'text': '转录本编号', 'w': 1600, 'key': 'drug_name'},
+        {'text': '核苷酸\n变化', 'w': 1300, 'key': 'drug_name'},
+        {'text': '氨基酸\n变化', 'w': 1300, 'key': 'drug_name'},
+        {'text': '外显子\n位置', 'w': 1000, 'key': 'drug_description'},
+        {'text': '变异类型', 'w': 1500, 'key': 'drug_description'},
+        {'text': '突变比例/\n拷贝数', 'w': 1600, 'key': 'drug_description'},
+    ])
+    paras += p.write()
+    return paras
+
+
+def write_result_TMB(report_data):
+    paras = ''
+    p_set1 = para_setting(numId=11, pStyle='a5')
+    paras += p.write(p_set1, r_panel.text('肿瘤突变负荷（TMB）评估', '小四', weight=1, color=green))
+    p_set = para_setting(line=12, rule='auto')
+    items = [
+        {'label': '突变负荷（TMB; Non-synonymous Mutations per Mb）：', 'result': '1.77'},
+        {'label': '突变负荷在该癌种患者人群中的Percentile Rank：', 'result': '10.25%'},
+        {'label': '免疫检查点抑制剂疗效评估：', 'result': '该患者的肿瘤突变负荷程度低于该癌种人群肿瘤突变负荷的平均水平，因此，该患者可能对免疫治疗的应答偏低。'}
+    ]
+    for item in items:
+        run = r_panel.text(item.get('label'), normal_size)
+        run += r_panel.text(item.get('result'), normal_size, 1, color=green)
+        paras += p.write(p_set, run)
+    paras += p.write(para_setting(spacing=[0, 16]), r_panel.picture(12.73, rId='tmb', align=['center', '']))
+    paras += p.write(para_setting(spacing=[1, 0.5], line=16, rule='exact'), r_panel.text('临床意义', '小四', 1))
+    text = '''肿瘤突变负荷（Tumor Mutation Burden，TMB）通常定义为每个癌症病人全外显子测序或靶向测序每百万碱基（Mb）的非同义突变或所有体细胞突变数目。根据科研报道及本实验室数据统计，高TMB阈值为＞10.4Muts/Mb。
+    既往研究表明肿瘤突变负荷TMB可用于定量估计肿瘤基因组编码区的突变总数，不同癌症类型具有不同的肿瘤突变负荷水平。研究表明具有较高水平TMB的肿瘤细胞更容易被免疫系统识别，同时在多项临床研究中已证实对免疫检查点抑制剂如纳武利尤单抗、帕博利珠单抗、Ipilimumab等有更强的免疫应答效果。
+    在一项对100，000个人类癌症基因组的分析中揭示了肿瘤突变负荷（TMB）的情况。描述了TMB在100，000个癌症病例的多样化队列中的分布，并测试了100多种肿瘤类型中体细胞改变与TMB之间的关联。发现一部分患者在几乎所有类型的癌症中（肺癌、肾癌、皮肤癌等）都表现出高TMB，包括许多罕见的肿瘤类型[PMID: 28420421]。
+    一项基于Foundation one CDx的研究结果于2018年ASCO会议发布，表明在多种实体瘤包括非小细胞肺癌、尿路上皮癌中TMB值大于16 Muts/Mb的患者对阿特珠单抗表现出较高的敏感性[2018 ASCO Abstract No:12000]。
+    临床三期研究表明，纳武利尤单抗（Nivolumab）联合依匹单抗（Ipilimumab）用于一线治疗TMB高于10 Muts/Mb的晚期非小细胞肺癌明显优于双铂化疗，1年的无进展生存期为43% vs 13%，中位无进展生存期为7.2 vs 5.5个月[PMID: 29658845; NCT02477826; 2018 ASCO Abstract No:9020]；基于上述研究结果，2018年6月FDA接受纳武利尤单抗联合Ipilimumab用于TMB高于10 Muts/Mb的晚期非小细胞肺癌的一线治疗的新药申请。
+    '''
+    for t in text.split('\n'):
+        paras += p.write(para_setting(spacing=[0, 0.5], line=16, rule='exact', ind=['firstLine', 2]), r_panel.text(t, 11))
+    paras += p_sect_normal
+
+    paras += p.write(p_set1, r_panel.text('错配修复基因缺陷(dMMR)检测', '小四', weight=1, color=green))
+
+    return paras
+
+
+
+def write_result_dMMR(report_data):
+    paras = ''
+    p_set1 = para_setting(numId=11, pStyle='a5')
+    paras += p.write(p_set1, r_panel.text('错配修复基因缺陷(dMMR)检测', '小四', weight=1, color=green))
+    p_set = para_setting(line=12, rule='auto')
+    genes = ['POLE', 'MLH1', 'MSH2', 'MSH6', 'PMS2']
+    items = []
+    for gene in genes:
+        item2 = filter(lambda x: x['gene'] == gene, report_data)
+        col2 = '未检测到相关基因突变'
+        col3 = '/'
+        col4 = '/'
+        if len(item2) > 0:
+            col2 = '检测到突变'
+            col3 = '???'
+            col4 = '???'
+        items.append({'gene': gene, 'col2': col2, 'col3': col3, 'col4': col4})
+    paras += write_result_drug_description('', items, [
+        {'text': '基因', 'w': 2000, 'key': 'gene'},
+        {'text': '突变', 'w': 2800, 'key': 'col2'},
+        {'text': '突变频率', 'w': 2400, 'key': 'col3'},
+        {'text': '突变类型', 'w': 2400, 'key': 'col4'},
+    ])
+    paras += p.write(para_setting(spacing=[1, 0.5], line=16, rule='exact'), r_panel.text('临床意义', '小四', 1))
+    text = '''在一项对结直肠癌患者的研究中发现，POLE胚系突变可导致林奇综合征相关表型，且在MMR相关基因IHC阴性的肿瘤组织中检测到高微卫星不稳定性MSI-H[PubMed: 25370038]。而POLE体细胞突变在微卫星稳定和不稳定的肿瘤组织中均被发现过 [PMID: 21157497，PMID: 24209623] 。
+    MLH1、MSH2、MSH6和PMS2等错配修复基因的失活突变可造成错配修复缺陷（dMMR），导致微卫星高度不稳定（MSI-H）。MLH1、MSH2、MSH6和PMS2胚系突变常导致林奇综合征，结直肠癌、胃癌、子宫内膜癌等多种癌症的风险增高。同时，多项回顾性研究表明，MMR基因的体细胞突变同样可以造成dMMR/MSI-H，与散发性结直肠癌和子宫内膜癌发生相关 [PMID: 24333619; 25194673]。
+    一项2期临床试验表明，帕博利珠单抗用于携带dMMR的结直肠癌患者的客观缓解率（ORR）为40%，用于不携带dMMR的结直肠癌患者的ORR为0% [PMID: 26028255]。另一项2期临床试验表明，纳武利尤单抗用于携带dMMR的结直肠癌患者的中位无进展生存期优于不携带dMMR的患者（5.3月 vs 1.4月）[2016 ASCO: Abstract #3501]。基于上述研究，《NCCN临床实践指南：结肠癌》（2018. V2）推荐帕博利珠单抗和纳武利尤单抗用于携带dMMR/MSI-H的结直肠癌患者。
+    一项临床研究表明，帕博利珠单抗用于dMMR/MSI-H的结直肠癌患者的客观缓解率（ORR）为36%，非结直肠癌患者的ORR为46%。基于该研究，FDA已批准帕博利珠单抗用于dMMR/MSI-H的治疗进展后没有合适的替代治疗方案的儿童或者成年实体瘤患者的治疗；或者氟尿嘧啶、奥沙利铂和伊立替康治疗后进展的结直肠癌患者的治疗。
+    CheckMate 142的临床研究结果显示，纳武利尤单抗用于dMMR/MSI-H的结直肠癌患者的ORR为28%，包括1例完全缓解和14例部分缓解 [PMID: 28734759]。基于该研究，FDA已批准纳武利尤单抗用于dMMR/ MSI-H的氟尿嘧啶、奥沙利铂和伊立替康为基础治疗进展后的成人和儿童（12岁及以上）的晚期结直肠癌患者。
+    '''
+    for t in text.split('\n'):
+        paras += p.write(para_setting(spacing=[0, 0.3], line=16, rule='exact', ind=['firstLine', 2]), r_panel.text(t, 11))
+    paras += p_sect_normal
+    return paras
+
+
+def write_result_MSI(report_data):
+    paras = ''
+    p_set1 = para_setting(numId=11, pStyle='a5')
+    paras += p.write(p_set1, r_panel.text('微卫星不稳定(MSI)数目', '小四', weight=1, color=green))
+    items = [{'num': 105, 'col2': 0.11, 'col3': '0.4', 'col4': 'MSS'}]
+    paras += write_result_drug_description('', items, [
+        {'text': '检测微卫星数目', 'w': 2000, 'key': 'num'},
+        {'text': '微卫星不稳定分值', 'w': 2400, 'key': 'col2'},
+        {'text': '参考阈值', 'w': 2000, 'key': 'col3'},
+        {'text': '微卫星不稳定性评级', 'w': 2800, 'key': 'col4'},
+    ])
+    paras += p.write(para_setting(spacing=[0, 16]), r_panel.picture(12.73, rId='tmb', align=['center', '']))
+    paras += p.write(para_setting(spacing=[1, 0.5], line=16, rule='exact'), r_panel.text('临床意义', '小四', 1))
+    text = '''微卫星是指分布在人类基因组里的简单重复序列，又被称作短串连重复 （Short Tandem Repeats， STRs） 或简单重复序列 （Simple Sequence Repeat， SSRs）， 是均匀分布于真核生物基因组中的简单重复序列，由2～6个核苷酸的串联重复片段构成，由于重复单位的重复次数在个体间呈高度变异性并且数量丰富，因此微卫星的应用非常广泛。
+    MSI是指与正常组织相比，在肿瘤中某一微卫星由于重复单位的插入或缺失而造成的微卫星长度的任何改变，出现新的微卫星等位基因现象。其发生机制主要包括DNA多聚酶的滑动导致重复序列中1个或多个碱基的错配和微卫星重组导致碱基对的缺失或插入。
+    在2015年ASCO年会上，来自约翰霍普金斯医院的Le， et al，报道了基于MMR状态指导下的抗PD-1免疫治疗在晚期癌症中的价值。该研究共入组了32例经目前所有标准治疗均失败的晚期CRC患者，包括11例dMMR和21例pMMR，所有人均接受抗PD-1单抗Pembrolizumab（10mg/kg， Q2W）治疗。结果显示，dMMR组和pMMR组的ORR分别为40%和0%，而两组的DCR分别为90%和11%，均具有显著差异；dMMR组的中位PFS和OS均未达到，而pMMR组的中位PFS和OS分别为2.2月（HR， 0.103; 95%CI， 0.029-0.373， p<0.001）和5.0月（HR， 0.216; 95%CI， 0.047-1.1， p=0.02）。因此，研究者认为，对于经目前所有标准治疗均失败、且为dMMR的晚期CRC患者，可给予抗PD-1单抗Pembrolizumab治疗。
+    目前FDA批准Pembrolizumab用于dMMR/MSI-H型的转移性实体瘤，Nivolumab用于dMMR/MSI-H的转移性结直肠癌。Science发表了NCT01876511的临床研究结果显示，Pembrolizumab用于治疗MSI-H的晚期肿瘤患者，MSI-H型肿瘤患者ORR高达54%。
+    '''
+    for t in text.split('\n'):
+        paras += p.write(para_setting(spacing=[0, 0.3], line=16, rule='exact', ind=['firstLine', 2]), r_panel.text(t, 11))
+    paras += p_sect_normal
+    return paras
+
+
+def write_result_kangyuan(report_data):
+    paras = ''
+    p_set1 = para_setting(numId=11, pStyle='a5')
+    paras += p.write(p_set1, r_panel.text('抗原加工复合缺陷检测', '小四', weight=1, color=green))
+    genes = ['ERAP1', 'TAPA', 'TAP2']
+    items = []
+    for gene in genes:
+        item2 = filter(lambda x: x['gene'] == gene, report_data)
+        col2 = '未检测到相关基因突变'
+        col3 = '/'
+        col4 = '/'
+        if len(item2) > 0:
+            col2 = '检测到突变'
+            col3 = '???'
+            col4 = '???'
+        items.append({'gene': gene, 'col2': col2, 'col3': col3, 'col4': col4})
+    paras += write_result_drug_description('', items, [
+        {'text': '基因', 'w': 2000, 'key': 'gene'},
+        {'text': '突变', 'w': 2800, 'key': 'col2'},
+        {'text': 'DNA频率', 'w': 2400, 'key': 'col3'},
+        {'text': '突变类型', 'w': 2400, 'key': 'col4'},
+    ])
+    paras += p.write(para_setting(spacing=[1, 0.5], line=16, rule='exact'), r_panel.text('基因简介', '小四', 1))
+    items2 = [
+        {'gene': 'ERAP1', 'description': '内质网氨基肽酶1（endoplasmic reticulum aminopeptidase 1，ERAP1）是氨基肽酶M1家族中的一个多功能酶，是抗原递呈不可或缺的重要分子基础，在抗原肽的加工处理、提呈中发挥重要作用，ERAP1的突变会影响抗原的加工。如果ERAP发生突变，尤其是会严重影响蛋白质编码的无义突变和移码突变，将会影响肿瘤新生抗原（Neoantigen）的加工处理，从而降低抗原肽的免疫原性及蛋白酶体剪切。'},
+        {'gene': 'TAP1/2', 'description': '抗原处理相关转运体蛋白 （transporter associated with antigen processing， TAP）在内源性抗原提呈过程中有重要作用，负责内源性抗原从胞浆到内质网 （ER） 腔的转运。TAP异二聚体由TAP1和TAP2蛋白组成，每个亚基各有一个核酸结合区（NBD）和一个跨膜区（TMD），TAP1和TAP2的突变会影响抗原的呈递。如果TAP1及TAP2基因发生突变，会影响肿瘤新生抗原的转运及MHC亲和力的改变。'}
+    ]
+    for item2 in items2:
+        paras += p.write(para_setting(line=16, rule='exact'), r_panel.text(item2.get('gene'), 11, 1))
+        paras += p.write(para_setting(line=16, rule='exact', spacing=[0, 1]), r_panel.text(item2.get('description'), 11))
+    paras += p.write(para_setting(spacing=[1, 0.5], line=16, rule='exact'), r_panel.text('临床意义', '小四', 1))
+    text = '''作为MHC-I类抗原呈递通路基因的一部分，抗原加工相关转运体（transporter associated with antigen presentation）TAP1和TAP2能够将抗原肽从细胞质转运到内质网。研究表明，TAP1和TAP2基因多态性可能会改变其分子结构，进而改变其功能，最终影响抗原呈递过程。这种抗原加工呈递过程发生缺陷将会导致肿瘤特异性CTL对肿瘤细胞的识别度下降，从而使肿瘤细胞产生免疫逃逸，而导致原发性/继发性的免疫治疗耐药[PMID: 23852952]。
+    肿瘤抗原的表达依赖于抗原加工递呈 （antigen processing machinery，APM）的参与。TAP有研究表明，肿瘤细胞通过下调HLA和（或）APM 的表达从而降低肿瘤抗原表达，而这一现象在头颈部鳞癌HNSCC中十分普遍。Ferris等研究发现，超过50%的HNSCC的HLA低表达，这些患者往往具有广泛的淋巴结转移且不良预后。
+    '''
+    for t in text.split('\n'):
+        paras += p.write(para_setting(spacing=[0, 0], line=16, rule='exact', ind=['firstLine', 2]), r_panel.text(t, 11))
+    paras += p_sect_normal
+    return paras
+
+
+def write_result_risk(report_data):
+    paras = ''
+    p_set1 = para_setting(numId=11, pStyle='a5')
+    paras += p.write(p_set1, r_panel.text('免疫检测点抑制剂使用风险检测', '小四', weight=1, color=green))
+    genes = ['DNMT3A', 'EGFR', 'MDM2', 'MDM4', 'ALK', 'JAK1', 'JAK2', 'B2M', 'PTEN', 'STK11']
+    items = []
+    for gene in genes:
+        item2 = filter(lambda x: x['gene'] == gene, report_data)
+        col2 = '未检测到相关基因突变'
+        col3 = '/'
+        col4 = '/'
+        if len(item2) > 0:
+            col2 = '检测到突变'
+            col3 = '???'
+            col4 = '???'
+        items.append({'gene': gene, 'col2': col2, 'col3': col3, 'col4': col4})
+    paras += write_result_drug_description('', items, [
+        {'text': '基因', 'w': 2000, 'key': 'gene'},
+        {'text': '检测结果', 'w': 2800, 'key': 'col2'},
+        {'text': '突变频率/拷贝数', 'w': 2400, 'key': 'col3'},
+        {'text': '突变类型', 'w': 2400, 'key': 'col4'},
+    ])
+    paras += p.write(para_setting(spacing=[1, 0.5], line=16, rule='exact'), r_panel.text('临床意义', '小四', 1))
+    text = ''' NCCN指南推荐（2019.V1）PD-L1≥50%且EGFR、ALK阴性的晚期NSCLC患者，免疫用药帕博利珠单抗作为首选，免疫治疗联合化疗作为一线用药。
+    FDA批准帕博利珠单抗联合培美曲塞和铂作为EGFR阴性和ALK阴性的转移性，非鳞状非小细胞肺癌（NSqNSCLC）患者的一线治疗。
+    CFDA批准纳武利尤单抗治疗EGFR阴性和ALK阴性的既往接受过含铂方案化疗方案后疾病进展或不可耐受的局部晚期或转移性非小细胞肺癌成年患者。
+    有临床研究表明，在155名患者中，在所有6名携带MDM2 / MDM4扩增的个体中都观察到TTF（治疗失败）<2个月。在抗PD-1 PD-L1 PD-1 / PD-L1单药治疗后，其中4名患者的现有肿瘤大小显著增加（55％至258％），新的大肿块显著加快了进展速度（与免疫治疗前2个月相比呈2.3-，7.1-，7.2-和42.3-倍）。在多变量分析中，MDM2 / MDM4和EGFR改变与TTF <2个月相关。 10例EGFR改变患者中有2例也是过度进展者（肿瘤大小增加53.6％和125％;增加35.7-和41.7-倍）。[PMID: 28351930]。
+    DNMT3A是一种存在于人体内的蛋白酶，可以使去甲基化的CpG位点重新甲基化，即参与DNA的从头甲基化。有研究表明在黑色素瘤中DNA甲基化会影响到PD-L1的表达，因此黑素瘤能够逃避抗肿瘤免疫反应[PMID: 30240750]。
+    CheckMate 142研究表明在非小细胞肺癌中，携带EGFR驱动基因突变的患者，对PD-1/PD –L1免疫检查点抑制剂的客观反应率（ORR）要低于未突变患者（3.6% vs. 23.3%）[PMID: 27225694; 26645196]。
+    一项药物临床前动物实验显示，携带PTEN缺失突变黑色素瘤小鼠会抑制T细胞杀死肿瘤细胞使肿瘤细胞进行免疫逃逸。在患者中，PTEN缺失突变会导致黑色素瘤患者肿瘤部位的肿瘤浸润性淋巴细胞减少，可能会降低PD-L1免疫治疗应答。[PMID: 26645196]。
+    一项药物临床前研究显示，携带JAK1/JAK2功能性缺失突变会影响抗原递呈基因B2M的功能下调，从而可能会降低PD-L1免疫治疗的应答率，并且在该研究中3名黑色素瘤患者均在接受免疫治疗后肿瘤复发[PMID: 27433843]。
+    在一项药物临床研究中，研究者使用PD-1/PD-L1抑制剂对165个非小细胞肺癌患者进行了治疗，结果显示携带有STK11和KRAS双突变的患者较野生型患者接受治疗的效果较差，两者的mOS分别是15.6个月和6.4个月[DOI: 10.1200/JCO.2017.35.15_suppl.9016]
+    '''
+    for t in text.split('\n'):
+        paras += p.write(para_setting(spacing=[0, 0], line=16, rule='exact', ind=['firstLine', 2]), r_panel.text(t, 11))
+    paras += p_sect_normal
     return paras
 
 
 def write_result2(report_data, cat):
     paras = ''
     paras += h2_panel(cat.get('title'), cat.get('bm'))
-    size = 10
-    p_set = para_setting(spacing=[0, 1.5], line=16, rule='exact')
-    for report_item in report_data:
-        paras += p.write(
-            para_setting(spacing=[0, 1], line=12, rule='auto'),
-            r_panel.text('{gene} {amino_acid_change};'.format(**report_item), size, 1)
-        )
-        run1 = r_panel.text('变异解析：', size, 1)
-        if 'drug' not in report_item:
-            report_item['drug'] = '（？？？）'
-        run1 += r_panel.text('患者样本中检出的{gene} {amino_acid_change}为{effect}，该突变位于{gene}基因的第{exon_number}号外显子，导致该基因编码的蛋白序列的第858（？？？）位氨基酸由亮氨酸（？？？）替换为精氨酸（？？？）。该突变是{gene}基因{exon_number}号外显子常见敏感突变（？？？）。在{diagnosis}患者中，携带{gene}敏感（？？？）突变的患者可获益于{drug}等{gene}酪氨酸激酶抑制剂。'.format(**report_item))
-        paras += p.write(p_set, run1)
-        paras += p.write(
-            p_set,
-            r_panel.text('基因描述：', size, 1) + r_panel.text(report_item.get(u'cn_intro'))
-        )
-    paras += h4_panel(u'潜在获益药物')
-    # vmerge1 = '<w:vMerge w:val="restart"/>' if i == 0 and d == 0 else '<w:vMerge/>'
-    paras += write_abstract_drug(report_data)
-    paras += h4_panel(u'潜在耐药药物')
-    paras += write_abstract_drug([])
-    paras += h4_panel(u'本癌种FDA获批/NCCN指南推荐的靶药基因检出情况')
-    paras += write_abstract_gene(report_data)
-    paras += p.write()
-    shuoming = '''说明：
-    1）基因变异命名规则依据人类基因组变异学会（HGVS）建立的基因变异命名方法。
-    2）突变比例：在该位点所有的等位基因中，突变等位基因的占比。 '''
-    for s in shuoming.split('\n'):
-        paras += p.write(para_setting(line=16, rule='exact'), r_panel.text(s, '小五'))
+    paras += write_result_TMB(report_data) + p_sect_normal
+    paras += write_result_dMMR(report_data) + p_sect_normal
+    paras += write_result_MSI(report_data) + p_sect_normal
+    paras += write_result_risk(report_data) + p_sect_normal
+    paras += write_result_kangyuan(report_data) + p_sect_normal
+
     return paras
 
 
@@ -451,7 +686,6 @@ def write_abstract1(report_data, cat):
 
 def write_abstract2(report_data, cat):
     paras = ''
-    tip_item = report_data[1]
     paras += h2_panel(cat.get('title'), cat.get('bm'))
     paras += h4_panel(u'免疫检查点抑制剂治疗适用性较差')
     trs = ''
@@ -800,12 +1034,11 @@ def write_abstract(report_data, cats):
     paras = ''
     cat0 = cats[0]
     paras += h1_panel(cat0.get('title'), cat0.get('bm'))
-
-    tip_item = report_data[1]
-    for k in ['gene', 'amino_acid_change', 'drug']:
-        tip_item[k] = tip_item.get(k) or '（？？？）'
-    tip = u'{gene}的{amino_acid_change}突变是对{drug}治疗的强预测指标'.format(**tip_item)
-    paras += p.write(r_panel.text(tip, normal_size))
+    for tip_item in report_data:
+        for k in ['gene', 'amino_acid_change', 'drug']:
+            tip_item[k] = tip_item.get(k) or '（？？？）'
+        tip = u'{gene}的{amino_acid_change}突变是对{drug}治疗的强预测指标'.format(**tip_item)
+        paras += p.write(r_panel.text(tip, normal_size))
 
     paras += write_abstract1(report_data, cats[1]) + p_sect_normal
     paras += write_abstract2(report_data, cats[2]) + p_sect_normal
@@ -1064,8 +1297,8 @@ def sort_panel_data(data):
     rels = ''
     chapters = ''
     patient_detail = data.get('sample_detail') or {}
-    report_data = data.get('variant_list')
-    gene_info = data.get('gene_info')
+    report_data = data.get('variant_list') or []
+    gene_info = data.get('gene_info') or []
     imgs, files = [], []
 
     catelogs = get_catalog()
