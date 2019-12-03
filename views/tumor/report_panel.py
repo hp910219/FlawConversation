@@ -480,19 +480,13 @@ def write_result_TMB(report_data):
     '''
     for t in text.split('\n'):
         paras += p.write(para_setting(spacing=[0, 0.5], line=16, rule='exact', ind=['firstLine', 2]), r_panel.text(t, 11))
-    paras += p_sect_normal
-
-    paras += p.write(p_set1, r_panel.text('错配修复基因缺陷(dMMR)检测', '小四', weight=1, color=green))
-
     return paras
-
 
 
 def write_result_dMMR(report_data):
     paras = ''
     p_set1 = para_setting(numId=11, pStyle='a5')
     paras += p.write(p_set1, r_panel.text('错配修复基因缺陷(dMMR)检测', '小四', weight=1, color=green))
-    p_set = para_setting(line=12, rule='auto')
     genes = ['POLE', 'MLH1', 'MSH2', 'MSH6', 'PMS2']
     items = []
     for gene in genes:
@@ -520,7 +514,6 @@ def write_result_dMMR(report_data):
     '''
     for t in text.split('\n'):
         paras += p.write(para_setting(spacing=[0, 0.3], line=16, rule='exact', ind=['firstLine', 2]), r_panel.text(t, 11))
-    paras += p_sect_normal
     return paras
 
 
@@ -535,16 +528,15 @@ def write_result_MSI(report_data):
         {'text': '参考阈值', 'w': 2000, 'key': 'col3'},
         {'text': '微卫星不稳定性评级', 'w': 2800, 'key': 'col4'},
     ])
-    paras += p.write(para_setting(spacing=[0, 16]), r_panel.picture(12.73, rId='tmb', align=['center', '']))
-    paras += p.write(para_setting(spacing=[1, 0.5], line=16, rule='exact'), r_panel.text('临床意义', '小四', 1))
+    paras += p.write(para_setting(spacing=[0, 16]), r_panel.picture(12.73, rId='msi', align=['center', '']))
+    paras += p.write(para_setting(spacing=[0, 0.5], line=16, rule='exact'), r_panel.text('临床意义', '小四', 1))
     text = '''微卫星是指分布在人类基因组里的简单重复序列，又被称作短串连重复 （Short Tandem Repeats， STRs） 或简单重复序列 （Simple Sequence Repeat， SSRs）， 是均匀分布于真核生物基因组中的简单重复序列，由2～6个核苷酸的串联重复片段构成，由于重复单位的重复次数在个体间呈高度变异性并且数量丰富，因此微卫星的应用非常广泛。
     MSI是指与正常组织相比，在肿瘤中某一微卫星由于重复单位的插入或缺失而造成的微卫星长度的任何改变，出现新的微卫星等位基因现象。其发生机制主要包括DNA多聚酶的滑动导致重复序列中1个或多个碱基的错配和微卫星重组导致碱基对的缺失或插入。
     在2015年ASCO年会上，来自约翰霍普金斯医院的Le， et al，报道了基于MMR状态指导下的抗PD-1免疫治疗在晚期癌症中的价值。该研究共入组了32例经目前所有标准治疗均失败的晚期CRC患者，包括11例dMMR和21例pMMR，所有人均接受抗PD-1单抗Pembrolizumab（10mg/kg， Q2W）治疗。结果显示，dMMR组和pMMR组的ORR分别为40%和0%，而两组的DCR分别为90%和11%，均具有显著差异；dMMR组的中位PFS和OS均未达到，而pMMR组的中位PFS和OS分别为2.2月（HR， 0.103; 95%CI， 0.029-0.373， p<0.001）和5.0月（HR， 0.216; 95%CI， 0.047-1.1， p=0.02）。因此，研究者认为，对于经目前所有标准治疗均失败、且为dMMR的晚期CRC患者，可给予抗PD-1单抗Pembrolizumab治疗。
     目前FDA批准Pembrolizumab用于dMMR/MSI-H型的转移性实体瘤，Nivolumab用于dMMR/MSI-H的转移性结直肠癌。Science发表了NCT01876511的临床研究结果显示，Pembrolizumab用于治疗MSI-H的晚期肿瘤患者，MSI-H型肿瘤患者ORR高达54%。
     '''
     for t in text.split('\n'):
-        paras += p.write(para_setting(spacing=[0, 0.3], line=16, rule='exact', ind=['firstLine', 2]), r_panel.text(t, 11))
-    paras += p_sect_normal
+        paras += p.write(para_setting(spacing=[0, 0.2], line=16, rule='exact', ind=['firstLine', 2]), r_panel.text(t, 11))
     return paras
 
 
@@ -584,7 +576,6 @@ def write_result_kangyuan(report_data):
     '''
     for t in text.split('\n'):
         paras += p.write(para_setting(spacing=[0, 0], line=16, rule='exact', ind=['firstLine', 2]), r_panel.text(t, 11))
-    paras += p_sect_normal
     return paras
 
 
@@ -623,7 +614,79 @@ def write_result_risk(report_data):
     '''
     for t in text.split('\n'):
         paras += p.write(para_setting(spacing=[0, 0], line=16, rule='exact', ind=['firstLine', 2]), r_panel.text(t, 11))
-    paras += p_sect_normal
+    return paras
+
+
+def write_result_HLA(report_data):
+    paras = ''
+    p_set1 = para_setting(numId=11, pStyle='a5')
+    paras += p.write(p_set1, r_panel.text('HLA分型结果', '小四', weight=1, color=green))
+
+    genes = ['HLA-A', 'HLA-B', 'HLA-C']
+    items = []
+    for gene in genes:
+        col2 = gene[-1]
+        col3 = gene[-1]
+        col4 = '纯合型' if col2 == col3 else '杂合型'
+        items.append({'col1': gene, 'col2': col2, 'col3': col3, 'col4': col4})
+    paras += write_result_drug_description('', items, [
+        {'text': 'HLA Class I', 'w': 2000, 'key': 'col1'},
+        {'text': '等位基因1', 'w': 2800, 'key': 'col2'},
+        {'text': '等位基因2', 'w': 2400, 'key': 'col3'},
+        {'text': '基因型', 'w': 2400, 'key': 'col4'},
+    ])
+    paras += p.write(para_setting(spacing=[1, 0.5], line=16, rule='exact'), r_panel.text('临床意义', '小四', 1))
+    text = '''人类的MHC通常被称为HLA （human leucocyte antigen，HLA），即人类白细胞抗原，与人类的免疫系统功能密切相关。MHC基因（MHC gene），呈高度多态性，其编码的分子表达于不同细胞表面，参与抗原提呈，制约细胞间相互识别及诱导免疫应答。HLA的不同分型与新生抗原的处理和呈递相关。
+    HLA I类（HLA Class I）分子突变使细胞质中抗原肽不能呈递给CD8T细胞。临床病例分析表明，膀胱癌，HLA I完全缺失和严重变异与肿瘤复发相关，膀胱癌、非小细胞肺癌、胰腺癌、乳腺癌、胃癌和前列腺癌的HLA I表达缺失越严重，其肿瘤的超进展越高。
+    肿瘤细胞表面上也存在 HLA，参与抗原的处理和呈递。HLA 对 CD8+ T Cell 识别肿瘤细胞必不可少。人体大部分细胞含有两套 HLA 分子编码基因：一套基因遗传自母亲，另一套基因遗传自父亲。有时，基因变化能够导致一套基因全部或部分丢失，称为杂合子缺失（LOH）。当 HLA 位点发生 LOH，有可能促进免疫逃避，从而导致免疫治疗耐药。
+    2017年12月，纪念斯隆-凯特林癌症中心（MSKCC）团队的一项研究发表在《Science》上，该研究分析了1535名接受免疫检查点抑制剂的晚期癌症患者的HLA I基因型，治疗方式包括CTLA-4单抗、PD-1单抗和PD-L1单抗治疗，结果显示，HLA I杂合型相较纯合型接受免疫检查点抑制剂的疗效较好，且杂合型与纯合型的肿瘤突变负荷没有统计学差异[PMID: 29217585]。
+    '''
+    for t in text.split('\n'):
+        paras += p.write(para_setting(spacing=[0, 0.5], line=16, rule='exact', ind=['firstLine', 2]), r_panel.text(t, 11))
+    return paras
+
+
+def write_result_KANGYUAN_NEW(report_data):
+    paras = ''
+    p_set1 = para_setting(numId=11, pStyle='a5')
+    paras += p.write(p_set1, r_panel.text('肿瘤新生抗原', '小四', weight=1, color=green))
+
+    paras += write_result_drug_description('', report_data, [
+        {'text': '识别号', 'w': 1600, 'key': 'col1'},
+        {'text': '序列', 'w': 1600, 'key': 'col2'},
+        {'text': '亲和力', 'w': 1600, 'key': 'col3'},
+        {'text': '剪切效率', 'w': 1600, 'key': 'col4'},
+        {'text': '稳定性排名（%）', 'w': 1800, 'key': 'col4'},
+        {'text': '免疫原性', 'w': 1400, 'key': 'col4'},
+    ])
+    paras += p.write(para_setting(spacing=[1, 0.5], line=16, rule='exact'), r_panel.text('临床意义', '小四', 1))
+    text = '''癌症细胞在基因变异的基础上产生的带有特异性氨基酸序列变异的蛋白被称为“新生抗原”（neoantigen)。癌细胞在发生发展过程中，会产生很多基因突变，而部分基因突变也会产生正常组织、正常细胞所没有的蛋白质，这些蛋白质，很有可能也会激活免疫系统，并引来免疫系统对癌细胞的攻击。这些能激活免疫系统（能被免疫细胞所识别）的、由癌细胞基因突变所产生的异常蛋白质（异常抗原），就是Neoantigen（肿瘤新生抗原）。
+
+    2014年5月，《science》杂志上曾报道过一个利用体外扩增的、能特异性识别癌细胞的淋巴细胞。成功治疗了一例恶性晚期胆管癌患者。该研究团队将所有基因突变导致的异常的蛋白质片段进行人工合成，然后将患者肿瘤组织中分离出来的淋巴细胞，与携带有这些异常蛋白质片段的细胞共培养，并将能识别特定基因突变所产生的异常蛋白质的T淋巴细胞扩增、激活，重新回输到患者体内。第一次回输的细胞里，具有特异性识别能力的细胞大约占25%，细胞回输后，病人的肿瘤明显缩小，并且稳定了大约1年半的时间。该患者的肿瘤再次进展以后，提高回输细胞的纯度。第二次回输的细胞中，95%的细胞都是具有特异性能力的细胞。细胞回输后发现病人身体里全身各处的病灶，再次出现明显的缩小，一段时间后，最终达到了完全缓解，肿瘤完全消失。后靠淋巴细胞回输，就获得了完全缓解，疗效维持了数年，堪称奇迹[PMID: 24812403]。
+    
+    2015年12月，同一研究团队在《science》上发表重磅文章，他们利用类似的方式，检测了10个消化道肿瘤患者的组织，发现其中9个病友，都能找到1-3个以上的、能被自身免疫系统识别的基因突变导致的异常蛋白质。该研究团队甚至在一个肠癌的患者体内，发现著名的KRAS突变也可以成为为neoantigen（KRAS突变是史上最恶性、最难对付的致癌突变）。因此，学术界估计，绝大多数病友的肿瘤，应该都能找到或多或少的neoantigen。一般而言，患者肿瘤组织中基因突变的总数越多（也就是TMB越高），那么他所携带的neoantigen也越多[PMID: 26516200]。
+    
+    2017年7月13日，Nature杂志同一天发布了两项基于neoantigen的个性化肿瘤疫苗治疗恶性黑色素瘤的成功案例。德国的Carmen Loquai教授和Özlem tLoqua教授，利用neoantigen所对应的RNA做疫苗，一共治疗了13例病人。在接种了疫苗后，所有患者体内都产生了针对neoantigen的免疫反应。8位局部晚期接受了手术治疗的病友，其无复发生存时间明显延长，疫苗的注射相当于大幅度推迟乃至预防了肿瘤的复发；另外5位患者为晚期恶性黑色素瘤患者，其中的2位在单独接受疫苗注射后，出现了肿瘤明显缩小，达到了客观有效；另外一位病友接受了疫苗联合PD-1抗体治疗，肿瘤完全缓解[PMID: 28678784]。
+    
+    哈佛大学的Catherine J. Wu教授带领的团队，利用neoantigen所对应的抗原肽做疫苗，也成功报道了治疗恶性黑色素瘤的案例。他们入组了20位局部晚期或者晚期的恶性黑色素瘤患者，在这20位患者中一共找到了97个neoantigen，制备成了个性化肿瘤疫苗，应用给对应的患者。最后一共有6名患者，真正接受了治疗（其他病友拒绝冒险或者由更常规的治疗还可以试一试，没有同意参与这个全新的治疗试验组），4名患者在接受疫苗注射25个月后未出现复发；另外2名出现复发的病友，随后接受了PD-1抗体治疗，均实现了肿瘤完全缓解，并且在他们的身体里检测到了针对neoantigen的特异性免疫细胞。后选择其中2例患者在治疗前后的CT片子，在先后接受neoantigen疫苗和PD-1抗体之后，这两例患者肺部及皮下软组织中的转移灶，均达到了完全缓解，癌细胞不见踪迹[PMID: 28678778]。
+    '''
+    for t in text.split('\n'):
+        paras += p.write(para_setting(spacing=[0, 0], line=16, rule='exact', ind=['firstLine', 2]), r_panel.text(t, 11))
+    return paras
+
+
+def write_result_drug_3(report_data):
+    paras = ''
+    p_set1 = para_setting(numId=11, pStyle='a5')
+    paras += p.write(p_set1, r_panel.text('FDA/CFDA批准的免疫检查点抑制剂药物说明', '小四', weight=1, color=green))
+
+    paras += write_result_drug_description('', report_data, [
+        {'text': '药物名称', 'w': 1600, 'key': 'col1'},
+        {'text': '商品名', 'w': 1300, 'key': 'col2'},
+        {'text': '药物类型', 'w': 1600, 'key': 'col3'},
+        {'text': '审批\n状态', 'w': 1000, 'key': 'col4'},
+        {'text': '药物说明', 'w': 4100, 'key': 'col4'}
+    ])
     return paras
 
 
@@ -635,7 +698,100 @@ def write_result2(report_data, cat):
     paras += write_result_MSI(report_data) + p_sect_normal
     paras += write_result_risk(report_data) + p_sect_normal
     paras += write_result_kangyuan(report_data) + p_sect_normal
+    return paras
 
+
+def write_result3(report_data, cat):
+    paras = ''
+    paras += h2_panel(cat.get('title'), cat.get('bm'))
+    paras += write_result_HLA(report_data) + p_sect_normal
+    paras += write_result_KANGYUAN_NEW(report_data) + p_sect_normal
+    paras += write_result_drug_3(report_data) + p_sect_normal
+    return paras
+
+
+def write_result4(report_data, cat):
+    paras = ''
+    paras += h2_panel(cat.get('title'), cat.get('bm'))
+    paras += p.write(para_setting(line=20, rule='exact', spacing=[0, 1]), r_panel.text('人群基因序列多态性造成相关代谢蛋白功能差异，使化学治疗药物的有效性和毒副作用产生差异，因此进行基因序列多态性检测可以为化疗用药提供参考。患者基因序列多态性信息与化学治疗药物有效性和毒副作用评估如下表所示。'))
+    items = [
+        {
+            'category': '铂类',
+            'drug':  [
+                {
+                    'drug_name': '卡铂',
+                    'genes': [
+                        {'gene': 'MTHFR', 'rs': 'rs1801133', 'genetype': 'AG', 'level': '2A', 'tip': '药效减弱'},
+                    ]
+                },
+                {
+                    'drug_name': '奥沙利铂',
+                    'genes': [
+                        {'gene': 'ERCC1', 'rs': 'rs11615', 'genetype': 'AA', 'level': '2B', 'tip': '毒副作用增加；药效减弱'},
+                        {'gene': 'ERCC1', 'rs': 'rs11615', 'genetype': 'AA', 'level': '2B', 'tip': '毒副作用增加；药效减弱'},
+                        {'gene': 'ERCC1', 'rs': 'rs11615', 'genetype': 'AA', 'level': '2B', 'tip': '毒副作用增加；药效减弱'},
+                    ]
+                },
+                {
+                    'drug_name': '顺铂',
+                    'genes': [
+                        {'gene': 'ERCC1', 'rs': 'rs11615', 'genetype': 'AA', 'level': '2B', 'tip': '毒副作用增加；药效减弱'},
+                        {'gene': 'ERCC1', 'rs': 'rs11615', 'genetype': 'AA', 'level': '2B', 'tip': '毒副作用增加；药效减弱'},
+                        {'gene': 'ERCC1', 'rs': 'rs11615', 'genetype': 'AA', 'level': '2B', 'tip': '毒副作用增加；药效减弱'},
+                        {'gene': 'ERCC1', 'rs': 'rs11615', 'genetype': 'AA', 'level': '2B', 'tip': '毒副作用增加；药效减弱'},
+                        {'gene': 'ERCC1', 'rs': 'rs11615', 'genetype': 'AA', 'level': '2B', 'tip': '毒副作用增加；药效减弱'},
+                        {'gene': 'ERCC1', 'rs': 'rs11615', 'genetype': 'AA', 'level': '2B', 'tip': '毒副作用增加；药效减弱'},
+                    ]
+                },
+            ]
+        }
+    ]
+    thead = [
+        {'key': 'category', 'text': '药物类别', 'w': 1200},
+        {'key': 'drug_name', 'text': '药物名称', 'w': 1200},
+        {'key': 'gene', 'text': '检测基因', 'w': 1400},
+        {'key': 'rs', 'text': '检测位点', 'w': 1400},
+        {'key': 'genetype', 'text': '基因型', 'w': 1400},
+        {'key': 'level', 'text': '证据等级', 'w': 1400},
+        {'key': 'tip', 'text': '用药提示', 'w': 1600}
+    ]
+    trs = ''
+    tcs0 = ''
+    for th in thead:
+        th['fill'] = green_bg
+        tcs0 += write_tc_panel(th)
+    trs += tr.write(tcs0)
+
+    for c_index, item in enumerate(items):
+        category = item.get('category')
+        drug = item.get('drug') or []
+        for d_index, d_item in enumerate(drug):
+            drug_name = d_item.get('drug_name')
+            genes = d_item.get('genes')
+            for g_index, g_item in enumerate(genes):
+                vMerge1 = ''
+                if len(drug) > 1:
+                    vMerge1 = '<w:vMerge w:val="restart"/>' if c_index == 0 and d_index == 0 and g_index == 0 else '<w:vMerge/>'
+                vMerge2 = ''
+                if len(genes) > 1:
+                    vMerge2 = '<w:vMerge w:val="restart"/>' if d_index == 0 and g_index == 0 else '<w:vMerge/>'
+                tcs = ''
+                g_item['category'] = category
+                g_item['drug_name'] = drug_name
+                for th_index, th_item in enumerate(thead):
+                    key = th_item.get('key')
+                    w = th_item.get('w')
+                    vMerge = ''
+                    weight = 0
+                    if th_index == 0:
+                        vMerge = vMerge1
+                        weight = 1
+                    elif th_index == 1:
+                        vMerge = vMerge2
+                    tcs += write_tc_panel({'text': g_item.get(key), 'w': w, 'vMerge': vMerge, 'weight': weight})
+                trs += tr.write(tcs)
+    paras += table.write(trs)
+    paras += p.write(r_panel.text('备注：此处检测结果不具有临床医嘱性质，仅供临床医师参考，不作为直接用药依据。', '小五'))
     return paras
 
 
@@ -1048,14 +1204,14 @@ def write_abstract(report_data, cats):
     return paras
 
 
-def write_result(report_data, gene_info,cats):
+def write_result(report_data, gene_info, cats):
     paras = ''
     cat0 = cats[0]
     paras += h1_panel(cat0.get('title'), cat0.get('bm'))
     paras += write_result1(report_data, cats[1]) + p_sect_normal
     paras += write_result2(report_data, cats[2]) + p_sect_normal
-    paras += write_abstract3(report_data, cats[3]) + p_sect_normal
-    paras += write_abstract4(report_data, cats[4]) + p_sect_normal
+    paras += write_result3(report_data, cats[3]) + p_sect_normal
+    paras += write_result4(report_data, cats[4]) + p_sect_normal
     return paras
 
 
@@ -1273,7 +1429,8 @@ def write_produce(cat0):
         size = 10
         color = 'auto'
         weight = 0
-        wingdings= False
+        wingdings = False
+        t = t.strip()
         if t.startswith(''):
             size = 11
             color = green
