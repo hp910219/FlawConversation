@@ -7,6 +7,7 @@ from flask import jsonify, request, render_template, send_from_directory
 from config import read_conf
 from jy_word.web_tool import send_msg_by_dd, format_time
 from jy_word.File import File
+from jy_word.Word import pic_b64encode
 
 from create_app import create_app, sort_request1
 from create_auth_code import create_strs, my_file, auth_code_path
@@ -196,6 +197,21 @@ def get_file():
     data = file2.get_file_list('s', '', postfix=postfix)
     data['data']['data_root'] = JINGD_DATA_ROOT
     data['data']['sep'] = os.path.sep
+    return jsonify(data)
+
+
+@app.route('/transfer/img/', methods=['POST'])
+def transfer_img():
+    rq = request.json
+    if rq is None:
+        return jsonify({'message': '请求错误'})
+
+    file_path = rq.get('file_path')
+    if file_path is None:
+        return jsonify({'message': 'file_path: %s' % file_path})
+    if os.path.exists(file_path) is False:
+        return jsonify({'message': 'file not exists: %s' % file_path})
+    data = {'img': pic_b64encode(file_path), 'file_path': file_path}
     return jsonify(data)
 
 
