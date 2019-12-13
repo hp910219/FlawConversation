@@ -23,7 +23,7 @@ restart_time = format_time(frm='%Y%m%d%H%M%S')
 def hello_world():
     conf = read_conf()
     system_name = conf.get('system_name')
-    return render_template('kobars/index.html', restart_time=restart_time, system_name=system_name, conf=conf)
+    return render_template('index.html', restart_time=restart_time, system_name=system_name, conf=conf)
 
 
 @app.errorhandler(404)
@@ -320,8 +320,7 @@ if __name__ == '__main__':
     host_ip= host_info.get('ip')
     from jy_word.web_tool import killport
     # killport(9005)
-    killport(port)
-    # host_ip = '192.168.105.66'
+    killport(port)    # host_ip = '192.168.105.66'
     src = r'D:\pythonproject\TCM3\dist\umi.js'
     des = r'D:\pythonproject\TCMWeb\static\umi.js'
     src_kobars = r'D:\pythonproject\KOBARSWeb\dist\umi.js'
