@@ -63,7 +63,10 @@ def sort_request1(method, url, api_service='api', auth=None, data=None, remote_a
             if response.status_code != 200:
                 error_message = "%s %s %d %s\n" % (api_url, "POST", response.status_code, response.text)
             else:
-                response_data = response.json()
+                try:
+                    response_data = response.json()
+                except:
+                    return {'data': response.text}
                 status = response_data.get('status')
         error_message += u'【请求服务】：%s\n' % api_service
         error_message += u'【api】：%s\n' % api_url
