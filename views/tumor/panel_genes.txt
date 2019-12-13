@@ -1,0 +1,280 @@
+BCR-ABL1
+BCR-ABL1是个基因融合的产物，通常由 t(9;22) (q34;q11)易位形成，称为费城染色体（Philadelphia chromosome）1。少数情况下会有 t(9;22)易位缺失，其它易位则形成 BCR-ABL1 基因融合；有时候也有多个染色体易位的情况。
+BCR-ABL1基因融合存在于所有慢性骨髓性白血病，包括小儿急性B淋巴细胞白血病（3-5%）、成人急性B淋巴细胞白血病(25-30%)、急性骨髓性白血病（少见）和T细胞急性淋巴性白血病（少见）2。BCR-ABL1也可见于其它癌症。
+现已针对存在BCR-ABL1基因融合的肿瘤开发出了ABL1激酶的抑制剂（如格列卫，imatinib）作为靶向治疗恶性肿瘤的方案。
+（图片来源：参考文献3）
+参考文献
+1.	Faderl S, et al. The biology of chronic myeloid leukemia. N Engl J Med. 1999, 341(3):164-72.
+2.	De Braekeleer E,et al. ABL1 fusion genes in hematological malignancies: a review. Eur J Haematol. 2011, 86(5):361-71.
+3.	Mitelman F, et al. The impact of translocations and gene fusions on cancer causation. Nat Rev Cancer. 2007, 7(4):233-45.
+AKT1
+AKT1是丝氨酸-苏氨酸蛋白激酶家族的一个成员，该家族也包括AKT2和AKT3。AKT1 在多个细胞生理流程中起关键作用，如生长、增殖、存活和血管形成。AKT1是磷脂酰肌醇3-激酶的下游媒介者（图1）。所有非小细胞肺癌患者（组织学观察为腺癌或鳞状细胞癌）中，1%携带有AKT1基因体细胞突变1，2，3。临床前的体外和体内研究表明，细胞中存在 AKT1 基因突变将导致细胞发生转化4。存在AKT1基因突变的肺癌患者的临床特征还有待详细阐述。绝大多数情况下，AKT1基因突变并不与其它原癌基因突变如EGFR突变、ALK重排等同时出现。
+图示. AKT参与的MAPK和PI3K信号通路。生长因子与酪氨酸激酶受体的结合导致 MAPK (RAS-RAF-MEK-ERK)和 PI3K (PI3K-AKT-mTOR)信号通路的激活。
+参考文献
+1.	Bleeker FE, Felicioni L, Buttitta F, Lamba S, Cardone L, Rodolfo M, Scarpa A, Leenstra S, Frattini M, Barbareschi M, Grammastro MD, Sciarrotta MG, Zanon C, Marchetti A, Bardelli A. AKT1(E17K) in human solid tumours. Oncogene. 2008, 27(42):5648-50.
+2.	Do H, et al. Detection of the transforming AKT1 mutation E17K in non-small cell lung cancer by high resolution melting. BMC Res Notes. 2008, 1:14.
+3.	Malanga D, et al. Activating E17K mutation in the gene encoding the protein kinase AKT1 in a subset of squamous cell carcinoma of the lung. Cell Cycle. 2008, 7(5):665-9.
+4.	Carpten JD, et al. A transforming mutation in the pleckstrin homology domain of AKT1 in cancer. Nature. 2007, 448(7152):439-44.
+ALK
+间变性淋巴瘤激酶(ALK)是一种酪氨酸激酶受体，在多种恶性疾病中常出现异常。如在神经母细胞瘤的一些亚型中，ALK 的激活性错义突变可发现其全基因区域1。相比之下，ALK基因融合则可见于如NPM-ALK形式2，结直肠癌3，炎性肌纤维母细胞瘤4，非小细胞肺癌5和卵巢癌6等多种恶性肿瘤。所有的ALK融合基因均包含了其酪氨酸激酶功能域，且经体外、体内检测具有致癌活性。ALK基因融合和拷贝数增加可见于肾细胞癌 7。ALK拷贝数变异和蛋白表达变化也可见于横纹肌肉瘤中8。不同氨基末端融合子促进了二体化过程，从而具备了激酶活性9。ALK 融合蛋白向下游作用因子的传递导致包括细胞生长和增殖细胞通路的活化（如图所示）。
+参考文献
+1.	Chen Y, et al. Oncogenic mutations of ALK kinase in neuroblastoma. Nature. 2008, 455(7215):971-4.
+2.	Morris SW, et al. Fusion of a kinase gene, ALK, to a nucleolar protein gene, NPM, in non-Hodgkin's lymphoma. Science. 1994, 263(5151):1281-4.
+3.	Lin E, et al. Exon array profiling detects EML4-ALK fusion in breast, colorectal, and non-small cell lung cancers. Mol Cancer Res. 2009, 7(9):1466-76.
+4.	Lawrence B, et al. TPM3-ALK and TPM4-ALK oncogenes in inflammatory myofibroblastic tumors. Am J Pathol. 2000, 157(2):377-84.
+5.	Choi YL, et al. Identification of novel isoforms of the EML4-ALK transforming gene in non-small cell lung cancer. Cancer Res. 2008, 68(13):4971-6.
+6.	Ren H, et al. Identification of anaplastic lymphoma kinase as a potential therapeutic target in ovarian cancer. Cancer Res. 2012, 72(13):3312-23.
+7.	Debelenko LV, et al. Renal cell carcinoma with novel VCL-ALK fusion: new representative of ALKassociated tumor spectrum. Mod Pathol. 2011, 24(3):430-42.
+8.	van Gaal JC, et al. Anaplastic lymphoma kinase aberrations in rhabdomyosarcoma: clinical and prognostic implications. J Clin Oncol. 2012, 30(3):308-15.
+9.	Mosse YP, et al. Inhibition of ALK signaling for cancer therapy. Clin Cancer Res. 2009, 15(18):5609-14.
+BRAF
+BRAF是丝氨酸-苏氨酸蛋白激酶家族的一员，其它成员包括 ARAF、BRAF和CRAF (RAF1)。
+RAF激酶是MAP激酶信号通路级联中的中心调节者，主要通过磷酸化和激活MEK起作用，这通常需要同源或异源RAF分子构成双体。作为MAP激酶通路的部分，RAF参与众多细胞生理过程，包括增殖、分化和转录调控。临床研究表明，BRAF突变体出现于多种癌症的发病过程，如黑色素瘤、非小细胞肺癌、结直肠癌、乳头状甲状腺癌和卵巢癌等。
+图示：甲状腺癌有丝分裂原活性蛋白激酶MAPK通路的活化。图中显示，BRAF突变体 (BRAF*) 可直接刺激MEK。BRAF的化学抑制剂如 Sorafenib 等可抑制其下游信号通路传递。
+参考文献
+1.	Davies H, et al. Mutations of the BRAF gene in human cancer. Nature. 2002, 417(6892):949-54.
+CRLF2
+细胞因子受体样因子2 (CRLF2)编码的受体蛋白可能通过JAK通路而参与激活STAT。这些通路在免疫系统调节中起重要作用。癌症病人尤其是一些高风险急性淋巴性白血病患者中，CRLF2重排和一种复发突变会导致基因的过表达，预后效果极差。已有开展前期临床研究将JAK和mTOR抑制剂作为潜在的治疗手段靶向针对CRLF2重排阳性的急性淋巴性白血病1,2。
+图示：DS-ALL 病人 CRLF2 表达量与生存期关系曲线 3。
+参考文献
+1.	Maude, et al. Targeting mTOR and JAK2 in Xenograft Models of CRLF2-Overexpressing Acute Lymphoblastic Leukemia (ALL). 53rd ASH Annual Meeting and Exposition. 2011, Dec 12.
+2.	Tasian, et al. In vivo monitoring of JAK/STAT and PI3K/mTOR signal transduction inhibition in pediatric CRLF2-rearranged acute lymphoblastic leukemia (ALL). J Clin Oncol 30, 2012 (suppl; abstr 9506)
+3.	Hertzberg, et al. Down syndrome acute lymphoblastic leukemia, a highly heterogeneous disease in which aberrant expression of CRLF2 is associated with mutated JAK2: a report from the International BFM Study Group. Blood. 2010, 115(5):1006-17.
+CTNNB1
+CTNNB1基因编码ß-连锁蛋白，是粘合连接复合体蛋白的组分，该复合体通过调节细胞生长和相邻细胞的粘合而在表皮细胞层的建立和维护中起重要作用1。ß-连锁蛋白也是经典的Wnt信号通路的成员（图示）。缺乏Wnt信号时，糖原合成酶激酶-3磷酸化 ß-连锁蛋白，由此通过泛素-蛋白酶体途径降解ß-连锁蛋白。Wnt与其受体Frizzled蛋白结合时，ß-连锁蛋白磷酸化和泛素调控的降解被阻遏，此时ß-连锁蛋白可转移到细胞核，作为T-细胞因子/淋巴增强因子（TCF/LEF）转录因子的辅助因子。ß-连锁蛋白- TCF/LEF复合体最终使包括c-MYC 和 Cyclin-D1在内的靶蛋白活化2。
+临床研究表明，CTNNB1 基因突变被发现参与了多种癌症的发病过程，包括黑色素瘤、结直肠癌、肝细胞癌和卵巢癌等。
+图示： ß-连锁蛋白参与的 Wnt 信号通路。没有 Wnt 信号时，ß-连锁蛋白被磷酸化，之后泛素聚集而被 20S 蛋白酶体降解；Wnt 结合受体时，ß-连锁蛋白稳定存在，之后移至细胞核参加 TCF/LEF 家族的转录活动。
+参考文献
+1.	Hartsock A, Nelson WJ. Adherens and tight junctions: structure, function and connections to the actin cytoskeleton. Biochim Biophys Acta. 2008, 1778(3):660-9.
+2.	Giles RH, et al. Caught up in a Wnt storm: Wnt signaling in cancer. Biochim Biophys Acta. 2003, 1653(1):1-24.
+DDR2
+盘状死亡受体(DDR2)是DDR酪氨酸激酶受体家族的成员，这类激酶被胶原蛋白而非肽生长因子激活（下图示）；其在癌症细胞中的下游信号通路并不清晰，但可能通过SRC 和STAT信号通路。与整合受体相似，DDR2可能在调节细胞与胞外基质反应中起作用。
+临床研究表明，DDR2突变低频出现于一些癌症，如肾细胞癌、胶质母细胞瘤、子宫癌、结直肠癌（COSMIC）；被报道出现频率最高是在鳞状细胞肺癌1。
+图示： DDR2的信号通路。胶原蛋白与DDR2的结合激活了下游的信号通路。
+参考文献
+1. Hammerman, et al. Mutations in the DDR2 kinase gene identify a novel therapeutic target in squamous cell lung cancer. Cancer Discov. 2011, 1(1):78-89.
+DNMT3A
+DNA（胞嘧啶-5-）甲级转移酶 3α（DNMT3A）基因编码的蛋白在表观基因调控中起作用1，2。常可在恶性血液疾病中发现DNMT3A突变，但也可在诸如肺癌中观察到3。在 17.1%的急性骨髓性白血病中有DNMT3A基因突变(COSMIC)。DNMT3A突变常发生在编码蛋白的R882位置，由此导致蛋白功能丧失4。DNMT3A基因突变不在白血病发病的“双击假说”范围之内，有学者提出将其列为新的一类突变；新出现的这种类---III 类可定义为表观遗传调控基因突变4，5。与IDH1和IDH2基因突变相似，
+DNMT3A突变因影响到DNA甲基化，从而通过了复调控基因表达而在癌症发生中起一定作用。
+图示： DNMT3A 影响 DNA 甲基化（图片来源 6）
+参考文献
+1.	NCBI Gene database. http://www.ncbi.nlm.nih.gov/gene/1788.
+2.	Li, et al. Synergistic function of DNA methyltransferases Dnmt3a and Dnmt3b in the methylation of Oct4 and Nanog. Mol Cell Biol. 2007, 27(24):8748-59.
+3.	Kim, et al. Mutational analysis of DNMT3A gene in acute leukemias and common solid cancers. APMIS. 2013, 121(2):85-94.
+4.	Shih et al. The role of mutations in epigenetic regulators in myeloid malignancies. Nat Rev Cancer. 2012, 12(9):599-612.
+5.	Naoe T, Kiyoi H. Gene mutations of acute myeloid leukemia in the genome era. Int J Hematol. 2013, 97(2):165-74.
+6.	Shah MY, Licht JD. DNMT3A mutations in acute myeloid leukemia. Nat Genet. 2011, 29;43(4):289-90.
+EGFR
+表皮生长因子受体（EGFR）属于受体酪氨酸激酶（RTKs）家族，包括EGFR/ERBB1、
+HER2/ERBB2/NEU、HER3/ERBB3 以及HER4/ERBB4。与配体如表皮生长因子（EGF）的结合，诱导其构象变化而更有利于受体的同源或异源二聚体的形成，由此导致EGFR 酪氨酸激酶的激活（图示）。之后，活化的EGFR磷酸化其下游底物，从而活化了细胞内多种下游途径，包括涉及细胞存活的PI3K-AKT-mTOR途径，和参与细胞增殖的 RAS-RAF-MEK-ERK通路。
+图示： EGFR 的活化及其常见突变类型 1
+参考文献
+1. Sequist LV, et al. Molecular predictors of response to epidermal growth factor receptor antagonists in non-small-cell lung cancer. J Clin Oncol. 2007, 25(5):587-95.
+ERBB2 (HER2)
+HER2 属 于受体酪氨酸激酶（RTK）家族，包括EGFR/ERBB1， HER2/ERBB2/NEU， HER3/ERBB3，和HER4/ERBB4。HER2的编码基因位于人类17号染色体上。有研究报道，在多种癌症鉴定到基因拷贝数增加1（图示）。HER2基因扩增被认为促进了肿瘤发生进程，参与几种癌症的发病机制2。
+迄今为止，还没有鉴定到HER2的配体。HER2似乎适合与ErbB家族所有成员形成二聚体3。配体结合及随后的异源二聚体化可激活HER2的酪氨酸激酶活性。活化的HER2 然后磷酸化它的底物，以至于激活下游多个细胞内通路，如决定细胞存活的PI3K-AKT-mTOR 通路，参与细胞增殖的RAS-RAF-MEK-ERK通路。
+图示：癌症细胞内由于HER2基因拷贝数增加导致过表达
+参考文献
+1.	Jorgensen JT. Targeted HER2 treatment in advanced gastric cancer. Oncology. 2010, 78(1):26-33.
+2.	Moasser MM. The oncogene HER2: its signaling and transforming functions and its role in human cancer pathogenesis. Oncology. 2007, 26(45):6469-87.
+3.	Graus-Porta et al. ErbB-2, the preferred heterodimerization partner of all ErbB receptors, is a mediator of lateral signaling. EMBO J. 1997, 16(7):1647-55.
+FGFR1
+成纤维细胞生长因子受体1型基因（FGFR1）编码FGFR酪氨酸激酶（TK）家族的一种，该家族包括 FGFR1，2，3 和 4。 FGFR TKS在发育中起关键作用，可调控细胞内多个信号通路（图示）；研究发现癌症中因点突变或易位等该基因被负调控 1。FGFR1基因在多个癌症被报道存在扩增或激活，包括口腔鳞状细胞癌 2，乳腺癌 1，食管鳞状细胞癌 3，卵巢癌 4，膀胱癌 5，前列腺癌 6，以及肺癌（主要是鳞状细胞亚型）7。
+图示：FGFR调控的细胞通路
+参考文献
+1.	Turner N, Grose R. Fibroblast growth factor signalling: from development to cancer. Nat Rev Cancer. 2010, 10(2):116-29.
+2.	Freier et al. Recurrent FGFR1 amplification and high FGFR1 protein expression in oral squamous cell carcinoma (OSCC). Oral Oncol. 2007, 43(1):60-6.
+3.	Ishizuka et al. Gene amplification profiling of esophageal squamous cell carcinomas by DNA array CGH. Biochem Biophys Res Commun. 2002, 296(1):152-5.
+4.	Gorringe et al. High-resolution single nucleotide polymorphism array analysis of epithelial ovarian cancer reveals numerous microdeletions and amplifications. Clin Cancer Res. 2007, 13(16):4731-9.
+5.	Simon et al. High-throughput tissue microarray analysis of 3p25 (RAF1) and 8p12 (FGFR1) copy number alterations in urinary bladder cancer. Cancer Res. 2001, 61(11):4514-9.
+6.	Edwards et al. Gene amplifications associated with the development of hormone-resistant prostate cancer. Clin Cancer Res. 2003, 9(14):5271-81.
+7.	Dutt et al. Inhibitor-sensitive FGFR1 amplification in human non-small cell lung cancer. PLoS One. 2011, 6(6):e20351.
+FGFR2
+成纤维细胞生长因子受体2基因（FGFR2）编码FGFR酪氨酸激酶（TK）家族一个成员，参与胞内的信号通路见下图。FGFR TKS在发育中起关键作用；研究发现癌症细胞该基因点突变或易位等被负调控 1。FGFR2基因在多个癌症被报道存在扩增或激活，包括乳腺癌和胃癌2；该基因在子宫癌和乳腺癌存在突变 2，3，4。
+图示：FGFR2信号通路 5
+参考文献
+1.	Turner N, Grose R. Fibroblast growth factor signalling: from development to cancer. Nat Rev Cancer. 2010, 10(2):116-29.
+2.	Jain VK, Turner NC. Challenges and opportunities in the targeting of fibroblast growth factor receptors in breast cancer. Breast Cancer Res. 2012, 14(3):208.
+3.	Dutt et al. Drug-sensitive FGFR2 mutations in endometrial carcinoma. Proc Natl Acad Sci U S A. 2008, 105(25):8713-7.
+4.	Reintjes et al. Activating somatic FGFR2 mutations in breast cancer. PLoS One. 2013, 8(3):e60264.
+5.	Wilkie AO. Cancer drugs to treat birth defects. Nat Genet. 2007, 39(9):1057-9.
+FLT3
+Fms 相关酪氨酸激酶3（FLT3）可激活造血细胞内的信号通路。FLT3蛋白由五个细胞外免疫球蛋白样结构域、跨膜结构域、近膜结构域和两个酪氨酸激酶结构域1 。FLT3 基因突变的经常发生在急性髓系白血病、其他恶性血液病和结直肠癌（COSMIC）。在 24.3％急性髓系白血病病人检测到FLT3突变的，这些突变中，大部分是内部串联重复形式。FLT3基因内部串联重复通常发生于当近膜域内出现不高于10个到数百个bp长度的序列重复时2。所有这些串联重复序列长度均为3的倍数，因此并不形成移码，只是增加了新的氨基酸。除了内部串联重复，在5-7％的急性髓系白血病病人FLT3蛋白的酪氨酸激酶结构域可观察到点突变；这两种突变均引起FLT3信号途径的异常激活（图示），从而导致肿瘤细胞增殖3。FLT3突变属于白血病病发机制“二次打击”学说的第 I 类 4。
+图示：FLT3 信号通路参与决定细胞命运 5
+参考文献
+1.	Leung, et al. FLT3 inhibition: a moving and evolving target in acute myeloid leukaemia. Leukemia. 2013, 27(2):260-8.
+2.	Fathi AT, Chen YB. Treatment of FLT3-ITD acute myeloid leukemia. Am J Blood Res. 2011, 1(2):175-89.
+3.	Kottaridis, et al. The presence of a FLT3 internal tandem duplication in patients with acute myeloid leukemia (AML) adds important prognostic information to cytogenetic risk group and response to the first cycle of chemotherapy: analysis of 854 patients from the United Kingdom Medical Research Council AML 10 and 12 trials. Blood. 2001, 98(6):1752-9.
+4.	Naoe T, Kiyoi H. Gene mutations of acute myeloid leukemia in the genome era. Int J Hematol. 2013, 97(2):165-74.
+5.	Swords R, et al. Targeting the FMS-like tyrosine kinase 3 in acute myeloid leukemia. Leukemia. 2012, 26(10):2176-85.
+GNA11
+鸟嘌呤核苷酸结合蛋白（G蛋白）是一类异源三聚体蛋白，可偶联七次跨膜结构域受体与细胞内的级联反应因子，如神经递质，生长因子和激素信号通路1。异源三聚体G蛋白由三个亚基组成，Gα、Gβ和Gγ（图示），每个亚基又包含不同的成员。GNA11基因编码α-11亚基（Gα11）。受体活化可催化Gα 亚基上GDP（鸟苷二磷酸）置换为 GTP（三磷酸鸟苷），导致Gα亚基从Gßγ上解离。Gα或Gßγ均可激活下游的细胞信号传导通路；Gα亚基自身的GTPase活性将GTP水解为GDP后，该信号传导即被终止。GNA11基因突变多是位于第5外显子的密码子209，所在区域正好是具有GTPase 催化活性的。因此，在该区域的突变会导致基因的构成型激活，从而保持GTP结合的状态2，3。在小鼠体内表达GNA11 Q209L 直接导致黑素细胞癌化，并通过 MAPK 通路增加信号传导活性4。可在34％的原发性葡萄膜黑色素瘤患者检测到GNA11体细胞突变，在高达63％的葡萄膜黑色素瘤转移患者发现有该基因体细胞突变。以恶性黑色素瘤总体而言，约2％的样本可见GNA11突变；但尚未在眼黑色素瘤患者检测到该基因突变4。绝大多数情况下，GNA11基因突变并不与黑色素瘤其它原癌基因突变如 BRAF 突变，KIT 突变等共存；目前也缺乏抗 GNA11 的靶向药物。
+图示： Gα 亚基的活化
+参考文献
+1.	Rosenbaum DM, et al. The structure and function of G-protein-coupled receptors. Nature. 2009, 459(7245):356-63.
+2.	Kalinec G, et al. Mutated alpha subunit of the Gq protein induces malignant transformation in NIH 3T3 cells. Mol Cell Biol. 1992, 12(10):4687-93.
+3.	Landis CA, et al. GTPase inhibiting mutations activate the alpha chain of Gs and stimulate adenylyl cyclase in human pituitary tumours. Nature. 1989, 340(6236):692-6.
+4.	Van Raamsdonk CD, et al. Mutations in GNA11 in uveal melanoma. N Engl J Med. 2010, 363(23):2191-9.
+HRAS
+已在人类鉴定出三种不同的RAS基因：KRAS基因（与 Kirsten大鼠肉瘤病毒致癌基因同源），HRAS（与哈维大鼠肉瘤病毒致癌基因同源），和NRAS（分离自人类神经母细胞瘤）。RAS基因高度同源但功能区分，基因冗余度有待深入研究 1。RAS蛋白均为小的鸟苷酸结合调节蛋白，可由无活性的鸟苷二磷酸结合形式转化为活性鸟苷三磷酸结合形式。RAS蛋白是生长因子信号通路下游的中心调控者，因此对细胞增殖、存活和分化非常关键。RAS蛋白可激活多个下游效应物，包括与细胞存活相关的PI3K-AKT-mTOR 途径，参与细胞增殖的RAS-RAF-MEK-ERK 通路（图示）。
+某种RAS基因常在恶性肿瘤中反复突变，如HRAS基因突变在唾液腺、尿道、上消化道、宫颈和胸腺等组织癌中特别常见2。
+图示： RAS下游信号通路
+参考文献
+1.	Pylayeva-Gupta Y, et al. RAS oncogenes: weaving a tumorigenic web. Nat Rev Cancer. 2011, 11(11):76174.
+2.	Karnoub AE, Weinberg RA. Ras oncogenes: split personalities. Nat Rev Mol Cell Biol. 2008, 9(7):517-31.
+3.	Schubbert S, et al. Hyperactive Ras in developmental disorders and cancer. Nat Rev Cancer. 2007, 7(4):295-308.
+IDH1
+异柠檬酸脱氢酶 1（细胞质）是一种表观基因修饰蛋白，依赖NADP+，可催化异柠檬酸的脱羧氧化反应。野生型 IDH1可转化异柠檬酸为α-酮戊二酸，为Krebs循环的一个步骤；Krebs代谢途径影响很多重要的细胞生化过程1。
+IDH1突变常发现于脑胶质瘤和急性髓性白血病，也可见于其它癌症类型2；通常涉及点突变，影响蛋白132位天冬氨基酸残基。IDH1基因突变的结果是获得了有害的功能，即异柠檬酸转化为2-羟基戊二酸，而非α-酮戊二酸2，3。已知，2-羟基戊二酸可抑制参与表观基因调控的蛋白类2。
+图示： IDH基因突变可改变细胞命运。IDH1/2 突变可抑制组蛋白和DNA的去甲基化并由此改变表观遗传调控。肿瘤 IDH1和 IDH2变异体减少了α-酮戊二酸，而α-酮戊二酸的竞争抑制剂 2-羟基戊二酸则不断累积，从而抑制了赖氨酸去甲基化酶和TET家族中DNA羟化酶的活性。上述抑制剂均可改变干细胞和前体细胞分化的表观遗传控制。
+参考文献
+1.	Shih AH, et al. The role of mutations in epigenetic regulators in myeloid malignancies. Nat Rev Cancer. 2012, 12(9):599-612.
+2.	Rohle D, et al. An inhibitor of mutant IDH1 delays growth and promotes differentiation of glioma cells. Science. 2013, 340(6132):626-30.
+3.	Yang H, et al. IDH1 and IDH2 mutations in tumorigenesis: mechanistic insights and clinical perspectives. Clin Cancer Res. 2012, 18(20):5562-71.
+IDH2
+异柠檬酸脱氢酶 2（线粒体）是一种表观基因修饰蛋白，依赖NADP+，可催化异柠檬酸的脱羧氧化反应。野生型 IDH1可转化异柠檬酸为α-酮戊二酸，为Krebs循环的一个步骤；Krebs代谢途径影响很多重要的细胞生化过程1。IDH1突变常发现于脑胶质瘤和急性髓性白血病2。点突变通常影响蛋白140位天冬氨基酸残基和172位天冬氨酸残基。突变蛋白功能不同于原始蛋白，这种新获得的功能被认为是通过抑制正常的表观遗传调控而参与了白血病发作 1，3，4，5，6。IDH2突变并不符合早先提出的白血病病因 “二次打击”学说。一些学者提出划分IDH2突变为一类新的突变-第三类，定义为发生在表观遗传调控因子上1，7。与DNMT3A和IDH1突变相思，IDH2突变影响DNA甲基化，由此通过负调控基因表达而在癌症发生中起作用。
+图示： IDH 基因突变新形成了对机体有害的代谢产物8。IDH蛋白关键的精氨酸残基位点发生的体细胞突变是常见于脑胶质瘤和急性髓性白血病的驱动突变，突变蛋白具备了不同的功能，因此比较少见。突变催化异柠檬酸形成2-羟基戊二酸而非酮戊二酸，伴随的是消耗NADPH而非形成 NADPH。携带突变的病人肿瘤细胞和组织2-羟基戊二酸含量很高，已一种尚未被阐述的机制促进了癌变。
+参考文献
+1.	Shih et al. The role of mutations in epigenetic regulators in myeloid malignancies. Nat Rev Cancer. 2012, 12(9):599-612.
+2.	Yang et al. IDH1 and IDH2 mutations in tumorigenesis: mechanistic insights and clinical perspectives. Clin Cancer Res. 2012, 18(20):5562-71.
+3.	Feng JH,et al. Prognostic significance of IDH1 mutations in acute myeloid leukemia: a meta-analysis. Am J Blood Res. 2012;2(4):254-64.
+4.	Green CL, et al. The prognostic significance of IDH2 mutations in AML depends on the location of the mutation. Blood. 2011, 118(2):409-12.
+5.	Jeziskova I, et al. IDH2 mutations in patients with acute myeloid leukemia: missense p.R140 mutations are linked to disease status. Leuk Lymphoma. 2010, 51(12):2285-7.
+6.	Zhou KG, et al. Potential application of IDH1 and IDH2 mutations as prognostic indicators in nonpromyelocytic acute myeloid leukemia: a meta-analysis. Leuk Lymphoma. 2012, 53(12):2423-9.
+7.	Naoe T, Kiyoi H. Gene mutations of acute myeloid leukemia in the genome era. Int J Hematol. 2013, 97(2):165-74.
+8.	Rob A, et al. IDH1 and IDH2 mutations cause an oncometabolic gain of function. Nature Reviews Cancer. 2011, 11(2):85-95
+JAK2
+Janus 激酶 2（JAK2）是一种蛋白酪氨酸激酶，参与细胞因子受体信号途径。可在急性淋巴性白血病和其他恶性血液病观察到JAK2基因突变。已有临床前研究，测试mTOR 和JAK抑制剂对含有CRLF2重排和 JAK2 突变的高风险前体B细胞急性淋巴性白血病的疗效1。85％的BCR-ABL1阴性，高风险B细胞前体小儿急性淋巴性白血病患者携带JAK2突变2。就急性淋巴性白血病患者整体，携带JAK2突变的比率在4-9%3。多数JAK2突变被认为会增强酶活性，JAK2突变伴随高的复发风险2。
+图示：JAK2突变的信号传递作用 4
+参考文献
+1.	Maude LS, et al. Targeting mTOR and JAK2 in Xenograft Models of CRLF2-Overexpressing Acute Lymphoblastic Leukemia (ALL). 53rd ASH Annual Meeting and Exposition. 2011, Dec 12.
+2.	Mullighan CG, et al. JAK mutations in high-risk childhood acute lymphoblastic leukemia. Proc Natl Acad Sci USA. 2009, 106(23):9414-8.
+3.	Chen IM, et al. Outcome modeling with CRLF2, IKZF1, JAK, and minimal residual disease in pediatric acute lymphoblastic leukemia: a Children's Oncology Group study. Blood. 2012, 119(15):3512-22.
+4.	Levine RL, et al. Role of JAK2 in the pathogenesis and therapy of myeloproliferative disorders. Nat Rev Cancer. 2007, 7(9):673-83.
+KIT
+KIT（也称为CD117），是一种受体酪氨酸激酶（RTK）,在多种细胞类型中的表达。KIT 的配体是干细胞因子（SCF）。SCF与KIT胞外结构域的结合诱导其二聚体化，从而活化下游信号传导途径，包括PI3K-AKT-mTOR通路、RAS-RAF-MEK-ERK途径和 STAT3（转录3的信号转导子和活化剂）途径，所有这些途径均调节细胞内促增长和促生存信号。
+KIT 突变出现在多种癌症的发病机制中，包括黑色素瘤，急性白血病和胃肠道间质瘤（GIST）1，2。KIT 突变的发现彻底改变了间质瘤的治疗。使用一种口服KIT抑制剂甲磺酸伊马替尼（格列卫，诺华制药），可获得迅速、明显和持久的肿瘤反应3。当然，不是所有的KIT突变都对伊马替尼敏感4，有些突变仅对第二代KIT抑制剂敏感。
+图示：KIT抑制剂的作用机理 5
+参考文献
+1.	Heinrich MC, et al. Kinase mutations and imatinib response in patients with metastatic gastrointestinal stromal tumor. J Clin Oncol. 2003, 21(23):4342-9.
+2.	Hirota S, et al. Gain-of-function mutations of c-kit in human gastrointestinal stromal tumors. Science. 1998, 279(5350):577-80.
+3.	Demetri GD, et al. Efficacy and safety of imatinib mesylate in advanced gastrointestinal stromal tumors. N Engl J Med. 2002, 347(7):472-80.
+4.	Heinrich MC, et al. Primary and secondary kinase genotypes correlate with the biological and clinical activity of sunitinib in imatinib-resistant gastrointestinal stromal tumor. J Clin Oncol. 2008, 26(33):53529.
+5.	Heinrich MC, Corless CL. Cancer: Oncogenes in context. Nature. 2010, 467(7317):796-7.
+KRAS
+已在人类鉴定出三种不同的RAS基因：KRAS基因（与Kirsten大鼠肉瘤病毒致癌基因同源）、HRAS（与哈维大鼠肉瘤病毒致癌基因同源）和NRAS（分离自人类神经母细胞瘤）。RAS基因高度同源但功能区分。RAS蛋白均为小的鸟苷酸结合调节蛋白，可由无活性的鸟苷二磷酸结合形式转化为活性鸟苷三磷酸结合形式。RAS蛋白是生长因子信号通路下游的中心调控者，因此对细胞增殖、存活和分化非常关键。RAS蛋白可激活多个下游效应物，包括与细胞存活相关的PI3K-AKT-mTOR途径，参与细胞增殖的 RAS-RAF-MEK-ERK通路（图示）。
+RAS被发现可在多种癌症的发病中起作用。RAS基因的激活性突变，在缺乏生长因子信号输入的情况下亦能保持 RAS的GTP酶活性持续存在，结果转化为细胞不断增殖的信号（图示）。某种RAS基因常在不同的恶性肿瘤中反复突变。KRAS基因突变特别常见于结肠癌，肺癌和胰腺癌1。
+图示：KRAS基因突变导致即使缺乏 EGFR 信号输入也能刺激细胞增殖
+参考文献
+1. Schubbert S, et al. Hyperactive Ras in developmental disorders and cancer. Nat Rev Cancer. 2007, 7(4):295-308.
+AP2K1 (MEK1)
+EK1（也称为 MAP2K1）是一种丝氨酸 - 苏氨酸蛋白激酶，是MAP激酶信号传导途径的中央调控者。作为 MAP激酶途径的组成部分，MEK1参与细胞生命过程，包括细胞增殖、分化和转录调控。
+可在约1％的所有非小细胞肺癌病人发现MEK1体细胞突变，在肺腺癌中的出现频率高于鳞状细胞肺癌1。携带有MEK1体细胞突变的肺癌病人的临床特征尚有待详细阐述。
+图示：MEK1突变与癌症治疗
+参考文献
+1. Marks JL, et al. Novel MEK1 mutation identified by mutational analysis of epidermal growth factor receptor signaling pathway genes in lung adenocarcinoma. Cancer Res. 2008, 68(14):5524-8.
+ET
+ET 基因（MNNG-HOS转化基因位于第7号染色体，编码一种受体酪氨酸激酶（RTK）1。与其配体肝细胞生长因子（HG）的结合，诱导MET受体的构象变化，由此磷酸化和激活。活化的MET接着磷酸化其底物，从而激活下游多个途径，包括涉及细胞存活的PI3K-AKT-mTOR途径，参与细胞增殖的RAS-RAF-MEK-ERK通路（图示）。恶性肿瘤细胞，由MET受体传输的异常信号会促成多效作用，包括生长、存活、侵入、迁移、血管生成和转移2，3。已在多种人类癌症鉴定到MET受体及其配体HGF的异常激活，如所有的遗传性乳头状肾细胞癌都存在MET基因酪氨酸激酶功能域的遗传性突变，而10-15％的散发性乳头状肾细胞癌也可检测到体细胞突变4。头颈部鳞状细胞癌、儿童肝细胞癌、非小细胞肺癌和小细胞肺癌也能检测到低频的MET基因突变5。此外，MET基因扩增被报道出现于胃癌、食管癌、大肠癌、胶质瘤、非小细胞肺癌和透明细胞卵巢癌等6，7。
+图示：MET信号通路 8
+参考文献
+1.	Cooper CS, et al. Molecular cloning of a new transforming gene from a chemically transformed human cell line. Nature. 1984, 311(5981):29-33.
+2.	Birchmeier C, et al. Met, metastasis, motility and more. Nat Rev Mol Cell Biol. 2003, 4(12):915-25.
+3.	Peruzzi B, Bottaro DP. Targeting the c-Met signaling pathway in cancer. Clin Cancer Res. 2006, 12(12):3657-60.
+4.	Schmidt L, et al. Germline and somatic mutations in the tyrosine kinase domain of the MET protooncogene in papillary renal carcinomas. Nat Genet. 1997, 16(1):68-73.
+5.	Ma PC, et al. c-MET mutational analysis in small cell lung cancer: novel juxtamembrane domain mutations regulating cytoskeletal functions. Cancer Res. 2003, 63(19):6272-81.
+6.	Bean J, et al. MET amplification occurs with or without T790M mutations in EGFR mutant lung tumors with acquired resistance to gefitinib or erlotinib. Proc Natl Acad Sci U S A. 2007, 104(52):20932-7.
+7.	Kubo T, et al. MET gene amplification or EGFR mutation activate MET in lung cancers untreated with EGFR tyrosine kinase inhibitors. Int J Cancer. 2009, 124(8):1778-84.
+8.	Linehan WM, et al. The genetic basis of kidney cancer: a metabolic disease. Nat Rev Urol. 2010, 7(5):277-85.
+KMT2A（MLL）
+髓系/淋巴系或混合谱系白血病（果蝇trithorax同源物），也被称为MLL，参与调控早期发育和造血作用基因的表达。在癌症研究如急性髓性白血病和急性淋巴性白血病，可检测到该基因的重排异常；在胃癌、结直肠癌和其他癌症中的功用正在被进一步调查。急性髓性白血病和B淋巴性白血病可检测到MLL-MLLT3 (AF9) 基因融合1，2（图示）。约在1%的急性髓性白血病患者可发现MLL-MLLT3基因融合3。因这种基因融合形成的蛋白仅起到阻止造血细胞正常成熟的作用 4，很有可能还需要其它突变才会最终形成白血病 5。MLL-MLLT3 基因融合属于白血病“二次打击”学说中的第 II 类 6。
+图示：MLL、MLLT3基因的染色体位置
+参考文献
+1.	Takachi T, et al. Lymphoblastic lymphoma with mature b-cell immunophenotype and MLL-AF9 in a child. Pediatr Blood Cancer. 2011, 57(7):1251-2.
+2.	Metzler M, et al. Emergence of translocation t(9;11)-positive leukemia during treatment of childhood acute lymphoblastic leukemia. Genes Chromosomes Cancer. 2004, 41(3):291-6.
+3.	Grimwade D, et al. Refinement of cytogenetic classification in acute myeloid leukemia: determination of prognostic significance of rare recurring chromosomal abnormalities among 5876 younger adult patients treated in the United Kingdom Medical Research Council trials. Blood. 2010, 116(3):354-65.
+4.	Mueller D, et al. Misguided Transcriptional Elongation Causes Mixed Lineage Leukemia. PLoS Biol. 2009. 7(11):e1000249.
+5.	Pession A, et al. MLL-AF9 oncogene expression affects cell growth but not terminal differentiation and is downregulated during monocyte-macrophage maturation in AML-M5 THP-1 cells. Oncogene. 2003, 22(54):8671-6.
+6.	Naoe T, Kiyoi H. Gene mutations of acute myeloid leukemia in the genome era. Int J Hematol. 2013, 97(2):165-74.
+NRAS
+已在人类鉴定出三种不同的RAS基因：KRAS基因（与 Kirsten 大鼠肉瘤病毒致癌基因同源），HRAS（与哈维大鼠肉瘤病毒致癌基因同源），和NRAS（分离自人类神经母细胞瘤）。RAS基因高度同源但功能区分。RAS蛋白均为小的鸟苷酸结合调节蛋白，可由无活性的鸟苷二磷酸结合形式转化为活性鸟苷三磷酸结合形式。RAS蛋白是生长因子信号通路下游的中心调控者，因此对细胞增殖、存活和分化非常关键。RAS蛋白可激活多个下游效应物，包括与细胞存活相关的PI3K-AKT-mTOR途径，参与细胞增殖的 RAS-RAF-MEK-ERK通路（图示）。不同的恶性肿瘤可观察到某种RAS基因的反复突变。NRAS突变特别常见于黑色素瘤、干细胞癌、髓性白血病，以及甲状腺癌 1，2。
+图示：突变 NARS 导致黑色素细胞癌变
+参考文献
+1.	Schubbert S, et al. Hyperactive Ras in developmental disorders and cancer. Nat Rev Cancer. 2007, 7(4):295-308.
+2.	Huang PH, Marais R. Cancer: Melanoma troops massed. Nature. 2009, 459(7245):336-7.
+PDGFRA
+血小板衍生生长因子受体α（PDGFRA）属于受体酪氨酸激酶（RTK）家族，包括PDGFRA 和PDGFRB。与配体如血小板衍生生长因子（PDGF）的结合，诱导构象变化从而形成同源或异源二聚体，这样活化PDGFRA 酪氨酸激酶活性（图示）。活化的PDGFRA 然后磷酸化其底物，导致细胞中多个下游途径的激活，包括与细胞存活有关的PI3K-AKT-mTOR途径，和涉及细胞增殖的RAS-RAF-MEKERK通路。突变体PDGFRA被报道参与了一些癌症的发病。如突变可见于胃肠道间质瘤（GIST）1，2，基因融合见于嗜酸性粒细胞增多综合征3和隆突皮肤纤维肉瘤4。5%的GIST患者能检测到PDGFRA基因突变，大部分是胃性GIST。PDGFRA基因突变主要在其18外显子（也就是酪氨酸激酶 2功能域，约5%）、12外显子上（近膜功能域，约1%）、14外显子（也就是酪氨酸激酶1功能域，少于1%）。除D842V外，18号外显子其它的突变均对伊马替尼（imatinib）敏感1。
+图示：PDGFRA信号传递途径
+参考文献
+1.	Corless CL, et al. PDGFRA mutations in gastrointestinal stromal tumors: frequency, spectrum and in vitro sensitivity to imatinib. J Clin Oncol. 2005, 23(23):5357-64.
+2.	Heinrich MC, et al. PDGFRA activating mutations in gastrointestinal stromal tumors. Science. 2003, 299(5607):708-10.
+3.	Cools J, et al. A tyrosine kinase created by fusion of the PDGFRA and FIP1L1 genes as a therapeutic target of imatinib in idiopathic hypereosinophilic syndrome. N Engl J Med. 2003, 348(13):1201-14.
+4.	Simon MP, et al. Deregulation of the platelet-derived growth factor B-chain gene via fusion with collagen gene COL1A1 in dermatofibrosarcoma protuberans and giant-cell fibroblastoma. Nat Genet. 1997, 15(1):95-8.
+PIK3CA
+磷脂酰肌醇3 -激酶（PI3K）属于脂质激酶家族的一种，参与许多细胞过程，包括细胞生长、增殖、分化、迁移和存活等。PI3K由2个非同源亚基组成，包括一个85 kDa 的调节亚基（p85）和110 kDa的催化亚基。PIK3CA基因编码p110α催化亚基。
+在细胞膜内侧，PI3K转换PI（4,5）P2[磷脂酰肌醇4,5 -二磷酸]为PI（3,4,5）P3[磷脂酰肌醇（3,4,5）-三磷酸]。PI（3,4,5）P3可富集重要的下游信号转导蛋白例如AKT到细胞膜区域，从而使这些蛋白活性增加。PIK3CA基因突变被报道参与多种癌症的发病机制（图示），包括结肠癌、神经胶质瘤、胃癌、乳腺癌、子宫内膜癌和肺癌 1。
+图示：PIK3CA基因突变参与细胞癌变
+参考文献
+1. Samuels Y, et al. High frequency of mutations of the PIK3CA gene in human cancers. Science. 2004, 304(5670):554.
+PTEN
+PTEN（磷酸酶和张力蛋白同源物，10号染色体删除）是一种脂质/蛋白质磷酸，在生长、增殖、存活和维持基因组完整性等多种细胞过程起作用。PTEN是一种肿瘤抑制因子，通过对细胞膜上磷脂酰肌醇（3,4,5）-三磷酸（PIP3）的去磷酸化负调控PI3K/AKT 信号传导途径实现功能。
+癌症相关PTEN基因的变异经常导致基因失活，从而PI3K-AKT通路活性增加。PTEN 基因体细胞突变可发生于多种恶性肿瘤，包括神经胶质瘤、黑色素瘤、前列腺癌、子宫内膜癌、乳腺癌、卵巢癌、肾癌和肺癌。PTEN基因胚系突变导致遗传性错构瘤和考登综合征1，2。也可通过其他机制如表观遗传学改变或翻译后修饰丢失PTEN的活性3。免疫化学方法是一种鉴定PTEN表达的常用方式，若低表达则经常被认为是PTEN表达丢失，会导致PI3K- AKT途径活性增加（图示）。
+图示：PTEN与PI3K-AKT途径
+参考文献
+1.	Chalhoub N, Baker SJ. PTEN and the PI3-kinase pathway in cancer. Annu Rev Pathol. 2009, 4:127-50.
+2.	Maehama T. PTEN: its deregulation and tumorigenesis. Biol Pharm Bull. 2007, 30(9):1624-7.
+3.	Leslie NR, Foti M. Non-genomic loss of PTEN function in cancer: not in my genes. Trends Pharmacol Sci. 2011, 32(3):131-40.
+RARA
+视黄酸受体α（RARA）编码一种核内维甲酸受体，也是一种转录调节蛋白。可在急性髓性白血病和急性早幼粒细胞白血病检测到RARA的基因重排。也正在研究其在胃癌和其他癌症中的作用。原髓细胞白血病（PML）基因编码一种转录因子和肿瘤抑制蛋白。急性髓性白血病病人可观察到PML参与基因重组，特别是APL（急性早幼粒细胞白血病）病人。在大部分APL病人可观察到PML-RARA融合体（图示）。PML-RARA融合基因，t（15;17）（q24.1;21.1），是导致急性早幼粒细胞性白血病这种AML的主要细胞遗传学异常。与野生型PML和RARA相比，PML-RARA融合蛋白表现为变化的转录因子的行为。可能需要其它基因突变一起，方可形成白血病 1。
+图示：不同组合形式的RARA融合蛋白
+参考文献
+1. Reiter A, et al. Pathogenesis, diagnosis and monitoring of residual disease in acute promyelocytic leukaemia. Acta Haematol. 2004, 112(1-2):55-67.
+RET
+RET基因（“转染过程中重新排列”1），位于10号染色体上，编码一种受体酪氨酸激酶（RTK），属于RTK的RET家庭。RET基因在神经嵴发育中起到至关重要的作用。与带有胞外信号分子的胶质细胞源性神经营养因子（GDNF）配体家族2的结合，诱导受体磷酸化和激活。活化的RET进一步磷酸化其底物，最终激活多个下游的细胞通路 3（图示）。
+RET变异主要发现于甲状腺癌。体细胞和胚系点突变与散发性和家族性甲状腺髓样癌相关4，5。 RET融合还发现于某些肺腺癌病人6。
+图示：RET信号通路
+参考文献
+1.	Takahashi M, et al. Activation of a novel human transforming gene, ret, by DNA rearrangement. Cell.  1985, 42(2):581-8.
+2.	Airaksinen MS, et al. GDNF family neurotrophic factor signaling: four masters, one servant? Mol Cell Neurosci. 1999, 13(5):313-25.
+3.	Phay JE, Shah MH. Targeting RET receptor tyrosine kinase activation in cancer. Clin Cancer Res. 2010, 16(24):5936-41.
+4.	Ciampi R, Nikiforov YE. RET/PTC rearrangements and BRAF mutations in thyroid tumorigenesis. Endocrinology. 2007, 148(3):936-41.
+5.	Salvatore D, et al. Tyrosines 1015 and 1062 are in vivo autophosphorylation sites in ret and ret-derived oncoproteins. J Clin Endocrinol Metab. 2000, 85(10):3898-907.
+6.	Pao W, Hutchinson KE. Chipping away at the lung cancer genome. Nat Med. 2012, 18(3):349-51.
+ROS1
+ROS1是一种受体酪氨酸激酶（RTK），属于胰岛素受体家族。最早在胶质母细胞瘤发现了涉及ROS1基因的染色体重排如FIG-ROS1，在染色体的6q22位置1-3。最近，ROS1融合被确定为非小细胞肺癌4和胆管癌5的一个潜在驱动突变基因。
+ROS1融合蛋白包含一个完整的酪氨酸激酶结构域。迄今为止，这些已经生物学测试的融合蛋白都具有致癌活性3，4。ROS1融合蛋白向下游的信号传递会激活参与细胞生长和细胞增殖的通路（图示）。ROS1融合蛋白在体外实验中，表现出了对酪氨酸激酶抑制剂的敏感性6。
+图示： ROS1 融合蛋白的激活。“X”代表各种可能的融合片断，融合蛋白的二聚体化会持续激活 ROS1 酪氨酸激酶活性，其信号传递导致细胞生长和抗凋亡效应。
+参考文献
+1.	Birchmeier C, et al. Expression and rearrangement of the ROS1 gene in human glioblastoma cells. Proc Natl Acad Sci U S A. 1987, 84(24):9270-4.
+2.	Birchmeier C, et al. Characterization of ROS1 cDNA from a human glioblastoma cell line. Proc Natl Acad Sci U S A. 1990, 87(12):4799-803.
+3.	Charest A, et al. Fusion of FIG to the receptor tyrosine kinase ROS in a glioblastoma with an interstitial del(6)(q21q21). Genes Chromosomes Cancer. 2003, 37(1):58-71.
+4.	Rikova K, et al. Global survey of phosphotyrosine signaling identifies oncogenic kinases in lung cancer. Cell. 2007, 131(6):1190-203.
+5.	Gu TL, et al. Survey of tyrosine kinase signaling reveals ROS kinase fusions in human cholangiocarcinoma. PLoS One. 2011, 6(1):e15640.
+6.	McDermott U, et al. Genomic alterations of anaplastic lymphoma kinase may sensitize tumors to anaplastic lymphoma kinase inhibitors. Cancer Res. 2008, 68(9):3389-95.
+RUNX1
+侏儒相关转录因子1（ RUNX1，也称为AML1）基因编码核心结合因子蛋白的α亚基，该蛋白质被认为参与正常的造血功能。RUNX1在一些恶性血液病出现异味突变，包括急性髓性白血病和急性淋巴细胞白血病。目前正在研究该基因在早幼粒细胞性白血病，以及实体肿瘤如子宫内膜癌，卵巢癌和乳腺癌中的功用。
+侏儒相关转录因子1 ;易位到，1（细胞周期蛋白 D 相关的） ，也被称为RUNX1T1，编码的是一种转录调控蛋白，也用 AML1T1、ETO，以及MTG8表示。RUNX1T1在急性髓性白血病中的作用已有充分研究。RUNX1T1也可能在慢性粒细胞白血病和其它白血病，以及胰腺癌和卵巢癌中起一定的作用。RUNX1-RUNX1T1主要出现于急性髓性白血病，可见于5-12%的患者1-3。研究同时发现，RUNX1-RUNX1T1融合蛋白可导致造血功能的改变，但应不足以引起病理改变。因此，RUNX1RUNX1T1融合蛋白需要综合其它的突变的二次打击，才能导致急性髓性白血病2。
+图示：RUNX1融合基因的几种形式 4
+参考文献
+1.	Grimwade Y, et al. Refinement of cytogenetic classification in acute myeloid leukemia: determination of prognostic significance of rare recurring chromosomal abnormalities among 5876 younger adult patients treated in the United Kingdom Medical Research Council trials. Blood. 2010, 116(3):354-65.
+2.	Lam K, Zhang DE. RUNX1 and RUNX1-ETO: roles in hematopoiesis and leukemogenesis. Front Biosci (Landmark Ed). 2012, 17:1120-39.
+3.	Zhang YM, Le Beau MM. Cytogenetics in acute myeloid leukemia. 2013. UptoDate website.
+4.	Speck NA, Gilliland DG. Core-binding factors in haematopoiesis and leukaemia. Nat Rev Cancer. 2002, 2(7):502-13.
+SMO
+SMO是Hedgehog信号通路的一个组成部分（图1）。SMO和PTCH1是跨膜受体蛋白，可传递 Hedgehog 配体信号到细胞内。PTCH1或SMO突变均会导致SMO的构成型活化，已知在基底细胞癌、胶质母细胞瘤、髓母细胞瘤、横纹肌肉瘤的癌变中起一定的作用1。Hedgehog 信号通路对胚胎发育至关重要；以皮肤为例，Hedgehog 参与维持干细胞生长、毛囊和腺体的发育及调节皮肤生长2。
+胚胎发育完成后，大多数人类组织Hedgehog信号通路处于非活动状态3。该信号途径的激活可导致或有助于癌变1。有研究发现SMO可作为癌症治疗的靶标3-5。SMO抑制剂，以环杷明为例，可紧密结合SMO受体，从而抑制Hedgehog信号通路3，6。
+图示：Hedgehog信号通路
+参考文献
+1.	Onishi H, Katano M. Hedgehog signaling pathway as a therapeutic target in various types of cancer. Cancer Sci. 2011, 102(10):1756-60.
+2.	Athar M, et al. Hedgehog signalling in skin development and cancer. Exp Dermatol. 2006, 15(9):667-77.
+3.	Rudin CM. Vismodegib. Clin Cancer Res. 2012, 18(12):3218-22.
+4.	Hahn et al. Mutations of the human homolog of Drosophila patched in the nevoid basal cell carcinoma syndrome. Cell. 1996, 85(6):841-51.
+5.	Johnson RL, et al. Human homolog of patched, a candidate gene for the basal cell nevus syndrome. Science. 1996, 272(5268):1668-71.
+6.	Robarge KD, et al. GDC-0449-a potent inhibitor of the hedgehog pathway. Bioorg Med Chem Lett. 2009, 19(19):5576-81.
+TSC1
+结节性硬化症1（TSC1）基因编码的蛋白质，hamartin，可与由TSC2基因编码的蛋白质---马铃薯球蛋白1交互作用（图示）。TSC1通过调控与细胞增殖有关的mTOR 通路起到肿瘤抑制的作用1，2。 TSC1与mTOR信号途径的蛋白质相互作用；有报道一位携带TSC1突变的膀胱癌患者，使用mTOR抑制剂依维莫司取得疗效3。约7-12％的膀胱癌患者存在TSC1突变，突变的频率在低级别、非侵入性和高级别、侵入性癌症中相似2，3。mTOR 抑制剂已被提出作为一种治疗携带TSC1突变膀胱癌病人的潜在方法3，还需要进一步的研究来证实该治疗方案或探索其他的治疗策略，实现膀胱癌的靶向治疗。
+图示：TSC1与TSC2复合体的调控网络
+参考文献
+1.	http://ghr.nlm.nih.gov/gene/TSC1
+2.	Sjodahl G, et al. A systematic study of gene mutations in urothelial carcinoma; inactivating mutations in TSC2 and PIK3R1. PLoS One.  2011, 6(4):e18583.
+3.	Iyer G, et al. Genome sequencing identifies a basis for everolimus sensitivity. Science. 2012, 338(6104):221.
+4.	van Veelen W, et al. The long and winding road to rational treatment of cancer associated with LKB1/AMPK/TSC/mTORC1 signaling. Oncogene. 2011, 30(20):2289-303.

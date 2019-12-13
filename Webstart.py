@@ -23,7 +23,7 @@ restart_time = format_time(frm='%Y%m%d%H%M%S')
 def hello_world():
     conf = read_conf()
     system_name = conf.get('system_name')
-    return render_template('index.html', restart_time=restart_time, system_name=system_name, conf=conf)
+    return render_template('kobars/index.html', restart_time=restart_time, system_name=system_name, conf=conf)
 
 
 @app.errorhandler(404)
@@ -109,25 +109,121 @@ def tumor_download_panel():
     # file_path = 'sss'
     rq = request.json
     sample_detail, variant_list, overview, item_name = {}, [], {}, ''
+    cnvs = []
+    svs = []
+    rs_geno = []
     if rq is not None:
         sample_no = rq.get('sample_no')
         item_name = rq.get('item_name')
         res = sort_request1('GET', '/api/v2/sample/report/%s/' % sample_no)
         if res is not None:
             sample_detail = res.get('data') or {}
+
         res2 = sort_request1('GET', '/api/v2/tumor/variants/?sample_no=%s' % sample_no)
         if res2 is not None:
             variant_list = res2.get('data') or []
-            variant_list = variant_list[:2]
         res3 = sort_request1('GET', '/api/v2/tumor/overview/?sample_no=%s' % sample_no)
         if res3 is not None:
             overview = res3.get('data') or {}
+        # patient_no = sample_detail.get('patient_no')
+        # patient_detail = {}
+        # if patient_no:
+        #     patient_detail = get_api('/api/v2/patient/detail/%s/' % patient_no) or {}
+        # report_detail = get_api('/api/v2/sample/report/%s/' % sample_no) or {}
+        res_cnvs = sort_request1('GET', '/api/v2/tumor/cnvs/', data={'sample_no': sample_no})
+        if res_cnvs is not None:
+            cnvs = res_cnvs.get('data') or []
+        res_svs = sort_request1('GET', '/api/v2/tumor/svs/', data={'sample_no': sample_no})
+        if res_svs is not None:
+            svs = res_svs.get('data') or []
+        res_geno = sort_request1('GET', '/api/v2/tumor/genotype/', data={'sample_no': sample_no})
+        if res_geno is not None:
+            rs_geno = res_geno.get('data') or []
+
+    variant_stars = filter(lambda x: x['add_star'] > 0, variant_list)
+    cnvs_stars = filter(lambda x: x['add_star'] > 0, cnvs)
+    svs_stars = filter(lambda x: x['add_star'] > 0, svs)
+    stars = sorted(variant_stars, key=lambda x: x['add_star'])
+
+    w_sum = 10200
+
+    msi_sort_paired_total = overview.get('msi_sort_paired_total')
+    msi_sort_paired_somatic = overview.get('msi_sort_paired_somatic')
+    msi_score = int(msi_sort_paired_somatic/float(msi_sort_paired_total) * 10000) / 100.0
+
+    msi_info = {
+        'total': msi_sort_paired_total,
+        'somatic': msi_sort_paired_somatic,
+        'score': msi_score,
+        'text': 'MSS微卫星稳定',
+        'effect': 'PD1等免疫检查点抗体可能效果不显著',
+        'level': '',
+        'w': 2000
+    }
+    if msi_score < 3.5:
+        msi_info['sign'] = 'MSS'
+    elif msi_score < 10:
+        msi_info['text'] = 'MSS微卫星低不稳定'
+        msi_info['sign'] = 'MSI-L'
+    elif msi_score >= 10:
+        msi_info['text'] = 'MSS微卫星高不稳定'
+        msi_info['effect'] = 'PD1等免疫检查点抗体可能有效'
+        msi_info['level'] = 'A'
+        msi_info['sign'] = 'MSI-H'
+    diagnose = sample_detail.get('diagnose')
+    tmb = overview.get('tmb')
+    tmb_info = {
+        'tmb': tmb,
+        'w': w_sum-300-2000,
+        'text': '',
+        'effect': '',
+        'level': 'C'
+    }
+    if tmb <= 20:
+        tmb_info['text'] = '肿瘤突变负荷TMB低 （%s个突变/Mb，大于该癌种%s%%人群，%s于该癌种突变负荷拐点）' % (tmb, 85, '低')
+        tmb_info['level'] = 'B' if diagnose == '非小细胞肺癌' else 'C'
+    elif tmb > 20:
+        tmb_info['text'] = '肿瘤突变负荷TMB高 （%s个突变/Mb，大于该癌种%s%%人群，%s于该癌种突变负荷拐点）' % (tmb, 85, '高')
+        tmb_info['level'] = 'A' if diagnose == '非小细胞肺癌' else 'B'
+
+    hla_genes = ['HLA-A', 'HLA-B', 'HLA-C']
+    hla_items = []
+    hla_type = '杂合型'
+    for gene in hla_genes:
+        # col2 =
+        key1 = gene.replace('-', '_') + '1'
+        key2 = gene.replace('-', '_') + '2'
+        col2 = overview.get(key1.lower())
+        col3 = overview.get(key2.lower())
+        col4 = '杂合型'
+        if col2 == col3:
+            col4 = '纯合型'
+            hla_type = '纯合型'
+        hla_items.append({'col1': gene, 'col2': col2, 'col3': col3, 'col4': col4})
+    hla_info = {
+        'genes': hla_genes,
+        'items': hla_items,
+        'hla_type': hla_type
+    }
     try:
         file_path = down_panel({
             'item_name': item_name,
-            'overview': overview,
+            'overview': overview or {},
+            'diagnose': diagnose,
             'sample_detail': sample_detail,
-            'variant_list': variant_list
+            'variant_list': variant_list,
+            # 'report_detail': report_detail or {},
+            # 'patient_detail': patient_detail,
+            'cnvs': cnvs,
+            'svs': svs,
+            'stars': stars,
+            'variant_stars': variant_stars,
+            'cnv_stars': cnvs_stars,
+            'sv_stars': svs_stars,
+            'rs_geno': rs_geno or [],
+            'msi_info': msi_info,
+            'tmb_info': tmb_info,
+            'hla_info': hla_info
         })
         return jsonify({'file_path': file_path})
     except:
@@ -188,7 +284,7 @@ def get_file():
     conf = read_conf()
     if isinstance(conf, str):
         return conf
-    print conf
+    # print conf
     JINGD_DATA_ROOT = os.environ.get('JINGD_DATA_ROOT') or conf.get('jingd_data_root')
     path = os.path.join(JINGD_DATA_ROOT, root_path, pre)
     if os.path.exists(path) is False:
@@ -228,6 +324,10 @@ if __name__ == '__main__':
     # host_ip = '192.168.105.66'
     src = r'D:\pythonproject\TCM3\dist\umi.js'
     des = r'D:\pythonproject\TCMWeb\static\umi.js'
+    src_kobars = r'D:\pythonproject\KOBARSWeb\dist\umi.js'
+    des_kobars = r'D:\pythonproject\TCMWeb\static\umi_kobars.js'
     import shutil
     shutil.copy(src, des)
+    shutil.copy(src_kobars, des_kobars)
+    # shutil.copytree(r'D:\pythonproject\KOBARSWeb\dist', r'D:\pythonproject\TCMWeb\templates\kobars')
     app.run(host=host_ip, port=port)
