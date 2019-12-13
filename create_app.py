@@ -43,7 +43,11 @@ def sort_request1(method, url, api_service='api', auth=None, data=None, remote_a
     elif api_service not in ports:
         error_message = u'暂无此服务：%s. 目前服务有：%s\n' % (api_service, ports.keys())
     else:
-        api_url = endpoint + ':' + ports[api_service] + url
+        port = ports[api_service]
+        if conf.get('port'):
+            port = conf.get('port')
+        # if
+        api_url = endpoint + ':' + port + url
         data = data or {}
         request_params = {'json': data} if method != 'GET' else {'params': data}
         headers = {'Content-Type': 'application/json'}

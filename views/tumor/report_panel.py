@@ -11,7 +11,7 @@ from string import Template
 from jy_word.File import File
 from jy_word.Word import Run, HyperLink, Paragraph, Set_page, Table, Tc, Tr
 from jy_word.Word import write_cat, write_pkg_parts, get_img_info, get_imgs, bm_index0
-from jy_word.web_tool import test_chinese, format_time, sex2str, zip_dir, del_file
+from jy_word.web_tool import test_chinese, format_time, sex2str, float2percent, get_first_name
 
 # from report_aiyi import
 
@@ -45,12 +45,14 @@ tc = Tc()
 
 
 # ##################下载报告所需方法######################
+dir_name = os.path.dirname(__file__)
 page_margin = [2.4, 0.67, 0.49, 1.23, 2, 0]
 gray = 'EEEEEE'
 green = '#385623'
 green_bg = '#A8D08D'
 normal_size = 10.5  # 五号
 none_text = 'NA'
+w_sum = 9620
 p_sect_normal = p.write(p.set(sect_pr=set_page(page_margin=[2.54, 1.9, 2.54, 1.9, 1.5, 1.75])))
 sect_pr_catalog = set_page('A4', footer='rIdFooter1', header='rIdHeader1')
 
@@ -187,7 +189,6 @@ def write_gray_tr(item):
     line = item.get('line') or 12
     color = item.get('color') or 'auto'
     tcBorders = item.get('border') or []
-
     tcs = ''
     for i in range(len(texts)):
         run = r_panel.text(texts[i], size, weight)
@@ -251,22 +252,22 @@ def write_genes(title, genes):
     return paras
 
 
-def write_abstract_drug(data):
+def write_abstract_drug(data, kind):
     items = [
         [
             {'text': '基因', 'vMerge': '<w:vMerge w:val="restart"/>', 'w': 1200, 'key': 'gene'},
             {'text': '变异', 'vMerge': '<w:vMerge w:val="restart"/>', 'w': 1300, 'key': 'amino_acid_change'},
-            {'text': 'FDA/CFDA批准用于本癌种', 'vMerge': '', 'w': 3400, 'key': 'amino_acid_change', 'gridSpan': 2},
-            {'text': 'FDA/CFDA批准用于其他癌种', 'vMerge': '<w:vMerge w:val="restart"/>', 'w': 1900, 'key': 'amino_acid_change'},
+            {'text': 'FDA/CFDA批准用于本癌种', 'vMerge': '', 'w': 3620, 'key': 'A', 'gridSpan': 2},
+            {'text': 'FDA/CFDA批准用于其他癌种', 'vMerge': '<w:vMerge w:val="restart"/>', 'w': 1900, 'key': 'B'},
             {'text': '临床试验药物', 'vMerge': '<w:vMerge w:val="restart"/>', 'w': 1700, 'key': 'amino_acid_change'},
         ],
         [
             {'text': ' ', 'vMerge': '<w:vMerge/>', 'w': 1200, 'key': 'gene'},
             {'text': ' ', 'vMerge': '<w:vMerge/>', 'w': 1300, 'key': 'amino_acid_change'},
-            {'text': '靶点获批药物', 'vMerge': '', 'w': 1700, 'key': 'drug'},
-            {'text': '潜在靶点药物', 'vMerge': '', 'w': 1700, 'key': 'qian'},
-            {'text': '', 'vMerge': '<w:vMerge/>', 'w': 1900, 'key': 'other'},
-            {'text': '', 'vMerge': '<w:vMerge/>', 'w': 1700, 'key': 'linchuang'},
+            {'text': '靶点获批药物', 'vMerge': '', 'w': 1810, 'key': 'A'},
+            {'text': '潜在靶点药物', 'vMerge': '', 'w': 1810, 'key': 'B'},
+            {'text': '', 'vMerge': '<w:vMerge/>', 'w': 1900, 'key': 'C'},
+            {'text': '', 'vMerge': '<w:vMerge/>', 'w': 1700, 'key': 'D'},
         ]
     ]
     trs = ''
@@ -280,8 +281,15 @@ def write_abstract_drug(data):
         data = [{}]
     for d_item in data:
         tcs = ''
+        arr = d_item.get(kind) or []
         for tc_item1 in items[1]:
             key = tc_item1['key']
+            if key in ['A', 'B', 'C', 'D']:
+                arr1 = []
+                for x in arr:
+                    if x.get('aiyi_level') == key:
+                        arr1.append(x.get('drugs'))
+                d_item[key] = '\n'.join(arr1)
             tcs += write_tc_panel({
                 'text': d_item.get(key) or '/',
                 'w': tc_item1.get('w'),
@@ -373,7 +381,7 @@ def write_abstract_gene(data):
         {'gene': 'MET', 'var_type': 'SNV/InDel/CNV'}
     ]
     items = [
-        {'text': '基因', 'w': 1200, 'key': 'gene'},
+        {'text': '基因', 'w': 1420, 'key': 'gene'},
         {'text': '变异', 'w': 4100, 'key': 'amino_acid_change'},
         {'text': '检测情况', 'w': 4100, 'key': 'result'},
     ]
@@ -387,7 +395,7 @@ def write_abstract_gene(data):
     for g_item in genes:
         tcs = ''
         gene = g_item.get('gene')
-        result = filter(lambda x: x.get('gene') == gene, data)
+        result = filter(lambda x: x.get('gene') == gene, data.get('stars'))
         result_text = '未检出'
         color = 'auto'
         if len(result):
@@ -404,37 +412,75 @@ def write_abstract_gene(data):
     return table.write(trs)
 
 
-def write_result1(report_data, cat):
+def write_result1(data, cat):
+    diagnosis = data.get('diagnosis')
+    stars = data.get('stars')
+    print data.get('huoyi')
     paras = ''
     paras += h2_panel(cat.get('title'), cat.get('bm'))
     size = 10
     p_set = para_setting(spacing=[0, 1.5], line=16, rule='exact')
-    for report_item in report_data:
+    CGAT = {
+        "C": "胞嘧啶", "G": "鸟嘌呤", "A": "腺嘌呤", "T": "胸腺嘧啶"
+    }
+    amino = {
+        "A": "丙氨酸", "R": "精氨酸", "D": "天冬氨酸", "C": "半胱氨酸",
+        "Q": "谷氨酰胺", "E": "谷氨酸", "H": "组氨酸", "I": "异亮氨酸",
+        "G": "甘氨酸", "N": "天冬酰胺", "L": "亮氨酸", "K": "赖氨酸",
+        "M": "甲硫氨酸", "F": "苯丙氨酸", "P": "脯氨酸", "S": "丝氨酸",
+        "T": "苏氨酸", "W": "色氨酸", "Y": "酪氨酸", "V": "缬氨酸",
+        "X": "翻译提前终止",
+    }
+
+    for report_item in stars:
+        gene = report_item.get('gene')
+        drug = report_item.get('drug')
+        amino_acid_change = report_item.get('amino_acid_change') or ''
+        effect = report_item.get('effect')
+        exon_number = report_item.get('exon_number')
+        p1 = amino_acid_change.split('p.')[-1]
+
         paras += p.write(
             para_setting(spacing=[0, 1], line=12, rule='auto'),
-            r_panel.text('{gene} {amino_acid_change};'.format(**report_item), size, 1)
+            r_panel.text('%s %s;' % (gene, amino_acid_change), size, 1)
         )
         run1 = r_panel.text('变异解析：', size, 1)
         for k in ['drug', 'diagnosis']:
             if k not in report_item:
                 report_item[k] = '（？？？）'
-        run1 += r_panel.text('患者样本中检出的{gene} {amino_acid_change}为{effect}，该突变位于{gene}基因的第{exon_number}号外显子，导致该基因编码的蛋白序列的第858（？？？）位氨基酸由亮氨酸（？？？）替换为精氨酸（？？？）。该突变是{gene}基因{exon_number}号外显子常见敏感突变（？？？）。在{diagnosis}患者中，携带{gene}敏感（？？？）突变的患者可获益于{drug}等{gene}酪氨酸激酶抑制剂。'.format(**report_item))
+        jiexi = '患者样本中检出的%s %s为%s，' % (gene, amino_acid_change, effect)
+        jiexi += '该突变位于%s基因的第%s号外显子，' % (gene, exon_number)
+        if len(p1) > 2:
+            t1 = CGAT.get(p1[0])
+            no = p1[1:-1]
+            t2 = amino.get(p1[-1])
+            try:
+                jiexi += u'导致该基因编码的蛋白序列的第%s位氨基酸由%s' % (no, t1)
+                jiexi += u'替换为%s。' % t2
+            except:
+                print gene
+            jiexi += '该突变是%s基因%s号外显子常见敏感突变。' % (gene, exon_number)
+            jiexi += '在%s患者中，携带%s敏感突变的患者可获益于%s等%s酪氨酸激酶抑制剂。' % (diagnosis, gene, drug, gene)
+        else:
+            jiexi += '导致%s蛋白质功能异常。' % gene
+
+        run1 += r_panel.text(jiexi)
         paras += p.write(p_set, run1)
         paras += p.write(
             p_set,
             r_panel.text('基因描述：', size, 1) + r_panel.text(report_item.get(u'cn_intro'))
         )
-    paras += write_result_drug(report_data, [])
+    paras += write_result_drug(stars, [])
     paras += p.write(r_panel.text('说明：PMID为PubMed数据库中收录文献的编号，PubMed数据库由美国国家医学图书馆(NLM)所属的国家生物技术信息中心(NCBI)开发，是使用最为广泛的医学文献数据库之一。', '小五'))
-    paras += write_result_drug_description('潜在获益药物说明', report_data, [
+    paras += write_result_drug_description('潜在获益药物说明', data.get('huoyi'), [
         {'text': '药物名称', 'w': 1300, 'key': 'drug_name'},
-        {'text': '商品名', 'w': 1300, 'key': 'drug_name'},
+        {'text': '商品名', 'w': 1300, 'key': 'product_name'},
         {'text': '药物类型', 'w': 1300, 'key': 'drug_name'},
         {'text': '审批状态', 'w': 800, 'key': 'drug_name'},
-        {'text': '药物说明', 'w': 4900, 'key': 'drug_description'},
+        {'text': '药物说明', 'w': 4900, 'key': 'drug_description'}
     ])
     paras += p.write()
-    paras += write_result_drug_description('相关临床研究', report_data, [
+    paras += write_result_drug_description('相关临床研究', stars, [
         {'text': '基因', 'w': 1300, 'key': 'drug_name'},
         {'text': '入组标准', 'w': 1500, 'key': 'drug_name'},
         {'text': '适应症', 'w': 1500, 'key': 'drug_name'},
@@ -443,26 +489,26 @@ def write_result1(report_data, cat):
         {'text': '描述', 'w': 2100, 'key': 'drug_description'},
     ])
     paras += p.write()
-    paras += write_result_drug_description('检出变异总表', report_data, [
-        {'text': '基因', 'w': 1300, 'key': 'drug_name'},
-        {'text': '转录本编号', 'w': 1600, 'key': 'drug_name'},
-        {'text': '核苷酸\n变化', 'w': 1300, 'key': 'drug_name'},
-        {'text': '氨基酸\n变化', 'w': 1300, 'key': 'drug_name'},
-        {'text': '外显子\n位置', 'w': 1000, 'key': 'drug_description'},
-        {'text': '变异类型', 'w': 1500, 'key': 'drug_description'},
-        {'text': '突变比例/\n拷贝数', 'w': 1600, 'key': 'drug_description'},
+    paras += write_result_drug_description('检出变异总表', stars, [
+        {'text': '基因', 'w': 1300, 'key': 'gene'},
+        {'text': '转录本编号', 'w': 1600, 'key': 'transcript_id'},
+        {'text': '核苷酸\n变化', 'w': 1300, 'key': 'nucleotide_change'},
+        {'text': '氨基酸\n变化', 'w': 1300, 'key': 'amino_acid_change'},
+        {'text': '外显子\n位置', 'w': 1000, 'key': 'exon_number'},
+        {'text': '变异类型', 'w': 1500, 'key': 'effect'},
+        {'text': '突变比例/\n拷贝数', 'w': 1600, 'key': 'tcn_em'},
     ])
     paras += p.write()
     return paras
 
 
-def write_result_TMB(report_data):
+def write_result_TMB(tmb_info):
     paras = ''
     p_set1 = para_setting(numId=11, pStyle='a5')
     paras += p.write(p_set1, r_panel.text('肿瘤突变负荷（TMB）评估', '小四', weight=1, color=green))
     p_set = para_setting(line=12, rule='auto')
     items = [
-        {'label': '突变负荷（TMB; Non-synonymous Mutations per Mb）：', 'result': '1.77'},
+        {'label': '突变负荷（TMB; Non-synonymous Mutations per Mb）：', 'result': tmb_info.get('tmb')},
         {'label': '突变负荷在该癌种患者人群中的Percentile Rank：', 'result': '10.25%'},
         {'label': '免疫检查点抑制剂疗效评估：', 'result': '该患者的肿瘤突变负荷程度低于该癌种人群肿瘤突变负荷的平均水平，因此，该患者可能对免疫治疗的应答偏低。'}
     ]
@@ -495,9 +541,10 @@ def write_result_dMMR(report_data):
         col3 = '/'
         col4 = '/'
         if len(item2) > 0:
+            item = item2[0]
             col2 = '检测到突变'
-            col3 = '???'
-            col4 = '???'
+            col3 = item.get('dna_vaf') or '/'
+            col4 = item.get('effect')
         items.append({'gene': gene, 'col2': col2, 'col3': col3, 'col4': col4})
     paras += write_result_drug_description('', items, [
         {'text': '基因', 'w': 2000, 'key': 'gene'},
@@ -517,11 +564,11 @@ def write_result_dMMR(report_data):
     return paras
 
 
-def write_result_MSI(report_data):
+def write_result_MSI(msi_info):
     paras = ''
     p_set1 = para_setting(numId=11, pStyle='a5')
     paras += p.write(p_set1, r_panel.text('微卫星不稳定(MSI)数目', '小四', weight=1, color=green))
-    items = [{'num': 105, 'col2': 0.11, 'col3': '0.4', 'col4': 'MSS'}]
+    items = [{'num': msi_info.get('somatic'), 'col2': msi_info.get('score'), 'col3': '0.4', 'col4': msi_info.get('sign')}]
     paras += write_result_drug_description('', items, [
         {'text': '检测微卫星数目', 'w': 2000, 'key': 'num'},
         {'text': '微卫星不稳定分值', 'w': 2400, 'key': 'col2'},
@@ -552,9 +599,10 @@ def write_result_kangyuan(report_data):
         col3 = '/'
         col4 = '/'
         if len(item2) > 0:
+            item = item2[0]
             col2 = '检测到突变'
-            col3 = '???'
-            col4 = '???'
+            col3 = item.get('dna_vaf')
+            col4 = item.get('effect')
         items.append({'gene': gene, 'col2': col2, 'col3': col3, 'col4': col4})
     paras += write_result_drug_description('', items, [
         {'text': '基因', 'w': 2000, 'key': 'gene'},
@@ -591,9 +639,10 @@ def write_result_risk(report_data):
         col3 = '/'
         col4 = '/'
         if len(item2) > 0:
+            item = item2[0]
             col2 = '检测到突变'
-            col3 = '???'
-            col4 = '???'
+            col3 = item.get('tcn_em')
+            col4 = item.get('effect')
         items.append({'gene': gene, 'col2': col2, 'col3': col3, 'col4': col4})
     paras += write_result_drug_description('', items, [
         {'text': '基因', 'w': 2000, 'key': 'gene'},
@@ -617,18 +666,12 @@ def write_result_risk(report_data):
     return paras
 
 
-def write_result_HLA(report_data):
+def write_result_HLA(hla_info):
     paras = ''
     p_set1 = para_setting(numId=11, pStyle='a5')
     paras += p.write(p_set1, r_panel.text('HLA分型结果', '小四', weight=1, color=green))
 
-    genes = ['HLA-A', 'HLA-B', 'HLA-C']
-    items = []
-    for gene in genes:
-        col2 = gene[-1]
-        col3 = gene[-1]
-        col4 = '纯合型' if col2 == col3 else '杂合型'
-        items.append({'col1': gene, 'col2': col2, 'col3': col3, 'col4': col4})
+    items = hla_info.get('items')
     paras += write_result_drug_description('', items, [
         {'text': 'HLA Class I', 'w': 2000, 'key': 'col1'},
         {'text': '等位基因1', 'w': 2800, 'key': 'col2'},
@@ -679,38 +722,53 @@ def write_result_drug_3(report_data):
     paras = ''
     p_set1 = para_setting(numId=11, pStyle='a5')
     paras += p.write(p_set1, r_panel.text('FDA/CFDA批准的免疫检查点抑制剂药物说明', '小四', weight=1, color=green))
+    items = [
+        {'drug_name': 'Pembrolizumab\n帕博利珠单抗', 'product_name': 'Keytruda\n可瑞达', 'drug_type': 'PD1-1\n单克隆抗体', 'state': 'FAD/CFDA', 'description': '帕博利珠单抗是一种PD-1单克隆抗体。自2014年开始，FDA相继批准该药物用于黑色素瘤、非小细胞肺癌、头颈鳞状细胞癌、尿道上皮癌、dMMR/MSI-H的结直肠癌和实体瘤以及胃癌等癌症。2018年CFDA批准该药物用于一线治疗进展后的局部晚期或转移性黑色素瘤。'},
+        {'drug_name': 'Nivolumab\n纳武利尤单抗', 'product_name': 'Opdivo\n欧狄沃', 'drug_type': 'PD1-1\n单克隆抗体', 'state': 'FAD/CFDA', 'description': '纳武利尤单抗是一种PD-1单克隆抗体。自2014年开始，FDA相继批准该药用于黑色素瘤、非小细胞肺癌、肾癌、头颈部鳞状细胞癌、尿道上皮癌、dMMR/MSI-H的结直肠癌和肝细胞癌等癌症。2018年，CFDA批准该药物治疗EGFR阴性和ALK阴性的既往接受过含铂方案化疗方案后疾病进展或不可耐受的局部晚期或转移性非小细胞肺癌成年患者。'},
+        {'drug_name': 'Atezolizumab\n阿特珠单抗', 'product_name': 'Tecentriq', 'drug_type': 'PD1-1\n单克隆抗体', 'state': 'FAD', 'description': '阿特珠单抗（Atezolizumab）是一种人源化单克隆抗体，能与肿瘤细胞或肿瘤浸润性免疫细胞上的PD-L1结合，并阻断其与PD-1和B7.1的相互作用，从而解除PD-1/PD-L1信号通路介导的肿瘤免疫应答抑制。2016年FDA批准该药用于治疗晚期或转移性尿道上皮癌以及转移性非小细胞肺癌。'},
+        {'drug_name': 'Avelumab', 'product_name': 'Bavencio', 'drug_type': 'PD1-1\n单克隆抗体', 'state': 'FAD', 'description': 'Avelumab是一种全人源IgG1λ型单克隆抗体，可以结合PD-L1并阻止其与受体PD-1和B7.1的结合，从而解除PD-1/PD-L1信号通路介导的肿瘤免疫应答抑制。2017年FDA批准该药物用于治疗Merkel细胞癌和尿道上皮癌。'},
+        {'drug_name': 'Durvalumab', 'product_name': 'Imfinzi', 'drug_type': 'PD1-1\n单克隆抗体', 'state': 'FAD', 'description': 'Durvalumab是一种PD-L1单克隆抗体。2017年FDA批准该药物用于转移性尿道上皮癌的患者。2018年，FDA批准该药物用于治疗接受标准铂类化疗联合放疗后疾病未进展的，不可手术切除的III期非小细胞肺癌患者。'},
+        {'drug_name': 'Ipilimumab', 'product_name': 'Yervoy', 'drug_type': 'PD1-1\n单克隆抗体', 'state': 'FAD', 'description': 'Ipilimumab（依匹单抗）是一种全人源IgG1κ型单克隆抗体，能结合人细胞毒性T淋巴细胞相关抗原4（CTLA-4），阻止CTLA-4与其配体（CD80和CD86）的结合，增加T细胞的活性和增殖能力，从而提高抗肿瘤的免疫应答能力。2011年FDA批准该药治疗不可切除的或转移性黑色素瘤。'},
+        {'drug_name': 'Cemiplimab-rwlc', 'product_name': 'Libtayo', 'drug_type': 'PD1-1\n单克隆抗体', 'state': 'FAD', 'description': 'Cemiplimab-rwlc是一种PD-1单克隆抗体，通过阻断PD-1和其配体之间的相互作用，从而解除PD-1/PD-L1信号通路介导的肿瘤免疫应答抑制。2018年FDA批准该药物用于皮肤鳞状细胞癌（CSCC）的治疗。'},
+        {'drug_name': '特瑞普利单抗', 'product_name': '拓益', 'drug_type': 'PD1-1\n单克隆抗体', 'state': 'CFDA', 'description': '特瑞普利单抗是一种PD-1受体的全人源单克隆抗体，可通过封闭T淋巴细胞的PD-1，阻断其与肿瘤细胞表面PD-L1结合，解除肿瘤细胞对免疫细胞的免疫抑制，使免疫细胞重新发挥抗肿瘤细胞免疫作用而杀伤肿瘤细胞。2018年12月17日，CFDA批准该药物用于既往接受全身系统治疗失败的不可切除或转移性黑色素瘤的治疗。'},
+        {'drug_name': '信迪利单抗', 'product_name': '达伯舒', 'drug_type': 'PD1-1\n单克隆抗体', 'state': 'CFDA', 'description': '信迪利单抗是一种人类免疫球蛋白G4（IgG4）单克隆抗体，能特异性结合T细胞表面的PD-1分子，从而阻断导致肿瘤免疫耐受的 PD-1/程序性死亡受体配体 1（Programmed Cell Death-1 Ligand-1, PD-L1）通路，重新激活淋巴细胞的抗肿瘤活性，从而达到治疗肿瘤的目的。2018年12月27日，CFDA批准该药用于至少经过二线系统化疗的复发或难治性经典型霍奇金淋巴瘤的治疗。'},
+    ]
 
-    paras += write_result_drug_description('', report_data, [
-        {'text': '药物名称', 'w': 1600, 'key': 'col1'},
-        {'text': '商品名', 'w': 1300, 'key': 'col2'},
-        {'text': '药物类型', 'w': 1600, 'key': 'col3'},
-        {'text': '审批\n状态', 'w': 1000, 'key': 'col4'},
-        {'text': '药物说明', 'w': 4100, 'key': 'col4'}
+    paras += write_result_drug_description('', items, [
+        {'text': '药物名称', 'w': 1600, 'key': 'drug_name'},
+        {'text': '商品名', 'w': 1300, 'key': 'product_name'},
+        {'text': '药物类型', 'w': 1600, 'key': 'drug_type'},
+        {'text': '审批\n状态', 'w': 1000, 'key': 'state'},
+        {'text': '药物说明', 'w': 4100, 'key': 'description'}
     ])
     return paras
 
 
 def write_result2(report_data, cat):
     paras = ''
+    tmb_info = report_data.get('tmb_info')
+    stars = report_data.get('stars')
+    msi_info = report_data.get('msi_info')
     paras += h2_panel(cat.get('title'), cat.get('bm'))
-    paras += write_result_TMB(report_data) + p_sect_normal
-    paras += write_result_dMMR(report_data) + p_sect_normal
-    paras += write_result_MSI(report_data) + p_sect_normal
-    paras += write_result_risk(report_data) + p_sect_normal
-    paras += write_result_kangyuan(report_data) + p_sect_normal
+    paras += write_result_TMB(tmb_info) + p_sect_normal
+    paras += write_result_dMMR(stars) + p_sect_normal
+    paras += write_result_MSI(msi_info) + p_sect_normal
+    paras += write_result_risk(stars) + p_sect_normal
+    paras += write_result_kangyuan(stars) + p_sect_normal
     return paras
 
 
 def write_result3(report_data, cat):
     paras = ''
     paras += h2_panel(cat.get('title'), cat.get('bm'))
-    paras += write_result_HLA(report_data) + p_sect_normal
-    paras += write_result_KANGYUAN_NEW(report_data) + p_sect_normal
+    paras += write_result_HLA(report_data.get('hla_info')) + p_sect_normal
+    paras += write_result_KANGYUAN_NEW([]) + p_sect_normal
     paras += write_result_drug_3(report_data) + p_sect_normal
     return paras
 
 
-def write_result4(report_data, cat):
+def write_result4(rs_geno, cat):
+    drugs = []
     paras = ''
     paras += h2_panel(cat.get('title'), cat.get('bm'))
     paras += p.write(para_setting(line=20, rule='exact', spacing=[0, 1]), r_panel.text('人群基因序列多态性造成相关代谢蛋白功能差异，使化学治疗药物的有效性和毒副作用产生差异，因此进行基因序列多态性检测可以为化疗用药提供参考。患者基因序列多态性信息与化学治疗药物有效性和毒副作用评估如下表所示。'))
@@ -721,39 +779,215 @@ def write_result4(report_data, cat):
                 {
                     'drug_name': '卡铂',
                     'genes': [
-                        {'gene': 'MTHFR', 'rs': 'rs1801133', 'genetype': 'AG', 'level': '2A', 'tip': '药效减弱'},
+                        {'gene': 'MTHFR', 'rs': 'rs1801133', 'level': 'Level 2A', 'description': '药效减弱'},
                     ]
                 },
                 {
                     'drug_name': '奥沙利铂',
                     'genes': [
-                        {'gene': 'ERCC1', 'rs': 'rs11615', 'genetype': 'AA', 'level': '2B', 'tip': '毒副作用增加；药效减弱'},
-                        {'gene': 'ERCC1', 'rs': 'rs11615', 'genetype': 'AA', 'level': '2B', 'tip': '毒副作用增加；药效减弱'},
-                        {'gene': 'ERCC1', 'rs': 'rs11615', 'genetype': 'AA', 'level': '2B', 'tip': '毒副作用增加；药效减弱'},
+                        {'gene': 'ERCC1', 'rs': 'rs11615', 'level': 'Level 2B', 'description': '毒副作用增强；药效减弱'},
+                        {'gene': 'GSTP1', 'rs': 'rs1695', 'level': 'Level 2A', 'description': '毒副作用增强'},
+                        {'gene': 'XRCC1', 'rs': 'rs25487', 'level': 'Level 2B', 'description': '药效减弱'},
                     ]
                 },
                 {
                     'drug_name': '顺铂',
                     'genes': [
-                        {'gene': 'ERCC1', 'rs': 'rs11615', 'genetype': 'AA', 'level': '2B', 'tip': '毒副作用增加；药效减弱'},
-                        {'gene': 'ERCC1', 'rs': 'rs11615', 'genetype': 'AA', 'level': '2B', 'tip': '毒副作用增加；药效减弱'},
-                        {'gene': 'ERCC1', 'rs': 'rs11615', 'genetype': 'AA', 'level': '2B', 'tip': '毒副作用增加；药效减弱'},
-                        {'gene': 'ERCC1', 'rs': 'rs11615', 'genetype': 'AA', 'level': '2B', 'tip': '毒副作用增加；药效减弱'},
-                        {'gene': 'ERCC1', 'rs': 'rs11615', 'genetype': 'AA', 'level': '2B', 'tip': '毒副作用增加；药效减弱'},
-                        {'gene': 'ERCC1', 'rs': 'rs11615', 'genetype': 'AA', 'level': '2B', 'tip': '毒副作用增加；药效减弱'},
+                        {'gene': 'ERCC1', 'rs': 'rs3212986', 'level': 'Level 2B', 'description': '毒副作用增强'},
+                        {'gene': 'ERCC2', 'rs': 'rs13181', 'level': 'Level 3', 'description': '药效增强'},
+                        {'gene': 'ERCC2', 'rs': 'rs1799793', 'level': 'Level 3', 'description': '药效减弱'},
+                        {'gene': 'TPMT', 'rs': 'rs1142345', 'level': 'Level 3', 'description': '毒副作用减弱'},
+                        {'gene': 'TPMT', 'rs': 'rs1800460', 'level': 'Level 3', 'description': '毒副作用减弱'},
+                        {'gene': 'XPC', 'rs': 'rs2228001', 'level': 'Level 1B', 'description': '毒副作用减弱'},
                     ]
                 },
             ]
-        }
+        },
+        {
+            'category': '蒽环素类',
+            'drug':  [
+                {
+                    'drug_name': '多柔比星',
+                    'genes': [
+                        {'gene': 'ABCB1', 'rs': 'rs1045642', 'level': 'Level 3', 'description': '药效减弱'},
+                    ]
+                },
+                {
+                    'drug_name': '表柔比星',
+                    'genes': [
+                        {'gene': 'GSTP1', 'rs': 'rs1695', 'level': 'Level 2A', 'description': '药效增强；毒副作用减弱'},
+                    ]
+                },
+            ]
+        },
+        {
+            'category': '鬼臼素类',
+            'drug':  [
+                {
+                    'drug_name': '依托泊苷',
+                    'genes': [
+                        {'gene': 'ABCB1', 'rs': 'rs1045642', 'level': 'Level 3', 'description': '代谢增强'},
+                        {'gene': 'DYNC2H1', 'rs': 'rs716274', 'level': 'Level 2B', 'description': '毒副作用减弱'},
+                    ]
+                }
+            ]
+        },
+        {
+            'category': '抗雌激素类',
+            'drug':  [
+                {
+                    'drug_name': '他莫昔芬',
+                    'genes': [
+                        {'gene': 'ABCB1', 'rs': 'rs1045642', 'level': 'Level 3', 'description': '药效增强'},
+                    ]
+                },
+            ]
+        },
+        {
+            'category': '抗雌激素类\n嘧啶类似物',
+            'drug':  [
+                {
+                    'drug_name': '他莫昔芬',
+                    'genes': [
+                        {'gene': 'CYP2D6', 'rs': 'rs3892097', 'level': 'Level 2A', 'description': '药效增强；毒副作用增强'},
+                    ]
+                },
+                {
+                    'drug_name': '卡培他滨',
+                    'genes': [
+                        {'gene': 'ABCB1', 'rs': 'rs1045642', 'level': 'Level 3', 'description': '毒副作用增强'},
+                    ]
+                },
+            ]
+        },
+        {
+            'category': '嘧啶类似物\n烷化剂',
+            'drug':  [
+                {
+                    'drug_name': '卡培他滨\n吉西他滨',
+                    'genes': [
+                        {'gene': 'DPYD', 'rs': 'rs3918290', 'level': 'Level 1A', 'description': '药物代谢增强；毒副作用减弱'},
+                        {'gene': 'DPYD', 'rs': 'rs55886062', 'level': 'Level 1A', 'description': '毒副作用减弱'},
+                        {'gene': 'MTHFR', 'rs': 'rs1801133', 'level': 'Level 3', 'description': '毒副作用增强'},
+                        {'gene': 'TYMS', 'rs': 'rs183205964', 'level': 'Level 3', 'description': '毒副作用减弱'},
+                        {'gene': 'CDA', 'rs': 'rs1048977', 'level': 'Level 3', 'description': '代谢增强'}
+                    ]
+                },
+                {
+                    'drug_name': '吉西他滨\n氟尿嘧啶',
+                    'genes': [
+                        {'gene': 'CDA', 'rs': 'rs2072671', 'level': 'Level 3', 'description': '毒副作用减弱'},
+                        {'gene': 'CDA', 'rs': 'rs60369023', 'level': 'Level 3', 'description': '药物代谢增强；毒副作用减弱'},
+                        {'gene': 'RRM1', 'rs': 'rs1042858', 'level': 'Level 3', 'description': '毒副作用减弱'},
+                        {'gene': 'RRM1', 'rs': 'rs183484', 'level': 'Level 3', 'description': '药效增强'},
+                        {'gene': 'RRM1', 'rs': 'rs9937', 'level': 'Level 3', 'description': '毒副作用增强；药效减弱'},
+                        {'gene': 'ABCB1', 'rs': 'rs1045642', 'level': 'Level 3', 'description': '毒副作用减弱'}
+                    ]
+                },
+                {
+                    'drug_name': '氟尿嘧啶\n环磷酰胺',
+                    'genes': [
+                        {'gene': 'DPYD', 'rs': 'rs67376798', 'level': 'Level 1A', 'description': '药物代谢增强；毒副作用减弱'},
+                        {'gene': 'GSTP1', 'rs': 'rs1695', 'level': 'Level 2A', 'description': '药效减弱'},
+                        {'gene': 'MTHFR', 'rs': 'rs1801133', 'level': 'Level 3', 'description': '药效减弱'},
+                        {'gene': 'GSTP1', 'rs': 'rs1695', 'level': 'Level 2A', 'description': '药效增强；毒副作用减弱'},
+                    ]
+                },
+            ]
+        },
+        {
+            'category': '烷化剂\n喜树碱类',
+            'drug':  [
+                {
+                    'drug_name': '环磷酰胺\n伊立替康',
+                    'genes': [
+                        {'gene': 'MTHFR', 'rs': 'rs1801133', 'level': 'Level 2A', 'description': '毒副作用减弱'},
+                        {'gene': 'UGT1A1', 'rs': 'rs4148323', 'level': 'Level 2A', 'description': '毒副作用减弱'},
+                    ]
+                }
+            ]
+        },
+        {
+            'category': '叶酸类似物',
+            'drug':  [
+                {
+                    'drug_name': '培美曲塞',
+                    'genes': [
+                        {'gene': 'MTHFR', 'rs': 'rs1801133', 'level': 'Level 3', 'description': '药效减弱'},
+                    ]
+                },
+            ]
+        },
+        {
+            'category': '叶酸类似物\n长春花生物碱类',
+            'drug':  [
+                {
+                    'drug_name': '培美曲塞\n甲氨蝶呤',
+                    'genes': [
+                        {'gene': 'TYMS', 'rs': 'rs151264360', 'level': 'Level 3', 'description': '药效增强'},
+                        {'gene': 'ABCB1', 'rs': 'rs1045642', 'level': 'Level 2A', 'description': '毒副作用减弱'},
+                    ]
+                },
+                {
+                    'drug_name': '甲氨蝶呤\n长春新碱',
+                    'genes': [
+                        {'gene': 'MTHFR', 'rs': 'rs1801133', 'level': 'Level 2A', 'description': '药效增强；毒副作用减弱'},
+                        {'gene': 'SLCO1B1', 'rs': 'rs11045879', 'level': 'Level 2A', 'description': '药物代谢减弱；毒副作用减弱'},
+                        {'gene': 'ABCB1', 'rs': 'rs1045642', 'level': 'Level 3', 'description': '药效减弱'},
+                    ]
+                },
+            ]
+        },
+        {
+            'category': '紫杉烷类',
+            'drug':  [
+                {
+                    'drug_name': '多西他赛',
+                    'genes': [
+                        {'gene': 'ERCC2', 'rs': 'rs13181', 'level': 'Level 3', 'description': '毒副作用增强'},
+                    ]
+                },
+            ]
+        },
+        {
+            'category': '紫杉烷类\n芳香化酶抑制剂',
+            'drug':  [
+                {
+                    'drug_name': '紫杉醇',
+                    'genes': [
+                        {'gene': 'ABCB1', 'rs': 'rs1045642', 'level': 'Level 3', 'description': '药效增强'},
+                    ]
+                },
+                {
+                    'drug_name': '紫杉醇\n来曲唑',
+                    'genes': [
+                        {'gene': 'CYP2C8', 'rs': 'rs10509681', 'level': 'Level 4', 'description': '药物代谢增强'},
+                        {'gene': 'CYP2C8', 'rs': 'rs11572080', 'level': 'Level 3', 'description': '毒副作用减弱'},
+                        {'gene': 'CYP19A1', 'rs': 'rs4646', 'level': 'Level 3', 'description': '药效减弱（绝经后）'},
+                    ]
+                },
+            ]
+        },
+        {
+            'category': '芳香化酶抑制剂',
+            'drug':  [
+                {
+                    'drug_name': '阿那曲唑',
+                    'genes': [
+                        {'gene': 'CYP19A1', 'rs': 'rs4646', 'level': 'Level 2B', 'description': '药效减弱（绝经前）/药效增强（绝经后）'},
+                    ]
+                },
+            ]
+        },
     ]
     thead = [
-        {'key': 'category', 'text': '药物类别', 'w': 1200},
+        {'key': 'category', 'text': '药物类别', 'w': 1320},
         {'key': 'drug_name', 'text': '药物名称', 'w': 1200},
         {'key': 'gene', 'text': '检测基因', 'w': 1400},
         {'key': 'rs', 'text': '检测位点', 'w': 1400},
         {'key': 'genetype', 'text': '基因型', 'w': 1400},
         {'key': 'level', 'text': '证据等级', 'w': 1400},
-        {'key': 'tip', 'text': '用药提示', 'w': 1600}
+        {'key': 'description', 'text': '用药提示', 'w': 1600}
     ]
     trs = ''
     tcs0 = ''
@@ -762,22 +996,36 @@ def write_result4(report_data, cat):
         tcs0 += write_tc_panel(th)
     trs += tr.write(tcs0)
 
+    chems = []
     for c_index, item in enumerate(items):
         category = item.get('category')
         drug = item.get('drug') or []
         for d_index, d_item in enumerate(drug):
             drug_name = d_item.get('drug_name')
             genes = d_item.get('genes')
+            max_item = {'level': ''}
             for g_index, g_item in enumerate(genes):
+                level = g_item.get('level')
+                max_level = max_item.get('level')
                 vMerge1 = ''
                 if len(drug) > 1:
                     vMerge1 = '<w:vMerge w:val="restart"/>' if c_index == 0 and d_index == 0 and g_index == 0 else '<w:vMerge/>'
                 vMerge2 = ''
                 if len(genes) > 1:
-                    vMerge2 = '<w:vMerge w:val="restart"/>' if d_index == 0 and g_index == 0 else '<w:vMerge/>'
+                    vMerge2 = '<w:vMerge w:val="restart"/>' if g_index == 0 else '<w:vMerge/>'
                 tcs = ''
                 g_item['category'] = category
                 g_item['drug_name'] = drug_name
+                rs = g_item.get('rs')
+                rs_list = filter(lambda x: x[0] == rs, rs_geno)
+                if len(rs_list) > 0:
+                    rs_item = rs_list[0]
+                    g_item['genetype'] = rs_item[1]
+                    if max_level == '' or max_level > level:
+                        max_item = g_item
+                else:
+                    g_item['level'] = ''
+                    g_item['description'] = ''
                 for th_index, th_item in enumerate(thead):
                     key = th_item.get('key')
                     w = th_item.get('w')
@@ -790,12 +1038,16 @@ def write_result4(report_data, cat):
                         vMerge = vMerge2
                     tcs += write_tc_panel({'text': g_item.get(key), 'w': w, 'vMerge': vMerge, 'weight': weight})
                 trs += tr.write(tcs)
+            d_item['max_item'] = max_item
+            if max_item.get('level'):
+                chems.append(d_item)
     paras += table.write(trs)
     paras += p.write(r_panel.text('备注：此处检测结果不具有临床医嘱性质，仅供临床医师参考，不作为直接用药依据。', '小五'))
-    return paras
+    return paras, chems
 
 
-def write_abstract1(report_data, cat):
+def write_abstract1(data, cat):
+    stars = data.get('stars')
     paras = ''
     paras += h2_panel(cat.get('title'), cat.get('bm'))
     paras += h4_panel(u'具有临床意义的基因变异')
@@ -807,8 +1059,8 @@ def write_abstract1(report_data, cat):
         {'w': w+300, 'title': '核苷酸变化', 'key': 'nucleotide_change'},
         {'w': w+300, 'title': '氨基酸变化', 'key': 'amino_acid_change'},
         {'w': w+300, 'title': '外显子位置', 'key': 'exon_number'},
-        {'w': w+200, 'title': '变异类型', 'key': 'effect'},
-        {'w': w+160, 'title': '突变比例/拷贝数', 'key': 'tcn_em'}
+        {'w': w+120, 'title': '变异类型', 'key': 'effect'},
+        {'w': w+60, 'title': '突变比例/拷贝数', 'key': 'tcn_em'}
     ]
     ws = []
     titles = []
@@ -817,20 +1069,27 @@ def write_abstract1(report_data, cat):
         titles.append(key.get('title'))
     jc = 'center'
     trs += write_gray_tr({'ws': ws, 'text': titles, 'fill': green_bg, 'jc': jc})
-    for report_item in report_data:
+    huoyi = []
+    naiyao = []
+    for report_item in stars:
         text = []
-
+        mingan = report_item.get('mingan') or []
+        if len(mingan) > 0:
+            huoyi.append(report_item)
+        naiyao1 = report_item.get('naiyao') or []
+        if len(naiyao1) > 0:
+            naiyao.append(report_item)
         for key2 in keys:
             text.append(report_item.get(key2.get('key')) or 'NA')
         trs += write_gray_tr({'ws': ws, 'text': text, 'jc': jc})
     paras += table.write(trs, ws)
     paras += h4_panel(u'潜在获益药物')
     # vmerge1 = '<w:vMerge w:val="restart"/>' if i == 0 and d == 0 else '<w:vMerge/>'
-    paras += write_abstract_drug(report_data)
+    paras += write_abstract_drug(data.get('huoyi'), 'mingan')
     paras += h4_panel(u'潜在耐药药物')
-    paras += write_abstract_drug([])
+    paras += write_abstract_drug(data.get('naiyao'), 'naiyao')
     paras += h4_panel(u'本癌种FDA获批/NCCN指南推荐的靶药基因检出情况')
-    paras += write_abstract_gene(report_data)
+    paras += write_abstract_gene(data)
     paras += p.write()
     shuoming = '''说明：
     1）基因变异命名规则依据人类基因组变异学会（HGVS）建立的基因变异命名方法。
@@ -840,24 +1099,27 @@ def write_abstract1(report_data, cat):
     return paras
 
 
-def write_abstract2(report_data, cat):
+def write_abstract2(data, cat):
+    overview = data.get('overview')
+    msi_info = data.get('msi_info')
+    hla_info = data.get('hla_info')
     paras = ''
     paras += h2_panel(cat.get('title'), cat.get('bm'))
     paras += h4_panel(u'免疫检查点抑制剂治疗适用性较差')
     trs = ''
     theads = [
         {'fill': green_bg, 'w': 1200, 'text': '序号', 'key': 'gene'},
-        {'fill': green_bg, 'w': 4800, 'text': '检测指标', 'key': 'zhibiao'},
+        {'fill': green_bg, 'w': 4920, 'text': '检测指标', 'key': 'zhibiao'},
         {'fill': green_bg, 'w': 3600, 'text': '检测结果', 'key': 'result'}
     ]
     result = {
-        'TMB': '1.77 Muts/Mb',
+        'TMB': '%s Muts/Mb' % overview.get('tmb'),
         'MMR': 'pMMR',
         'PDL1': '~10%阳性',
-        'MSI': 'MMS',
+        'MSI': msi_info.get('sign'),
         'gene': '检测到有害突变',
         'loss': '未检测到有害突变',
-        'HLA': '纯合型',
+        'HLA': hla_info.get('hla_type'),
         'neoantigens': '66个',
     }
     items = [
@@ -934,7 +1196,7 @@ def write_abstract3(report_data, cat):
     return paras
 
 
-def write_abstract4(report_data, cat):
+def write_abstract4(chems, cat):
     paras = ''
     primary = '#00A683'
     info = '#0054A6'
@@ -954,13 +1216,6 @@ def write_abstract4(report_data, cat):
     run0 += r_panel.text(signs[2].get('text'), size=signs[2].get('size'), color=signs[2].get('color'))
     run0 += r_panel.text('），仅供医生参考，具体的治疗方案须由临床医生根据实际情况而决定。', normal_size)
     paras += p.write(para_setting(line=16, rule='exact', ind=['firstLine', 2], spacing=[0, 0.5]), run0)
-
-    trs = ''
-    theads = [
-        {'fill': green_bg, 'w': 1200, 'text': '序号', 'key': 'gene'},
-        {'fill': green_bg, 'w': 1800, 'text': '药物名称', 'key': 'drug'},
-        {'fill': green_bg, 'w': 1600, 'text': '用药提示', 'key': 'tip'}
-    ]
     items = [
         {'drug': '卡铂', 'tip': 'primary'},
         {'drug': '奥沙利铂', 'tip': 'primary'},
@@ -983,7 +1238,69 @@ def write_abstract4(report_data, cat):
         {'drug': '阿那曲唑（绝经前）', 'tip': 'primary'},
         {'drug': '阿那曲唑（绝经后）', 'tip': 'primary'}
     ]
-    row = int(math.floor(len(items)/2.0))
+    print chems[0]
+    for item in items:
+        items2 = filter(lambda x: item.get('drug').split('（')[0] in x.get('drug_name'), chems)
+        level_item = {'level': 'zzz'}
+        for item2 in items2:
+            max_item = item2.get('max_item')
+            if max_item.get('level') < level_item.get('level'):
+                level_item = max_item
+                description = max_item.get('description')
+                liaoxiao = None
+                duxing = None
+                if description is not None:
+
+                    description = description.strip().split('；')
+                    for des in description:
+                        for d in des.split('/'):
+                            if '代谢' in d or '药效' in d:
+                                liaoxiao1 = None
+                                if d.split('（')[0].endswith('强'):
+                                    liaoxiao1 = True
+                                elif d.split('（')[0].endswith('弱'):
+                                    liaoxiao1 = False
+                                else:
+                                    print d, 'liaoxiao===='
+                                if '绝经前' in item.get('drug'):
+                                    if '绝经前' in d:
+                                        liaoxiao = liaoxiao1
+                                elif '绝经后' in item.get('drug'):
+                                    if '绝经后' in d:
+                                        liaoxiao = liaoxiao1
+                                else:
+                                    liaoxiao = liaoxiao1
+                            if '毒' in d:
+                                if d.endswith('强'):
+                                    duxing = True
+                                elif d.endswith('弱'):
+                                    duxing = False
+                                else:
+                                    print d, 'duxing===='
+
+                if liaoxiao is True and duxing is False:
+                    item['tip'] = 'primary'
+                elif liaoxiao is False and duxing is True:
+                    item['tip'] = 'danger'
+                elif liaoxiao is True or duxing is False:
+                    item['tip'] = 'info'
+                elif liaoxiao is None and duxing is True:
+                    item['tip'] = '药效未知，毒性强'
+                elif liaoxiao is False and duxing is None:
+                    item['tip'] = '药效弱，毒性未知'
+                elif description is None:
+                    item['tip'] = '/'
+                else:
+                    item['tip'] = '不定'
+                    print item.get('drug'), liaoxiao, duxing
+    trs = ''
+    theads = [
+        {'fill': green_bg, 'w': 1200, 'text': '序号', 'key': 'gene'},
+        {'fill': green_bg, 'w': 1800, 'text': '药物名称', 'key': 'drug'},
+        {'fill': green_bg, 'w': 1600, 'text': '用药提示', 'key': 'tip'}
+    ]
+
+    row = int(math.floor(len(items) / 2.0))
     trs += write_tr_panel(theads*2)
     for i in range(row):
         tcs = ''
@@ -994,14 +1311,14 @@ def write_abstract4(report_data, cat):
         item2.update({'index': index2})
         items2 = [item1, item2]
         for item in items2:
-            tip1 = item1.get('tip')
-            result1 = {'weight': 0, 'w': theads[2]['w']}
+            tip1 = item.get('tip')
+            result1 = {'weight': 0, 'w': theads[2]['w'], 'text': tip1}
             if tip1:
                 sign = filter(lambda x: x['degree'] == tip1, signs)
                 if len(sign)> 0:
                     result1.update(sign[0])
             tcs += write_tc_panel({'text': '%02d' % (item.get('index')+1), 'weight': 0, 'w': theads[0]['w']})
-            tcs += write_tc_panel({'text': item1.get('drug'), 'weight': 0, 'w': theads[1]['w']})
+            tcs += write_tc_panel({'text': item.get('drug'), 'weight': 0, 'w': theads[1]['w']})
             tcs += write_tc_panel(result1)
         trs += tr.write(tcs)
     paras += table.write(trs)
@@ -1076,11 +1393,12 @@ def write_cover(data):
     return paras
 
 
-def write_oration():
+def write_oration(sample_detail):
     paras = ''
+    first_name = get_first_name(sample_detail)
     paras += p.write(para_setting(line=12, rule='auto', jc='center', spacing=[0, 1]), r_panel.text('致您的一封信', 16, 1, color=green))
     p_set = para_setting(line=20, rule='exact', ind=['firstLine', 2])
-    paras += p.write(para_setting(line=20, rule='exact'), r_panel.text('尊敬的patient_name先生\女士(sex)：', normal_size, 1))
+    paras += p.write(para_setting(line=20, rule='exact'), r_panel.text('尊敬的%s：' % first_name, normal_size, 1))
     texts = '''
     您好！
 
@@ -1094,8 +1412,7 @@ def write_oration():
     '''
     for t in texts.split('\n'):
         paras += p.write(p_set, r_panel.text(t, normal_size))
-    paras += p.write() * 3
-    paras += p.write(r_panel.text('智慧成就健康', normal_size))
+    paras += p.write(p.set(spacing=[4, 0]), r_panel.text('智慧成就健康', normal_size))
     return paras
 
 
@@ -1186,32 +1503,61 @@ def write_patient_info(report_detail, cat):
     return paras
 
 
-def write_abstract(report_data, cats):
+def write_abstract(data, cats):
+    stars = data.get('stars')
     paras = ''
     cat0 = cats[0]
     paras += h1_panel(cat0.get('title'), cat0.get('bm'))
-    for tip_item in report_data:
-        for k in ['gene', 'amino_acid_change', 'drug']:
+    huoyi = []
+    naiyaos = []
+    for tip_item in stars:
+        for k in ['gene', 'amino_acid_change']:
             tip_item[k] = tip_item.get(k) or '（？？？）'
+        known_db = tip_item.get('known_db') or []
+        drug = []
+        naiyao = []
+        mingan = []
+        for known_item in known_db:
+            drugs = known_item.get('drugs')
+            if drugs not in drug:
+                drug.append(drugs)
+            evidence_direction = known_item.get('evidence_direction') or ''
+            evidence_direction = evidence_direction.strip().capitalize()
+            if evidence_direction.endswith('(support)') or evidence_direction.endswith('(supoort)'):
+                if evidence_direction.startswith('Resistant'):
+                    mingan.append(known_item)
+                if evidence_direction.startswith('Responsive'):
+                    naiyao.append(known_item)
+        tip_item['naiyao'] = naiyao
+        tip_item['mingan'] = mingan
+        if len(naiyao) >0:
+            naiyaos.append(tip_item)
+        if len(mingan) > 0:
+            huoyi.append(tip_item)
+        # for k in drug.keys():
+        #     print k,
+        tip_item['drug'] = '、'.join(drug)
         tip = u'{gene}的{amino_acid_change}突变是对{drug}治疗的强预测指标'.format(**tip_item)
         paras += p.write(r_panel.text(tip, normal_size))
-
-    paras += write_abstract1(report_data, cats[1]) + p_sect_normal
-    paras += write_abstract2(report_data, cats[2]) + p_sect_normal
-    paras += write_abstract3(report_data, cats[3]) + p_sect_normal
-    paras += write_abstract4(report_data, cats[4]) + p_sect_normal
+    data['stars'] = stars
+    data['huoyi'] = huoyi
+    data['naiyao'] = naiyaos
+    paras += write_abstract1(data, cats[1]) + p_sect_normal
+    paras += write_abstract2(data, cats[2]) + p_sect_normal
+    paras += write_abstract3(stars, cats[3]) + p_sect_normal
+    paras += write_abstract4(data.get('chems'), cats[4]) + p_sect_normal
     paras += write_abstract5(cats[5]) + p_sect_normal
-    return paras
+    return paras, huoyi, naiyaos
 
 
-def write_result(report_data, gene_info, cats):
+def write_result(data, gene_info, cats):
     paras = ''
     cat0 = cats[0]
     paras += h1_panel(cat0.get('title'), cat0.get('bm'))
-    paras += write_result1(report_data, cats[1]) + p_sect_normal
-    paras += write_result2(report_data, cats[2]) + p_sect_normal
-    paras += write_result3(report_data, cats[3]) + p_sect_normal
-    paras += write_result4(report_data, cats[4]) + p_sect_normal
+    paras += write_result1(data, cats[1]) + p_sect_normal
+    paras += write_result2(data, cats[2]) + p_sect_normal
+    paras += write_result3(data, cats[3]) + p_sect_normal
+    paras += data.get('para_geno') + p_sect_normal
     return paras
 
 
@@ -1304,7 +1650,84 @@ def write_affix(report_data, gene_info, cats):
     paras += write_genes('化疗用药检测基因', genes3) + p_sect_normal
     paras += write_genes('其他肿瘤相关基因', genes4) + p_sect_normal
     cat = cats[2]
-    paras += h2_panel(cat.get('title'), cat.get('bm')) + p_sect_normal
+    paras += h2_panel(cat.get('title'), cat.get('bm'))
+    file_path = os.path.join(dir_name, 'panel_genes.txt')
+    gene_no_path = os.path.join(dir_name, 'gene_no.json')
+    rs_path = os.path.join(dir_name, 'rs.json')
+    # gene_nos = my_file.read(gene_no_path)
+
+    panel_genes = my_file.read(file_path).strip('\n').split('\n')
+    gene_index = 0
+    items2 = []
+    items = []
+    rs = []
+    pic = []
+    gene_nos = []
+
+    for t_index, t in enumerate(panel_genes):
+        t = t.strip().strip('\t').strip().strip('\r').strip('\n\r').strip('^M').strip('\xe2\x80\x83\n')
+        if len(t) > 0:
+            # items.append(t)
+            # if t in genes1 + genes2 + genes3 + genes4:
+            #     print t_index, t, 'gene'
+            #     if gene_index > 0:
+            #         paras += p_sect_normal
+            #     paras += p.write(p.set(jc='center', spacing=[0, 0.5]), r_panel.text(t, '小四', 1))
+            #     gene_index += 1
+            if t == '参考文献':
+
+                # i_gene = items[len(rs)]
+                # item2 = {
+                #     'gene': panel_genes[i_gene],
+                #     'description': panel_genes[i_gene+1, t_index - 2],
+                #     'tip': panel_genes[t_index-1],
+                #     'reference': ''
+                # }
+                rs.append(t_index)
+                # pic.append(t_index-1)
+            if len(t) < 20 and '图' not in t and t != '参考文献':
+    #             print t_index, t
+    #             gene_index += 1
+                gene_nos.append(t_index)
+    #             paras += p.write(p.set(jc='center', spacing=[0, 0.5]), r_panel.text(t, '小四', 1))
+    for i_gene_no, gene_no in enumerate(gene_nos):
+        i_rs = rs[i_gene_no]
+        i_tip = i_rs - 1
+        if i_gene_no < len(gene_nos) -1:
+            next_no = gene_nos[i_gene_no+1]
+        else:
+            next_no = len(gene_nos)
+
+        if i_gene_no in [2]:
+            i_tip = i_rs
+        tip = panel_genes[i_tip]
+        if i_tip == i_rs:
+            tip = ''
+        print i_gene_no, panel_genes[gene_no], panel_genes[i_rs], tip
+        gene = panel_genes[gene_no]
+        description = panel_genes[gene_no+1: i_tip]
+        reference = panel_genes[i_rs+1: next_no]
+        item2 = {
+            'gene': gene,
+            'description': description,
+            'tip': tip,
+            'reference': reference
+        }
+        items2.append(item2)
+        paras += p.write(p.set(jc='center', spacing=[0, 0.5]), r_panel.text(gene, '小四', 1))
+        for d in description:
+            paras += p.write(p.set(line=19.2, rule='exact'), r_panel.text(d))
+        paras += p.write(p.set(spacing=[0, 18]), r_panel.picture(cy=10, rId=gene.replace('-', '_').split('(')[0], align=['center', ''], posOffset=[0, 0.5]))
+        paras += p.write(p.set(jc='center'), r_panel.text(tip, '小五'))
+        paras += p.write(p.set(line=19.2, rule='exact', ind=['hanging', 1]), r_panel.text('参考文献', weight=1))
+        for rr in reference:
+            paras += p.write(p.set(line=18, rule='exact', ind=['hanging', 1]), r_panel.text(rr))
+        paras += p_sect_normal
+    print gene_index
+    my_file.write(file_path[:-3] + 'json', items2)
+    # my_file.write(gene_no_path, items)
+    my_file.write(rs_path, rs)
+    paras += p_sect_normal
     return paras
 
 
@@ -1453,22 +1876,30 @@ def sort_panel_data(data):
     pkgs = ''
     rels = ''
     chapters = ''
-    patient_detail = data.get('sample_detail') or {}
+    sample_detail = data.get('sample_detail') or {}
     report_data = data.get('variant_list') or []
     gene_info = data.get('gene_info') or []
     imgs, files = [], []
 
     catelogs = get_catalog()
+    # , huoyi, naiyaos
+    para_geno, chems = write_result4(data.get('rs_geno'), catelogs[11])
+    data['chems'] = chems
+    para_abstract, huoyi, naiyaos = write_abstract(data, catelogs[1: 7])
+    data['huoyi'] = huoyi
+    data['naiyao'] = naiyaos
+    data['para_geno'] = para_geno
+    para_result = write_result(data, gene_info, catelogs[7: 12])
     return {
         'other_page': (pkgs, rels),
-        'cover': write_cover(patient_detail) + p_sect_normal,
-        'oration': write_oration() + p_sect_normal,
+        'cover': write_cover(sample_detail) + p_sect_normal,
+        'oration': write_oration(sample_detail) + p_sect_normal,
         'introduce': write_introduce() + p_sect_normal,
         'catalog': write_catalog(catelogs),
         'chapters': chapters,
-        'common': write_patient_info(patient_detail, catelogs[0]) + p_sect_normal,
-        'abstract': write_abstract(report_data, catelogs[1: 7]),
-        'result': write_result(report_data, gene_info, catelogs[7: 12]),
+        'common': write_patient_info(sample_detail, catelogs[0]) + p_sect_normal,
+        'abstract': para_abstract,
+        'result': para_result,
         'affix': write_affix(report_data, gene_info, catelogs[12: 15]),
         'shuoming': write_shuoming(catelogs[15]) + p_sect_normal,
         'reference': write_reference(catelogs[16]) + p_sect_normal,
@@ -1493,7 +1924,7 @@ def sort_panel_data(data):
 
 def down_common(data, sort_func):
     # my_file.write(file_name.split('.')[0] + '.json', data)
-    dir_name = os.path.dirname(__file__)
+
     img_dir = os.path.join(dir_name, 'panel_demo', 'word', 'media')
     img_info_path = os.path.join(dir_name, 'img_info_%s.json' % 'panel')
     gene_info_path = os.path.join(dir_name, 'OncoKB_gene_info.json')
