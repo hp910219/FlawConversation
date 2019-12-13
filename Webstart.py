@@ -57,6 +57,7 @@ def upload_report():
         file_dir = conf.get('file_dir')
         if file_dir is None:
             return 'file_dir not in config.conf'
+        print request.files
         if len(request.files) == 0:
             return jsonify({"success": False, "message": 'select file'})
         for k in request.files:
@@ -65,12 +66,14 @@ def upload_report():
             dir_path = os.path.join(file_dir, name_array[-1])
             if os.path.exists(dir_path) is False:
                 os.makedirs(dir_path)
-            path = os.path.join(dir_path, '.'.join(name_array[-2:]))
+            t = format_time(frm='%Y%m%d%H%M%S')
+            path = os.path.join(dir_path, name_array[-2] + t+'.'+name_array[-1])
             f.save(path)
             return jsonify({'path': path, "message": 'success'})
         return jsonify({'len': len(request.files)})
     except Exception, e:
-        send_msg_by_dd(str(e))
+        traceback.print_exc()
+        send_msg_by_dd(traceback.format_exc())
         return jsonify({'message': str(e)})
 
 
