@@ -77,6 +77,32 @@ def upload_report():
         return jsonify({'message': str(e)})
 
 
+@app.route("/tcm/save/file/", methods=["POST", 'OPTIONS'])
+def save_file():
+    try:
+        conf = read_conf()
+        if isinstance(conf, str):
+            return conf
+        file_dir = conf.get('file_dir')
+        if file_dir is None:
+            return 'file_dir not in config.conf'
+        rq = request.json
+        if rq is None:
+            return 'nothing is requested'
+        content = rq.get('content')
+        dir_path = os.path.join(file_dir, 'annotate', 'input')
+        if os.path.exists(dir_path) is False:
+            os.makedirs(dir_path)
+        t = format_time(frm='%Y%m%d%H%M%S')
+        path = os.path.join(dir_path, t+'.txt')
+        my_file.write(path, content)
+        return jsonify({'path': path, "message": 'success'})
+    except Exception, e:
+        traceback.print_exc()
+        send_msg_by_dd(traceback.format_exc())
+        return jsonify({'message': str(e)})
+
+
 @app.route("/tcm/download/report/", methods=["POST"])
 def auth_down_report():
     # file_path = 'sss'
