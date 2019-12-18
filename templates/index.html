@@ -6,7 +6,7 @@
     <title>{{  conf.page_title or '名老中医传承平台'}}</title>
     <script>
         window.routerBase = "/";
-        sessionStorage.setItem('hostname', location.hostname);
+        sessionStorage.setItem('hostname', location.hostname +location.pathname);
         var system_name = '{{ system_name }}';
         var system_conf = {{ conf|tojson }};
         console.log('system_conf', system_conf);
