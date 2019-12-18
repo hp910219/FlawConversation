@@ -314,7 +314,8 @@ def get_file():
     if isinstance(conf, str):
         return conf
     # print conf
-    JINGD_DATA_ROOT = os.environ.get('JINGD_DATA_ROOT') or conf.get('jingd_data_root')
+    # JINGD_DATA_ROOT = os.environ.get('JINGD_DATA_ROOT') or conf.get('jingd_data_root')
+    JINGD_DATA_ROOT = os.environ.get('AY_USER_DATA_DIR') or conf.get('jingd_data_root')
     path = os.path.join(JINGD_DATA_ROOT, root_path, pre)
     if os.path.exists(path) is False:
         return 'Path not exists, %s' % path
@@ -323,6 +324,18 @@ def get_file():
     data['data']['data_root'] = JINGD_DATA_ROOT
     data['data']['sep'] = os.path.sep
     return jsonify(data)
+
+
+@app.route('/file/content/', methods=['POST'])
+def get_file_content():
+    rq = request.json
+    dir_name = rq.get('dir') or ''
+    file_name = rq.get('file_name') or ''
+    path = os.path.join(dir_name, file_name)
+    if os.path.exists(path) is False:
+        return 'Path not exists, %s' % path
+    data = my_file.read(path)
+    return jsonify({'message': 'success', 'data': data, 'file_path': path})
 
 
 @app.route('/transfer/img/', methods=['POST'])
@@ -357,5 +370,6 @@ if __name__ == '__main__':
     import shutil
     shutil.copy(src, des)
     shutil.copy(src_kobars, des_kobars)
+    shutil.copy(r'D:\pythonproject\KOBARSWeb\dist\umi.css', r'D:\pythonproject\TCMWeb\static\umi_kobars.css')
     # shutil.copytree(r'D:\pythonproject\KOBARSWeb\dist', r'D:\pythonproject\TCMWeb\templates\kobars')
     app.run(host=host_ip, port=port)
