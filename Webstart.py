@@ -3,7 +3,7 @@
 import os
 import traceback
 
-from flask import jsonify, request, render_template, send_from_directory
+from flask import jsonify, request, render_template, send_from_directory, redirect
 from config import read_conf
 from jy_word.web_tool import send_msg_by_dd, format_time
 from jy_word.File import File
@@ -351,6 +351,11 @@ def transfer_img():
         return jsonify({'message': 'file not exists: %s' % file_path})
     data = {'img': pic_b64encode(file_path), 'file_path': file_path}
     return jsonify(data)
+
+
+@app.route('/kobas4', methods=['GET'])
+def render_kobas4():
+    return redirect('/')
 
 
 if __name__ == '__main__':
