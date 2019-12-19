@@ -13,6 +13,7 @@ from create_app import create_app, sort_request1
 from create_auth_code import create_strs, my_file, auth_code_path
 from views.generate_report import generate_word
 from views.tumor.report_panel import down_panel
+from views.tumor.report_aiyi import filter_sv
 
 
 app = create_app()
@@ -22,6 +23,7 @@ restart_time = format_time(frm='%Y%m%d%H%M%S')
 @app.route('/kobas4/')
 @app.route('/kobas4')
 @app.route('/')
+@app.route('')
 def hello_world():
     conf = read_conf()
     system_name = conf.get('system_name')
@@ -143,6 +145,7 @@ def tumor_download_panel():
     cnvs = []
     svs = []
     rs_geno = []
+    neoantigens = []
     if rq is not None:
         sample_no = rq.get('sample_no')
         item_name = rq.get('item_name')
@@ -170,6 +173,10 @@ def tumor_download_panel():
         res_geno = sort_request1('GET', '/api/v2/tumor/genotype/', data={'sample_no': sample_no})
         if res_geno is not None:
             rs_geno = res_geno.get('data') or []
+        res_neoantigens = sort_request1('GET', '/api/v2/tumor/neoantigens/', data={'sample_no': sample_no})
+        # neoantigens = get_api('/api/v2/tumor/neoantigens/', {'sample_no': sample_no}) or []
+        if res_neoantigens is not None:
+            neoantigens = res_neoantigens.get('data') or []
 
     variant_stars = filter(lambda x: x['add_star'] > 0, variant_list)
     cnvs_stars = filter(lambda x: x['add_star'] > 0, cnvs)
@@ -236,6 +243,51 @@ def tumor_download_panel():
         'items': hla_items,
         'hla_type': hla_type
     }
+
+    variant_stars = filter(lambda x: x['add_star'] > 0, variant_list)
+    cnvs_stars = filter(lambda x: x['add_star'] > 0, cnvs)
+    svs_stars = filter(lambda x: filter_sv(x), svs)
+    stars = sorted(variant_stars + cnvs_stars+svs_stars, key=lambda x: x['add_star'])
+
+    msi_sort_paired_total = overview.get('msi_sort_paired_total')
+    msi_sort_paired_somatic = overview.get('msi_sort_paired_somatic')
+    msi_score = int(msi_sort_paired_somatic/float(msi_sort_paired_total) * 10000) / 100.0
+
+    msi_info = {
+        'total': msi_sort_paired_total,
+        'somatic': msi_sort_paired_somatic,
+        'score': msi_score,
+        'text': 'MSS微卫星稳定',
+        'effect': 'PD1等免疫检查点抗体可能效果不显著',
+        'level': '',
+        'w': 3000
+    }
+    if msi_score >= 10:
+        msi_info['text'] = 'MSI-H微卫星高不稳定'
+        msi_info['effect'] = 'PD1等免疫检查点抗体可能有效'
+        msi_info['level'] = 'A'
+    elif msi_score >= 3.5:
+        msi_info['text'] = 'MSI-L微卫星低不稳定'
+
+    tmb = overview.get('tmb')
+    tmb_tip = '注：NSCLC未经选择人群PD抗体有效率，具吸烟史为22%，无吸烟史为10%'
+    if diagnose in '结直肠癌':
+        tmb_tip = '注：MSS微卫星稳定结直肠癌患者PD1抗体有效率为0%；MSI-H微卫星不稳定结直肠癌患者有效率为29.6%。'
+    tmb_info = {
+        'w': w_sum-300-3000,
+        'text': '',
+        'effect': '',
+        'level': 'C',
+        'tmb_tip': tmb_tip
+    }
+
+    if tmb <= 20:
+        tmb_info['text'] = 'TMB肿瘤突变负荷低 （%s个突变/Mb，大于该癌种%s%%人群）' % (tmb, 85)
+        tmb_info['level'] = 'B' if diagnose == '非小细胞肺癌' else 'C'
+    elif tmb > 20:
+        tmb_info['text'] = 'TMB肿瘤突变负荷高 （%s个突变/Mb，大于该癌种%s%%人群）' % (tmb, 85)
+        tmb_info['level'] = 'A' if diagnose == '非小细胞肺癌' else 'B'
+    print 'rs_geno', len(rs_geno)
     try:
         file_path = down_panel({
             'item_name': item_name,
@@ -252,6 +304,7 @@ def tumor_download_panel():
             'cnv_stars': cnvs_stars,
             'sv_stars': svs_stars,
             'rs_geno': rs_geno or [],
+            'neoantigens': neoantigens or [],
             'msi_info': msi_info,
             'tmb_info': tmb_info,
             'hla_info': hla_info
@@ -358,6 +411,16 @@ def transfer_img():
 @app.route('/kobas4', methods=['GET'])
 def render_kobas4():
     return redirect('/')
+
+
+@app.route('/kobas/avai/taxonomy/', methods=['GET'])
+def get_avi_taxonomy():
+    dir_name = os.path.dirname(__file__)
+    static_dir = os.path.join(dir_name, 'static')
+    json_dir = os.path.join(static_dir, 'json')
+    file_path = os.path.join(json_dir, 'avai_taxonomy.tsv')
+    data = my_file.read(file_path)
+    return jsonify({'data': data})
 
 
 if __name__ == '__main__':
