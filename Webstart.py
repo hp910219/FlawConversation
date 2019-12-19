@@ -19,7 +19,8 @@ app = create_app()
 restart_time = format_time(frm='%Y%m%d%H%M%S')
 
 
-@app.route('/kobas4', methods=['GET'])
+@app.route('/kobas4/')
+@app.route('/kobas4')
 @app.route('/')
 def hello_world():
     conf = read_conf()
