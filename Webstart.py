@@ -23,7 +23,7 @@ restart_time = format_time(frm='%Y%m%d%H%M%S')
 @app.route('/kobas4/')
 @app.route('/kobas4')
 @app.route('/')
-@app.route('')
+# @app.route('')
 def hello_world():
     conf = read_conf()
     system_name = conf.get('system_name')
@@ -418,9 +418,13 @@ def get_avi_taxonomy():
     dir_name = os.path.dirname(__file__)
     static_dir = os.path.join(dir_name, 'static')
     json_dir = os.path.join(static_dir, 'json')
-    file_path = os.path.join(json_dir, 'avai_taxonomy.tsv')
-    data = my_file.read(file_path)
-    return jsonify({'data': data})
+    file_path = os.path.join(json_dir, 'avai_taxonomy.txt')
+    lines = my_file.read(file_path).strip('\n').split('\n')
+    items = []
+    for line in lines:
+        line = line.split('\t')
+        items.append({'value': line[0], 'text': line[2]})
+    return jsonify({'data': items, 'message': 'success'})
 
 
 if __name__ == '__main__':
