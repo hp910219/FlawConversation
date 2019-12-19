@@ -13,7 +13,7 @@ from create_app import create_app, sort_request1
 from create_auth_code import create_strs, my_file, auth_code_path
 from views.generate_report import generate_word
 from views.tumor.report_panel import down_panel
-from views.tumor.report_aiyi import filter_sv
+# from views.tumor.report_aiyi import filter_sv
 
 
 app = create_app()
