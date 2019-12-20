@@ -20,8 +20,8 @@ app = create_app()
 restart_time = format_time(frm='%Y%m%d%H%M%S')
 
 
-@app.route('/kobas4/')
-@app.route('/kobas4')
+@app.route('/kobas3/')
+@app.route('/kobas3')
 @app.route('/')
 # @app.route('')
 def hello_world():
@@ -408,12 +408,7 @@ def transfer_img():
     return jsonify(data)
 
 
-@app.route('/kobas4', methods=['GET'])
-def render_kobas4():
-    return redirect('/')
-
-
-@app.route('/kobas/avai/taxonomy/', methods=['GET'])
+@app.route('/kobas3/avai/taxonomy/', methods=['GET'])
 def get_avi_taxonomy():
     dir_name = os.path.dirname(__file__)
     static_dir = os.path.join(dir_name, 'static')
