@@ -15,7 +15,7 @@ from jy_word.web_tool import test_chinese, format_time, sex2str, float2percent, 
 
 # from report_aiyi import
 
-# from config import read_conf
+from config import read_conf
 my_file = File()
 
 r_panel = Run(family='微软雅黑')
@@ -1935,12 +1935,11 @@ def down_common(data, sort_func):
         patient_name = patient_detail.get('patient_name')
     item_name = data.get('item_name')
     action_name = u'%s_%s_基因检测报告' % (patient_name, item_name)
-    # conf = read_conf()
-    # if isinstance(conf, str):
-    #     return conf\
-
-    conf = {}
-    file_dir = conf.get('file_dir') or '/tmp'
+    conf = read_conf()
+    if isinstance(conf, dict):
+        file_dir = conf.get('file_dir') or '/tmp'
+    else:
+        file_dir = '/tmp'
     report_dir = os.path.join(file_dir, 'report')
     if os.path.exists(report_dir) is False:
         os.makedirs(report_dir)
