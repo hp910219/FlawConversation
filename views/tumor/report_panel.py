@@ -15,7 +15,7 @@ from jy_word.web_tool import test_chinese, format_time, sex2str, float2percent, 
 
 # from report_aiyi import
 
-# from config import read_conf
+from config import read_conf
 my_file = File()
 
 r_panel = Run(family='微软雅黑')
@@ -1929,43 +1929,43 @@ def down_common(data, sort_func):
     img_info_path = os.path.join(dir_name, 'img_info_%s.json' % 'panel')
     gene_info_path = os.path.join(dir_name, 'OncoKB_gene_info.json')
 
-    patient_detail = data.get('patient_detail')
+    patient_detail = data.get('sample_detail')
     patient_name = None
     if patient_detail:
         patient_name = patient_detail.get('patient_name')
     item_name = data.get('item_name')
     action_name = u'%s_%s_基因检测报告' % (patient_name, item_name)
-    # conf = read_conf()
-    # if isinstance(conf, str):
-    #     return conf\
-
-    conf = {}
-    file_dir = conf.get('file_dir') or '/tmp'
+    conf = read_conf()
+    if isinstance(conf, dict):
+        file_dir = conf.get('file_dir') or '/tmp'
+    else:
+        file_dir = '/tmp'
     report_dir = os.path.join(file_dir, 'report')
     if os.path.exists(report_dir) is False:
         os.makedirs(report_dir)
 
-
     file_name = os.path.join(report_dir, u'%s_%s.doc' % (action_name, format_time(frm='%Y%m%d%H%M%S')))
-
-
+    if item_name == 'aiyi':
+        from views.tumor.report_aiyi import get_report_core
+        pkg = get_report_core(data)
+    else:
     # if env.startswith('Development'):
-    if os.path.exists(img_info_path):
-        os.remove(img_info_path)
-    imgs = get_imgs(img_dir)
-    my_file.write(img_info_path, imgs)
-    r_panel.img_info_path = img_info_path
-    data['img_info'] = imgs
-    data['pic'] = r_panel
-    data['gene_info'] = my_file.read(gene_info_path) or []
-    report_data = sort_func(data)
-    body = write_body(report_data)
-    imgs = report_data.get('imgs') or imgs
-    imgs2 = []
-    for img in imgs:
-        if img not in imgs2:
-            imgs2.append(img)
-    pkg = write_pkg_parts(imgs2, body, other=report_data.get('other_page'))
+        if os.path.exists(img_info_path):
+            os.remove(img_info_path)
+        imgs = get_imgs(img_dir)
+        my_file.write(img_info_path, imgs)
+        r_panel.img_info_path = img_info_path
+        data['img_info'] = imgs
+        data['pic'] = r_panel
+        data['gene_info'] = my_file.read(gene_info_path) or []
+        report_data = sort_func(data)
+        body = write_body(report_data)
+        imgs = report_data.get('imgs') or imgs
+        imgs2 = []
+        for img in imgs:
+            if img not in imgs2:
+                imgs2.append(img)
+        pkg = write_pkg_parts(imgs2, body, other=report_data.get('other_page'))
     status = False
     while status != 5:
         status = my_file.download(pkg, file_name)

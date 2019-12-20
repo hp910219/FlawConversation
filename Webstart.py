@@ -13,7 +13,7 @@ from create_app import create_app, sort_request1
 from create_auth_code import create_strs, my_file, auth_code_path
 from views.generate_report import generate_word
 from views.tumor.report_panel import down_panel
-# from views.tumor.report_aiyi import filter_sv
+from views.tumor.report_aiyi import filter_sv
 
 
 app = create_app()
@@ -149,7 +149,7 @@ def tumor_download_panel():
     if rq is not None:
         sample_no = rq.get('sample_no')
         item_name = rq.get('item_name')
-        res = sort_request1('GET', '/api/v2/sample/report/%s/' % sample_no)
+        res = sort_request1('POST', '/api/v2/sample/detail/%s/' % sample_no)
         if res is not None:
             sample_detail = res.get('data') or {}
 
@@ -208,7 +208,9 @@ def tumor_download_panel():
         msi_info['effect'] = 'PD1等免疫检查点抗体可能有效'
         msi_info['level'] = 'A'
         msi_info['sign'] = 'MSI-H'
-    diagnose = sample_detail.get('diagnose')
+    diagnose = sample_detail.get('diagnosis')
+
+    print diagnose, sample_detail.keys()
     tmb = overview.get('tmb')
     tmb_info = {
         'tmb': tmb,
@@ -247,7 +249,7 @@ def tumor_download_panel():
     variant_stars = filter(lambda x: x['add_star'] > 0, variant_list)
     cnvs_stars = filter(lambda x: x['add_star'] > 0, cnvs)
     svs_stars = filter(lambda x: filter_sv(x), svs)
-    stars = sorted(variant_stars + cnvs_stars+svs_stars, key=lambda x: x['add_star'])
+    stars = sorted(variant_stars + cnvs_stars+svs_stars, key=lambda x: x['add_star'], reverse=True)
 
     msi_sort_paired_total = overview.get('msi_sort_paired_total')
     msi_sort_paired_somatic = overview.get('msi_sort_paired_somatic')
@@ -287,16 +289,13 @@ def tumor_download_panel():
     elif tmb > 20:
         tmb_info['text'] = 'TMB肿瘤突变负荷高 （%s个突变/Mb，大于该癌种%s%%人群）' % (tmb, 85)
         tmb_info['level'] = 'A' if diagnose == '非小细胞肺癌' else 'B'
-    print 'rs_geno', len(rs_geno)
     try:
         file_path = down_panel({
             'item_name': item_name,
             'overview': overview or {},
-            'diagnose': diagnose,
+            'diagnosis': diagnose,
             'sample_detail': sample_detail,
             'variant_list': variant_list,
-            # 'report_detail': report_detail or {},
-            # 'patient_detail': patient_detail,
             'cnvs': cnvs,
             'svs': svs,
             'stars': stars,
