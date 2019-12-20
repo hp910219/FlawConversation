@@ -1929,7 +1929,7 @@ def down_common(data, sort_func):
     img_info_path = os.path.join(dir_name, 'img_info_%s.json' % 'panel')
     gene_info_path = os.path.join(dir_name, 'OncoKB_gene_info.json')
 
-    patient_detail = data.get('patient_detail')
+    patient_detail = data.get('sample_detail')
     patient_name = None
     if patient_detail:
         patient_name = patient_detail.get('patient_name')
