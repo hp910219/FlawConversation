@@ -298,7 +298,7 @@ def write_chapter0(title_cn, data):
     para += h4_aiyi(title, spacing=[0.5, 0.5])
     para += write_target_tip(data['target_tips'])
     para += write_immun_tip(data.get('immun_tip'))
-    technology = '本检测基于第二代测序技术，捕获580个与癌症发生发展的生物学原理及个性化治疗方案高度相关的基因的重要外显子及37个基因内含子区域，以及其他50个基因在实体肿瘤中高发突变的热点区域。测序深度如下：肿瘤组织1000×，ctDNA 10000×，胚系对照100×。'
+    technology = '本检测基于第二代测序技术，本次检测使用IDT 39M全外显子探针联合35个融合基因内含子区，以及其他50个基因在实体肿瘤中高发突变的热点区域。测序深度如下：肿瘤组织1000×，ctDNA 10000×，胚系对照100×。'
     if sample_detail.get('xx') == '全外显子':
         technology = '检测技术：基于Illumina novaseq平台，检测外显子组联合35个融合基因，肿瘤组织500×、外周血100×'
     tips = [
@@ -348,11 +348,11 @@ def write_read_guide():
                 {"title": "C级：临床证据级别", "text": '具体指以下三种情况：\n1、同一分子标志物，FDA批准用于其他癌症；\n2、作为临床试验纳入标准；\n3、多项小型研究形成的一些共识；', 'rId': 'rIdC'},
                 {"title": "D级：临床前证据级别", "text": '具体指临床前研究或者少量案例报道，结果不确定。', 'rId': 'rIdD'},
             ],
-            'tip': '其中A级和B级推荐药物相关变异为强烈临床意义的一类变异，C级和D级推荐药物相关变异为潜在临床意义的二类变异。'
+            'tip': '以上为ASCO、AMP和CAP共同发布的证据级别定义，其中A级和B级证据相关变异为具有强烈临床意义的一类变异，C级和D级证据相关变异为具有潜在临床意义的二类变异。'
         },
         {
             'cy': 0.45,
-            'title': '药物疗效说明',
+            'title': '药物疗效预测说明',
             'f': [
                 {"text": '可能耐药：xxxxxxxxxxxxxx', 'rId': 'rIdGray_block'},
                 {"text": '可能无效：xxxxxxxxx', 'rId': 'rIdWhite_block'}
@@ -918,7 +918,20 @@ def write_chapter5(index, data):
     summary += '体细胞Indel %s个。' % overview.get('indel_no')
     line = get_line('protocol')
     para += p.write(p.set(spacing=[0, 1], ind=['firstLine', 2], line=19.2, rule='exact'), r_aiyi.text(summary))
-    para += p.write(r_aiyi.picture(19.3, rId='protocol', posOffset=[-1.1, 0])) + p.write() * (int(line * 1.2))
+    p_set1 = p.set(spacing=[0, 2], line=19.2, rule='exact')
+    para += p.write(
+        p_set1,
+        r_aiyi.text('感谢您选择北京皑医科技有限公司（皑医）提供的癌症多组学临床检测。皑医是由中国从业十年的第一批癌症精准医疗资深专家、医科院北京协和医学院的医学专家和中科院计算所的技术专家共同发起成立的一家癌症多组学数据临床解读公司。皑医致力于协助中国顶级肿瘤医生，以患者获益为中心，重新定义癌症，延长患者有质量生存时间。')
+    )
+    para += p.write(
+        p_set1,
+        r_aiyi.text('AIomics1癌症多组学临床检测，现阶段主要包括全外显子组、转录组和微生物组这三个标准化的组学检测。皑医将获得的高达70G以上的数据进行标准化的深度解读。首先，通过根据ASCO（美国临床肿瘤协会）、AMP（美国分子病理学协会）和CAP（美国病理学家联合学会）的国际指南进行变异解读相关生物信息流程质量控制；其次，在NCCN指南基础上，深度整合CGI、CIVic、OncoKB等多个解读数据库，并结合专家知识进行确认；最后，为了让患者更快的接触了解跟自己组学特征相关的研究进展专门性设计了 “最新研究进展” 模块。这是基于癌症真实世界研究和精准医疗高度发展，癌症循证医学证据以爆炸性的方式在扩大的现状所作的创新性设计。')
+    )
+    para += p.write(
+        p_set1,
+        r_aiyi.text('AIomics1癌症多组学临床检测标准化检测环节，由皑医委托北京贝瑞和康生物技术有限公司（贝瑞）进行检测。贝瑞拥有CFDA批准的第三方检验所资质（医疗机构执业许可证，诊疗科目：临床细胞分子遗传学专业），具备完善的实验质控流程。相关资质和质控流程是数据获取可靠性的核心保证。结合贝瑞的标准化检测和皑医的个性化化深度解读，AIomics1癌症多组学临床检测能够为您提供国际标准质量控制、紧扣癌症最新研究进展的系统性精准诊疗提示。')
+    )
+    para += p.write(r_aiyi.picture(8, rId='protocol', posOffset=[0, 2]))
     para += p.write(p.set(ind=[38.5, 0], spacing=[3, 0]), r_aiyi.text('北京皑医科技有限公司'))
     para += p.write(p.set(ind=[38.5, 0], spacing=[1, 0]), r_aiyi.text('盖章：'))
     para += p.write(p.set(ind=[38.5, 0], spacing=[1, 0]), r_aiyi.text(format_time(frm="%Y-%m-%d")))
@@ -972,7 +985,7 @@ def write_chapter13(cat):
     p_set = p.set(line=18, rule='exact')
     para += h4_aiyi('1.靶向治疗与驱动基因')
     para += p.write(p_set, r_aiyi.text('靶向治疗药物是针对特定的肿瘤发生发展相关特定基因设计的药物。传统化疗主要针对快速分裂的细胞，既杀伤肿瘤细胞、又杀伤正常细胞，毒副作用大，而靶向治疗更精准的针对肿瘤特定特征或者肿瘤微环境，所以毒副作用相对较低。', '小五'))
-    para += p.write(p_set, r_aiyi.text('实际临床应用中，靶向药初步可以分成针对肿瘤抗血管生成及多靶点相关的靶向药和针对肿瘤细胞特定基因变异的靶向药。抗血管生成及多靶点相关的靶向药现阶段大多没有特定的基因变异可以预测其疗效。针对肿瘤细胞特定基因变异的靶向药，一般情况下仅对该类突变患患者有效。此类特定基因，包含在肿瘤驱动基因范畴中。', '小五'))
+    para += p.write(p_set, r_aiyi.text('实际临床应用中，靶向药初步可以分成针对肿瘤抗血管生成及多靶点相关的靶向药和针对肿瘤细胞特定基因变异的靶向药。抗血管生成及多靶点相关的靶向药现阶段大多没有特定的基因变异可以预测其疗效。针对肿瘤细胞特定基因变异的靶向药，一般情况下仅对该类突变患者有效。此类特定基因，包含在肿瘤驱动基因范畴中。', '小五'))
     para += h4_aiyi('2.驱动基因及突变形式说明')
     para += h4_aiyi('（1）驱动基因说明', spacing=[1, 0.5])
     para += p.write(p_set, r_aiyi.text('在肿瘤发生发展中扮演重要角色，能够“驱动”癌症疾病进程的基因称为驱动基因。乘客基因则是指对肿瘤发生发展重要性不高的基因，但是，重要性目前只是一个相对概念而不是绝对概念，所以，虽目前有多种方式进行驱动基因的鉴定，但是并没有统一的完整标准。驱动基因又分成发生激活突变后具有促进癌症发生发展的原癌基因和功能正常情况下抑制癌症发生的抑癌基因。驱动基因上的基因变异，可以是驱动突变，也可以是乘客突变。驱动突变可以是原癌基因的激活突变，也可以是抑癌基因的失活突变。一般情况下，肿瘤靶向治疗针对驱动基因中的原癌基因激活突变进行抑制，如EGFR Tkis抑制EGFR突变，或者针对抑癌基因的失活突变进行相关信号通路的协同致死，如PARP抑制剂治疗BRCA1、2基因变异肿瘤。', '小五'))
@@ -1605,7 +1618,7 @@ def write_chapter_yichuan():
     para += write_46(items, col=5)
     para += p.write()
     run = r_aiyi.text('红色，', color=red, size=9)
-    run += r_aiyi.text('表示该遗传性肿瘤综合征相关基因具有明确致病突变位点；相关基因未发生突变', size=9)
+    run += r_aiyi.text('表示该遗传性肿瘤综合征相关基因具有明确致病突变位点', size=9)
     para += p.write(p.set(spacing=[0.5, 0.5]), run)
     return para, tr1, tr1, ''
 
@@ -1778,7 +1791,7 @@ def write_hla(data, diagnosis):
         tip1 += '(%s)' % level
         tip2 = 'HLA分型结果中发现A、B、C三个等位基因均为杂合状态、免疫治疗敏感超型HLA-B44'
         youxiao = True
-    elif b1.startswith('B44') or is_zahe is False:
+    elif (len(naiyaos) > 0 and is_zahe) or is_zahe is False:
         # 可能耐药（纯合或者出现耐药超型且不出现敏感超型）
         # HLA分型结果中发现等位基因纯合现象
         # HLA分型结果中发现等位基因纯合现象、免疫治疗耐药超型HLA-B66、免疫治疗耐药分型HLA-B15:01
@@ -1802,7 +1815,7 @@ def write_hla(data, diagnosis):
         h2 = item[j * 2+1]
         texts.append('HLA-%s HLA-%s' % (h1, h2))
     postfix = '' if len(tip2s) == 1 else '等'
-    tip0 = tip2 if youxiao else ('HLA分型结果中发现%s%s等事件' % (tip2s[0], postfix))
+    tip0 = tip2 if youxiao else ('HLA分型结果中发现%s%s事件' % (tip2s[0], postfix))
     tip01 = 'HLA分型结果中发现%s事件' % ('、'.join(tip2s))
     trs2 = write_tr1('            '.join(texts) + '\n' + tip2)
     trs2 += write_tr2(tip1)
@@ -1857,7 +1870,7 @@ def write_db_info():
 def write_patient_info(data):
     para = ''
     trs = ''
-    ws = [2300, 2300, 3100, 2300]
+    ws = [2300, 2300, 3100, 2500]
     pPr = p.set(jc='left', spacing=[0.5, 0.5], line=16, rule='exact')
     ps = [
         '姓名: %s' % data['patient_name'],
@@ -1921,7 +1934,10 @@ def write_target_tip(data):
         if ccf_expected_copies_em is None:
             ccf_expected_copies_em = item1.get('dna_vaf') or item1.get('vaf')
         ccf = float2percent(ccf_expected_copies_em)
+        # 没有p.用c.
         amino_acid_change = item1.get('amino_acid_change') # 变异P.变化
+        nucleotide_change = item1.get('nucleotide_change') # 变异C.变化
+        amino_acid_change = amino_acid_change or nucleotide_change
         tcn_em = item1.get('tcn_em')  # 拷贝数
         try :
             tcn_em = int(tcn_em)
@@ -1959,9 +1975,11 @@ def write_target_tip(data):
         para = ''
         run = ''
         d_len = 0
-        known_db = filter(lambda x: x.get('evidence_direction') in ['Resistant (Support)', 'Responsive (Support)'], known_db)
+        evidence_directions = ['Resistant (Support)', 'Responsive (Support)']
+        # '耐药Resistant (Support)', '敏感Responsive (Support)'
+        known_db = filter(lambda x: x.get('evidence_direction') in evidence_directions, known_db)
         known_db.sort(cmp=cmp_var)
-        for evidence_direction in ['Resistant (Support)', 'Responsive (Support)']:
+        for evidence_direction in evidence_directions:
             ds1 = filter(lambda x: x.get('evidence_direction') in evidence_direction, known_db)
             for tip_item in level_tips:
                 level = tip_item.get('text')
@@ -1970,7 +1988,8 @@ def write_target_tip(data):
                     d = d_item.get('drugs')
                     evidence_direction = d_item.get('evidence_direction')
                     color = white
-                    if evidence_direction == 'Responsive (Support)':
+                    # '耐药Resistant (Support)', '敏感Responsive (Support)'
+                    if evidence_direction == 'Resistant (Support)':
                         fill1 = gray
                         color = ''
                     else:
@@ -2003,7 +2022,7 @@ def write_target_tip(data):
 def write_immun_tip(immun_tip):
     para = ''
     run = r_heiti.text('免疫治疗提示', '小四', 1)
-    run += r_aiyi.text('（PD1等免疫检查点抗体治疗，               分别指指南、专家共识、临床证据和临床前证据阳性，提示可能有效    提示可能无效    提示可能耐药）', '小六')
+    run += r_aiyi.text('（               分别指指南、专家共识、临床证据和临床前证据阳性，提示PD1等免疫检查点抗体治疗，提示可能有效    提示可能无效    提示可能耐药）', '小六')
     tips = [
         {'text': 'A'},
         {'text': 'B'},
@@ -2489,7 +2508,7 @@ def write_genes_ddr(genes, col, whith, variants, diagnosis):
         tcs = ''
         if 'title' in gene:
             para = p.write(pPr, r_aiyi.text(gene['title'], color=white, size=9))
-            tcs += tc.write(para, tc.set(w=ws[k], fill=gene['color'], color=white, tcBorders=borders))
+            tcs += tc.write(para, tc.set(w=ws[k], fill=gene['color'], color=white, tcBorders=[]))
         for j in range(len(gene_list)):
             item = gene_list[j]
 
@@ -2508,7 +2527,7 @@ def write_genes_ddr(genes, col, whith, variants, diagnosis):
             para = p.write(pPr, r_aiyi.text(text, color=color, size=9)) + var_text
             tcs += tc.write(para, tc.set(w=ws[j], fill=fill, color=white, tcBorders=[]))
         trs2 += tr.write(tcs, tr.set(trHeight=620))
-    tr1 = 'DDR基因未发生突变'
+    tr1 = 'DDR相关基因无变异'
     tr2 = 'PD1等免疫检查位点抗体等免疫治疗可能不显著'
     tr11 = tr1
     level = ''
