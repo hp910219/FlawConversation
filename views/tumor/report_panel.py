@@ -1945,27 +1945,28 @@ def down_common(data, sort_func):
     if os.path.exists(report_dir) is False:
         os.makedirs(report_dir)
 
-
     file_name = os.path.join(report_dir, u'%s_%s.doc' % (action_name, format_time(frm='%Y%m%d%H%M%S')))
-
-
+    if item_name == 'aiyi':
+        from views.tumor.report_aiyi import get_report_core
+        pkg = get_report_core(data)
+    else:
     # if env.startswith('Development'):
-    if os.path.exists(img_info_path):
-        os.remove(img_info_path)
-    imgs = get_imgs(img_dir)
-    my_file.write(img_info_path, imgs)
-    r_panel.img_info_path = img_info_path
-    data['img_info'] = imgs
-    data['pic'] = r_panel
-    data['gene_info'] = my_file.read(gene_info_path) or []
-    report_data = sort_func(data)
-    body = write_body(report_data)
-    imgs = report_data.get('imgs') or imgs
-    imgs2 = []
-    for img in imgs:
-        if img not in imgs2:
-            imgs2.append(img)
-    pkg = write_pkg_parts(imgs2, body, other=report_data.get('other_page'))
+        if os.path.exists(img_info_path):
+            os.remove(img_info_path)
+        imgs = get_imgs(img_dir)
+        my_file.write(img_info_path, imgs)
+        r_panel.img_info_path = img_info_path
+        data['img_info'] = imgs
+        data['pic'] = r_panel
+        data['gene_info'] = my_file.read(gene_info_path) or []
+        report_data = sort_func(data)
+        body = write_body(report_data)
+        imgs = report_data.get('imgs') or imgs
+        imgs2 = []
+        for img in imgs:
+            if img not in imgs2:
+                imgs2.append(img)
+        pkg = write_pkg_parts(imgs2, body, other=report_data.get('other_page'))
     status = False
     while status != 5:
         status = my_file.download(pkg, file_name)
