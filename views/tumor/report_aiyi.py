@@ -11,7 +11,7 @@ from PIL import Image
 from jy_word.web_tool import test_chinese
 from jy_word.Word import bm_index0, get_imgs, uniq_list, get_img
 from jy_word.File import File
-from jy_word.Word import Paragraph, Run, Set_page, Table, Tc, Tr, HyperLink, Relationship
+from jy_word.Word import Paragraph, Run, Set_page, Table, Tc, Tr, HyperLink, Relationship, SDT
 from jy_word.Word import write_cat, write_pkg_parts
 from jy_word.web_tool import sex2str, format_time
 from config import dir_name, static_dir
@@ -52,15 +52,17 @@ set_page = Set_page().set_page
 table = Table()
 tr = Tr()
 tc = Tc()
+sdt = SDT()
 page_margin = [3.5, 1.5, 2.54, 1.5, 1.5, 1.75]
 page_margin4 = [4, 1.5, 2.54, 1.5, 1.5, 1.75]
 sect_pr_catalog = set_page('A4', footer='rIdFooter1')
 # sect_pr_catalog = set_page('A4', footer='rIdFooter1', header='rIdHeader1')
-sect_pr_content = set_page('A4', footer='rIdFooter2', pgNumType_s=1, header='rIdHeader2')
+sect_pr_content = set_page('A4', footer='rIdReport_time', pgNumType_s=1, header='rIdHeader2')
 con1 = p.write(p.set(rule='exact', line=12, sect_pr=set_page(type='continuous', cols=1)))
 con2 = p.write(p.set(rule='exact', line=12, sect_pr=set_page(type='continuous', cols=2, space=40)))
 page_br = p.write(set_page(page_margin=page_margin))
 sect_pr1 = set_page('A4', page_margin=page_margin, footer='rIdFooter2', header='rIdHeader2', type='continuous', cols=1)
+# sect_pr2 = set_page('A4', page_margin=page_margin, footer='rIdReport_time', header='rIdHeader2', pgNumType_s=1)
 w_sum = 10000+200
 
 # 初号=42磅
@@ -105,109 +107,10 @@ level_tips = [
 ]
 
 
-def get_api(url, data=None, method='GET'):
-    import json
-    import requests
-    url = "http://192.168.105.4:8000%s" % url
-    # url = "http://anzhen.gene.ac:8000%s" % url
-    headers = json.loads('{"authorization":"Basic aHBwX3Rlc3Q6aHBwLjEyMzQ1Ng=="}')
-    kwargs = {}
-    data = data or {}
-    if method != 'GET':
-        headers['Content-Type'] = 'application/json'
-        kwargs['json'] = data
-    else:
-        kwargs['params'] = data
-    resp = requests.request(method, url, headers=headers, **kwargs)
-    assert resp.status_code == 200
-    r_data = resp.json()
-    return r_data.get('data')
-
-
-def get_data(sample_no, diagnose):
-    sample_detail = get_api('/api/v2/sample/detail/%s/' % sample_no, method='POST') or {}
-    # patient_no = sample_detail.get('patient_no')
-    # patient_detail = {}
-    # if patient_no:
-    #     patient_detail = get_api('/api/v2/patient/detail/%s/' % patient_no) or {}
-    # report_detail = get_api('/api/v2/sample/report/%s/' % sample_no) or {}
-    variant_list = get_api('/api/v2/tumor/variants/', {'sample_no': sample_no}) or []
-    cnvs = get_api('/api/v2/tumor/cnvs/', {'sample_no': sample_no}) or []
-    svs = get_api('/api/v2/tumor/svs/', {'sample_no': sample_no}) or []
-
-    variant_stars = filter(lambda x: x['add_star'] > 0, variant_list)
-    cnvs_stars = filter(lambda x: x['add_star'] > 0, cnvs)
-    svs_stars = filter(lambda x: filter_sv(x), svs)
-    stars = sorted(variant_stars + cnvs_stars+svs_stars, key=lambda x: x['add_star'])
-
-    overview = get_api('/api/v2/tumor/overview/', {'sample_no': sample_no}) or {}
-    rs_geno = get_api('/api/v2/tumor/genotype/', {'sample_no': sample_no}) or []
-
-    neoantigens = get_api('/api/v2/tumor/neoantigens/', {'sample_no': sample_no}) or []
-
-    msi_sort_paired_total = overview.get('msi_sort_paired_total')
-    msi_sort_paired_somatic = overview.get('msi_sort_paired_somatic')
-    msi_score = int(msi_sort_paired_somatic/float(msi_sort_paired_total) * 10000) / 100.0
-
-    msi_info = {
-        'total': msi_sort_paired_total,
-        'somatic': msi_sort_paired_somatic,
-        'score': msi_score,
-        'text': 'MSS微卫星稳定',
-        'effect': 'PD1等免疫检查点抗体可能效果不显著',
-        'level': '',
-        'w': 3000
-    }
-    if msi_score >= 10:
-        msi_info['text'] = 'MSI-H微卫星高不稳定'
-        msi_info['effect'] = 'PD1等免疫检查点抗体可能有效'
-        msi_info['level'] = 'A'
-    elif msi_score >= 3.5:
-        msi_info['text'] = 'MSI-L微卫星低不稳定'
-
-    tmb = overview.get('tmb')
-    tmb_tip = '注：NSCLC未经选择人群PD抗体有效率，具吸烟史为22%，无吸烟史为10%'
-    if diagnose in '结直肠癌':
-        tmb_tip = '注：MSS微卫星稳定结直肠癌患者PD1抗体有效率为0%；MSI-H微卫星不稳定结直肠癌患者有效率为29.6%。'
-    tmb_info = {
-        'w': w_sum-300-3000,
-        'text': '',
-        'effect': '',
-        'level': 'C',
-        'tmb_tip': tmb_tip
-    }
-
-    if tmb <= 20:
-        tmb_info['text'] = 'TMB肿瘤突变负荷低 （%s个突变/Mb，大于该癌种%s%%人群）' % (tmb, 85)
-        tmb_info['level'] = 'B' if diagnose == '非小细胞肺癌' else 'C'
-    elif tmb > 20:
-        tmb_info['text'] = 'TMB肿瘤突变负荷高 （%s个突变/Mb，大于该癌种%s%%人群）' % (tmb, 85)
-        tmb_info['level'] = 'A' if diagnose == '非小细胞肺癌' else 'B'
-    print 'rs_geno', len(rs_geno)
-    return {
-        'diagnosis': diagnose,
-        'sample_detail': sample_detail or {},
-        # 'report_detail': report_detail or {},
-        # 'patient_detail': patient_detail,
-        'variant_list': variant_list,
-        'cnvs': cnvs,
-        'svs': svs,
-        'stars': stars,
-        'variant_stars': variant_stars,
-        'cnv_stars': cnvs_stars,
-        'sv_stars': svs_stars,
-        'overview': overview or {},
-        'rs_geno': rs_geno or [],
-        'neoantigens': neoantigens or [],
-        'msi_info': msi_info,
-        'tmb_info': tmb_info
-    }
-
-
 def get_report_core(data):
     img_info = get_img_info(img_dir, is_refresh=True)
     body = write_body(title_cn, title_en, data)
-    pages = write_pages()
+    pages = write_pages(data.get('report_time'))
     pkgs1 = write_pkg_parts(img_info, body, other=pages)
     return pkgs1
 
@@ -291,15 +194,15 @@ def write_catalog():
 
 
 def write_chapter0(title_cn, data):
-    para = p.write(p.set(sect_pr=sect_pr_content))
+    para = ''
     sample_detail = data.get('sample_detail') or {}
     para += write_patient_info(data['sample_detail'])
     title = u'靶向治疗提示'
     para += h4_aiyi(title, spacing=[0.5, 0.5])
     para += write_target_tip(data['target_tips'])
     para += write_immun_tip(data.get('immun_tip'))
-    technology = '本检测基于第二代测序技术，本次检测使用IDT 39M全外显子探针联合35个融合基因内含子区，以及其他50个基因在实体肿瘤中高发突变的热点区域。测序深度如下：肿瘤组织1000×，ctDNA 10000×，胚系对照100×。'
-    if sample_detail.get('xx') == '全外显子':
+    technology = '本检测基于第二代测序技术，本次检测使用IDT 39M全外显子探针联合35个融合基因内含子区域，以及其他50个基因在实体肿瘤中高发突变的热点区域。测序深度如下：肿瘤组织1000×，ctDNA 10000×，胚系对照100×。'
+    if sample_detail.get('sequencing_type ') == '全外显子检测':
         technology = '检测技术：基于Illumina novaseq平台，检测外显子组联合35个融合基因，肿瘤组织500×、外周血100×'
     tips = [
         {'title': '化学治疗提示', 'text': data['chem_tip'], 'rId': blue_d},
@@ -327,7 +230,7 @@ def write_chapter0(title_cn, data):
                     r_aiyi.radius(0.3, 0.3, **setting)
                     + r_aiyi.text('   ' + text, 9.5, space=True)
                 )
-    para += p.write(p.set(sect_pr=sect_pr1))
+    para += p.write(p.set(sect_pr=sect_pr_content))
     para += write_read_guide()
     return para
 
@@ -385,14 +288,14 @@ def write_read_guide():
         left = 2.39
         cx = 0.6
         posy = -0.1
-        kongge = [3, 4, 4, 4]
-        lefts = [0, 1.65, 3.35, 5.1]
+        kongge = [3, 5, 5, 4]
+        lefts = [0, 1.97, 4, 5.72]
         for t_n, t in enumerate(level_tips):
             level = t.get('text')
             r_a += r_aiyi.picture(cx, rId=level, wrap='undertext', posOffset=[left+lefts[t_n], posy])
             text2 = '%s%s' % (' ' * kongge[t_n], level)
             r_gray += r_aiyi.text(text2, '小二', color=white, space=True)
-            r_gray += r_aiyi.picture(cx, rId='gray_block', wrap='undertext', posOffset=[left+lefts[t_n], posy+0.38])
+            r_gray += r_aiyi.picture(cx, rId='gray_block', wrap='undertext', posOffset=[left+lefts[t_n], posy+0.35])
 
         para += p.write(
             p.set(ind=ind, spacing=[0, 0]),
@@ -443,7 +346,7 @@ def write_read_guide():
     para += p.write(p.set(ind=[ind[0]+2.5, ind[1]]),
                     r_aiyi.text(' ', space=True, fill=red, size='二号')
                     + r_aiyi.text('  提示该基因变异事件阳性', '小五', space=True))
-    para += p.write(p.set(sect_pr=sect_pr_catalog))
+    para += p.write(p.set(sect_pr=set_page('A4', footer='rIdReport_time', header='rIdHeader2')))
     return para
 
 
@@ -589,7 +492,7 @@ def write_common_diagnosis(data):
         jihe = data[d_item.get('db')]
         g = d_item.get('gene')
         text = d_item.get('text')
-        d_items2 = filter(lambda x: x.get('gene') or (x.get('gene1').split('(')) == g, jihe)
+        d_items2 = filter(lambda x: x.get('gene') == g or (x.get('gene1') and x.get('gene1').split('(') == g), jihe)
         fill = ''
         d_text = g + text
         if len(d_items2) > 0:
@@ -642,12 +545,13 @@ def write_chapter1(data):
             vars.append(item)
         genes[gene] = vars
 
-        # items = filter(lambda x: x.get('gene') or (x.get('gene1') and x.get('gene1').split('(')) == gene, target_tips[: i])
-        para1 += p.write(
-            p.set(shade=red, line=24),
-            r_aiyi.text('  变异事件%s：%s(%s%s)' % (i + 1, gene, action1, cc)
-                        , color=white, space=True)
+        para11 = p.write(
+            p.set(line=24),
+            r_aiyi.text('  变异事件%s:  ' % (i + 1), space=True) +
+            r_aiyi.text(' %s(%s%s) ' % (gene, action1, cc), color=white, fill=red, space=True)
         )
+        tc1 = tc.write(para11, tc.set(w_sum, color=blue, fill=bg_blue))
+        para1 += table.write(tr.write(tc1), tblBorders=[])
         para_index = 1
         ind = [0.5, 0]
         pPr = p.set(line=15, ind=ind, spacing=[0, 1])
@@ -917,24 +821,24 @@ def write_chapter5(index, data):
     summary += '经初步分析共获得体细胞SNV %s个，' % overview.get('snv_no')
     summary += '体细胞Indel %s个。' % overview.get('indel_no')
     line = get_line('protocol')
-    para += p.write(p.set(spacing=[0, 1], ind=['firstLine', 2], line=19.2, rule='exact'), r_aiyi.text(summary))
-    p_set1 = p.set(spacing=[0, 2], line=19.2, rule='exact')
+    para += p.write(p.set(spacing=[0, 1.5], line=19.2, rule='exact'), r_aiyi.text(summary, '小五'))
+    p_set1 = p.set(spacing=[0, 1.5], line=19.2, rule='exact')
     para += p.write(
         p_set1,
-        r_aiyi.text('感谢您选择北京皑医科技有限公司（皑医）提供的癌症多组学临床检测。皑医是由中国从业十年的第一批癌症精准医疗资深专家、医科院北京协和医学院的医学专家和中科院计算所的技术专家共同发起成立的一家癌症多组学数据临床解读公司。皑医致力于协助中国顶级肿瘤医生，以患者获益为中心，重新定义癌症，延长患者有质量生存时间。')
+        r_aiyi.text('感谢您选择北京皑医科技有限公司（皑医）提供的癌症多组学临床检测。皑医是由中国从业十年的第一批癌症精准医疗资深专家、医科院北京协和医学院的医学专家和中科院计算所的技术专家共同发起成立的一家癌症多组学数据临床解读公司。皑医致力于协助中国顶级肿瘤医生，以患者获益为中心，重新定义癌症，延长患者有质量生存时间。', '小五')
     )
     para += p.write(
         p_set1,
-        r_aiyi.text('AIomics1癌症多组学临床检测，现阶段主要包括全外显子组、转录组和微生物组这三个标准化的组学检测。皑医将获得的高达70G以上的数据进行标准化的深度解读。首先，通过根据ASCO（美国临床肿瘤协会）、AMP（美国分子病理学协会）和CAP（美国病理学家联合学会）的国际指南进行变异解读相关生物信息流程质量控制；其次，在NCCN指南基础上，深度整合CGI、CIVic、OncoKB等多个解读数据库，并结合专家知识进行确认；最后，为了让患者更快的接触了解跟自己组学特征相关的研究进展专门性设计了 “最新研究进展” 模块。这是基于癌症真实世界研究和精准医疗高度发展，癌症循证医学证据以爆炸性的方式在扩大的现状所作的创新性设计。')
+        r_aiyi.text('AIomics1癌症多组学临床检测，现阶段主要包括全外显子组、转录组和微生物组这三个标准化的组学检测。皑医将获得的高达70G以上的数据进行标准化的深度解读。首先，通过根据ASCO（美国临床肿瘤协会）、AMP（美国分子病理学协会）和CAP（美国病理学家联合学会）的国际指南进行变异解读相关生物信息流程质量控制；其次，在NCCN指南基础上，深度整合CGI、CIVic、OncoKB等多个解读数据库，并结合专家知识进行确认；最后，为了让患者更快的接触了解跟自己组学特征相关的研究进展专门性设计了 “最新研究进展” 模块。这是基于癌症真实世界研究和精准医疗高度发展，癌症循证医学证据以爆炸性的方式在扩大的现状所作的创新性设计。', '小五')
     )
     para += p.write(
         p_set1,
-        r_aiyi.text('AIomics1癌症多组学临床检测标准化检测环节，由皑医委托北京贝瑞和康生物技术有限公司（贝瑞）进行检测。贝瑞拥有CFDA批准的第三方检验所资质（医疗机构执业许可证，诊疗科目：临床细胞分子遗传学专业），具备完善的实验质控流程。相关资质和质控流程是数据获取可靠性的核心保证。结合贝瑞的标准化检测和皑医的个性化化深度解读，AIomics1癌症多组学临床检测能够为您提供国际标准质量控制、紧扣癌症最新研究进展的系统性精准诊疗提示。')
+        r_aiyi.text('AIomics1癌症多组学临床检测标准化检测环节，由皑医委托北京贝瑞和康生物技术有限公司（贝瑞）进行检测。贝瑞拥有CFDA批准的第三方检验所资质（医疗机构执业许可证，诊疗科目：临床细胞分子遗传学专业），具备完善的实验质控流程。相关资质和质控流程是数据获取可靠性的核心保证。结合贝瑞的标准化检测和皑医的个性化化深度解读，AIomics1癌症多组学临床检测能够为您提供国际标准质量控制、紧扣癌症最新研究进展的系统性精准诊疗提示。', '小五')
     )
     para += p.write(r_aiyi.picture(8, rId='protocol', posOffset=[0, 2]))
     para += p.write(p.set(ind=[38.5, 0], spacing=[3, 0]), r_aiyi.text('北京皑医科技有限公司'))
     para += p.write(p.set(ind=[38.5, 0], spacing=[1, 0]), r_aiyi.text('盖章：'))
-    para += p.write(p.set(ind=[38.5, 0], spacing=[1, 0]), r_aiyi.text(format_time(frm="%Y-%m-%d")))
+    para += p.write(p.set(ind=[38.5, 0], spacing=[1, 0]), r_aiyi.text(data['report_time']))
     para += p.write(p.set(sect_pr=set_page(header='rIdHeader8', footer='rIdFooter1')))
     return para
 
@@ -1593,7 +1497,7 @@ def write_chapter_signature(signature_etiology):
     para += p.write() * 6
     para += write_evidence_signature(items[1:], titles=items[0], ws=[1500, 1200, 2400, 4700])
     # para += p.write(r.br('page'))
-    para += p.write(p.set(spacing=[2, 0]), r_aiyi.picture(7.5, rId='4.5.2signature_pie', posOffset=[0, 0.6]))
+    para += p.write(p.set(spacing=[2, 0]), r_aiyi.picture(7.5, rId='signature_pie', posOffset=[0, 0.6]))
     para += write_explain({"title": '结果说明：', 'text': '体细胞突变存在于人体的所有细胞中并且贯穿整个生命。它们是多种突变过程的结果，包括DNA复制机制内在的轻微错误，外源或内源诱变剂暴露，DNA酶促修饰和DNA修复缺陷。不同的突变过程产生独特的突变类型组合，称为“突变特征”。在过去的几年中，大规模的分析研究揭示了许多人类癌症类型的突变特征。目前这组突变特征是基于对40种不同类型的人类癌症中的10,952个外显子组和1,048个全基因组的分析得到的。使用六个取代亚型显示每个标记的概况：C> A，C> G，C> T，T> A，T> C和T> G，进而向前先后各延伸一个碱基，每个碱基有4种可能，所以，总共就有96个三核苷酸的突变类型。现在已经明确的，总共有30种明确注释的“突变特征”，每种特征都有对应的发生机制，如吸烟、错配修复缺陷、同源重组修复缺陷等。'}, ind=[23, 0])
     para += p.write(p.set(sect_pr=set_page('A4', header='rIdHeader%d' % 6)))
     return para, '通过突变特征分析，%s' % (tr2 or '暂无')
@@ -1697,13 +1601,7 @@ def write_chapter53(data):
     para += p.write()
     for i in range(gene_list53.nrows):
         title = gene_list53.cell_value(i, 0)
-        stars = data.get('stars')
-        tip = '突变'
-        if '融合' in title:
-            stars = data.get('sv_stars')
-        elif '':
-            stars = data.get('cnv_stars')
-        stars = data.get('stars') if '融合' not in title else data.get('sv_stars')
+        stars = (data.get('cnv_stars') + data.get('variant_stars'))if '融合' not in title else data.get('sv_stars')
         ch = {'title': '%d.%s' % (i + 1, title), 'para': gene_list53.cell_value(i, 1)}
         genes = []
         for j in range(3, gene_list53.ncols):
@@ -1876,11 +1774,11 @@ def write_patient_info(data):
         '姓名: %s' % data['patient_name'],
         '性别: %s' % sex2str(data['sex']),
         '年龄: %s' % data['age'],
-        '患者ID: %s' % data['case_no'],
-        '医院: %s' % data.get('hospital'),
+        '患者ID: %s' % data['sample_id'],
+        '医院: %s' % data.get('inspection_department'),
         '病理诊断: %s' % data.get('diagnosis'),
-        '组织类型: %s' % data.get('tissue_type'),
-        '组织来源: %s' % data.get('tissue_source')
+        '组织类型: %s' % data.get('sample_type'),
+        '组织来源: %s' % data.get('tissue')
     ]
     n = len(ps) / 2
     for k in range(2):
@@ -2022,7 +1920,7 @@ def write_target_tip(data):
 def write_immun_tip(immun_tip):
     para = ''
     run = r_heiti.text('免疫治疗提示', '小四', 1)
-    run += r_aiyi.text('（               分别指指南、专家共识、临床证据和临床前证据阳性，提示PD1等免疫检查点抗体治疗，提示可能有效    提示可能无效    提示可能耐药）', '小六')
+    run += r_aiyi.text('(               分别指指南、专家共识、临床证据和临床前证据阳性,提示PD1等免疫检查点抗体治疗,可能有效.    提示可能无效.    提示可能耐药)', '小六')
     tips = [
         {'text': 'A'},
         {'text': 'B'},
@@ -2030,9 +1928,9 @@ def write_immun_tip(immun_tip):
         {'text': 'D'}
     ]
     for t_index, tip in enumerate(tips):
-        run += r_aiyi.picture(0.4, 0.51, tip.get('text'), posOffset=[5.8 + t_index * 0.42, 0.4], wrap='undertext')
-    run += r_aiyi.picture(0.4, rId='white_block', posOffset=[14.2, 0.4], wrap='undertext')
-    run += r_aiyi.picture(0.4, rId='gray_block', posOffset=[16.1, 0.4], wrap='undertext')
+        run += r_aiyi.picture(0.38, rId=tip.get('text'), posOffset=[2.71 + t_index * 0.42, 0.38], wrap='undertext')
+    run += r_aiyi.picture(0.38, rId='white_block', posOffset=[14.1, 0.4], wrap='undertext')
+    run += r_aiyi.picture(0.38, rId='gray_block', posOffset=[16, 0.4], wrap='undertext')
     para += p.write(p.set(spacing=[0.5, 0.5], line=15, rule='exact', outline=4), run)
     gap = {'text': ' ', 'bdColor': white, 'fill': white, 'w': 300}
     items1 = [
@@ -2507,8 +2405,8 @@ def write_genes_ddr(genes, col, whith, variants, diagnosis):
         gene_list += [''] * (col-len(gene_list))
         tcs = ''
         if 'title' in gene:
-            para = p.write(pPr, r_aiyi.text(gene['title'], color=white, size=9))
-            tcs += tc.write(para, tc.set(w=ws[k], fill=gene['color'], color=white, tcBorders=[]))
+            para = p.write(pPr, r_aiyi.text(gene['title'], size=9))
+            tcs += tc.write(para, tc.set(w=ws[k], fill='' if k % 2 == 0 else bg_blue, color=white, tcBorders=[]))
         for j in range(len(gene_list)):
             item = gene_list[j]
 
@@ -2627,7 +2525,7 @@ def write_tr2(data, fill=gray, bdColor=gray):
     return tr.write(tcs2)
 
 
-def write_pages():
+def write_pages(t):
     title = get_page_titles()
     relationship = Relationship()
     pkg_parts, relationshipss = '', ''
@@ -2642,7 +2540,18 @@ def write_pages():
             rel = relationship.write_rel('logo', target_name='media/logo.png')
         pkg_parts += relationship.about_page(h_index, paras1, page_type='header', rels=rel)
         relationshipss += relationship.write_rel(h_index, 'header')
-    return pkg_parts, relationshipss
+
+    # 页脚
+    page_type = 'footer'
+    footer_id = 'report_time'
+    size = 9
+    paras = ''
+    paras += p.write(p.set(jc='right'), sdt.write())
+    paras += p.write(p.set(jc='right'), r_aiyi.text( '检测报告时间: %s' % t, size))
+    relationships = relationship.write_rel(footer_id, page_type)
+    footer = relationship.about_page(footer_id, paras, page_type=page_type)
+    # return footer, relationships
+    return pkg_parts + footer, relationshipss + relationships
 
 
 def write_kangyuan(neoantigens):
