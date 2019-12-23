@@ -1934,7 +1934,8 @@ def down_common(data, sort_func):
     if patient_detail:
         patient_name = patient_detail.get('patient_name')
     item_name = data.get('item_name')
-    action_name = u'%s_%s_基因检测报告' % (patient_name, item_name)
+    report_time = format_time(frm='%Y%m%d%H%M%S')
+    action_name = u'%s_%s_检测报告' % (patient_detail.get('sample_id'), patient_name)
     conf = read_conf()
     if isinstance(conf, dict):
         file_dir = conf.get('file_dir') or '/tmp'
@@ -1943,8 +1944,8 @@ def down_common(data, sort_func):
     report_dir = os.path.join(file_dir, 'report')
     if os.path.exists(report_dir) is False:
         os.makedirs(report_dir)
-
-    file_name = os.path.join(report_dir, u'%s_%s.doc' % (action_name, format_time(frm='%Y%m%d%H%M%S')))
+    data['report_time'] = format_time(frm="%Y-%m-%d")
+    file_name = os.path.join(report_dir, u'%s_%s.doc' % (action_name, report_time))
     if item_name == 'aiyi':
         from views.tumor.report_aiyi import get_report_core
         pkg = get_report_core(data)
