@@ -428,13 +428,17 @@ def get_avi_taxonomy():
             kinds2.append(kind2)
         items.append(dict3)
     items3 = []
+    # print kinds1
+    kinds1 = ['Animals', 'Plants', 'Fungi', 'Protists', 'Bacteria', 'Archaea']
     for k1 in kinds1:
         items4 = []
         for k2 in kinds2:
             arr12 = filter(lambda x: x.get('kind1') == k1 and x.get('kind2') == k2, items)
             if len(arr12) > 0:
+                arr12.sort(key=lambda x:x.get('label'))
                 items4.append({'value': k2, 'label': k2, 'children': arr12})
         if len(items4) > 0:
+            items4.sort(key=lambda x: x.get('label'))
             items3.append({'value': k1, 'label': k1, 'children': items4})
     # my_file.write('sss.json', items3)
     return jsonify({'data': items3, 'message': 'success'})
