@@ -415,10 +415,29 @@ def get_avi_taxonomy():
     file_path = os.path.join(json_dir, 'avai_taxonomy.txt')
     lines = my_file.read(file_path).strip('\n').split('\n')
     items = []
+    kinds1 = []
+    kinds2 = []
     for line in lines:
         line = line.split('\t')
-        items.append({'value': line[0], 'text': line[2]})
-    return jsonify({'data': items, 'message': 'success'})
+        kind1 = line[-2]
+        kind2 = line[-1]
+        dict3 = {'value': line[0], 'label': line[2], 'kind1': kind1, 'kind2': kind2}
+        if kind1 not in kinds1:
+            kinds1.append(kind1)
+        if kind2 not in kinds2:
+            kinds2.append(kind2)
+        items.append(dict3)
+    items3 = []
+    for k1 in kinds1:
+        items4 = []
+        for k2 in kinds2:
+            arr12 = filter(lambda x: x.get('kind1') == k1 and x.get('kind2') == k2, items)
+            if len(arr12) > 0:
+                items4.append({'value': k2, 'label': k2, 'children': arr12})
+        if len(items4) > 0:
+            items3.append({'value': k1, 'label': k1, 'children': items4})
+    # my_file.write('sss.json', items3)
+    return jsonify({'data': items3, 'message': 'success'})
 
 
 if __name__ == '__main__':
