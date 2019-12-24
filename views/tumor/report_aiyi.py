@@ -797,15 +797,7 @@ def write_chapter5(index, data):
     para += write_chapter51(data)
     para += p.write(p.set(sect_pr=set_page('A4', header='rIdHeader%d' % index)))
     para += h4_aiyi(cat=cats[2])
-    para += write_genes_cnv(data.get('cnv_stars'))
-    run = r_aiyi.text('红色，', color=red, size=9)
-    run += r_aiyi.text('表示该基因扩增；', size=9)
-    run += r_aiyi.text('深蓝色，', color=dark_blue, size=9)
-    run += r_aiyi.text('表示该基因纯合缺失；', size=9)
-    run += r_aiyi.text('淡蓝色，', color=blue, size=9)
-    run += r_aiyi.text('表示该基因杂合缺失，', size=9)
-    run += r_aiyi.text('扩增缺失状态未达阈值用灰色表示', size=9)
-    para += p.write(p.set(spacing=[0.5, 0.5]), run)
+    para += write_chapter_cnvs(data)
     svs = data.get('svs')
     svs = filter(lambda x: filter_sv(x), svs)
     para += h4_aiyi(cat=cats[3])
@@ -1549,10 +1541,10 @@ def cmp_var(x, y):
 def write_chapter51(data):
     para = ''
     para += h4_aiyi('（1）体细胞突变汇总')
-    ws = [1000, 1400, 1400, 1400, 1400, 1200, 1200, 1000]
+    ws = [1000, 1700, 1700, 1000, 1400, 1200, 1000, 1000]
     pPr = p.set(jc='left', spacing=[0.5, 0.5], rule='exact')
     titles = ['基因', '核苷酸变化', '氨基酸变化', '外显子', '变异类型', '突变丰度', '覆盖度',  'Cosmic计数']
-    trs = write_thead51(titles, pPr=pPr, ws=ws)
+    trs = write_thead51(titles, pPr=p_set_tr, ws=ws)
     stars = data.get('variant_list')
     stars = sorted(stars, cmp=cmp_var)
     stars = stars[:200]
@@ -1563,11 +1555,11 @@ def write_chapter51(data):
         gene = star['gene']
         nucleotide_change = star.get('nucleotide_change')  # 变异c.变化 核苷酸变化
         amino_acid_change = star.get('amino_acid_change')  # 变异P.变化 氨基酸变化
-        exon_number = star.get('exon_number')  # 外显子位置
-        effect = star.get('effect')  # 变异类型
+        exon_number = 'Exon%s' % star.get('exon_number')  # 外显子位置
+        effect = effect2cn(star.get('effect'))  # 变异类型
         ccf_expected_copies_em = star.get('ccf_expected_copies_em')  # 肿瘤细胞比例
         dna_vaf = float2percent(star.get('dna_vaf')) # 突变丰度
-        t_depth = float2percent(star.get('t_depth')) # 突变丰度
+        t_depth = star.get('t_depth') # 突变丰度
         tcn_em = star.get('tcn_em')  # 拷贝数
         cosmic_var_sum = star.get('cosmic_var_sum')  # Cosmic计数
         item = [
@@ -1603,6 +1595,51 @@ def write_chapter_svs(stars):
         ]
         trs += write_tr51(item, ws, row=k, count=len(stars))
     para += table_aiyi(trs)
+    return para
+
+
+def write_chapter_cnvs(data):
+    cnvs = data.get('cnvs')
+    stars = data.get('cnv_stars')
+    ploidy = data.get('overview').get('ploidy')
+    para = ''
+    para += h4_aiyi('（1）重点基因拷贝数变异结果汇总')
+    para += write_genes_cnv(stars)
+    run = r_aiyi.text('红色，', color=red, size=9)
+    run += r_aiyi.text('表示该基因扩增；', size=9)
+    run += r_aiyi.text('深蓝色，', color=dark_blue, size=9)
+    run += r_aiyi.text('表示该基因纯合缺失；', size=9)
+    run += r_aiyi.text('淡蓝色，', color=blue, size=9)
+    run += r_aiyi.text('表示该基因杂合缺失，', size=9)
+    run += r_aiyi.text('扩增缺失状态未达阈值用灰色表示', size=9)
+    para += p.write(p.set(spacing=[0.5, 0.5]), run)
+    titles = ['基因', '总拷贝数', '低拷贝数', '区域大小', 'WGD状态', '基因组倍性', '变异状态']
+    ws = [w_sum / len(titles)] * len(titles)
+    pPr = p.set(jc='left', spacing=[0.5, 0.5], rule='exact')
+    trs = write_thead51(titles, pPr=pPr, ws=ws)
+    extra = []
+    for gene in ['ERBB2', 'MET']:
+        arr1 = filter(lambda x: x.get('gene') == gene, stars)
+        if len(arr1) == 0:
+            extra += filter(lambda x: x.get('gene') == gene, cnvs)
+    items = stars + extra
+    for k in range(len(items)):
+        star = items[k]
+        item = [
+            star.get('gene'),
+            star.get('tcn_em'),
+            star.get('lcn_em'),
+            star.get('region_size'),
+            star.get('wgd'),
+            float2percent(ploidy),
+            star.get('facets_call'),
+        ]
+        trs += write_tr51(item, ws, row=k, count=len(items))
+    para += h4_aiyi('（2）拷贝数变异相关基因详细信息汇总')
+    para += table_aiyi(trs)
+    para += p.write(
+        r_aiyi.text('注：肿瘤纯度低于30%时，二代测序拷贝数变异检测准确性会发生比较明显下降。', '小五')
+    )
     return para
 
 
@@ -2377,29 +2414,28 @@ def write_genes_cnv(cnv_stars):
     trs2 = ''
     gene_list = cnv_genes
     ws = [w_sum / col] * col
-    fill, weight, jc = gray, 0, 'center'
-    pPr = p.set(jc=jc, line=12, rule='auto')
+    # fill, weight, jc = gray, 0, 'center'
+    # pPr = p.set(jc='center', line=12, rule='auto')
     row = int(math.ceil(float(len(gene_list)) / col))
     for i in range(row):
         tcs = ''
+        fill = '' if i % 2 == 0 else bg_blue
         for j in range(col):
             gene_index = col * i + j
             tip = ''
             if gene_index < len(gene_list):
                 item = gene_list[gene_index]
-                fill, tip = get_var_new(item, cnv_stars)
+                fill1, tip = get_var_new(item, cnv_stars)
             else:
                 item = ''
-                fill = ''
+                fill1 = ''
             # fill = gray
             color, text, var_text = '000000', item, ''
-            if fill not in ['', gray]:
+            if fill1 not in ['', gray]:
                 color = white
             else:
-                fill = '' if i % 2 == 0 else bg_blue
-            para = p.write(pPr, r_aiyi.text(text, color=color, size=9))
-            if tip:
-                para += p.write(pPr, r_aiyi.text(tip, color=color, size=9))
+                fill1 = ''
+            para = p.write(p_set_tr, r_aiyi.text(text, color=color, size=9, fill=fill1))
             tcs += tc.write(para, tc.set(w=ws[j], fill=fill, tcBorders=[]))
         if tcs:
             trs2 += tr.write(tcs, tr.set(trHeight=660))
@@ -2582,7 +2618,8 @@ def write_kangyuan(neoantigens):
         trs += write_tr51(item, ws, n, len(neoantigen))
     para += table_aiyi(trs)
     para += p.write(r_aiyi.text('注：仅显示部分重要新抗原信息', size=8.5))
-    para += write_explain({'title': '结果说明：', 'text': '新抗原是指因肿瘤基因突变所导致的能够被该患者免疫系统HLA分子所识别，有潜力能够激活患者免疫系统的新生抗 原，这是一组异常多肽片段。新抗原预测信息能够作为癌症个性化治疗疫苗或者特异性细胞治疗最核心的信息。新抗原预测一般 通过外显子组测序得到该患者所有的编码区域基因突变，进一步通过外显子组或者转录组获得该患者的HLA分型，根据基因突变信息和HLA分子信息，预测各个突变位点与该患者HLA分子结合的亲和力，并进一步通过转录组测序筛选其中表达的新抗原。本次未行转录组检测，会明显降低新抗原预测的准确性。'})
+    para += write_explain({'title': '结果说明：',
+                           'text': '新抗原是指因肿瘤基因突变所导致的能够被该患者免疫系统HLA分子所识别，有潜力能够激活患者免疫系统的新生抗原，这是一组异常多肽片段。新抗原预测信息能够作为癌症个性化治疗疫苗或者特异性细胞治疗最核心的信息。新抗原预测一般 通过外显子组测序得到该患者所有的编码区域基因突变，进一步通过外显子组或者转录组获得该患者的HLA分型，根据基因突变信息和HLA分子信息，预测各个突变位点与该患者HLA分子结合的亲和力，并进一步通过转录组测序筛选其中表达的新抗原。本次未行转录组检测，会明显降低新抗原预测的准确性。'})
     # para += p.write(p.set(sect_pr=set_page('A4', header='rIdHeader%d' % index)))
     return para
 
@@ -2611,7 +2648,6 @@ def float2percent(p):
 
 
 #报告相关数据
-
 def get_catalog():
     catalogue = [
         [u"一、靶向治疗提示", 0, 1, 10],
@@ -2636,7 +2672,7 @@ def get_catalog():
         [u"（一）、肿瘤突变模式检测结果", 2, 8, 23],
         [u"（二）、肿瘤遗传性检测结果", 2, 8, 23],
         [u"五、检测信息汇总", 0, 5, 10],
-        [u"（一）、基因突检测结果汇总", 2, 6, 23],
+        [u"（一）、基因突变检测结果汇总", 2, 6, 23],
         [u"（二）、重点基因拷贝数检测结果汇总", 2, 6, 23],
         [u"（三）、融合基因检测结果汇总", 2, 7, 23],
         [u"（四）、肿瘤重要信号通路变异信息汇总", 2, 7, 23],
@@ -2935,3 +2971,23 @@ def crop_img(input_url, output_url):
     #保存裁切后的图片
     cropImg.save(output_url)
     return 'success'
+
+
+def effect2cn(effect):
+    if effect == 'Missense_Mutation':
+        return '错义突变'
+    if effect == 'Splice_Site':
+        return '剪切位点突变'
+    if effect == 'In_Frame_Ins':
+        return '框内插入'
+    if effect == 'In_Frame_Del':
+        return '框内缺失'
+    if effect == 'Frame_Shift_Ins':
+        return '移码插入'
+    if effect == 'Frame_Shift_Del':
+        return '移码缺失'
+    if effect == 'Splice_Region':
+        return '剪切区域突变'
+    if effect == 'Nonsense_Mutation':
+        return '终止突变'
+    return effect
