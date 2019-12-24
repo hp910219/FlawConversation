@@ -557,11 +557,11 @@ def write_chapter1(data):
             r_aiyi.text('  变异事件%s:  ' % (i + 1), space=True) +
             r_aiyi.text(' %s(%s%s) ' % (gene, action1, cc), color=white, fill=red, space=True)
         )
-        para1 += p.write(
-            p.set(shade=red, line=24),
-            r_aiyi.text('  变异事件%s：%s(%s%s)' % (i + 1, gene, action1, cc)
-                        , color=white, space=True)
-        )
+        # para1 += p.write(
+        #     p.set(shade=red, line=24),
+        #     r_aiyi.text('  变异事件%s：%s(%s%s)' % (i + 1, gene, action1, cc)
+        #                 , color=white, space=True)
+        # )
         para_index = 1
         ind = [0.5, 0]
         pPr = p.set(line=15, ind=ind, spacing=[0, 1])
@@ -1551,7 +1551,7 @@ def write_chapter51(data):
     para += h4_aiyi('（1）体细胞突变汇总')
     ws = [1000, 1400, 1400, 1400, 1400, 1200, 1200, 1000]
     pPr = p.set(jc='left', spacing=[0.5, 0.5], rule='exact')
-    titles = ['基因', '转录本编号', '核苷酸变化', '氨基酸变化', '外显子位置', '变异类型', '突变丰度', 'Cosmic计数']
+    titles = ['基因', '核苷酸变化', '氨基酸变化', '外显子', '变异类型', '突变丰度', '覆盖度',  'Cosmic计数']
     trs = write_thead51(titles, pPr=pPr, ws=ws)
     stars = data.get('variant_list')
     stars = sorted(stars, cmp=cmp_var)
@@ -1561,17 +1561,17 @@ def write_chapter51(data):
     for k in range(len(stars)):
         star = stars[k]
         gene = star['gene']
-        transcript_id = star.get('transcript_id') #转录本编号
         nucleotide_change = star.get('nucleotide_change')  # 变异c.变化 核苷酸变化
         amino_acid_change = star.get('amino_acid_change')  # 变异P.变化 氨基酸变化
         exon_number = star.get('exon_number')  # 外显子位置
         effect = star.get('effect')  # 变异类型
         ccf_expected_copies_em = star.get('ccf_expected_copies_em')  # 肿瘤细胞比例
         dna_vaf = float2percent(star.get('dna_vaf')) # 突变丰度
+        t_depth = float2percent(star.get('t_depth')) # 突变丰度
         tcn_em = star.get('tcn_em')  # 拷贝数
         cosmic_var_sum = star.get('cosmic_var_sum')  # Cosmic计数
         item = [
-            gene, transcript_id, nucleotide_change, amino_acid_change, exon_number, effect, dna_vaf, cosmic_var_sum
+            gene, nucleotide_change, amino_acid_change, exon_number, effect, dna_vaf, t_depth, cosmic_var_sum
         ]
         trs += write_tr51(item, ws, row=k, count=len(stars))
     para += table_aiyi(trs)
@@ -2286,6 +2286,8 @@ def write_mingan(items, ncol):
                 fill1 = item.get('fill') or item.get('color') or ''
             if fill1 not in ['', gray]:
                 color = white
+            else:
+                fill1 = ''
             para = p.write(p_set_tr, r_aiyi.text(text, color=color, size=9, fill=fill1))
             tcs += tc.write(para, tc.set(w=ws[row], fill=fill, tcBorders=[]))
         trs2 += tr.write(tcs)
