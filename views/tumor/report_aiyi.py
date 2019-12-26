@@ -1419,9 +1419,10 @@ def write_chapter_naiyao(stars, ploidy):
         tr2 = 'PD1等免疫检查点抗体治疗可能具有耐药风险(%s)' % level
     data = [tr1, tr2]
     para = write_immun_table(data, level, dark if level else '')
-    para += p.write(p.set(line=2))
-    para += write_detail_table(var_items, cnv_items, sv_items, ploidy)
+    para += p.write(p.set(line=1))
     para += write_mingan(items2, 6)
+    para += p.write(p.set(line=1))
+    para += write_detail_table(var_items, cnv_items, sv_items, ploidy)
     para += p.write()
     para += write_explain({'title': '结果说明：',
                            'text': '免疫治疗耐药可以由多种因素引起，以上基因通过不同机制导致免疫治疗耐药。EGFR、ALK基因与TMB、PDL1表达较低有一定关系，CTNNB1基因则是通过影响枝状细胞招募进抗PD1治疗的耐药。B2M基因纯合失活突变，主要通过损害抗原提呈机制使免疫治疗耐药。JAK1、JAK2、IFNGR1、IFNGR2、IRF1、APLNR、PIAS3和SOCS等基因的纯合失活突变，则是通过损害效应T细胞杀伤肿瘤细胞的信号通路（γ干扰素通路）导致免疫治疗耐药。PTEN基因表达缺失或者纯合失活突变，则可能是通过影响T细胞浸润使免疫治疗耐药。'})
@@ -1553,9 +1554,10 @@ def write_chapter_chaojinzhan(stars, ploidy):
         tr2 = 'PD1等免疫治疗抗体治疗可能具有超进展风险(%s)' % level
     data = [tr1, tr2]
     para = write_immun_table(data, level, dark if level else '')
-    para += p.write(p.set(line=2))
-    para += write_detail_table(var_items, cnv_items, sv_items, ploidy)
+    para += p.write(p.set(line=1))
     para += write_mingan([items2], 6)
+    para += p.write(p.set(line=1))
+    para += write_detail_table(var_items, cnv_items, sv_items, ploidy)
     para += p.write()
     para += write_explain({'title': '结果说明：',
                            'text': '免疫治疗耐药可以由多种因素引起，以上基因通过不同机制导致免疫治疗耐药。EGFR、ALK基因与TMB、PDL1表达较低有一定关系，CTNNB1基因则是通过影响枝状细胞招募进抗PD1治疗的耐药。B2M基因纯合失活突变，主要通过损害抗原提呈机制使免疫治疗耐药。JAK1、JAK2、IFNGR1、IFNGR2、IRF1、APLNR、PIAS3和SOCS等基因的纯合失活突变，则是通过损害效应T细胞杀伤肿瘤细胞的信号通路（γ干扰素通路）导致免疫治疗耐药。PTEN基因表达缺失或者纯合失活突变，则可能是通过影响T细胞浸润使免疫治疗耐药。'})
@@ -1820,12 +1822,12 @@ def write_chapter_cnvs(data):
     para = ''
     para += h4_aiyi('（1）重点基因拷贝数变异结果汇总')
     para += write_genes_cnv(stars)
-    run = r_aiyi.text('红色，', color=red, size=9)
-    run += r_aiyi.text('表示该基因扩增；', size=9)
-    run += r_aiyi.text('深蓝色，', color=dark_blue, size=9)
-    run += r_aiyi.text('表示该基因纯合缺失；', size=9)
-    run += r_aiyi.text('淡蓝色，', color=blue, size=9)
-    run += r_aiyi.text('表示该基因杂合缺失，', size=9)
+    run = r_aiyi.text(' 红色 ', color=white, fill=red, size=9)
+    run += r_aiyi.text('，表示该基因扩增；', size=9)
+    run += r_aiyi.text(' 深蓝色 ', color=white, fill=dark_blue, size=9)
+    run += r_aiyi.text('，表示该基因纯合缺失；', size=9)
+    run += r_aiyi.text(' 淡蓝色 ', color=white, fill=blue, size=9)
+    run += r_aiyi.text('，表示该基因杂合缺失，', size=9)
     run += r_aiyi.text('扩增缺失状态未达阈值用灰色表示', size=9)
     para += p.write(p.set(spacing=[0.5, 0.5]), run)
 
@@ -2628,6 +2630,8 @@ def write_kangyuan(neoantigens):
     # neoantigen = get_neoantigen()[:15]
     # neoantigen = neoantigens.sort(key=lambda x: x['MutRank'])[:15]
     neoantigen = neoantigens[:15]
+    if len(neoantigen) == 0:
+        trs += write_tr51(['无'] * len(ws), ws, 0, 1)
     for n, item in enumerate(neoantigen):
         # q = get_quantum_cellurity(chr, start)
         q = float2percent(item.get('cellularity')) or ''
