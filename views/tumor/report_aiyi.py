@@ -117,7 +117,6 @@ def get_report_core(data):
 
 
 def write_body(title_cn, title_en, data):
-
     diagnose = data.get('diagnosis')
     variant_list = data.get('variant_list')
     report_detail = data.get('report_detail')
@@ -127,13 +126,14 @@ def write_body(title_cn, title_en, data):
 
     msi_info = data.get('msi_info')
     tmb_info = data.get('tmb_info')
+    ploidy = overview.get('ploidy')
     data['target_tips'] = stars, False, []
     chem_items, trs3 = get_data3(data.get('rs_geno'), diagnose)
 
-    para_ddr, tip_ddr, tip_ddr1, level_ddr = write_ddr(stars if diagnose == '泌尿上皮癌' else variant_list, diagnose)
-    para_mingan, tip_mingan, tip_mingan1, level_mingan = write_chapter_mingan(stars, diagnose)
-    para_naiyao, tip_naiyao, tip_naiyao1, level_naiyao = write_chapter_naiyao(stars, diagnose)
-    para_chaojinzhan, tip_chaojinzhan, tip_chaojinzhan1, level_chaojinzhan = write_chapter_chaojinzhan(stars, diagnose)
+    para_ddr, tip_ddr, tip_ddr1, level_ddr = write_chapter_ddr(stars if diagnose == '泌尿上皮癌' else variant_list, diagnose)
+    para_mingan, tip_mingan, tip_mingan1, level_mingan = write_chapter_mingan(stars, diagnose, ploidy)
+    para_naiyao, tip_naiyao, tip_naiyao1, level_naiyao = write_chapter_naiyao(stars, ploidy)
+    para_chaojinzhan, tip_chaojinzhan, tip_chaojinzhan1, level_chaojinzhan = write_chapter_chaojinzhan(stars, ploidy)
     para_hla, tip_hla, tip_hla1, level_hla = write_chapter_hla(overview, diagnose)
     # print overview.get('signature_30'), '===='
     para_signature, tip_signature = write_chapter_signature(overview.get('signature_30') or [])
@@ -233,6 +233,344 @@ def write_chapter0(title_cn, data):
                 )
     para += p.write(p.set(sect_pr=sect_pr_content))
     para += write_read_guide()
+    return para
+
+
+def write_chapter1(data):
+    cats = get_catalog()[0: 4]
+    para = ''
+    para += h4_aiyi(cat=cats[1], spacing=[0, 1])
+
+    para1 = ''
+    para1 += h4_aiyi(cat=cats[2])
+    target_tips, show_extra, extra_item = data['target_tips']
+    genes = {}
+    action = []
+    for i, item in enumerate(target_tips):
+        gene = item.get('gene') or item.get('gene1')
+        action1 = item.get('action1')
+        action2 = '%s%s' % (gene, action1)
+        tcn_em = item.get('tcn_em')  # 拷贝数
+        ccf_expected_copies_em = item.get('ccf_expected_copies_em') or item.get('clone_proportion') or '' # 肿瘤细胞比例
+        dna_vaf = item.get('dna_vaf')
+        cc = ''
+        if ccf_expected_copies_em:
+            cc = '，肿瘤细胞比例%s' % float2percent(ccf_expected_copies_em)
+        elif dna_vaf:
+            cc = '，突变丰度%s' % float2percent(dna_vaf)
+        if action2 not in action:
+            action.append(action2)
+        vars = genes.get(gene) or []
+        if item not in vars:
+            vars.append(item)
+        genes[gene] = vars
+
+        # para11 = p.write(
+        #     p.set(line=24),
+        #     r_aiyi.text('  变异事件%s:  ' % (i + 1), space=True) +
+        #     r_aiyi.text(' %s(%s%s) ' % (gene, action1, cc), color=white, fill=red, space=True)
+        # )
+        # tc1 = tc.write(para11, tc.set(w_sum, color=blue, fill=bg_blue))
+        # para1 += table.write(tr.write(tc1), tblBorders=[])
+        para1 += p.write(
+            p.set(shade=bg_blue, line=24),
+            r_aiyi.text('  变异事件%s:  ' % (i + 1), space=True) +
+            r_aiyi.text(' %s(%s%s) ' % (gene, action1, cc), color=white, fill=red, space=True)
+        )
+        # para1 += p.write(
+        #     p.set(shade=red, line=24),
+        #     r_aiyi.text('  变异事件%s：%s(%s%s)' % (i + 1, gene, action1, cc)
+        #                 , color=white, space=True)
+        # )
+        para_index = 1
+        ind = [0.5, 0]
+        pPr = p.set(line=15, ind=ind, spacing=[0, 1])
+        para_eve = ''
+        oncogenicity_variant_summary = item.get('oncogenicity_variant_summary')
+        if oncogenicity_variant_summary:
+            para_eve += p.write(pPr, r_aiyi.text(oncogenicity_variant_summary, 9))
+        aiyi_db = item.get('known_db')
+        para_eve += write_evidence1(gene, aiyi_db)
+        if para_eve:
+            para1 += h4_aiyi('（1）该驱动变异关键循证医学证据') + para_eve
+            para_index += 1
+        # para1 += para1
+        # if len(items) == 0:
+        para1 += h4_aiyi('（%d）该基因临床治疗说明' % (para_index), ind=ind)
+        # 原癌和抑癌
+        para_gene = ''
+        xingzhi = []
+        oncogene = item.get('oncogene')
+        tumor_suppressor_gene = item.get('tumor_suppressor_gene')
+        if oncogene == 1:
+            xingzhi.append('原癌')
+        if tumor_suppressor_gene == 1:
+            xingzhi.append('抑癌')
+        if len(xingzhi) > 0:
+            para_gene += p.write(p.set(line=15, ind=[1, 0], spacing=[0, 0.5]), r_aiyi.text('%s %s基因' % (gene, '、'.join(xingzhi)), 9, 1))
+        summary = item.get('summary_cn')
+        if summary:
+            para_gene += p.write(p.set(line=15, ind=[1, 0], spacing=[0, 0]), r_aiyi.text(summary, 9))
+        cn_intro = item.get('cn_intro')
+        if cn_intro:
+            para_gene += p.write(p.set(line=15, ind=[1, 0], spacing=[0, 1.5]), r_aiyi.text(cn_intro, 9))
+        if para_gene:
+            para1 += para_gene
+        # else:
+        #     para1 += p.write()
+    para1 += p.write(p.set(sect_pr=set_page(page_margin=page_margin4, header='rIdHeader3')))
+    para1 += write_chapter13(cats[3])
+    # tip = tip
+    tip = '本次检测共找到%d个驱动基因的变异事件' % len(genes.keys())
+    if len(action) > 0:
+        tip += '：'
+    if len(action) < 2:
+        tip += '%s' % ''.join(action)
+    else:
+        tip += '、'.join(action[:-1]) + '和' + action[-1]
+    tip += '。'
+    paras = para
+    paras += p.write(p.set(line=19.2, rule='exact'), r_aiyi.text(tip))
+    paras += write_common_diagnosis(data)
+    paras += p.write(p.set(line=18, rule='exact'), r_aiyi.text('注：驱动变异是靶向治疗提示的基础和前提条件，此处仅呈现通过数据库、文献等各方面数据和规则判断为驱动突变的肿瘤变异事件。', '小五'))
+    paras += para1
+
+    return paras
+
+
+def write_chapter2(index, data):
+    n, start, bm0 = 11, 5, 453150350
+    cats = get_catalog()[start-1: start + n]
+    para = ''
+    immun_tip = data.get('immun_tip') or []
+    text = '、'.join([x.get('tip1') or x.get('text') for x in immun_tip])
+
+    para += h4_aiyi(cat=cats[1], spacing=[0, 1])
+    para += p.write(p.set(line=19.2, rule='exact'), r_aiyi.text('本次检测显示该患者%s。' % text, '五号'))
+    para += p.write(
+        p.set(spacing=[0, 1]),
+        r_aiyi.text('注：与靶向治疗一个驱动基因变异推荐一种或者多种药物形成显著差异，免疫治疗目前是多个生物标志物同时指导免疫检查点抗体治疗（包括PD1和CTLA4抗体）。免疫治疗需要综合多维度标志物进行综合决策。本检测报告从两个维度将纷繁复杂的各类型免疫治疗标志物进行分类：一、证据方向维度，将相关标志物分成敏感类和耐药类（含超进展）标志物。由于在所有未经筛选的肿瘤中，免疫检查点治疗的有效率大概仅有20%左右，所以一般未出现敏感类标志物时，提示免疫治疗可能无效。同时，多数耐药标志物均是无视敏感类标志物的存在与否均会导致免疫治疗耐药。然而不同证据的采信程度究竟有多高，需要进一步评估权衡；二、证据级别维度：根据ASCO、AMP和CAP共同发布的规则进行证据级别划分。A级：1、针对某一特定癌症，经过FDA批准的；2，针对某一特定癌种，专业指南推荐的；B级：基于高水平研究，相关领域专家意见一致；C级：1、同一分子标志物，FDA批准用于其他癌症；2、作为临床试验纳入标准；3、多项小型研究形成的一些共识；D级：临床前研究或者少量案例报道，结果不确定。其中A级和B级推荐药物相关变异为强烈临床意义的一类变异，C级和D级推荐药物相关变异为潜在临床意义的二类变异。', '小五')
+    )
+    msi_info = data.get('msi_info')
+    tmb_info = data.get('tmb_info')
+    msi_sort_paired_total = msi_info.get('total')
+    msi_sort_paired_somatic = msi_info.get('somatic')
+    msi_score = msi_info.get('score')
+
+    chs = [
+        {
+            'title': h4_aiyi(cat=cats[2], spacing=[0, 1]), 'note_before': 0,
+            'img_id': 'msi_score',
+            'data': msi_info,
+            'note': '注：肿瘤组织-正常样本配对分析的模式',
+            'before': 11,
+            'w': 3600,
+            'infos': [
+                {'title': '结果说明：', 'text':
+                    'MSI是指与正常组织相比，在肿瘤中某一微卫星由于重复单位的插入或缺失而造成的微卫星长度的任何改变，出现新的微卫星等位基因现象。' +
+                    '其发生机制主要包括DNA多聚酶的滑动导致重复序列中1个或多个碱基的错配和微卫星重组导致碱基对的缺失或插入。' +
+                    '该结果采用经FDA批准的MSIsensor算法获得。本次检测采用肿瘤组织-正常样本配对分析的模式，' +
+                    '共分析了%s个微卫星位点，' % msi_sort_paired_total +
+                    '其中%s个微卫星位点为具有显著差异的体细胞变异点，' % msi_sort_paired_somatic +
+                    '比例为%s%%，' % msi_score +
+                    '即MSIsensor评分为%s。' % msi_score +
+                    '研究表明，MSIsensor评分免疫治疗疗效正相关，也与错义突变和插入缺失突变总量显著正相关（PMID:31048490）。'},
+                {'title': '检测意义：', 'text': '目前FDA批准Pembrolizumab用于dMMR/MSI-H型的转移性实体瘤，Nivolumab用于dMMR/MSI-H的转移性结直肠癌。Science发表了NCT01876511的临床研究结果显示，Pembrolizumab用于治疗MSI-H的晚期肿瘤患者，MSI-H型肿瘤患者ORR高达54%。MSI-H在结直肠癌、胃癌、子宫内膜癌中较多，其他多种癌种都有一定量的分布。MSI是MMR（错配修复系统）的一个反映标志，MMR是人体细胞DNA修复的一种方式之一，MMR缺陷导致DNA出错的概率大规模提升，进而导致该类型肿瘤细胞具有非常高的突变量，而高的突变负荷进一步导致肿瘤细胞高概率采用PD1等通路的免疫逃逸机制。因此，PD1抗体对MSI-H/dMMR肿瘤更可能有效。'},
+            ] },
+        {
+            'title': h4_aiyi(cat=cats[3]), 'before': 0, 'note_before': 10,
+            'img_id': 'tmb',
+            'note': tmb_info.get('tmb_tip'),
+            'data': tmb_info,
+            'w': 3200,
+            'infos': [
+                {'title': '结果说明：', 'text': '该结果通过肿瘤外显子组检测得到。全外显子组包含人体所有大约两万多个基因，大约有38M左右的编码区域。TMB肿瘤突变负荷指平均每M（兆）区域，肿瘤细胞发生的非同义突变的个数。同时，进一步将该结果与TCGA（肿瘤基因图谱）上相同癌种的TMB数据进行比对（如该癌种TCGA未收录，则与所有癌种的总集合进行比较），标注其TMB数值高于多少比例的人群。TMB拐点是通过该癌种人群TMB分布进行线性回归拟合得到的，拐点之前的人群TMB以相同的斜率逐渐增加，而拐点之后的人群TMB以完全不一样的斜率大幅度增加，拐点代表着肿瘤TMB的一种内在分布规律（PMID: 29056344）。（证据级别说明：常规标准时：非小细胞肺癌证据级别为B级，其他所有癌种均为C级；当TMB大于20，高于绝大多数情况阈值时，非小细胞肺癌更新为A级，其他癌种更新为B级。）'},
+                {'title': '检测意义：', 'text': 'TMB在多项临床研究中均被证明能够有效区分PD1抗体、CTLA4抗体等免疫检查位点抗体治疗是否有效的人群。综合型研究表明，在不同肿瘤中，不同患者的PD1抗体治疗有效性的差异55%可以由TMB的差异解释。TMB是不同肿瘤间体细胞突变量的评估。一般情况下，TMB越高，该肿瘤可能会拥有更多的肿瘤新生抗原，该肿瘤也越有可能在经过免疫检查位点抗体解除肿瘤免疫逃逸之后，被患者自身的免疫系统所识别，相关治疗在该患者身上也就越可能有效。'},
+            ]
+        }
+    ]
+    for ch in chs:
+        para += write_chapter21(ch)
+    para += h4_aiyi(cat=cats[4]) + data.get('para_ddr')
+    para += h4_aiyi(cat=cats[5]) + data.get('para_mingan')
+    para += h4_aiyi(cat=cats[6]) + data.get('para_naiyao')
+    para += h4_aiyi(cat=cats[7]) + data.get('para_chaojinzhan')
+    para += h4_aiyi(cat=cats[8]) + data.get('para_hla')
+    para += h4_aiyi(cat=cats[9]) + write_kangyuan(data.get('neoantigens'))
+    para += p.write(p.set(sect_pr=set_page('A4', header='rIdHeader%d' % index)))
+    para += h4_aiyi(cat=cats[10])
+    para += h4_aiyi('1、免疫治疗与肿瘤免疫')
+    para_set = p.set(line=18, rule='exact')
+    para += p.write(para_set, r_aiyi.text('自2012年，约翰霍普金斯大学PD1抗体临床试验结果发表在《新英格兰医学杂志》之后，免疫治疗真正进入临床医生和产业界的视野，并迅速取代靶向治疗成为肿瘤治疗最新最主流的治疗研究方向。CTLA4、PD1抗体以惊人的产业化速度和疗效，迅速在多个癌种中获批，并在肺癌中成为一线治疗药物。PDL1表达、微卫星不稳定迅速成为有效协助患者药物筛选的分子标志物，肿瘤突变负荷TMB、新抗原负荷、肿瘤CD8+T淋巴细胞浸润状态等在各种数据中证明具有筛选有效患者的能力，然而，新型免疫治疗手段以超越基础研究的速度在发展，免疫治疗人群筛选和联合治疗时机选择远远没有到达完美，新的标志物层出不求', '小五'))
+    para += p.write(para_set, r_aiyi.text('肿瘤免疫治疗是通过协助免疫系统发挥被抑制或者缺失的免疫能力，进而实现肿瘤治疗的手段。更好的理解肿瘤免疫过程，能够协助我们对各种新型肿瘤免疫治疗手段和新型标志物形成更好的全局性理解，以便我们更好的采取与化疗、放疗、靶向治疗的联合治疗手段，优化免疫治疗时机和方式的选择。肿瘤免疫周期理论是由Mellman等人提出来的肿瘤免疫过程框架，目前已经成为肿瘤免疫学研究和临床应用的思维框架。', '小五'))
+    para += h4_aiyi('2、肿瘤免疫周期理论')
+    para += p.write(r_aiyi.picture(cy=10, rId='2.4.2', align=['center', ''], posOffset=[0, 0.5]))
+    para += p.write(para_set) * 16
+    para += p.write(para_set, r_aiyi.text('肿瘤免疫治疗是通过协助免疫系统发挥被抑制或者缺失的免疫能力，进而实现肿瘤治疗的手段。更好的理解肿瘤免疫过程，能够协助我们对各种新型肿瘤免疫治疗手段和新型标志物形成更好的全局性理解，以便我们更好的采取与化疗、放疗、靶向治疗的联合治疗手段，优化免疫治疗时机和方式的选择。肿瘤免疫周期理论是由Mellman等人提出来的肿瘤免疫过程框架，目前已经成为肿瘤免疫学研究和临床应用的思维框架。', '小五'))
+    para += p.h5('（1）肿瘤细胞死亡并释放肿瘤特异抗原')
+    para += p.write(para_set, r_aiyi.text('从某种意义上说，肿瘤是由基因突变积累形成的疾病，同时，肿瘤基因突变也是肿瘤免疫过程发生的主要驱动因素。各种原因形成的肿瘤基因突变，部分情况下会让肿瘤细胞表达出与未突变基因不一样的蛋白质，其中部分突变蛋白的肽段会被身体的免疫系统识别为“外源”抗原，即所谓的“新抗原”。当肿瘤因为各种原因死亡后，含有新抗原的蛋白就会从肿瘤细胞中释放出来，进而驱动肿瘤免疫反应。所以，部分情况下，放疗、化疗、靶向治疗等治疗手段会跟免疫检查位点抗体治疗形成协同增强作用，也是因为该原因引起。最新部分研究甚至发现，不管PDL1表达状态，PD通路抗体联合化疗的疗效远高于单独化疗。微卫星高不稳定、肿瘤突变负荷高的肿瘤患者，一般情况下免疫检查位点抗体具有更好的疗效，也均是因为一般情况下，更高的突变负荷，意味着更多的新抗原可能性。', '小五'))
+    para += p.h5('（2）抗原提呈细胞摄取并处理肿瘤新抗原')
+    para += p.write(para_set, r_aiyi.text('抗原提呈细胞摄取含有新抗原的突变蛋白，并将水解为可以结合到MHC（主要组织相容性复合物，又称为HLA人类白细胞抗原）的肽段。抗原提呈细胞需要有包括促炎症细胞因子和肿瘤细胞死亡释放的信号因子在内的多种免疫原性信号才能够有效启动，因此，不同免疫状态下的肿瘤，新抗原的提呈效率是不一样的。不同人的MHC具有异质性，所以，不同患者哪些新抗原能够被提呈是不一样的。目前通过生物信息手段，新抗原能够以一定的准确性被预测出来。目前有研究通过预测的新抗原进行个性化治疗疫苗设计，促进抗原提呈过程，并取得了相当惊人的效果。', '小五'))
+    para += p.h5('（3）抗原提呈细胞进入淋巴结激活T细胞')
+    para += p.write(para_set, r_aiyi.text('（抗原提呈细胞被新抗原激活后，进入淋巴结激活初始T细胞。初始T细胞在共刺激分子的协同作用下诱导T细胞增殖并分化成为激活免疫杀伤的效应T细胞和抑制免疫杀伤的调节性T细胞，并通过两者比例的精确控制达成免疫反应性质确定和平衡。重组白细胞介素2（IL-2）即通过该环节调节肿瘤免疫反应。', '小五'))
+    para += p.h5('（4）激活的T细胞离开淋巴结进入循环系统')
+    para += p.write(para_set, r_aiyi.text('激活的T细胞基于细胞黏附分子组分变化的原因，脱离淋巴结进入循环系统。', '小五'))
+    para += p.h5('（5）T细胞穿过血管壁浸润到肿瘤微环境')
+    para += p.write(para_set, r_aiyi.text('肿瘤细胞死亡等原因引起的局部免疫反应会让周围组织跟炎症反应一样释放细胞因子和趋化因子，结合该部位血管内皮细胞由于炎症反应表达量增加的附着蛋白，让循环系统中的T细胞通过与血管内皮细胞锚定后进入肿瘤微环境中。初步研究结果表明，抗血管生成治疗与免疫治疗能够起到非常好的协同作用，部分临床试验中甚至提高将近一倍的治疗效果。', '小五'))
+    para += p.h5('（6）T细胞通过特异性受体识别肿瘤细胞')
+    para += p.write(para_set, r_aiyi.text('肿瘤细胞和一般体细胞一样，在核糖体进行蛋白质翻译的过程中，会有一定比例的缺陷蛋白并会被水解成肽段，其中能够被MHC结合的潜在抗原会被提呈到细胞膜表面。T细胞通过特异性受体（TCR）识别肿瘤细胞表面的新抗原。有研究表明，部分肿瘤中，肿瘤细胞MHC缺失对于免疫逃逸的发生贡献重要意义。目前CAR-T和TCR-T是重点研究方向，并在部分肿瘤中发挥惊人的治疗效果。CAR-T治疗又称人工合成嵌合抗原受体T细胞治疗，直接取代T细胞识别肿瘤细胞的方式，而TCR-T则是通过筛选分离针对肿瘤特定抗原的TCR，将原来未能识别肿瘤细胞的T细胞改造成能够识别肿瘤细胞的T细胞。', '小五'))
+    para += p.h5('（7）肿瘤细胞被T细胞识别并溶解消灭')
+    para += p.write(para_set, r_aiyi.text('当效应T细胞识别出肿瘤细胞表面的特异性抗原后，胞浆内储存的效应分子将朝目标方向释放，在不影响周围正常细胞的情况下溶解肿瘤细胞。CD8+T细胞是最重要的执行细胞杀伤的效应T细胞，所以，一般情况下，其肿瘤微环境浸润情况与免疫治疗疗效正相关。同时，PD1和CTLA-4是T细胞表面的抑制性受体，肿瘤细胞通过相应配体的表达，抑制T细胞的免疫杀伤作用。', '小五'))
+    para += h4_aiyi('3.肿瘤免疫表型理论')
+    para += p.write(r_aiyi.picture(cy=10, rId='2.4.3.1', align=['center', ''], posOffset=[0, 0.5]))
+    para += p.write(para_set) * 16
+    para += p.write(para_set, r_aiyi.text('肿瘤免疫表型理论是由Mellman在肿瘤免疫周期的基础上，进一步根据最新的研究成果，细化发展出来的一套肿瘤免疫分型体系。该分型体系根据相应的生物学机制，将肿瘤分成免疫沙漠型（棕色）、免疫豁免型（蓝色）和炎症型（红色）三种，并进一步根据宿主基因、微生物组、环境因素、治疗药物和癌症共五个维度，将影响免疫原性的多种研究进展整合成如下图所示，与免疫治疗疗效和免疫原性相关的癌症-免疫设定点。', '小五'))
+    para += p.write(r_aiyi.picture(6, rId='2.4.3.2', posOffset=[2, 0.3]))
+    # para += p.write(para_set) * 4
+    para += p.write(p.set(ind=[24.5, 0], line=12, spacing=[0, 0]), r_aiyi.text('癌症免疫设定点是指产生有效癌症免疫原性所需克服的阈值，为指导免疫治疗临床应用和研究提供一个系统性框架。该设定点可以理解为理解为刺激因子、抑制因子和TCR结合信号（T细胞抗原受体与新抗原、癌症相关抗原等癌症抗原的亲和力）的平衡。癌症免疫治疗主要是针对肿瘤部位，通过增加的刺激因子、减少抑制因子或者增加TCR结合信号这三种方式进行的。', '小五'))
+    para += h4_aiyi('4、免疫检查位点抗体疗联合传统治疗研究进展')
+    para += p.write(para_set, r_aiyi.text('免疫检查位点抗体单药治疗虽然在临床治疗中显示出广泛的抗癌效果，不同癌种的总体有效率基本在20%左右，即使通过多种标志物进行预测可一定程度上减少无效人群，但其获益人群一样有限。从肿瘤免疫过程上看，将免疫阻隔型和免疫沙漠型的“冷”肿瘤，转变成免疫炎症型的“热”肿瘤，扩大免疫检查位点抗体的获益人群，可以通过联合治疗的方式进行。对PDL1、MSI、TMB等各类型标志物预测检查位点抗体单药治疗效获益可能性较低的患者，最好进行检查位点抗体与其他治疗方式的联合治疗。多项研究发现放疗、化疗和靶向治疗等传统治疗联合免疫检查位点抗体治疗能够获得惊人的效果，中位生存期、无疾病进展生存期和有效率等疗效指标翻倍的情况。同时，值得注意的是，联合治疗会成倍甚至多倍的提高毒副反应。基于对肿瘤免疫过程理解的加深，特异性针对特定肿瘤免疫过程的免疫治疗是联合治疗的更优选择。', '小五'))
+    para += h4_aiyi('5、新型免疫治疗手段研究进展')
+    para += p.write(para_set, r_aiyi.text('免疫治疗是癌症治疗有史以来最激动人心的治疗领域，甚至有的医生认为，癌症免疫治疗让人类真正真正看到了癌症被治愈的希望。随着PD1抗体在各癌种中的攻城略地，新型的免疫治疗手段也展现出未来的王者之相。'))
+    para += p.h5('（1）个性化癌症治疗疫苗')
+    para += p.write(para_set, r_aiyi.text('癌症疫苗，这种通过主动免疫去扩大肿瘤特异性T细胞反应的治疗方式，一直被认为是癌症免疫治疗的有效手段。尽管大家能够清晰看到癌症疫苗的合理性，但是，过去在临床方面的尝试都是不成功的。不同患者之间的肿瘤抗原具有强烈的多样性，因此，个性化癌症疫苗的发展是必要的。随着二代测序和生物信息工具的逐步完善，癌症疫苗的核心环节，新抗原预测逐渐成熟，该技术在最近的研究中取得突破性的进展，且由于安全性较好，是最值得跟进参与的新型癌症免疫治疗手段之一。', '小五'))
+    para += p.write(r_aiyi.picture(cy=12, rId='2.4.5.1', align=['center', ''], posOffset=[0, 0.2]))
+    para += p.write(para_set) * 17
+    para += p.h5('（2）免疫检查位点抑制剂相关抗体')
+    para += p.write(para_set, r_aiyi.text('肿瘤免疫检查位点不仅仅PD1和CTLA-4，还有至少几十种免疫检查位点。目前该领域，IDO抑制剂、LAG3抑制剂在早期临床试验中显示出相当好的疗效，与PD1联合用药的情况下，部分结果甚至成倍提升有效率，其中IDO抑制剂，已经进入三期临床临床试验（注：IDO抑制剂Epacadostat与Keytruda联用的关键三期临床试验ECHO-301失败）。', '小五'))
+    para += p.h5('（3）CAR-T和TCR-T治疗')
+    para += p.write(para_set, r_aiyi.text('CAR-T和TCR-T都属于细胞治疗的范畴，主要通过对患者自身的T细胞进行工程化改造，让其能够发挥肿瘤细胞的杀灭功能。CAR-T，又称嵌合抗原受体T细胞治疗，是通过人工合成的受体使患者自身的T细胞能够进行肿瘤细胞识别，进而发挥肿瘤细胞杀伤效果。由于CAR-T细胞在实体瘤中的浸润能力相对较差，目前临床主要应用于血液肿瘤中。随着技术进展，如通过提升CAR-T中对增强T细胞浸润能力相关基因的表达，未来应该也能够在实体瘤治疗中发挥重要作用。TCR-T，又称T细胞识别受体（TCR）工程化改造T细胞治疗，是通过将对特定抗原亲和力强的TCR移植到患者自身的T细胞上使患者自身的T细胞发挥肿瘤细胞杀伤效果。其中特异性TCR-T，是指针对患者特异的新抗原进行设计的TCR-T治疗方式，是未来最有价值的癌症治疗手段，相比通过个性化疫苗诱导形成肿瘤杀伤T细胞，从原理上来说，特异性TCR-T治疗属于更靠后的免疫周期中的环节，可能具有更好的治疗效果。', '小五'))
+    para += p.h5('（4）溶瘤病毒')
+    para += p.write(para_set, r_aiyi.text('溶瘤病毒是一群倾向于感染和杀伤肿瘤细胞的病毒。溶瘤病毒治疗是指将本身对身体伤害较低的溶瘤病毒经工程化改造减毒处理和治疗效果提升后，感染肿瘤患者的治疗方式。这种治疗思路和方法，是多年前发现和临床实践过的方法，且2005年中国CFDA批准了一种溶瘤腺病毒。但是，单药治疗效果有限，并未引起广泛关注。随着PD1抗体治疗的普及，临床研究发现，溶瘤病毒联合PD1治疗能够大幅度提高PD1抗体治疗的有效率，2015年，溶瘤病毒治疗T-Vec批准用于黑色素瘤。溶瘤病毒在提高PDL1表达、逆转肿瘤相关免疫抑制等多个层面，均能够与PD1抗体治疗形成非常好的协同效果。', '小五'))
+    para += p.write(r_aiyi.picture(cy=10, rId='2.4.5.2', align=['center', ''], posOffset=[0, 1]))
+    para += p.write(p.set(sect_pr=set_page('A4', header='rIdHeader%d' % index)))
+    return para
+
+
+def write_chapter3(index, trs, chem_items):
+    n, start = 2, 10+6
+    cats = get_catalog()[start-1: start + n]
+    c2 = ''
+    for i in range(len(chem_items)):
+        item = chem_items[i]
+        cell = item['cell']
+        row, col = cell[0], cell[1]
+        c2 += h4_aiyi('%d.%s%s' % (i+1, item['category'], item['drug']))
+        data = [item['tr1'], '%s%s，%s' % (item['category'], trs[0][col], trs[row][0])]
+        c2 += write_immun_table(data)
+        c2 += p.write()
+        text = 'PharmGKB'
+        c2 += h4_aiyi('（%d）                   %s药物基因组数据库（基因多态性相关证据）' % (0 + 1, text), runs=r_aiyi.picture(cy=0.6, rId=text, posOffset=[1.3, 0.53]))
+        c2 += p.write()
+        rs_list0 = item['genes']
+        c2 += write_gene_list3(rs_list0)
+        c2 += p.write()
+        for rs_item0 in rs_list0:
+            c2 += write_genotype(rs_item0, [1400, w_sum-1400])
+    para = ''
+    para += h4_aiyi(cat=cats[1], spacing=[0, 1])
+    para += write_chemotherapy(trs, [w_sum/4] * 4)
+    para += p.write()
+    para += write_explain({'title': '结果说明：', 'text': '该疗效预测汇总仅根据以下证据进行汇总。疗效预测证据主要来自CIVic数据库，并根据专家人工对相关证据进行梳理取舍。毒副作用证据及部分由基因多态性提供的疗效证据则来自于药物基因组数据库PharmGKB。采取该数据库二级以上的证据，并结合部分三级证据（不具备二级以上证据的情况下）。由于化学治疗的疗效影响因素较多，各个生物标志物的预测能力有限，且多个证据之间缺乏合理的证据平衡方式。目前初步采取多个证据之间目前采取均权投票的方式，即默认多个生物标志物的预测能力完全一致，仅根据各个证据的量进行评估,当相反证据量一致时，将证据级别纳入考量。'})
+    para += h4_aiyi(cat=cats[2])
+    para += c2
+    para += p.write(p.set(sect_pr=set_page('A4', header='rIdHeader%d' % index, page_margin=[4, 1.5, 2.54, 1.5, 1.5, 1.75])))
+    return para
+
+
+def write_chapter4(index, data):
+    cats = get_catalog()[18: 22]
+    para = ''
+    # print cats[1].get('title'), '==='
+    para += h4_aiyi(cat=cats[1], spacing=[0, 1]) + data['para_signature']
+    para += h4_aiyi(cat=cats[2]) + data['para_yichuan']
+    para += p.write(p.set(sect_pr=set_page('A4', header='rIdHeader%d' % index)))
+    return para
+
+
+def write_chapter5(index, data):
+    s, n = 21, 6
+    cats = get_catalog()[s: s+n]
+    para = ''
+    para += h4_aiyi(cat=cats[1], spacing=[0, 1])
+    para += write_chapter51(data)
+    para += p.write(p.set(sect_pr=set_page('A4', header='rIdHeader%d' % index)))
+    para += h4_aiyi(cat=cats[2])
+    para += write_chapter_cnvs(data)
+    svs = data.get('svs')
+    svs = filter(lambda x: filter_sv(x), svs)
+    para += h4_aiyi(cat=cats[3])
+    para += write_table_svs(svs)
+    para += p.write(p.set(sect_pr=set_page('A4', header='rIdHeader%d' % index)))
+    # para += p.write(p.set(sect_pr=set_page()))
+    para += h4_aiyi(cat=cats[4], spacing=[0, 0.5]) + write_chapter53(data)
+    para += h4_aiyi(cat=cats[5])
+    overview = data.get('overview')
+    sample_purity = overview.get('purity')
+    normal_base_aligned = overview.get('normal_base_aligned')  # 外周血数据量
+    tumor_base_aligned = overview.get('tumor_base_aligned')  # 肿瘤数据量
+    if normal_base_aligned:
+        normal_base_aligned = int((float(normal_base_aligned) / 1024.0/1024/1024) * 100) / 100.0
+    if tumor_base_aligned:
+        tumor_base_aligned = int((float(tumor_base_aligned) / 1024.0/1024/1024) * 100) / 100.0
+    summary = '本检测报告共涉及两个样本，肿瘤组织样本和外周血。'
+    summary += '本次检测使用安捷伦捕获外显子捕获探针Sureslect Human All Exon V6，'
+    summary += '目标测序数据量为肿瘤组织样本50G，'
+    summary += '外周血样本10G，'
+    summary += '实际可用cleandata数据量为肿瘤组织%sG，外周血样本%sG。' % (tumor_base_aligned, normal_base_aligned)
+    summary += '经分析，肿瘤组织的预测肿瘤细胞纯度为%s，' % float2percent(overview.get('purity'))
+    summary += '经初步分析共获得体细胞SNV %s个，' % overview.get('snv_no')
+    summary += '体细胞Indel %s个。' % overview.get('indel_no')
+    line = get_line('protocol')
+    para += p.write(p.set(spacing=[0, 1.5], line=19.2, rule='exact'), r_aiyi.text(summary, '小五'))
+    p_set1 = p.set(spacing=[0, 1.5], line=19.2, rule='exact')
+    para += p.write(
+        p_set1,
+        r_aiyi.text('感谢您选择北京皑医科技有限公司（皑医）提供的癌症多组学临床检测。皑医是由中国从业十年的第一批癌症精准医疗资深专家、医科院北京协和医学院的医学专家和中科院计算所的技术专家共同发起成立的一家癌症多组学数据临床解读公司。皑医致力于协助中国顶级肿瘤医生，以患者获益为中心，重新定义癌症，延长患者有质量生存时间。', '小五')
+    )
+    para += p.write(
+        p_set1,
+        r_aiyi.text('AIomics1癌症多组学临床检测，现阶段主要包括全外显子组、转录组和微生物组这三个标准化的组学检测。皑医将获得的高达70G以上的数据进行标准化的深度解读。首先，通过根据ASCO（美国临床肿瘤协会）、AMP（美国分子病理学协会）和CAP（美国病理学家联合学会）的国际指南进行变异解读相关生物信息流程质量控制；其次，在NCCN指南基础上，深度整合CGI、CIVic、OncoKB等多个解读数据库，并结合专家知识进行确认；最后，为了让患者更快的接触了解跟自己组学特征相关的研究进展专门性设计了 “最新研究进展” 模块。这是基于癌症真实世界研究和精准医疗高度发展，癌症循证医学证据以爆炸性的方式在扩大的现状所作的创新性设计。', '小五')
+    )
+    para += p.write(
+        p_set1,
+        r_aiyi.text('AIomics1癌症多组学临床检测标准化检测环节，由皑医委托北京贝瑞和康生物技术有限公司（贝瑞）进行检测。贝瑞拥有CFDA批准的第三方检验所资质（医疗机构执业许可证，诊疗科目：临床细胞分子遗传学专业），具备完善的实验质控流程。相关资质和质控流程是数据获取可靠性的核心保证。结合贝瑞的标准化检测和皑医的个性化化深度解读，AIomics1癌症多组学临床检测能够为您提供国际标准质量控制、紧扣癌症最新研究进展的系统性精准诊疗提示。', '小五')
+    )
+    para += p.write(r_aiyi.picture(8, rId='protocol', posOffset=[0, 2]))
+    para += p.write(p.set(ind=[38.5, 0], spacing=[3, 0]), r_aiyi.text('北京皑医科技有限公司'))
+    para += p.write(p.set(ind=[38.5, 0], spacing=[1, 0]), r_aiyi.text('盖章：'))
+    para += p.write(p.set(ind=[38.5, 0], spacing=[1, 0]), r_aiyi.text(data['report_time']))
+    para += p.write(p.set(sect_pr=set_page(header='rIdHeader8', footer='rIdFooter1')))
+    return para
+
+
+def write_backcover():
+    para = p.write(r_aiyi.picture(2.4, rId='logo', posOffset=[0, 10], align=['center', ''], relativeFrom=['page', 'page']))
+    para += p.write(p.set(spacing=[20, 10], jc='center'), r_aiyi.text('重新定义癌症', 26, color=blue))
+    para += p.write(p.set(line=19.2, rule='exact'), r_aiyi.text('皑医是由中国从业十年的第一批癌症精准医疗资深专家、医科院北京协和医学院的医学专家和中科院计算所的技术专家共同发起成立的一家癌症多组学数据临床解读公司。皑医致力于协助中国顶级肿瘤医生，以患者获益为中心，重新定义癌症，延长患者有质量生存时间。'))
+    imgs = [
+        [
+            {'id': 'logo', 'posOffset': 0.11, 'text': '北京皑医科技有限公司     '},
+            {'id': 'location', 'posOffset': 5.17, 'text': '北京市中关村科技园区大兴生物医药基地绿地启航3号楼1003'},
+        ],
+        [
+            {'id': 'website', 'posOffset': 0, 'text': 'https://aiyi.link          '},
+            {'id': 'phone', 'posOffset': 5.17, 'text': '010-86399801'}
+        ]
+    ]
+    for i in range(len(imgs)):
+        infos = imgs[i]
+        run = ''
+        y = 0.2
+        before = 0.5
+        if i == 1:
+            y = 0.26
+            before = 0.3
+        for info in infos:
+            run += r_aiyi.picture(cy=0.6, rId=info['id'], posOffset=[info['posOffset'], y])
+            run += r_aiyi.text(info['text'], 9, space=True)
+        para += p.write(p.set(spacing=[before, 0]), run)
+    para += set_page(header='rIdHeader8', footer='rIdFooter1')
     return para
 
 
@@ -516,258 +854,6 @@ def write_common_diagnosis(data):
     return paras
 
 
-def write_chapter1(data):
-    cats = get_catalog()[0: 4]
-    para = ''
-    para += h4_aiyi(cat=cats[1], spacing=[0, 1])
-
-    para1 = ''
-    para1 += h4_aiyi(cat=cats[2])
-    target_tips, show_extra, extra_item = data['target_tips']
-    genes = {}
-    action = []
-    for i, item in enumerate(target_tips):
-        gene = item.get('gene') or item.get('gene1')
-        action1 = item.get('action1')
-        action2 = '%s%s' % (gene, action1)
-        tcn_em = item.get('tcn_em')  # 拷贝数
-        ccf_expected_copies_em = item.get('ccf_expected_copies_em') or item.get('clone_proportion') or '' # 肿瘤细胞比例
-        dna_vaf = item.get('dna_vaf')
-        cc = ''
-        if ccf_expected_copies_em:
-            cc = '，肿瘤细胞比例%s' % float2percent(ccf_expected_copies_em)
-        elif dna_vaf:
-            cc = '，突变丰度%s' % float2percent(dna_vaf)
-        if action2 not in action:
-            action.append(action2)
-        vars = genes.get(gene) or []
-        if item not in vars:
-            vars.append(item)
-        genes[gene] = vars
-
-        # para11 = p.write(
-        #     p.set(line=24),
-        #     r_aiyi.text('  变异事件%s:  ' % (i + 1), space=True) +
-        #     r_aiyi.text(' %s(%s%s) ' % (gene, action1, cc), color=white, fill=red, space=True)
-        # )
-        # tc1 = tc.write(para11, tc.set(w_sum, color=blue, fill=bg_blue))
-        # para1 += table.write(tr.write(tc1), tblBorders=[])
-        para1 += p.write(
-            p.set(shade=bg_blue, line=24),
-            r_aiyi.text('  变异事件%s:  ' % (i + 1), space=True) +
-            r_aiyi.text(' %s(%s%s) ' % (gene, action1, cc), color=white, fill=red, space=True)
-        )
-        # para1 += p.write(
-        #     p.set(shade=red, line=24),
-        #     r_aiyi.text('  变异事件%s：%s(%s%s)' % (i + 1, gene, action1, cc)
-        #                 , color=white, space=True)
-        # )
-        para_index = 1
-        ind = [0.5, 0]
-        pPr = p.set(line=15, ind=ind, spacing=[0, 1])
-        para_eve = ''
-        oncogenicity_variant_summary = item.get('oncogenicity_variant_summary')
-        if oncogenicity_variant_summary:
-            para_eve += p.write(pPr, r_aiyi.text(oncogenicity_variant_summary, 9))
-        aiyi_db = item.get('known_db')
-        para_eve += write_evidence1(gene, aiyi_db)
-        if para_eve:
-            para1 += h4_aiyi('（1）该驱动变异关键循证医学证据') + para_eve
-            para_index += 1
-        # para1 += para1
-        # if len(items) == 0:
-        para1 += h4_aiyi('（%d）该基因临床治疗说明' % (para_index), ind=ind)
-        # 原癌和抑癌
-        para_gene = ''
-        xingzhi = []
-        oncogene = item.get('oncogene')
-        tumor_suppressor_gene = item.get('tumor_suppressor_gene')
-        if oncogene == 1:
-            xingzhi.append('原癌')
-        if tumor_suppressor_gene == 1:
-            xingzhi.append('抑癌')
-        if len(xingzhi) > 0:
-            para_gene += p.write(p.set(line=15, ind=[1, 0], spacing=[0, 0.5]), r_aiyi.text('%s %s基因' % (gene, '、'.join(xingzhi)), 9, 1))
-        summary = item.get('summary_cn')
-        if summary:
-            para_gene += p.write(p.set(line=15, ind=[1, 0], spacing=[0, 0]), r_aiyi.text(summary, 9))
-        cn_intro = item.get('cn_intro')
-        if cn_intro:
-            para_gene += p.write(p.set(line=15, ind=[1, 0], spacing=[0, 1.5]), r_aiyi.text(cn_intro, 9))
-        if para_gene:
-            para1 += para_gene
-        # else:
-        #     para1 += p.write()
-    para1 += p.write(p.set(sect_pr=set_page(page_margin=page_margin4, header='rIdHeader3')))
-    para1 += write_chapter13(cats[3])
-    # tip = tip
-    tip = '本次检测共找到%d个驱动基因的变异事件' % len(genes.keys())
-    if len(action) > 0:
-        tip += '：'
-    if len(action) < 2:
-        tip += '%s' % ''.join(action)
-    else:
-        tip += '、'.join(action[:-1]) + '和' + action[-1]
-    tip += '。'
-    paras = para
-    paras += p.write(p.set(line=19.2, rule='exact'), r_aiyi.text(tip))
-    paras += write_common_diagnosis(data)
-    paras += p.write(p.set(line=18, rule='exact'), r_aiyi.text('注：驱动变异是靶向治疗提示的基础和前提条件，此处仅呈现通过数据库、文献等各方面数据和规则判断为驱动突变的肿瘤变异事件。', '小五'))
-    paras += para1
-
-    return paras
-
-
-def write_chapter2(index, data):
-    n, start, bm0 = 11, 5, 453150350
-    cats = get_catalog()[start-1: start + n]
-    para = ''
-    immun_tip = data.get('immun_tip') or []
-    text = '、'.join([x.get('tip1') or x.get('text') for x in immun_tip])
-
-    para += h4_aiyi(cat=cats[1], spacing=[0, 1])
-    para += p.write(p.set(line=19.2, rule='exact'), r_aiyi.text('本次检测显示该患者%s。' % text, '五号'))
-    para += p.write(
-        p.set(spacing=[0, 1]),
-        r_aiyi.text('注：与靶向治疗一个驱动基因变异推荐一种或者多种药物形成显著差异，免疫治疗目前是多个生物标志物同时指导免疫检查点抗体治疗（包括PD1和CTLA4抗体）。免疫治疗需要综合多维度标志物进行综合决策。本检测报告从两个维度将纷繁复杂的各类型免疫治疗标志物进行分类：一、证据方向维度，将相关标志物分成敏感类和耐药类（含超进展）标志物。由于在所有未经筛选的肿瘤中，免疫检查点治疗的有效率大概仅有20%左右，所以一般未出现敏感类标志物时，提示免疫治疗可能无效。同时，多数耐药标志物均是无视敏感类标志物的存在与否均会导致免疫治疗耐药。然而不同证据的采信程度究竟有多高，需要进一步评估权衡；二、证据级别维度：根据ASCO、AMP和CAP共同发布的规则进行证据级别划分。A级：1、针对某一特定癌症，经过FDA批准的；2，针对某一特定癌种，专业指南推荐的；B级：基于高水平研究，相关领域专家意见一致；C级：1、同一分子标志物，FDA批准用于其他癌症；2、作为临床试验纳入标准；3、多项小型研究形成的一些共识；D级：临床前研究或者少量案例报道，结果不确定。其中A级和B级推荐药物相关变异为强烈临床意义的一类变异，C级和D级推荐药物相关变异为潜在临床意义的二类变异。', '小五')
-    )
-    msi_info = data.get('msi_info')
-    tmb_info = data.get('tmb_info')
-    msi_sort_paired_total = msi_info.get('total')
-    msi_sort_paired_somatic = msi_info.get('somatic')
-    msi_score = msi_info.get('score')
-
-    chs = [
-        {
-            'title': h4_aiyi(cat=cats[2], spacing=[0, 1]), 'note_before': 0,
-            'img_id': 'msi_score',
-            'data': msi_info,
-            'note': '注：肿瘤组织-正常样本配对分析的模式',
-            'before': 11,
-            'w': 3600,
-            'infos': [
-                {'title': '结果说明：', 'text':
-                    'MSI是指与正常组织相比，在肿瘤中某一微卫星由于重复单位的插入或缺失而造成的微卫星长度的任何改变，出现新的微卫星等位基因现象。' +
-                    '其发生机制主要包括DNA多聚酶的滑动导致重复序列中1个或多个碱基的错配和微卫星重组导致碱基对的缺失或插入。' +
-                    '该结果采用经FDA批准的MSIsensor算法获得。本次检测采用肿瘤组织-正常样本配对分析的模式，' +
-                    '共分析了%s个微卫星位点，' % msi_sort_paired_total +
-                    '其中%s个微卫星位点为具有显著差异的体细胞变异点，' % msi_sort_paired_somatic +
-                    '比例为%s%%，' % msi_score +
-                    '即MSIsensor评分为%s。' % msi_score +
-                    '研究表明，MSIsensor评分免疫治疗疗效正相关，也与错义突变和插入缺失突变总量显著正相关（PMID:31048490）。'},
-                {'title': '检测意义：', 'text': '目前FDA批准Pembrolizumab用于dMMR/MSI-H型的转移性实体瘤，Nivolumab用于dMMR/MSI-H的转移性结直肠癌。Science发表了NCT01876511的临床研究结果显示，Pembrolizumab用于治疗MSI-H的晚期肿瘤患者，MSI-H型肿瘤患者ORR高达54%。MSI-H在结直肠癌、胃癌、子宫内膜癌中较多，其他多种癌种都有一定量的分布。MSI是MMR（错配修复系统）的一个反映标志，MMR是人体细胞DNA修复的一种方式之一，MMR缺陷导致DNA出错的概率大规模提升，进而导致该类型肿瘤细胞具有非常高的突变量，而高的突变负荷进一步导致肿瘤细胞高概率采用PD1等通路的免疫逃逸机制。因此，PD1抗体对MSI-H/dMMR肿瘤更可能有效。'},
-            ] },
-        {
-            'title': h4_aiyi(cat=cats[3]), 'before': 0, 'note_before': 10,
-            'img_id': 'tmb',
-            'note': tmb_info.get('tmb_tip'),
-            'data': tmb_info,
-            'w': 3200,
-            'infos': [
-                {'title': '结果说明：', 'text': '该结果通过肿瘤外显子组检测得到。全外显子组包含人体所有大约两万多个基因，大约有38M左右的编码区域。TMB肿瘤突变负荷指平均每M（兆）区域，肿瘤细胞发生的非同义突变的个数。同时，进一步将该结果与TCGA（肿瘤基因图谱）上相同癌种的TMB数据进行比对（如该癌种TCGA未收录，则与所有癌种的总集合进行比较），标注其TMB数值高于多少比例的人群。TMB拐点是通过该癌种人群TMB分布进行线性回归拟合得到的，拐点之前的人群TMB以相同的斜率逐渐增加，而拐点之后的人群TMB以完全不一样的斜率大幅度增加，拐点代表着肿瘤TMB的一种内在分布规律（PMID: 29056344）。（证据级别说明：常规标准时：非小细胞肺癌证据级别为B级，其他所有癌种均为C级；当TMB大于20，高于绝大多数情况阈值时，非小细胞肺癌更新为A级，其他癌种更新为B级。）'},
-                {'title': '检测意义：', 'text': 'TMB在多项临床研究中均被证明能够有效区分PD1抗体、CTLA4抗体等免疫检查位点抗体治疗是否有效的人群。综合型研究表明，在不同肿瘤中，不同患者的PD1抗体治疗有效性的差异55%可以由TMB的差异解释。TMB是不同肿瘤间体细胞突变量的评估。一般情况下，TMB越高，该肿瘤可能会拥有更多的肿瘤新生抗原，该肿瘤也越有可能在经过免疫检查位点抗体解除肿瘤免疫逃逸之后，被患者自身的免疫系统所识别，相关治疗在该患者身上也就越可能有效。'},
-            ]
-        }
-    ]
-    for ch in chs:
-        para += write_chapter21(ch)
-    para += h4_aiyi(cat=cats[4]) + data.get('para_ddr')
-    para += h4_aiyi(cat=cats[5]) + data.get('para_mingan')
-    para += h4_aiyi(cat=cats[6]) + data.get('para_naiyao')
-    para += h4_aiyi(cat=cats[7]) + data.get('para_chaojinzhan')
-    para += h4_aiyi(cat=cats[8]) + data.get('para_hla')
-    para += h4_aiyi(cat=cats[9]) + write_kangyuan(data.get('neoantigens'))
-    para += p.write(p.set(sect_pr=set_page('A4', header='rIdHeader%d' % index)))
-    para += h4_aiyi(cat=cats[10])
-    para += h4_aiyi('1、免疫治疗与肿瘤免疫')
-    para_set = p.set(line=18, rule='exact')
-    para += p.write(para_set, r_aiyi.text('自2012年，约翰霍普金斯大学PD1抗体临床试验结果发表在《新英格兰医学杂志》之后，免疫治疗真正进入临床医生和产业界的视野，并迅速取代靶向治疗成为肿瘤治疗最新最主流的治疗研究方向。CTLA4、PD1抗体以惊人的产业化速度和疗效，迅速在多个癌种中获批，并在肺癌中成为一线治疗药物。PDL1表达、微卫星不稳定迅速成为有效协助患者药物筛选的分子标志物，肿瘤突变负荷TMB、新抗原负荷、肿瘤CD8+T淋巴细胞浸润状态等在各种数据中证明具有筛选有效患者的能力，然而，新型免疫治疗手段以超越基础研究的速度在发展，免疫治疗人群筛选和联合治疗时机选择远远没有到达完美，新的标志物层出不求', '小五'))
-    para += p.write(para_set, r_aiyi.text('肿瘤免疫治疗是通过协助免疫系统发挥被抑制或者缺失的免疫能力，进而实现肿瘤治疗的手段。更好的理解肿瘤免疫过程，能够协助我们对各种新型肿瘤免疫治疗手段和新型标志物形成更好的全局性理解，以便我们更好的采取与化疗、放疗、靶向治疗的联合治疗手段，优化免疫治疗时机和方式的选择。肿瘤免疫周期理论是由Mellman等人提出来的肿瘤免疫过程框架，目前已经成为肿瘤免疫学研究和临床应用的思维框架。', '小五'))
-    para += h4_aiyi('2、肿瘤免疫周期理论')
-    para += p.write(r_aiyi.picture(cy=10, rId='2.4.2', align=['center', ''], posOffset=[0, 0.5]))
-    para += p.write(para_set) * 16
-    para += p.write(para_set, r_aiyi.text('肿瘤免疫治疗是通过协助免疫系统发挥被抑制或者缺失的免疫能力，进而实现肿瘤治疗的手段。更好的理解肿瘤免疫过程，能够协助我们对各种新型肿瘤免疫治疗手段和新型标志物形成更好的全局性理解，以便我们更好的采取与化疗、放疗、靶向治疗的联合治疗手段，优化免疫治疗时机和方式的选择。肿瘤免疫周期理论是由Mellman等人提出来的肿瘤免疫过程框架，目前已经成为肿瘤免疫学研究和临床应用的思维框架。', '小五'))
-    para += p.h5('（1）肿瘤细胞死亡并释放肿瘤特异抗原')
-    para += p.write(para_set, r_aiyi.text('从某种意义上说，肿瘤是由基因突变积累形成的疾病，同时，肿瘤基因突变也是肿瘤免疫过程发生的主要驱动因素。各种原因形成的肿瘤基因突变，部分情况下会让肿瘤细胞表达出与未突变基因不一样的蛋白质，其中部分突变蛋白的肽段会被身体的免疫系统识别为“外源”抗原，即所谓的“新抗原”。当肿瘤因为各种原因死亡后，含有新抗原的蛋白就会从肿瘤细胞中释放出来，进而驱动肿瘤免疫反应。所以，部分情况下，放疗、化疗、靶向治疗等治疗手段会跟免疫检查位点抗体治疗形成协同增强作用，也是因为该原因引起。最新部分研究甚至发现，不管PDL1表达状态，PD通路抗体联合化疗的疗效远高于单独化疗。微卫星高不稳定、肿瘤突变负荷高的肿瘤患者，一般情况下免疫检查位点抗体具有更好的疗效，也均是因为一般情况下，更高的突变负荷，意味着更多的新抗原可能性。', '小五'))
-    para += p.h5('（2）抗原提呈细胞摄取并处理肿瘤新抗原')
-    para += p.write(para_set, r_aiyi.text('抗原提呈细胞摄取含有新抗原的突变蛋白，并将水解为可以结合到MHC（主要组织相容性复合物，又称为HLA人类白细胞抗原）的肽段。抗原提呈细胞需要有包括促炎症细胞因子和肿瘤细胞死亡释放的信号因子在内的多种免疫原性信号才能够有效启动，因此，不同免疫状态下的肿瘤，新抗原的提呈效率是不一样的。不同人的MHC具有异质性，所以，不同患者哪些新抗原能够被提呈是不一样的。目前通过生物信息手段，新抗原能够以一定的准确性被预测出来。目前有研究通过预测的新抗原进行个性化治疗疫苗设计，促进抗原提呈过程，并取得了相当惊人的效果。', '小五'))
-    para += p.h5('（3）抗原提呈细胞进入淋巴结激活T细胞')
-    para += p.write(para_set, r_aiyi.text('（抗原提呈细胞被新抗原激活后，进入淋巴结激活初始T细胞。初始T细胞在共刺激分子的协同作用下诱导T细胞增殖并分化成为激活免疫杀伤的效应T细胞和抑制免疫杀伤的调节性T细胞，并通过两者比例的精确控制达成免疫反应性质确定和平衡。重组白细胞介素2（IL-2）即通过该环节调节肿瘤免疫反应。', '小五'))
-    para += p.h5('（4）激活的T细胞离开淋巴结进入循环系统')
-    para += p.write(para_set, r_aiyi.text('激活的T细胞基于细胞黏附分子组分变化的原因，脱离淋巴结进入循环系统。', '小五'))
-    para += p.h5('（5）T细胞穿过血管壁浸润到肿瘤微环境')
-    para += p.write(para_set, r_aiyi.text('肿瘤细胞死亡等原因引起的局部免疫反应会让周围组织跟炎症反应一样释放细胞因子和趋化因子，结合该部位血管内皮细胞由于炎症反应表达量增加的附着蛋白，让循环系统中的T细胞通过与血管内皮细胞锚定后进入肿瘤微环境中。初步研究结果表明，抗血管生成治疗与免疫治疗能够起到非常好的协同作用，部分临床试验中甚至提高将近一倍的治疗效果。', '小五'))
-    para += p.h5('（6）T细胞通过特异性受体识别肿瘤细胞')
-    para += p.write(para_set, r_aiyi.text('肿瘤细胞和一般体细胞一样，在核糖体进行蛋白质翻译的过程中，会有一定比例的缺陷蛋白并会被水解成肽段，其中能够被MHC结合的潜在抗原会被提呈到细胞膜表面。T细胞通过特异性受体（TCR）识别肿瘤细胞表面的新抗原。有研究表明，部分肿瘤中，肿瘤细胞MHC缺失对于免疫逃逸的发生贡献重要意义。目前CAR-T和TCR-T是重点研究方向，并在部分肿瘤中发挥惊人的治疗效果。CAR-T治疗又称人工合成嵌合抗原受体T细胞治疗，直接取代T细胞识别肿瘤细胞的方式，而TCR-T则是通过筛选分离针对肿瘤特定抗原的TCR，将原来未能识别肿瘤细胞的T细胞改造成能够识别肿瘤细胞的T细胞。', '小五'))
-    para += p.h5('（7）肿瘤细胞被T细胞识别并溶解消灭')
-    para += p.write(para_set, r_aiyi.text('当效应T细胞识别出肿瘤细胞表面的特异性抗原后，胞浆内储存的效应分子将朝目标方向释放，在不影响周围正常细胞的情况下溶解肿瘤细胞。CD8+T细胞是最重要的执行细胞杀伤的效应T细胞，所以，一般情况下，其肿瘤微环境浸润情况与免疫治疗疗效正相关。同时，PD1和CTLA-4是T细胞表面的抑制性受体，肿瘤细胞通过相应配体的表达，抑制T细胞的免疫杀伤作用。', '小五'))
-    para += h4_aiyi('3.肿瘤免疫表型理论')
-    para += p.write(r_aiyi.picture(cy=10, rId='2.4.3.1', align=['center', ''], posOffset=[0, 0.5]))
-    para += p.write(para_set) * 16
-    para += p.write(para_set, r_aiyi.text('肿瘤免疫表型理论是由Mellman在肿瘤免疫周期的基础上，进一步根据最新的研究成果，细化发展出来的一套肿瘤免疫分型体系。该分型体系根据相应的生物学机制，将肿瘤分成免疫沙漠型（棕色）、免疫豁免型（蓝色）和炎症型（红色）三种，并进一步根据宿主基因、微生物组、环境因素、治疗药物和癌症共五个维度，将影响免疫原性的多种研究进展整合成如下图所示，与免疫治疗疗效和免疫原性相关的癌症-免疫设定点。', '小五'))
-    para += p.write(r_aiyi.picture(cy=8, rId='2.4.3.2', posOffset=[2, 0.3]))
-    # para += p.write(para_set) * 4
-    para += p.write(p.set(ind=[24.5, 0], line=18, spacing=[1, 0]), r_aiyi.text('癌症免疫设定点是指产生有效癌症免疫原性所需克服的阈值，为指导免疫治疗临床应用和研究提供一个系统性框架。该设定点可以理解为理解为刺激因子、抑制因子和TCR结合信号（T细胞抗原受体与新抗原、癌症相关抗原等癌症抗原的亲和力）的平衡。癌症免疫治疗主要是针对肿瘤部位，通过增加的刺激因子、减少抑制因子或者增加TCR结合信号这三种方式进行的。', '小五'))
-    para += h4_aiyi('4、免疫检查位点抗体疗联合传统治疗研究进展')
-    para += p.write(para_set, r_aiyi.text('免疫检查位点抗体单药治疗虽然在临床治疗中显示出广泛的抗癌效果，不同癌种的总体有效率基本在20%左右，即使通过多种标志物进行预测可一定程度上减少无效人群，但其获益人群一样有限。从肿瘤免疫过程上看，将免疫阻隔型和免疫沙漠型的“冷”肿瘤，转变成免疫炎症型的“热”肿瘤，扩大免疫检查位点抗体的获益人群，可以通过联合治疗的方式进行。对PDL1、MSI、TMB等各类型标志物预测检查位点抗体单药治疗效获益可能性较低的患者，最好进行检查位点抗体与其他治疗方式的联合治疗。多项研究发现放疗、化疗和靶向治疗等传统治疗联合免疫检查位点抗体治疗能够获得惊人的效果，中位生存期、无疾病进展生存期和有效率等疗效指标翻倍的情况。同时，值得注意的是，联合治疗会成倍甚至多倍的提高毒副反应。基于对肿瘤免疫过程理解的加深，特异性针对特定肿瘤免疫过程的免疫治疗是联合治疗的更优选择。', '小五'))
-    para += h4_aiyi('5、新型免疫治疗手段研究进展')
-    para += p.write(para_set, r_aiyi.text('免疫治疗是癌症治疗有史以来最激动人心的治疗领域，甚至有的医生认为，癌症免疫治疗让人类真正真正看到了癌症被治愈的希望。随着PD1抗体在各癌种中的攻城略地，新型的免疫治疗手段也展现出未来的王者之相。'))
-    para += p.h5('（1）个性化癌症治疗疫苗')
-    para += p.write(para_set, r_aiyi.text('癌症疫苗，这种通过主动免疫去扩大肿瘤特异性T细胞反应的治疗方式，一直被认为是癌症免疫治疗的有效手段。尽管大家能够清晰看到癌症疫苗的合理性，但是，过去在临床方面的尝试都是不成功的。不同患者之间的肿瘤抗原具有强烈的多样性，因此，个性化癌症疫苗的发展是必要的。随着二代测序和生物信息工具的逐步完善，癌症疫苗的核心环节，新抗原预测逐渐成熟，该技术在最近的研究中取得突破性的进展，且由于安全性较好，是最值得跟进参与的新型癌症免疫治疗手段之一。', '小五'))
-    para += p.write(r_aiyi.picture(cy=12, rId='2.4.5.1', align=['center', ''], posOffset=[0, 0.2]))
-    para += p.write(para_set) * 17
-    para += p.h5('（2）免疫检查位点抑制剂相关抗体')
-    para += p.write(para_set, r_aiyi.text('肿瘤免疫检查位点不仅仅PD1和CTLA-4，还有至少几十种免疫检查位点。目前该领域，IDO抑制剂、LAG3抑制剂在早期临床试验中显示出相当好的疗效，与PD1联合用药的情况下，部分结果甚至成倍提升有效率，其中IDO抑制剂，已经进入三期临床临床试验（注：IDO抑制剂Epacadostat与Keytruda联用的关键三期临床试验ECHO-301失败）。', '小五'))
-    para += p.h5('（3）CAR-T和TCR-T治疗')
-    para += p.write(para_set, r_aiyi.text('CAR-T和TCR-T都属于细胞治疗的范畴，主要通过对患者自身的T细胞进行工程化改造，让其能够发挥肿瘤细胞的杀灭功能。CAR-T，又称嵌合抗原受体T细胞治疗，是通过人工合成的受体使患者自身的T细胞能够进行肿瘤细胞识别，进而发挥肿瘤细胞杀伤效果。由于CAR-T细胞在实体瘤中的浸润能力相对较差，目前临床主要应用于血液肿瘤中。随着技术进展，如通过提升CAR-T中对增强T细胞浸润能力相关基因的表达，未来应该也能够在实体瘤治疗中发挥重要作用。TCR-T，又称T细胞识别受体（TCR）工程化改造T细胞治疗，是通过将对特定抗原亲和力强的TCR移植到患者自身的T细胞上使患者自身的T细胞发挥肿瘤细胞杀伤效果。其中特异性TCR-T，是指针对患者特异的新抗原进行设计的TCR-T治疗方式，是未来最有价值的癌症治疗手段，相比通过个性化疫苗诱导形成肿瘤杀伤T细胞，从原理上来说，特异性TCR-T治疗属于更靠后的免疫周期中的环节，可能具有更好的治疗效果。', '小五'))
-    para += p.h5('（4）溶瘤病毒')
-    para += p.write(para_set, r_aiyi.text('溶瘤病毒是一群倾向于感染和杀伤肿瘤细胞的病毒。溶瘤病毒治疗是指将本身对身体伤害较低的溶瘤病毒经工程化改造减毒处理和治疗效果提升后，感染肿瘤患者的治疗方式。这种治疗思路和方法，是多年前发现和临床实践过的方法，且2005年中国CFDA批准了一种溶瘤腺病毒。但是，单药治疗效果有限，并未引起广泛关注。随着PD1抗体治疗的普及，临床研究发现，溶瘤病毒联合PD1治疗能够大幅度提高PD1抗体治疗的有效率，2015年，溶瘤病毒治疗T-Vec批准用于黑色素瘤。溶瘤病毒在提高PDL1表达、逆转肿瘤相关免疫抑制等多个层面，均能够与PD1抗体治疗形成非常好的协同效果。', '小五'))
-    para += p.write(r_aiyi.picture(cy=10, rId='2.4.5.2', align=['center', ''], posOffset=[0, 1]))
-    para += p.write(p.set(sect_pr=set_page('A4', header='rIdHeader%d' % index)))
-    return para
-
-
-def write_chapter3(index, trs, chem_items):
-    n, start = 2, 10+6
-    cats = get_catalog()[start-1: start + n]
-    c2 = ''
-    for i in range(len(chem_items)):
-        item = chem_items[i]
-        cell = item['cell']
-        row, col = cell[0], cell[1]
-        c2 += h4_aiyi('%d.%s%s' % (i+1, item['category'], item['drug']))
-        data = [item['tr1'], '%s%s，%s' % (item['category'], trs[0][col], trs[row][0])]
-        c2 += write_immun(data)
-        c2 += p.write()
-        text = 'PharmGKB'
-        c2 += h4_aiyi('（%d）                   %s药物基因组数据库（基因多态性相关证据）' % (0 + 1, text), runs=r_aiyi.picture(cy=0.6, rId=text, posOffset=[1.3, 0.7]))
-        c2 += p.write()
-        rs_list0 = item['genes']
-        c2 += write_gene_list3(rs_list0)
-        c2 += p.write()
-        for rs_item0 in rs_list0:
-            c2 += write_genotype(rs_item0, [1400, w_sum-1400])
-    para = ''
-    para += h4_aiyi(cat=cats[1], spacing=[0, 1])
-    para += write_chemotherapy(trs, [w_sum/4] * 4)
-    para += p.write()
-    para += write_explain({'title': '结果说明：', 'text': '该疗效预测汇总仅根据以下证据进行汇总。疗效预测证据主要来自CIVic数据库，并根据专家人工对相关证据进行梳理取舍。毒副作用证据及部分由基因多态性提供的疗效证据则来自于药物基因组数据库PharmGKB。采取该数据库二级以上的证据，并结合部分三级证据（不具备二级以上证据的情况下）。由于化学治疗的疗效影响因素较多，各个生物标志物的预测能力有限，且多个证据之间缺乏合理的证据平衡方式。目前初步采取多个证据之间目前采取均权投票的方式，即默认多个生物标志物的预测能力完全一致，仅根据各个证据的量进行评估,当相反证据量一致时，将证据级别纳入考量。'})
-    para += h4_aiyi(cat=cats[2])
-    para += c2
-    para += p.write(p.set(sect_pr=set_page('A4', header='rIdHeader%d' % index, page_margin=[4, 1.5, 2.54, 1.5, 1.5, 1.75])))
-    return para
-
-
-def write_chapter4(index, data):
-    cats = get_catalog()[18: 22]
-    para = ''
-    # print cats[1].get('title'), '==='
-    para += h4_aiyi(cat=cats[1], spacing=[0, 1]) + data['para_signature']
-    para += h4_aiyi(cat=cats[2]) + data['para_yichuan']
-    para += p.write(p.set(sect_pr=set_page('A4', header='rIdHeader%d' % index)))
-    return para
-
-
 def filter_sv(x):
     # only_pr=-1时，somatic，其他为candidate
     only_pr = x.get('only_pr')
@@ -787,92 +873,6 @@ def filter_sv(x):
         ):
             return True
     return False
-
-
-def write_chapter5(index, data):
-    s, n = 21, 6
-    cats = get_catalog()[s: s+n]
-    para = ''
-    para += h4_aiyi(cat=cats[1], spacing=[0, 1])
-    para += write_chapter51(data)
-    para += p.write(p.set(sect_pr=set_page('A4', header='rIdHeader%d' % index)))
-    para += h4_aiyi(cat=cats[2])
-    para += write_chapter_cnvs(data)
-    svs = data.get('svs')
-    svs = filter(lambda x: filter_sv(x), svs)
-    para += h4_aiyi(cat=cats[3])
-    para += write_chapter_svs(svs)
-    para += p.write(p.set(sect_pr=set_page('A4', header='rIdHeader%d' % index)))
-    # para += p.write(p.set(sect_pr=set_page()))
-    para += h4_aiyi(cat=cats[4], spacing=[0, 0.5]) + write_chapter53(data)
-    para += h4_aiyi(cat=cats[5])
-    overview = data.get('overview')
-    sample_purity = overview.get('purity')
-    normal_base_aligned = overview.get('normal_base_aligned')  # 外周血数据量
-    tumor_base_aligned = overview.get('tumor_base_aligned')  # 肿瘤数据量
-    if normal_base_aligned:
-        normal_base_aligned = int((float(normal_base_aligned) / 1024.0/1024/1024) * 100) / 100.0
-    if tumor_base_aligned:
-        tumor_base_aligned = int((float(tumor_base_aligned) / 1024.0/1024/1024) * 100) / 100.0
-    summary = '本检测报告共涉及两个样本，肿瘤组织样本和外周血。'
-    summary += '本次检测使用安捷伦捕获外显子捕获探针Sureslect Human All Exon V6，'
-    summary += '目标测序数据量为肿瘤组织样本50G，'
-    summary += '外周血样本10G，'
-    summary += '实际可用cleandata数据量为肿瘤组织%sG，外周血样本%sG。' % (tumor_base_aligned, normal_base_aligned)
-    summary += '经分析，肿瘤组织的预测肿瘤细胞纯度为%s，' % float2percent(overview.get('purity'))
-    summary += '经初步分析共获得体细胞SNV %s个，' % overview.get('snv_no')
-    summary += '体细胞Indel %s个。' % overview.get('indel_no')
-    line = get_line('protocol')
-    para += p.write(p.set(spacing=[0, 1.5], line=19.2, rule='exact'), r_aiyi.text(summary, '小五'))
-    p_set1 = p.set(spacing=[0, 1.5], line=19.2, rule='exact')
-    para += p.write(
-        p_set1,
-        r_aiyi.text('感谢您选择北京皑医科技有限公司（皑医）提供的癌症多组学临床检测。皑医是由中国从业十年的第一批癌症精准医疗资深专家、医科院北京协和医学院的医学专家和中科院计算所的技术专家共同发起成立的一家癌症多组学数据临床解读公司。皑医致力于协助中国顶级肿瘤医生，以患者获益为中心，重新定义癌症，延长患者有质量生存时间。', '小五')
-    )
-    para += p.write(
-        p_set1,
-        r_aiyi.text('AIomics1癌症多组学临床检测，现阶段主要包括全外显子组、转录组和微生物组这三个标准化的组学检测。皑医将获得的高达70G以上的数据进行标准化的深度解读。首先，通过根据ASCO（美国临床肿瘤协会）、AMP（美国分子病理学协会）和CAP（美国病理学家联合学会）的国际指南进行变异解读相关生物信息流程质量控制；其次，在NCCN指南基础上，深度整合CGI、CIVic、OncoKB等多个解读数据库，并结合专家知识进行确认；最后，为了让患者更快的接触了解跟自己组学特征相关的研究进展专门性设计了 “最新研究进展” 模块。这是基于癌症真实世界研究和精准医疗高度发展，癌症循证医学证据以爆炸性的方式在扩大的现状所作的创新性设计。', '小五')
-    )
-    para += p.write(
-        p_set1,
-        r_aiyi.text('AIomics1癌症多组学临床检测标准化检测环节，由皑医委托北京贝瑞和康生物技术有限公司（贝瑞）进行检测。贝瑞拥有CFDA批准的第三方检验所资质（医疗机构执业许可证，诊疗科目：临床细胞分子遗传学专业），具备完善的实验质控流程。相关资质和质控流程是数据获取可靠性的核心保证。结合贝瑞的标准化检测和皑医的个性化化深度解读，AIomics1癌症多组学临床检测能够为您提供国际标准质量控制、紧扣癌症最新研究进展的系统性精准诊疗提示。', '小五')
-    )
-    para += p.write(r_aiyi.picture(8, rId='protocol', posOffset=[0, 2]))
-    para += p.write(p.set(ind=[38.5, 0], spacing=[3, 0]), r_aiyi.text('北京皑医科技有限公司'))
-    para += p.write(p.set(ind=[38.5, 0], spacing=[1, 0]), r_aiyi.text('盖章：'))
-    para += p.write(p.set(ind=[38.5, 0], spacing=[1, 0]), r_aiyi.text(data['report_time']))
-    para += p.write(p.set(sect_pr=set_page(header='rIdHeader8', footer='rIdFooter1')))
-    return para
-
-
-def write_backcover():
-    para = p.write(r_aiyi.picture(2.4, rId='logo', posOffset=[0, 10], align=['center', ''], relativeFrom=['page', 'page']))
-    para += p.write(p.set(spacing=[20, 10], jc='center'), r_aiyi.text('重新定义癌症', 26, color=blue))
-    para += p.write(p.set(line=19.2, rule='exact'), r_aiyi.text('皑医是由中国从业十年的第一批癌症精准医疗资深专家、医科院北京协和医学院的医学专家和中科院计算所的技术专家共同发起成立的一家癌症多组学数据临床解读公司。皑医致力于协助中国顶级肿瘤医生，以患者获益为中心，重新定义癌症，延长患者有质量生存时间。'))
-    imgs = [
-        [
-            {'id': 'logo', 'posOffset': 0.11, 'text': '北京皑医科技有限公司     '},
-            {'id': 'location', 'posOffset': 5.17, 'text': '北京市中关村科技园区大兴生物医药基地绿地启航3号楼1003'},
-        ],
-        [
-            {'id': 'website', 'posOffset': 0, 'text': 'https://aiyi.link          '},
-            {'id': 'phone', 'posOffset': 5.17, 'text': '010-86399801'}
-        ]
-    ]
-    for i in range(len(imgs)):
-        infos = imgs[i]
-        run = ''
-        y = 0.2
-        before = 0.5
-        if i == 1:
-            y = 0.26
-            before = 0.3
-        for info in infos:
-            run += r_aiyi.picture(cy=0.6, rId=info['id'], posOffset=[info['posOffset'], y])
-            run += r_aiyi.text(info['text'], 9, space=True)
-        para += p.write(p.set(spacing=[before, 0]), run)
-    para += set_page(header='rIdHeader8', footer='rIdFooter1')
-    return para
 
 
 def write_explains(content):
@@ -897,7 +897,7 @@ def write_chapter13(cat):
     para += p.write(p_set, r_aiyi.text('在肿瘤发生发展中扮演重要角色，能够“驱动”癌症疾病进程的基因称为驱动基因。乘客基因则是指对肿瘤发生发展重要性不高的基因，但是，重要性目前只是一个相对概念而不是绝对概念，所以，虽目前有多种方式进行驱动基因的鉴定，但是并没有统一的完整标准。驱动基因又分成发生激活突变后具有促进癌症发生发展的原癌基因和功能正常情况下抑制癌症发生的抑癌基因。驱动基因上的基因变异，可以是驱动突变，也可以是乘客突变。驱动突变可以是原癌基因的激活突变，也可以是抑癌基因的失活突变。一般情况下，肿瘤靶向治疗针对驱动基因中的原癌基因激活突变进行抑制，如EGFR Tkis抑制EGFR突变，或者针对抑癌基因的失活突变进行相关信号通路的协同致死，如PARP抑制剂治疗BRCA1、2基因变异肿瘤。', '小五'))
     para += h4_aiyi('（2）原癌基因和激活突变')
     para += p.write(p_set, r_aiyi.text('原癌基因指正常功能情况下，在细胞信号传导等多个层面扮演重要角色，但是发生激活突变后会促进癌症发生发展的基因。激活突变一般情况下发生在原癌基因经常发生突变的热点位置上，如下图的PIK3CA和IDH1基因，且突变以错义突变为主。', '小五'))
-    para += h4_aiyi('（3）抑癌基因和失活突变')
+    para += h4_aiyi('（3）抑癌基因和失活突变', spacing=[1, 0])
     para += p.write(p.set(line=18, rule='exact', spacing=[0, 12]),
                     r_aiyi.text('抑癌基因指正常功能下，扮演着DNA修复等抑制癌症发生发展过程的基因。抑癌基因发生失活突变会导致身体抑制癌症的功能降低。抑癌突变一般情况下热点突变较少，可发生在基因近乎任何区域，如下图的RB1和VHL基因，且会出现更多的截断突变。', '小五')
                     +r_aiyi.picture(10, rId='1.3.3', align=['center', ''], posOffset=[0, 3])
@@ -921,11 +921,11 @@ def write_chapter21(ch):
     info = ch.get('data')
     text = info.get('text')
     effect = info.get('effect')
-    trs2 = write_tr1(text) + write_tr2(effect)
-    para += table.write(trs2, ws=[w_sum], jc='center', bdColor=gray, tblBorders=['top', 'bottom'])
+    level = info.get('level')
+    para += write_immun_table([text, effect], level)
     para += p.write(
         p.set(jc='center', spacing=[ch['before'], 0]),
-        run=r_aiyi.picture(cx=10.93, cy=7.3 * 0.5 * 1.5, rId=ch['img_id'], posOffset=[0, 1], align=['center', ''])
+        run=r_aiyi.picture(cx=10.93, rId=ch['img_id'], posOffset=[0, 1], align=['center', ''])
     )
     para += p.write(p.set(jc='center', spacing=[ch['note_before'], 0]), r_aiyi.text(ch['note'], size=8.5))
     for i in ch['infos']:
@@ -933,18 +933,11 @@ def write_chapter21(ch):
     return para
 
 
-def write_ddr(variants, diagnosis):
-    ddr = write_41(variants, diagnosis)
-    para = write_immun([ddr['tr1'], ddr['tr2']], ddr['level'])
+def write_chapter_ddr(variants, diagnosis):
+    ddr = write_genes_ddr(variants, diagnosis)
+    para = write_immun_table([ddr['tr1'], ddr['tr2']], ddr['level'])
     para += p.write()
     para += ddr['para']
-    para += p.write()
-    run = r_aiyi.text('红色，', color=red, size=9)
-    run += r_aiyi.text('表示明确致病突变位点；', size=9)
-    run += r_aiyi.text('橙红色，', color=orange, size=9)
-    run += r_aiyi.text('表示未明意义突变位点', size=9)
-    para += p.write(p.set(spacing=[0.5, 0.5]), run)
-    # 只有
     para += write_explain({'title': '结果说明：', 'text': 'DDR基因突变患者更可能从免疫检查位点抗体治疗中获益。细胞内正常的代谢活动与环境因素均会引起DNA损伤，初步估算，每个正常细胞每天产生1000-1000000处分子损伤。肿瘤细胞由于基因组等异常，大部分情况下DNA损伤的速率远高于正常细胞。DNA损伤反应基因主要包括错配修复、同源重组修复等DNA修复相关基因（DDR基因），也包括细胞周期检查点、染色质重塑等其他基因，据一篇专家手工注释研究表明，DDR基因大约有450个。DNA损伤反应跟免疫系统之间具有非同寻常的关系，如召集免疫细胞聚集，对T细胞杀伤更敏感等。以上是根据目前最新研究，将已有证据证明相关基因突变与免疫检查位点疗效直接相关的DDR基因子集。该基因列表可能会随着DDR基因的研究进展逐步扩大。'})
     para += write_evidence_new([
         {
@@ -966,23 +959,121 @@ def write_ddr(variants, diagnosis):
     return para, ddr['tip'], ddr['tr1'], ddr['level']
 
 
-def write_chapter_hla(overview, diagnosis):
-    hla1 = [' ']
-    for k in overview.keys():
-        if k.startswith('hla_'):
-            hla1.append(overview[k])
-    hlas = write_hla(hla1, diagnosis)
-    para = hlas[0]
-    # 1,  如果HLA-B66，或者HLA-B*15：01，疗效较差
-    # 2， 如果LA-B44，较好，  如果三个均杂合（A1！=A2， B1！=B2， C1！=C2）， 疗效较好。
-    # 3，其它，疗效中等。
-    para += p.write()
-    para += write_explain({'title': '结果说明：', 'text': 'HLA分型与免疫治疗疗效高度相关。HLA(human lymphocyte antigen ，人类淋巴细胞抗原)，是编码人类的主要组织相容性复合体（MHC）的基因。HLA是免疫系统区分自身和异体物质的基础。HLA主要包括HLA Ⅰ类分子和Ⅱ分子。HLAⅠ类分子又进一步细化分成A、B、C三个基因。特定的超型，如HLA-B44，与免疫检查点抗体治疗疗效好相关；HLA-B66（包括HLA-B*15：01），与免疫检查点抗体治疗疗效差相关。HLA Ⅰ类三个基因均杂合，免疫检查点抗体治疗反应更好。HLA杂合缺失的基因相关的新抗原可能在个性化治疗疫苗或者特异性细胞治疗中无效。'})
-    para += write_evidence4(2)
-    return para, hlas[1], hlas[2], hlas[3]
+def write_genes_ddr(variants, diagnosis):
+    col = 9
+    genes = [
+        {
+            'title': '同源重组修复基因', 'color': colors[0],
+            'genes': ['BRCA1', 'MRE11A', 'NBN', 'RAD50', 'RAD51', 'RAD51B', 'RAD51D', 'RAD52', 'RAD54L']
+        },
+        {
+            'title': '范可尼贫血通路基因', 'color': colors[1],
+            'genes': ['BRCA2', 'BRIP1', 'FANCA', 'FANCC', 'PALB2', 'RAD51C', 'BLM']
+        },
+        {
+            'title': '碱基切除修复基因', 'color': colors[2],
+            'genes': ['ERCC2', 'ERCC3', 'ERCC4', 'ERCC5', 'ERCC6']
+        },
+        {
+            'title': '错配修复基因', 'color': colors[3],
+            'genes': ['MLH1', 'MSH2', 'MSH6', 'PMS1', 'PMS2']
+        },
+        {
+            'title': '细胞周期检查点基因', 'color': colors[4],
+            'genes': ['ATM', 'ATR', 'CHEK1', 'CHEK2', 'MDC1']
+        },
+        {
+            'title': '其他基因', 'color': colors[5],
+            'genes': ['POLE', 'MUTYH', 'PARP1', 'RECQL4', 'BAP1']
+        }
+    ]
+    trs2 = ''
+    ws = [w_sum/10] * 10
+    pPr = p.set(line=12, rule='auto', jc='center')
+    reds = []
+    oranges = []
+    var_items = []
+    for k in range(len(genes)):
+        gene = genes[k]
+        gene_list = gene['genes']
+        gene_list += [''] * (col-len(gene_list))
+        tcs = ''
+        if 'title' in gene:
+            para = p.write(pPr, r_aiyi.text(gene['title'], size=9))
+            tcs += tc.write(para, tc.set(w=ws[k], fill='' if k % 2 == 0 else bg_blue, color=white, tcBorders=[]))
+        for j in range(len(gene_list)):
+            gene = gene_list[j]
+            fill, var_item = get_var_color_ddr(gene, variants, diagnosis)
+            if var_item is not None and var_item not in var_items:
+                var_items.append(var_item)
+            color, text, var_text = '000000', gene, ''
+            if fill not in ['', gray]:
+                color = white
+                if fill == red:
+                    reds.append(gene)
+                elif fill == orange:
+                    oranges.append(gene)
+                var_text = p.write(pPr, r_aiyi.text('突变', color=color, size=9))
+            else:
+                fill = '' if k % 2 == 0 else bg_blue
+            para = p.write(pPr, r_aiyi.text(text, color=color, size=9)) + var_text
+            tcs += tc.write(para, tc.set(w=ws[j], fill=fill, color=white, tcBorders=[]))
+        trs2 += tr.write(tcs, tr.set(trHeight=620))
+    tr1 = 'DDR基因无变异'
+    tr2 = 'PD1等免疫检查位点抗体等免疫治疗可能不显著'
+    tr11 = tr1
+    level = ''
+    tip = tr1
+    if len(reds + oranges) > 0:
+        tr1 = 'DDR基因中发现'
+        if len(reds) > 0:
+            tr1 += '%s基因突变' % ('、'.join(reds))
+        if len(oranges) > 0:
+            # 表示未明意义突变位点
+            tr1 += '和%s未明意义突变' % ('、'.join(oranges))
+        postfix = '' if len(reds + oranges) == 1 else '等事件'
+
+        tip = 'DDR基因中发现%s突变%s' % (reds[0], postfix)
+
+        tr11 = tr1 + '。'
+
+        tr2 = 'PD1等免疫检查位点抗体等免疫治疗可能有效'
+        level = 'C'
+        if diagnosis in ['泌尿上皮癌', '非小细胞肺癌', '前列腺癌']:
+            level = 'C-同癌种证据'
+        tr2 += '(%s)' % level
+    paras = table_aiyi(trs2)
+    run = r_aiyi.text(' 红色 ', color=white, fill=red, size=9, space=True)
+    run += r_aiyi.text('，表示明确致病突变位点；', size=9)
+    run += r_aiyi.text(' 橙红色 ', color=white, fill=orange, size=9, space=True)
+    run += r_aiyi.text('，表示未明意义突变位点', size=9)
+    paras += p.write(p.set(spacing=[0.5, 0.5]), run)
+    paras += write_detail_table(var_items, [], [], '')
+    return {'para': paras, 'tr1': tr11, 'tr2': tr2, 'tip': tip, 'level': level}
 
 
-def write_chapter_mingan(stars, diagnose):
+def get_var_color_ddr(gene, vars, diagnosis=''):
+    # 1.突变：加星  红色
+    # 2.未明意义突变：未明意义突变显示规则（仅在癌种为泌尿上皮癌时呈现，其他癌种均不呈现）：①突变比例：肿瘤细胞比例≥50%，肿瘤细胞比例不可获得时，突变丰度vaf≥0.1
+    # 【ccf_expected_copies_em】肿瘤细胞比例，
+    # 【dna_vaf】突变丰度，
+    for item in vars:
+        if gene == item.get('gene'):
+            add_star = item.get('add_star')
+            if add_star > 0:
+                return red, item
+            if diagnosis == '泌尿上皮癌':
+                ccf_expected_copies_em = item.get('ccf_expected_copies_em')
+                if ccf_expected_copies_em is None:
+                    dna_vaf = item.get('dna_vaf')
+                    if dna_vaf >= 0.1:
+                        return orange, item
+                if ccf_expected_copies_em >= 0.5:
+                    return orange, item
+    return '', None
+
+
+def write_chapter_mingan(stars, diagnose, ploidy):
     # 匹配规则：
     # 1、注意基因同名现象：PDL1基因在列表中应为CD274，PDL2基因应为PDCD1LG2，由驱动性加星过来；
     # 2、POLE和POLD1虽然均为抑癌基因，但是这两个基因为热点突变驱动，仅与数据库匹配的突变才是驱动突变，由驱动性加星过来；
@@ -997,68 +1088,79 @@ def write_chapter_mingan(stars, diagnose):
     # TP53合并KRAS突变、TP53合并ATM突变、ARID1A突变阳性且为非小细胞肺癌是，呈现“C-同癌种证据”；
     # PBRM1阳性且为肾癌时，呈现“C-同癌种证据”。
 
-    genes = ['CDK12', 'TP53', 'KARS', 'ATM', 'PBRM1', 'SMARCA4', 'ARID1A']
     genes_red = []
     tr1 = '免疫治疗敏感驱动基因无变异'
     tr2 = 'PD1等免疫检查位点抗体可能效果不显著'
-
+    var_items = []
+    cnv_items = []
+    # sv_items = [] 敏感未涉及到融合基因
     items00 = []
     items01 = []
     items02 = []
     items03 = []
     items04 = []
-    items1 = [[]] * 5
+    items10 = []
+    items11 = []
+    items12 = []
+    items13 = []
+    items14 = []
     for star in stars:
         gene = star.get('gene')
         # gene = 'PDL1'
-        ccf_expected_copies_em = star.get('ccf_expected_copies_em')  # 肿瘤细胞比例
-        amino_acid_change = star.get('amino_acid_change')  # 变异P.变化
+        ccf_expected_copies_em = star.get('ccf_expected_copies_em') or star.get('clone_proportion') # 肿瘤细胞比例
         tcn_em = star.get('tcn_em')  # 拷贝数
         lcn_em = star.get('lcn_em')  # 低拷贝数
         dna_vaf = star.get('dna_vaf')  # 突变丰度
-        is_match3 = (tcn_em == 0 and ccf_expected_copies_em >= 0.8) or (lcn_em == 0 and ccf_expected_copies_em >= 0.9)
+        is_match3 = (tcn_em == 0 and ccf_expected_copies_em > 0.8) or (lcn_em == 0 and ccf_expected_copies_em > 0.9)
         is_match4 = (ccf_expected_copies_em is None and dna_vaf >= 0.1) or ccf_expected_copies_em >= 0.5
         if gene in ['PDL1', 'CD274']:
             if '1' not in items00:
                 items00.append('1')
+                cnv_items.append(star)
         if gene in ['PDL2', 'PDCD1LG2']:
             if '2' not in items00:
                 items00.append('2')
+                cnv_items.append(star)
         if gene in ['POLE', 'POLD1']:
             if gene not in items01:
-                print gene
                 items01.append(gene)
+                var_items.append(star)
         if gene in ['CDK12']:
             if is_match3:
                 items02.append(gene)
         if gene in ['TP53', 'KRAS']:
             if gene not in items03:
                 if is_match3:
+                    var_items.append(star)
                     items03.append(gene)
         if gene in ['TP53', 'ATM']:
             if gene not in items04:
                 if is_match3:
+                    var_items.append(star)
                     items04.append(gene)
-        if gene in ['PBRM1']:
+        if gene in ['PBRM1'] and gene not in items10:
             if is_match3:
-                items1[0].append(gene)
-        if gene in ['SMARCA4']:
+                var_items.append(star)
+                items10.append(gene)
+        if gene in ['SMARCA4'] and gene not in items11:
             if is_match3:
-                items1[1].append(gene)
-        if gene in ['ARID1A']:
+                var_items.append(star)
+                items11.append(gene)
+        if gene in ['ARID1A'] and gene not in items12:
             if is_match3:
-                items1[2].append(gene)
+                var_items.append(star)
+                items12.append(gene)
         if gene in ['SERPINB3', 'SERPINB4']:
-            if gene[-1] not in items1[3]:
+            if gene[-1] not in items13:
                 if is_match4:
-                    items1[3].append(gene[-1])
+                    var_items.append(star)
+                    items13.append(gene[-1])
         if gene in ['TET1']:
-            if gene not in items1[4]:
+            if gene not in items14:
                 if is_match4:
-                    items1[4].append(gene)
+                    var_items.append(star)
+                    items14.append(gene)
 
-    n3 = 3
-    n4 = 4
     items21 = []
     level = ''
     if len(items00) == 0:
@@ -1073,11 +1175,12 @@ def write_chapter_mingan(stars, diagnose):
     else:
         text01 = '%s基因发生热点突变' % ('/'.join(items01))
         items201 = {'text': text01, 'color': red}
+        level = 'B'
         genes_red.append(text01)
     if len(items02) == 0:
-        items202 = {'text': 'CDK12基因未发生纯合失活变异', 'color': gray}
+        items202 = {'text': 'CDK12基因未发生失活变异', 'color': gray}
     else:
-        text02 = '%s基因发生纯合失活变异' % ('/'.join(items02))
+        text02 = '%s基因发生失活变异' % ('/'.join(items02))
         items202 = {'text': text02, 'color': red}
         if diagnose == '前列腺癌':
             level = 'C-同癌种证据'
@@ -1093,60 +1196,64 @@ def write_chapter_mingan(stars, diagnose):
     if len(items04) < 2:
         items204 = {'text': 'TP53合并ATM突变未发生', 'color': gray}
     else:
+        if diagnose == '非小细胞肺癌':
+            level = 'C-同癌种证据'
         text04 = '%s突变发生' % ('合并'.join(items04))
         items204 = {'text': text04, 'color': red}
         genes_red.append(text04)
-
+    items1 = [items10, items11, items12]
     for nn, gene3 in enumerate(['PBRM1', 'SMARCA4', 'ARID1A']):
         if len(items1[nn]) == 0:
-            items21.append({'text': '%s基因未发生纯合失活变异' % gene3, 'color': gray})
+            items21.append({'text': '%s基因未发生失活变异' % gene3, 'color': gray})
         else:
-            text10 = '%s基因发生纯合失活变异' % ('/'.join(items1[nn]))
+            text10 = '%s基因发生失活变异' % ('/'.join(items1[nn]))
             items21.append({'text': text10, 'color': red})
-            if (nn == 2 and diagnose == '非小细胞肺癌') or (nn == 0 and diagnose == '肾癌'):
+            if (gene3 == 'ARID1A' and diagnose == '非小细胞肺癌') or (gene3 == 'PBRM1' and diagnose == '肾癌'):
                 level = 'C-同癌种证据'
             genes_red.append(text10)
-    if len(items1[n3]) < 1:
+    if len(items13) < 1:
         items213 = {'text': 'SERPINB3/4基因未发生突变', 'color': gray}
     else:
-        text13 = 'SERPINB%s基因发生突变' % ('/'.join(items1[n3]))
+        text13 = 'SERPINB%s基因发生突变' % ('/'.join(items13))
         items213 = {'text': text13, 'color': red}
         genes_red.append(text13)
 
-    if len(items1[n4]) < 1:
+    if len(items14) < 1:
         items214 = {'text': 'TET1基因未发生突变', 'color': gray}
     else:
-        text14 = '%s发生突变' % ('/'.join(items1[n4]))
+        text14 = '%s发生突变' % ('/'.join(items14))
         items214 = {'text': text14, 'color': red}
         genes_red.append(text14)
     items2 = [[items200, items201, items202, items203, items204], items21 + [items213, items214]]
     tip = tr1
     if len(genes_red) > 0:
         tr1 = '发现免疫治疗敏感相关%s' % concat_str(genes_red)
-        tip = '发现免疫治疗敏感相关%s%s' % (genes_red[0], '' if len(genes_red) == 1 else '等')
+        tip = '发现免疫治疗敏感相关%s%s' % (genes_red[0], '' if len(genes_red) == 1 else '等事件')
         if level == '':
             level = 'C'
         tr2 = 'PD1等免疫检查位点抗体等免疫治疗可能有效(%s)' % level
     data = [tr1, tr2]
-    para = write_immun(data, level)
+    para = write_immun_table(data, level)
     para += p.write()
     para += write_mingan(items2, 5)
-    para += p.write()
-    para += write_explain({'title': '结果说明：',
-                           'text': '多种肿瘤驱动基因变异状态与免疫检查点治疗疗效密切相关，'
-                                   '且通过迥然不同的作用机制导致对免疫检查点治疗敏感。PDL1/2（'
-                                   '该基因位于9p24.1，该区域同时具有PDL2和JAK2基因）扩增主要用肿瘤细胞内生性的PDL1/2高表达相关。'
-                                   '既往研究发现，实体瘤中PDL1扩增是极其罕见的事件，发生率大约是0.7%，虽然目前仅少量案例报道，但是其有效率高达66.7%。'
-                                   '同时，发病机制类似的霍奇金淋巴瘤是PD1治疗有效率最高（＞70%）的肿瘤类型，同样具有9p24.1扩增。'
-                                   'POLE/POLD1是DNA聚合酶的亚基，均具有核酸外切酶结构域。热点突变与超高突变负荷相关，同事与免疫治疗敏感相关。'
-                                   'CDK12双等位基因失活和缺失的前列腺癌患者基因组不稳定、局部串联重复增加、基因融合、新抗原负荷和T细胞浸润增加，'
-                                   '能够从免疫检查点治疗中获益。TP53合并KRAS突变、TP53合并ATM突变则与高突变负荷、T细胞浸润增加相关。'
-                                   'PBRM1、SMARCA4和ARID1A同属SWI/SNF染色质重塑复合物相关基因。'
-                                   'SWI/SNF染色质重塑复合物通过调节基因组结构影响免疫治疗效果，相关基因的失活与免疫治疗敏感相关。'
-                                   'SERPINB3/4是与自身免疫和过敏相关的卵清蛋白的同源基因，相关基因突变在肿瘤早期激发了免疫反应，'
-                                   '进而能够被免疫检查点抗体重新激活。'
-                                   'TET1是一个DNA去甲基化酶，是在21个与DNA甲基化密切相关的关键基因中突变频率最高的基因，'
-                                   '且TET1突变在免疫检查点治疗反应组中显著富集。'})
+    para += write_detail_table(var_items, cnv_items, [], ploidy)
+    para += write_explain({
+        'title': '结果说明：',
+        'text': '多种肿瘤驱动基因变异状态与免疫检查点治疗疗效密切相关，'
+                '且通过迥然不同的作用机制导致对免疫检查点治疗敏感。PDL1/2（'
+                '该基因位于9p24.1，该区域同时具有PDL2和JAK2基因）扩增主要用肿瘤细胞内生性的PDL1/2高表达相关。'
+                '既往研究发现，实体瘤中PDL1扩增是极其罕见的事件，发生率大约是0.7%，虽然目前仅少量案例报道，但是其有效率高达66.7%。'
+                '同时，发病机制类似的霍奇金淋巴瘤是PD1治疗有效率最高（＞70%）的肿瘤类型，同样具有9p24.1扩增。'
+                'POLE/POLD1是DNA聚合酶的亚基，均具有核酸外切酶结构域。热点突变与超高突变负荷相关，同事与免疫治疗敏感相关。'
+                'CDK12双等位基因失活和缺失的前列腺癌患者基因组不稳定、局部串联重复增加、基因融合、新抗原负荷和T细胞浸润增加，'
+                '能够从免疫检查点治疗中获益。TP53合并KRAS突变、TP53合并ATM突变则与高突变负荷、T细胞浸润增加相关。'
+                'PBRM1、SMARCA4和ARID1A同属SWI/SNF染色质重塑复合物相关基因。'
+                'SWI/SNF染色质重塑复合物通过调节基因组结构影响免疫治疗效果，相关基因的失活与免疫治疗敏感相关。'
+                'SERPINB3/4是与自身免疫和过敏相关的卵清蛋白的同源基因，相关基因突变在肿瘤早期激发了免疫反应，'
+                '进而能够被免疫检查点抗体重新激活。'
+                'TET1是一个DNA去甲基化酶，是在21个与DNA甲基化密切相关的关键基因中突变频率最高的基因，'
+                '且TET1突变在免疫检查点治疗反应组中显著富集。'
+    })
     para += write_evidence_new([
         {
             'disease': '乳腺癌、头颈肿瘤、肺鳞癌等多种肿瘤与PDL1/2扩增',
@@ -1227,39 +1334,7 @@ def write_chapter_mingan(stars, diagnose):
     return para, tip, tr1, level
 
 
-def write_table_naiyao():
-    text = '''研究	干预手段	EGFR突变人群	疗效	毒副作用AEs
-    CheckMate012\t厄洛替尼+纳武利尤单抗	21例（20例经E治疗，1例Naive）\tORR 19%<br>24周PFS率51%\t3级毒性发生率为19%，2例终止治疗，未发生4级-5级毒性
-    NCT02013219\t厄洛替尼+atezolizumab	20例naive	ORR 75%<br>mPFS 11.3月	39%患者有3-4级AEs，主要为发热和ALT升高，未见肺炎和间质性肺病
-    NCT0208812\t吉非替尼+durvalumab\t9例naïve（A组）<br>10例经28d G治疗（B组）\tORR 77.8% (A)<br>ORR 80% (B)\t导致治疗终止的3-4级AEs发生在B组共4例
-    KeyNote021\t吉非替尼+帕博利珠单抗\t12例naïve（A）<br>7例naïve（B）	ORR 41.7% SD 41.7% <br>mPFS 19.5月（A）<br>ORR 14.3%<br>57.1%未评估<br>mPFS 1.4月（B）	33.3%（4例）发生3级以上AEs，其中3例导致治疗终止<br>85.7%（6例）发生3级以上AEs，其中5例导致治疗终止
-    TATTON\t奥希替尼+durvalumab\t23例经EGFRTKIs治疗(A)<br>11例Naïve（B）\tORR 57.1% T790M阳性67%，阴性21%<br>ORR 80%（B）\tA组：26%发生间质性肺病<br>B组：64%发生间质性肺病
-    CAURAL\t奥希替尼+durvalumab（对照组为奥希替尼单药）\t12例经治且T790M阳性\tORR 64%（低于对照组的80%）<br>PFS未达到（对照组为19.3月）<br>12月生存率为86%（对照组为100%）\t8%发生3级以上AEs，间质性肺病发生1例且推测由奥希替尼引起'''
-    text = text.strip('\n').split('\n')
-    trs = ''
-    ws = [1600, 1800, 2000, 2000, 2600]
-    for index, t in enumerate(text):
-        ts = t.strip().split('\t')
-        tcs = ''
-        fill = '' if index % 2 == 1 else bg_blue
-        # for t1 in ts:
-        weight = 1 if index == 0 else 0
-        print index, len(ts)
-        for col, t1 in enumerate(ts[:5]):
-            para = ''
-            for t2 in t1.split('<br>'):
-                para += p.write(p.set(), r_aiyi.text(t2, 10, weight=weight))
-            if para == '':
-                para = p.write()
-            tcs += tc.write(
-                para,
-                tc.set(ws[col], fill=fill, tcBorders=[])
-            )
-        trs += tr.write(tcs)
-    return table_aiyi(trs)
-
-
-def write_chapter_naiyao(stars, diagnose):
+def write_chapter_naiyao(stars, ploidy):
     # 匹配规则：
     # 1、EGFR、ALK、STK11、CTNNB1、PIAS4、SOCS1均为常规驱动基因阳性加星过来；
     # 2、PTEN、IFNGR1、IFNGR2、IRF1、B2M、JAK1、JAK2、APLNR满足以下条件之一才判断为阳性：
@@ -1271,21 +1346,24 @@ def write_chapter_naiyao(stars, diagnose):
     genes1 = 'EGFR、ALK、STK11、CTNNB1、PIAS4、SOCS1'.split('、')
     genes2 = 'PTEN、IFNGR1、IFNGR2、IRF1、B2M、JAK1、JAK2、APLNR'.split('、')
     tr1 = '免疫治疗耐药驱动基因无变异'
-    tr2 = 'PD1 等免疫检查点抗体治疗可能耐药风险较低'
+    tr2 = 'PD1等免疫检查点抗体治疗可能耐药风险较低'
     genes = {}
     for star in stars:
         gene = star.get('gene')
         # gene = 'PDL1'
-        ccf_expected_copies_em = star.get('ccf_expected_copies_em')  # 肿瘤细胞比例
+        ccf_expected_copies_em = star.get('ccf_expected_copies_em') or star.get('clone_proportion') # 肿瘤细胞比例
         tcn_em = star.get('tcn_em')  # 拷贝数
         lcn_em = star.get('lcn_em')  # 低拷贝数
-        is_match3 = (tcn_em == 0 and ccf_expected_copies_em >= 0.8) or (lcn_em == 0 and ccf_expected_copies_em >= 0.9)
+        is_match3 = (tcn_em == 0 and ccf_expected_copies_em > 0.8) or (lcn_em == 0 and ccf_expected_copies_em > 0.9)
         if gene in genes1:
-            genes[gene] = True # 阳性
+            genes[gene] = star  # 阳性
         if gene in genes2 and is_match3:
-            genes[gene] = True  # 阳性
+            genes[gene] = star  # 阳性
 
     level = ''
+    var_items = []
+    cnv_items = []
+    sv_items = []
 
     def get_naiyao(gene_names, text, n=0):
         arr1 = []
@@ -1300,6 +1378,17 @@ def write_chapter_naiyao(stars, diagnose):
             text00 = '%s基因发生%s' % (action_name1, text)
             items200 = {'text': text00, 'color': red}
             genes_red.append(text00)
+            for g2 in gene_names:
+                g_item = genes.get(g2)
+                if g_item:
+                    if '扩增' in text:
+                        cnv_items.append(g_item)
+                    elif '融合' in text:
+                        sv_items.append(g_item)
+                    else:
+                        var_items.append(g_item)
+            # if '扩增' in text:
+            #     cnv_items.append()
         else:
             items200 = {'text': '%s基因未发生%s' % (action_name2, text), 'color': gray}
         return items200
@@ -1314,9 +1403,9 @@ def write_chapter_naiyao(stars, diagnose):
             get_naiyao(['IFNGR1', 'IFNGR2'], '纯合失活变异'),
         ],
         [
+            get_naiyao(['IRF1'], '纯合失活变异'),
             get_naiyao(['B2M'], '纯合失活变异'),
             get_naiyao(['JAK1', 'JAK2'], '纯合失活变异'),
-            get_naiyao(['IRF1'], '纯合失活变异'),
             get_naiyao(['APLNR'], '纯合失活变异'),
             get_naiyao(['PIAS4'], '扩增'),
             get_naiyao(['SOCS1'], '扩增'),
@@ -1326,12 +1415,12 @@ def write_chapter_naiyao(stars, diagnose):
     if len(genes_red) > 0:
         tr1 = '发现免疫治疗耐药驱动相关%s' % concat_str(genes_red)
         tip = '发现免疫治疗耐药驱动相关%s%s' % (genes_red[0], '' if len(genes_red) == 1 else '等')
-        if level == '':
-            level = 'C'
-        tr2 = 'PD1 等免疫检查点抗体治疗可能具有耐药风险(%s)' % level
+        level = 'C'
+        tr2 = 'PD1等免疫检查点抗体治疗可能具有耐药风险(%s)' % level
     data = [tr1, tr2]
-    para = write_immun(data, level, dark if level else '')
-    para += p.write()
+    para = write_immun_table(data, level, dark if level else '')
+    para += p.write(p.set(line=2))
+    para += write_detail_table(var_items, cnv_items, sv_items, ploidy)
     para += write_mingan(items2, 6)
     para += p.write()
     para += write_explain({'title': '结果说明：',
@@ -1387,13 +1476,14 @@ def write_chapter_naiyao(stars, diagnose):
     return para, tip, tr1, level
 
 
-def write_chapter_chaojinzhan(stars, diagnose):
+def write_chapter_chaojinzhan(stars, ploidy):
     # 匹配规则：
-    # 1、EGFR、ALK、STK11、CTNNB1、PIAS4、SOCS1均为常规驱动基因阳性加星过来；
-    # 2、PTEN、IFNGR1、IFNGR2、IRF1、B2M、JAK1、JAK2、APLNR满足以下条件之一才判断为阳性：
-    #   ①，拷贝数为0，纯合缺失且肿瘤细胞比例大于80%以上时；
-    #   ②、>90%、lcn_em = 0
-    # 证据规则：所有证据均显示为C类证据
+    # 1、CDKN2A、CDKN2B、MDM2、MDM4、EGFR、11q13均为常规驱动基因阳性加星过来；
+    # 2、DNMT3A为任意突变即可，但是对突变比例有限制：
+    #   肿瘤细胞比例≥50%，肿瘤细胞比例不可获得时，突变丰度vaf≥0.1
+    # 证据规则：
+    # MDM2、MDM4、DNMT3A这三个基因的阳性，标注为 “PD1等免疫治疗抗体治疗可能具有超进展风险（D级）”
+    # 其他都是  “PD1等免疫治疗抗体治疗可能具有超进展风险（C级）”
 
     genes_red = []
     genes1 = 'CDKN2A、CDKN2B、MDM2、MDM4、EGFR'.split('、')
@@ -1403,18 +1493,18 @@ def write_chapter_chaojinzhan(stars, diagnose):
     for star in stars:
         gene = star.get('gene')
         # gene = 'PDL1'
-        ccf_expected_copies_em = star.get('ccf_expected_copies_em')  # 肿瘤细胞比例
-        amino_acid_change = star.get('amino_acid_change')  # 变异P.变化
-        tcn_em = star.get('tcn_em')  # 拷贝数
-        lcn_em = star.get('lcn_em')  # 低拷贝数
+        ccf_expected_copies_em = star.get('ccf_expected_copies_em') or star.get('clone_proportion') # 肿瘤细胞比例
         dna_vaf = star.get('dna_vaf')  # 突变丰度
         is_match2 = (ccf_expected_copies_em is None and dna_vaf >= 0.1) or (ccf_expected_copies_em >= 0.5)
-        if gene in genes1 + genes_11q13:
-            genes[gene] = True # 阳性
-        if gene in [DNMT3A] and is_match2:
-            genes[gene] = True  # 阳性
+        if gene in (genes1 + genes_11q13):
+            genes[gene] = star # 阳性
+        if gene == DNMT3A and is_match2:
+            genes[gene] = star  # 阳性
 
     level = ''
+    var_items = []
+    cnv_items = []
+    sv_items = []
 
     def get_naiyao(gene_names, text, n=0):
         arr1 = []
@@ -1425,19 +1515,27 @@ def write_chapter_chaojinzhan(stars, diagnose):
             arr2.append(g[-1])
         action_name1 = '%s%s' % (gene_names[0][:-1], '/'.join(arr1))
         action_name2 = '%s%s' % (gene_names[0][:-1], '/'.join(arr2))
-        if gene_names == genes_11q13:
-            action_name1 = '11q13(CCND1、FGF3、FGF4、FGF19)'
-            action_name2 = action_name1
         if len(arr1) > n:
             text00 = '%s基因发生%s' % (action_name1, text)
             items200 = {'text': text00, 'color': red}
             genes_red.append(text00)
+            for g2 in gene_names:
+                g_item = genes.get(g2)
+                if g_item:
+                    if '扩增' in text:
+                        cnv_items.append(g_item)
+                    elif '融合' in text:
+                        sv_items.append(g_item)
+                    else:
+                        var_items.append(g_item)
+            # if '扩增' in text:
+            #     cnv_items.append()
         else:
             items200 = {'text': '%s基因未发生%s' % (action_name2, text), 'color': gray}
         return items200
 
     items2 = [
-        get_naiyao(['CDKN2A/B'], '缺失'),
+        get_naiyao(['CDKN2B', 'CDKN2B'], '缺失'),
         get_naiyao(['MDM2'], '扩增'),
         get_naiyao(['MDM4'], '扩增'),
         get_naiyao([DNMT3A], '突变'),
@@ -1448,14 +1546,15 @@ def write_chapter_chaojinzhan(stars, diagnose):
     tip = tr1
     if len(genes_red) > 0:
         tr1 = '免疫治疗超进展相关%s' % concat_str(genes_red)
-        tip = '免疫治疗超进展相关%s%s' % (genes_red[0].split('(')[0], '' if len(genes_red) == 1 else '等')
+        tip = '免疫治疗超进展相关%s%s' % (genes_red[0].split('(')[0], '' if len(genes_red) == 1 else '等事件')
         level = 'C'
         if items2[1] or items2[2] or items2[3]:
             level = 'D'
         tr2 = 'PD1等免疫治疗抗体治疗可能具有超进展风险(%s)' % level
     data = [tr1, tr2]
-    para = write_immun(data, level, dark if level else '')
-    para += p.write()
+    para = write_immun_table(data, level, dark if level else '')
+    para += p.write(p.set(line=2))
+    para += write_detail_table(var_items, cnv_items, sv_items, ploidy)
     para += write_mingan([items2], 6)
     para += p.write()
     para += write_explain({'title': '结果说明：',
@@ -1490,10 +1589,102 @@ def write_chapter_chaojinzhan(stars, diagnose):
     return para, tip, tr1, level
 
 
+def write_chapter_hla(overview, diagnosis):
+    hla1 = [' ']
+    for k in overview.keys():
+        if k.startswith('hla_'):
+            hla1.append(overview[k])
+    # print 'hla', data
+    if len(hla1) == 0:
+        return '', '', '', ''
+    # HLA分型结果中，A、B、C三个等位基因均为杂合状态（合并）具有免疫治疗疗效较好的HLA-B44超型，提示PD1等免疫检查位点抗体可能有效
+    # HLA分型结果中，具有免疫治疗较差的HLA-B66超型，提示PD1等免疫检查位点抗体可能效果不显著
+    # HLA分型结果中，具有免疫治疗较差的HLA-B15:01，提示PD1等免疫检查位点抗体可能效果不显著
+    # 可能有效
+    #   HLA分型结果中发现A、B、C三个等位基因均为杂合状态且具有免疫治疗敏感超型HLA-B44
+    # 可能耐药（纯合或者出现耐药超型且不出现敏感超型）
+    #   HLA分型结果中发现等位基因纯合现象
+    #   HLA分型结果中发现等位基因纯合现象、免疫治疗耐药超型HLA-B66、免疫治疗耐药分型HLA-B15:01
+    #   HLA分型结果中发现A、B、C三个等位基因均为杂合状态、免疫治疗耐药超型HLA-B66
+    #   HLA分型结果中发现A、B、C三个等位基因均为杂合状态、免疫治疗耐药分型HLA-B15:01
+    #   HLA分型结果中发现A、B、C三个等位基因均为杂合状态、免疫治疗耐药超型HLA-B66、免疫治疗耐药分型HLA-B15:01
+    # 可能无效（其他所有情况：如单纯杂合、如杂合且出现耐药超型且出现敏感超型、如杂合同时出现）
+    item = []
+    naiyaos = []
+    mingan = False
+    for d in hla1:
+        if d.strip().startswith('HLA'):
+            text = d.split('-')[1].replace('*', '')
+            if text.startswith('B66'):
+                naiyaos.append('免疫耐药超型HLA-B66')
+            if text.startswith('B15:01'):
+                naiyaos.append('免疫治疗耐药分型HLA-B15:01')
+            if text.startswith('B44'):
+                # 具有免疫治疗敏感超型HLA-B44
+                mingan = True
+            item.append(text)
+    if len(item) < 6:
+        print 'please check overview: hla.., you may lose something.'
+        return '', '', '', ''
+    b1 = item[2]
+    b2 = item[3]
+    is_zahe = item[0] != item[1] and b1 != b2 and item[4] != item[5]
+    level = ''
+    tip2s = ['A、B、C三个等位基因%s' % ('均为杂合状态' if is_zahe else '发现等位基因纯合现象')] + naiyaos
+    tip2 = '、'.join(tip2s)
+    youxiao = False
+    fill = ''
+    color = ''
+    if is_zahe and mingan and ('B15:01' not in [b1, b2]):
+        # HLA分型结果中发现A、B、C三个等位基因均为杂合状态
+        # 且
+        # 有免疫治疗敏感超型HLA-B44
+        # 且
+        # 不出现耐药分型B15:01
+        tip1 = 'PD1等免疫检查位点抗体可能有效'
+        level = 'C'
+        if diagnosis in ['非小细胞肺癌', '黑色素瘤']:
+            level = 'C-同癌种证据'
+        tip1 += '(%s)' % level
+        tip2 = 'HLA分型结果中发现A、B、C三个等位基因均为杂合状态、免疫治疗敏感超型HLA-B44'
+        youxiao = True
+        fill = level_tips[2].get('color')
+        color = white
+    elif is_zahe is False or (len(naiyaos) > 0 and is_zahe and mingan is False) :
+        # 可能耐药（纯合或者出现耐药超型、分型且不出现敏感超型）
+        # HLA分型结果中发现等位基因纯合现象
+        # HLA分型结果中发现等位基因纯合现象、免疫治疗耐药超型HLA-B66、免疫治疗耐药分型HLA-B15:01
+        # HLA分型结果中发现A、B、C三个等位基因均为杂合状态、免疫治疗耐药超型HLA-B66
+        # HLA分型结果中发现A、B、C三个等位基因均为杂合状态、免疫治疗耐药分型HLA-B15:01
+        # HLA分型结果中发现A、B、C三个等位基因均为杂合状态、免疫治疗耐药超型HLA-B66、免疫治疗耐药分型HLA-B15:01
+        tip1 = 'PD1等免疫检查点抗体治疗可能具有耐药风险'
+        fill = gray
+    else:
+        tip1 = 'PD1等免疫检查位点抗体可能效果不显著'
+        fill = ''
+
+    texts = []
+    for j in range(3):
+        h1 = item[j * 2]
+        h2 = item[j * 2+1]
+        texts.append('HLA-%s HLA-%s' % (h1, h2))
+    postfix = '' if len(tip2s) == 1 else '等'
+    postfix1 = '' if len(tip2s) < 2 else '事件'
+    tip0 = tip2 if youxiao else ('HLA分型结果中发现%s%s%s' % (tip2s[0], postfix, postfix1))
+    tip01 = 'HLA分型结果中发现%s%s' % ('、'.join(tip2s), postfix1)
+    trs2 = write_tr1('            '.join(texts) + '\n' + tip2)
+    trs2 += write_tr2(tip1, fill, color)
+    para = table_aiyi(trs2)
+    para += p.write()
+    para += write_explain({'title': '结果说明：', 'text': 'HLA分型与免疫治疗疗效高度相关。HLA(human lymphocyte antigen ，人类淋巴细胞抗原)，是编码人类的主要组织相容性复合体（MHC）的基因。HLA是免疫系统区分自身和异体物质的基础。HLA主要包括HLA Ⅰ类分子和Ⅱ分子。HLAⅠ类分子又进一步细化分成A、B、C三个基因。特定的超型，如HLA-B44，与免疫检查点抗体治疗疗效好相关；HLA-B66（包括HLA-B*15：01），与免疫检查点抗体治疗疗效差相关。HLA Ⅰ类三个基因均杂合，免疫检查点抗体治疗反应更好。HLA杂合缺失的基因相关的新抗原可能在个性化治疗疫苗或者特异性细胞治疗中无效。'})
+    para += write_evidence4(2)
+    return para, tip0, tip01, level
+
+
 def write_chapter_signature(signature_etiology):
     items, tr1, tr2 = get_data45(signature_etiology)
     data = [tr1, tr2]
-    para = write_immun(data)
+    para = write_immun_table(data)
     para += p.write()
     para += p.write(p.set(spacing=[2, 0]), r_aiyi.picture(17.5, rId='4.5.1signature', posOffset=[0, 0.1], align=['center', '']))
     para += p.write() * 6
@@ -1519,7 +1710,7 @@ def write_chapter_yichuan():
     tr1 = '在42种遗传性肿瘤综合征相关的162个基因中，未发现与遗传性肿瘤相关的明确致病突变位点'
     tr2 = '遗传性肿瘤相关基因变异可能在该肿瘤的发生发展中扮演次要角色'
     data = [tr1, tr2]
-    para = write_immun(data)
+    para = write_immun_table(data)
     para += p.write()
     para += write_46(items, col=5)
     para += p.write()
@@ -1548,8 +1739,20 @@ def write_chapter51(data):
     stars = data.get('variant_list')
     stars = sorted(stars, cmp=cmp_var)
     stars = stars[:200]
-    # from jy_word.web_tool import test_chinese
-    # stars = sorted(stars, key=lambda x: x[''])
+    para += write_table_var(stars)
+    para += p.write()
+    para += h4_aiyi('（2）遗传性肿瘤、HRD、DDR相关基因胚系突变汇总')
+    para += p.write('呈现基因list上出现的所有突变，把明确治病给突变排在前面，并作标记')
+    return para
+
+
+def write_table_var(stars):
+    stars = sorted(stars, cmp=cmp_var)
+    titles = ['基因', '核苷酸变化', '氨基酸变化', '外显子', '变异类型', '突变丰度', '覆盖度',  'Cosmic计数']
+    ws = [1000, 1700, 1700, 1000, 1400, 1200, 1000, 1000]
+    trs = write_thead51(titles, pPr=p_set_tr, ws=ws)
+    if len(stars) == 0:
+        trs += write_tr51(['无'] * len(titles), 0, 1)
     for k in range(len(stars)):
         star = stars[k]
         gene = star['gene']
@@ -1557,28 +1760,21 @@ def write_chapter51(data):
         amino_acid_change = star.get('amino_acid_change')  # 变异P.变化 氨基酸变化
         exon_number = 'Exon%s' % star.get('exon_number')  # 外显子位置
         effect = effect2cn(star.get('effect'))  # 变异类型
-        ccf_expected_copies_em = star.get('ccf_expected_copies_em')  # 肿瘤细胞比例
         dna_vaf = float2percent(star.get('dna_vaf')) # 突变丰度
-        t_depth = star.get('t_depth') # 突变丰度
-        tcn_em = star.get('tcn_em')  # 拷贝数
+        t_depth = '%sx' % star.get('t_depth') # 突变丰度
         cosmic_var_sum = star.get('cosmic_var_sum')  # Cosmic计数
         item = [
             gene, nucleotide_change, amino_acid_change, exon_number, effect, dna_vaf, t_depth, cosmic_var_sum
         ]
         trs += write_tr51(item, ws, row=k, count=len(stars))
-    para += table_aiyi(trs)
-    para += p.write()
-    para += h4_aiyi('（2）遗传性肿瘤、HRD、DDR相关基因胚系突变汇总')
-    para += p.write('呈现基因list上出现的所有突变，把明确治病给突变排在前面，并作标记')
-    return para
+    return table_aiyi(trs)
 
 
-def write_chapter_svs(stars):
+def write_table_svs(stars):
     para = ''
     ws = [1000, 1400, 1400, 1400, 1400, 1200, 1200, 1000]
-    pPr = p.set(jc='left', spacing=[0.5, 0.5], rule='exact')
     titles = ['基因1', '位置1', '基因2', '位置2', '融合', 'cosmic', '突变丰度', '支持reads']
-    trs = write_thead51(titles, pPr=pPr, ws=ws)
+    trs = write_thead51(titles, ws=ws)
     if len(stars) == 0:
         trs += write_tr51(['无'] * len(titles), ws, 0, 1)
     for k in range(len(stars)):
@@ -1598,6 +1794,25 @@ def write_chapter_svs(stars):
     return para
 
 
+def write_table_cnv(items, ploidy):
+    titles = ['基因', '总拷贝数', '低拷贝数', '区域大小', 'WGD状态', '基因组倍性', '变异状态']
+    ws = [w_sum / len(titles)] * len(titles)
+    trs = write_thead51(titles, ws=ws)
+    for k in range(len(items)):
+        star = items[k]
+        item = [
+            star.get('gene'),
+            star.get('tcn_em'),
+            star.get('lcn_em'),
+            star.get('region_size'),
+            star.get('wgd'),
+            float2percent(ploidy),
+            star.get('facets_call'),
+        ]
+        trs += write_tr51(item, ws, row=k, count=len(items))
+    return table_aiyi(trs)
+
+
 def write_chapter_cnvs(data):
     cnvs = data.get('cnvs')
     stars = data.get('cnv_stars')
@@ -1613,30 +1828,14 @@ def write_chapter_cnvs(data):
     run += r_aiyi.text('表示该基因杂合缺失，', size=9)
     run += r_aiyi.text('扩增缺失状态未达阈值用灰色表示', size=9)
     para += p.write(p.set(spacing=[0.5, 0.5]), run)
-    titles = ['基因', '总拷贝数', '低拷贝数', '区域大小', 'WGD状态', '基因组倍性', '变异状态']
-    ws = [w_sum / len(titles)] * len(titles)
-    pPr = p.set(jc='left', spacing=[0.5, 0.5], rule='exact')
-    trs = write_thead51(titles, pPr=pPr, ws=ws)
+
     extra = []
     for gene in ['ERBB2', 'MET']:
         arr1 = filter(lambda x: x.get('gene') == gene, stars)
         if len(arr1) == 0:
             extra += filter(lambda x: x.get('gene') == gene, cnvs)
-    items = stars + extra
-    for k in range(len(items)):
-        star = items[k]
-        item = [
-            star.get('gene'),
-            star.get('tcn_em'),
-            star.get('lcn_em'),
-            star.get('region_size'),
-            star.get('wgd'),
-            float2percent(ploidy),
-            star.get('facets_call'),
-        ]
-        trs += write_tr51(item, ws, row=k, count=len(items))
     para += h4_aiyi('（2）拷贝数变异相关基因详细信息汇总')
-    para += table_aiyi(trs)
+    para += write_table_cnv(stars + extra, ploidy)
     para += p.write(
         r_aiyi.text('注：肿瘤纯度低于30%时，二代测序拷贝数变异检测准确性会发生比较明显下降。', '小五')
     )
@@ -1676,96 +1875,6 @@ def write_chapter5311(ch, index, stars):
     para += write_explains(ch['para'])
     para += p.write(p.set(sect_pr=set_page()))
     return para
-
-
-def write_hla(data, diagnosis):
-    # print 'hla', data
-    if len(data) == 0:
-        return '', ''
-    # 1,  如果HLA-B66，或者HLA-B*15：01，疗效较差
-    # 2， 如果LA-B44，较好，  如果三个均杂合（A1！=A2， B1！=B2， C1！=C2）， 疗效较好。
-    # 3，其它，疗效中等。
-    # HLA分型结果中，A、B、C三个等位基因均为杂合状态（合并）具有免疫治疗疗效较好的HLA-B44超型，提示PD1等免疫检查位点抗体可能有效
-    # HLA分型结果中，具有免疫治疗较差的HLA-B66超型，提示PD1等免疫检查位点抗体可能效果不显著
-    # HLA分型结果中，具有免疫治疗较差的HLA-B15:01，提示PD1等免疫检查位点抗体可能效果不显著
-    # 可能有效
-    # HLA分型结果中发现A、B、C三个等位基因均为杂合状态且具有免疫治疗敏感超型HLA-B44
-    # 可能耐药（纯合或者出现耐药超型且不出现敏感超型）
-    # HLA分型结果中发现等位基因纯合现象
-    # HLA分型结果中发现等位基因纯合现象、免疫治疗耐药超型HLA-B66、免疫治疗耐药分型HLA-B15:01
-    # HLA分型结果中发现A、B、C三个等位基因均为杂合状态、免疫治疗耐药超型HLA-B66
-    # HLA分型结果中发现A、B、C三个等位基因均为杂合状态、免疫治疗耐药分型HLA-B15:01
-    # HLA分型结果中发现A、B、C三个等位基因均为杂合状态、免疫治疗耐药超型HLA-B66、免疫治疗耐药分型HLA-B15:01
-    # 可能无效（其他所有情况：如单纯杂合、如杂合且出现耐药超型且出现敏感超型、如杂合同时出现）
-    item = []
-    naiyaos = []
-    for d in data:
-        if d.strip().startswith('HLA'):
-            text = d.split('-')[1].replace('*', '')
-            if text.startswith('B66'):
-                naiyaos.append('免疫耐药吵醒HLA-B66')
-            if text.startswith('B15:01'):
-                naiyaos.append('免疫治疗耐药分型HLA-B15:01')
-            item.append(text)
-    if len(item)< 6:
-        print 'please check overview: hla.., you may lose something.'
-        return '', ''
-    b1 = item[2]
-    b2 = item[3]
-    tip = []
-    is_zahe = item[0] != item[1] and b1 != b2 and item[4] != item[5]
-
-    mingan = b1.startswith('B44') or b2.startswith('B44') #具有免疫治疗敏感超型HLA-B44
-    naiyao = 'B15:01' in [b1, b2] # 免疫治疗耐药分型HLA-B15:01
-
-    level = ''
-    tip2s = ['A、B、C三个等位基因%s' % ('均为杂合状态' if is_zahe else '发现等位基因纯合现象')] + naiyaos
-    tip2 = '、'.join(tip2s)
-    youxiao = False
-    if is_zahe and mingan and (naiyao is False):
-        # HLA分型结果中发现A、B、C三个等位基因均为杂合状态
-        # 且
-        # 有免疫治疗敏感超型HLA-B44
-        # 且
-        # 不出现超限耐药分型B15:01
-        tip1 = 'PD1等免疫检查位点抗体可能有效'
-        level = 'C'
-        if diagnosis in ['非小细胞肺癌', '黑色素瘤']:
-            level = 'C-同癌种证据'
-        tip1 += '(%s)' % level
-        tip2 = 'HLA分型结果中发现A、B、C三个等位基因均为杂合状态、免疫治疗敏感超型HLA-B44'
-        youxiao = True
-    elif (len(naiyaos) > 0 and is_zahe) or is_zahe is False:
-        # 可能耐药（纯合或者出现耐药超型且不出现敏感超型）
-        # HLA分型结果中发现等位基因纯合现象
-        # HLA分型结果中发现等位基因纯合现象、免疫治疗耐药超型HLA-B66、免疫治疗耐药分型HLA-B15:01
-        # HLA分型结果中发现A、B、C三个等位基因均为杂合状态、免疫治疗耐药超型HLA-B66
-        # HLA分型结果中发现A、B、C三个等位基因均为杂合状态、免疫治疗耐药分型HLA-B15:01
-        # HLA分型结果中发现A、B、C三个等位基因均为杂合状态、免疫治疗耐药超型HLA-B66、免疫治疗耐药分型HLA-B15:01
-        tip1 = 'PD1等免疫检查点抗体治疗可能具有耐药风险'
-    else:
-        tip1 = 'PD1等免疫检查位点抗体可能效果不显著'
-    if b1.startswith('B66') or b2.startswith('B66'):
-        tip.append('具有免疫治疗较差的HLA-B66超型')
-    elif 'B15:01' in [b1, b2]:
-        tip.append('具有免疫治疗较差的HLA-B15:01')
-    elif is_zahe:
-        tip.append('A、B、C三个等位基因均为杂合状态')
-    elif b1.startswith('B44'):
-        tip.append('具有免疫治疗较差的HLA-B15:01')
-    texts = []
-    for j in range(3):
-        h1 = item[j * 2]
-        h2 = item[j * 2+1]
-        texts.append('HLA-%s HLA-%s' % (h1, h2))
-    postfix = '' if len(tip2s) == 1 else '等'
-    postfix1 = '' if len(tip2s) < 2 else '事件'
-    tip0 = tip2 if youxiao else ('HLA分型结果中发现%s%s%s' % (tip2s[0], postfix, postfix1))
-    tip01 = 'HLA分型结果中发现%s%s' % ('、'.join(tip2s), postfix1)
-    trs2 = write_tr1('            '.join(texts) + '\n' + tip2)
-    trs2 += write_tr2(tip1)
-    table_str = table.write(trs2, jc='center', bdColor=gray)
-    return table_str, tip0, tip01, level
 
 
 def write_db_info():
@@ -1849,13 +1958,12 @@ def cmp_drug(x, y):
     for k in ['aiyi_level', 'evidence_direction']:
         v = cmp(x.get(k), y.get(k))
         # Resistant (Support) Responsive (Support)
-        print x.get(k), y.get(k)
         if v != 0:
             return v
     return 0
 
 
-# part1 靶向治疗提示
+# part0 靶向治疗提示
 def write_target_tip(data):
     items, show_extra, extra_item = data
     ws = [1200, 2400, w_sum - 1200 - 2400]
@@ -1965,6 +2073,7 @@ def write_target_tip(data):
     return table_aiyi(trs)
 
 
+# part0 免疫治疗提示
 def write_immun_tip(immun_tip):
     para = ''
     run = r_heiti.text('免疫治疗提示', '小四', 1)
@@ -2001,7 +2110,6 @@ def write_immun_tip(immun_tip):
             immun_tip[6]
         ]
     ]
-
     for i_index, items in enumerate(items1):
         trs = ''
         tcs = ''
@@ -2009,6 +2117,7 @@ def write_immun_tip(immun_tip):
             text = item.get('text')
             color = item.get('color') or 'auto'
             level = item.get('level') or ''
+
             level1 = filter(lambda x: level.startswith(x['text']), level_tips)
             fill = item.get('fill') or ''
             if len(level1) > 0:
@@ -2039,19 +2148,16 @@ def write_immun_tip(immun_tip):
     return para
 
 
-def write_immun(data, level='', color=''):
+def write_immun_table(data, level='', color=''):
     level1 = filter(lambda x: level.startswith(x['text']), level_tips)
-    fill1 = ''
+    fill2 = ''
     if len(level1) > 0:
-        fill1 = level1[0].get('color')
-    fill2 = gray
+        fill2 = level1[0].get('color')
     if color:
-        fill1 = gray
         fill2 = color
-    trs2 = write_tr1(data[0], fill1)
-    trs2 += write_tr2(data[1], fill2, bdColor=fill1)
-    table_str = table.write(trs2, ws=[w_sum], bdColor=fill1 or gray, ind=0, tblBorders=['top', 'bottom'])
-    return table_str
+    trs2 = write_tr1(data[0], bg_blue if fill2 =='' else '')
+    trs2 += write_tr2(data[1], fill2, bdColor=fill2)
+    return table.write(trs2, bdColor=fill2 or blue, tblBorders=['top', 'bottom'])
 
 
 def write_evidence_new(evidences):
@@ -2262,49 +2368,6 @@ def write_genotype(gt, ws):
     return table_aiyi(trs2) + p.write()
 
 
-def write_41(variants, diagnosis):
-    genes = [
-        {
-            'title': '同源重组修复基因', 'color': colors[0],
-            'genes': ['BRCA1', 'MRE11A', 'NBN', 'RAD50', 'RAD51', 'RAD51B', 'RAD51D', 'RAD52', 'RAD54L']
-        },
-        {
-            'title': '范可尼贫血通路基因', 'color': colors[1],
-            'genes': ['BRCA2', 'BRIP1', 'FANCA', 'FANCC', 'PALB2', 'RAD51C', 'BLM']
-        },
-        {
-            'title': '碱基切除修复基因', 'color': colors[2],
-            'genes': ['ERCC2', 'ERCC3', 'ERCC4', 'ERCC5', 'ERCC6']
-        },
-        {
-            'title': '错配修复基因', 'color': colors[3],
-            'genes': ['MLH1', 'MSH2', 'MSH6', 'PMS1', 'PMS2']
-        },
-        {
-            'title': '细胞周期检查点基因', 'color': colors[4],
-            'genes': ['ATM', 'ATR', 'CHEK1', 'CHEK2', 'MDC1']
-        },
-        {
-            'title': '其他基因', 'color': colors[5],
-            'genes': ['POLE', 'MUTYH', 'PARP1', 'RECQL4', 'BAP1']
-        }
-    ]
-    return write_genes_ddr(genes, 9, w_sum, variants, diagnosis)
-
-
-def get_var_color(gene, vars, diagnosis=''):
-    for item in vars:
-        if gene == item.get('gene') or (item.get('gene1') and item.get('gene1').split('(')):
-            add_star = item.get('add_star')
-            tip = item.get('tip')
-            if add_star > 0:
-                return red, tip
-            elif diagnosis == '泌尿上皮癌' and add_star == 0:
-                # 只有泌尿上皮癌才有橙色的
-                return orange, tip
-    return '', ''
-
-
 def write_mingan(items, ncol):
     nrow = len(items)
     ws = [w_sum/ncol] * ncol
@@ -2409,6 +2472,16 @@ def write_genes(gene_list, col, width, table_jc='center', stars=[]):
     return table_aiyi(trs2)
 
 
+def get_var_color(gene, vars):
+    for item in vars:
+        if gene == item.get('gene') or (item.get('gene1') and item.get('gene1').split('(')):
+            add_star = item.get('add_star')
+            tip = item.get('tip')
+            if add_star > 0:
+                return red, tip
+    return '', ''
+
+
 def write_genes_cnv(cnv_stars):
     col = 8
     trs2 = ''
@@ -2438,62 +2511,8 @@ def write_genes_cnv(cnv_stars):
             para = p.write(p_set_tr, r_aiyi.text(text, color=color, size=9, fill=fill1))
             tcs += tc.write(para, tc.set(w=ws[j], fill=fill, tcBorders=[]))
         if tcs:
-            trs2 += tr.write(tcs, tr.set(trHeight=660))
+            trs2 += tr.write(tcs)
     return table_aiyi(trs2)
-
-
-def write_genes_ddr(genes, col, whith, variants, diagnosis):
-    trs2 = ''
-    ws = [whith/10] * 10
-    pPr = p.set(line=12, rule='auto', jc='center')
-    reds = 0
-    oranges = 0
-    for k in range(len(genes)):
-        gene = genes[k]
-        gene_list = gene['genes']
-        gene_list += [''] * (col-len(gene_list))
-        tcs = ''
-        if 'title' in gene:
-            para = p.write(pPr, r_aiyi.text(gene['title'], size=9))
-            tcs += tc.write(para, tc.set(w=ws[k], fill='' if k % 2 == 0 else bg_blue, color=white, tcBorders=[]))
-        for j in range(len(gene_list)):
-            item = gene_list[j]
-
-            fill, tip = get_var_color(item, variants, diagnosis)
-            # fill = gray
-            color, text, var_text = '000000', item, ''
-            if fill not in ['', gray]:
-                color = white
-                if fill == red:
-                    reds += 1
-                else:
-                    oranges += 1
-                var_text = p.write(pPr, r_aiyi.text('突变', color=color, size=9))
-            else:
-                fill = '' if k % 2 == 0 else bg_blue
-            para = p.write(pPr, r_aiyi.text(text, color=color, size=9)) + var_text
-            tcs += tc.write(para, tc.set(w=ws[j], fill=fill, color=white, tcBorders=[]))
-        trs2 += tr.write(tcs, tr.set(trHeight=620))
-    tr1 = 'DDR相关基因无变异'
-    tr2 = 'PD1等免疫检查位点抗体等免疫治疗可能不显著'
-    tr11 = tr1
-    level = ''
-    tip = tr1
-    if (reds * oranges > 0 and diagnosis == '泌尿上皮癌') or reds > 0:
-        tr1 = 'DNA损伤反应基因DDR基因发现'
-        if diagnosis == '泌尿上皮癌':
-            # 表示未明意义突变位点
-            tr1 += '%d个明确致病突变和%d个未明意义突变共%d个突变' % (reds, oranges, reds + oranges)
-        postfix = '' if len(reds + oranges) == 1 else '等'
-        tip = 'DDR基因发现%s%s' % (reds[0], postfix)
-        tr1 += '，DDR信号通路激活'
-        tr2 = 'PD1等免疫检查位点抗体等免疫治疗可能有效'
-        tr11 = tr1 + '。'
-        level = 'C'
-        if diagnosis in ['泌尿上皮癌', '非小细胞肺癌', '前列腺癌']:
-            level = 'C-同癌种证据'
-        tr2 += '(%s)' % level
-    return {'para': table_aiyi(trs2), 'tr1': tr11, 'tr2': tr2, 'tip': tip, 'level': level}
 
 
 def write_thead_target(ws):
@@ -2558,9 +2577,9 @@ def write_tr1(text, fill=''):
     pPr = p.set(jc='left', spacing=[0.5, 0.5])
     para = ''
     for t in text.split('\n'):
-        run = r_aiyi.text(' ' + t, size=9, color='' if fill in [gray, ''] else white, wingdings=True, space=True)
+        run = r_aiyi.text(' ' + t, size=9, color='' if fill in [gray, '', bg_blue] else white, wingdings=True, space=True)
         para += p.write(pPr, run)
-    tcs2 = tc.write(para, tc.set(w=w_sum, fill=fill, color=gray, tcBorders=['top', 'bottom']))
+    tcs2 = tc.write(para, tc.set(w=w_sum, fill=fill, tcBorders=[]))
     return tr.write(tcs2)
 
 
@@ -2568,8 +2587,8 @@ def write_tr2(data, fill=gray, bdColor=gray):
     pPr = p.set(jc='left', spacing=[0.5, 0.5])
     para = ''
     for t in data.split('\n'):
-        para += p.write(pPr, r_aiyi.text(t, size=9, color='' if fill == gray else white))
-    tcs2 = tc.write(para, tc.set(w=w_sum, fill=fill, color=bdColor or gray, tcBorders=['top', 'bottom']))
+        para += p.write(pPr, r_aiyi.text(t, size=9, color='' if fill in [gray, ''] else white))
+    tcs2 = tc.write(para, tc.set(w=w_sum, fill=fill, tcBorders=[]))
     return tr.write(tcs2)
 
 
@@ -2621,6 +2640,51 @@ def write_kangyuan(neoantigens):
     para += write_explain({'title': '结果说明：',
                            'text': '新抗原是指因肿瘤基因突变所导致的能够被该患者免疫系统HLA分子所识别，有潜力能够激活患者免疫系统的新生抗原，这是一组异常多肽片段。新抗原预测信息能够作为癌症个性化治疗疫苗或者特异性细胞治疗最核心的信息。新抗原预测一般 通过外显子组测序得到该患者所有的编码区域基因突变，进一步通过外显子组或者转录组获得该患者的HLA分型，根据基因突变信息和HLA分子信息，预测各个突变位点与该患者HLA分子结合的亲和力，并进一步通过转录组测序筛选其中表达的新抗原。本次未行转录组检测，会明显降低新抗原预测的准确性。'})
     # para += p.write(p.set(sect_pr=set_page('A4', header='rIdHeader%d' % index)))
+    return para
+
+
+def write_table_naiyao():
+    text = '''研究	干预手段	EGFR突变人群	疗效	毒副作用AEs
+    CheckMate012\t厄洛替尼+纳武利尤单抗	21例（20例经E治疗，1例Naive）\tORR 19%<br>24周PFS率51%\t3级毒性发生率为19%，2例终止治疗，未发生4级-5级毒性
+    NCT02013219\t厄洛替尼+atezolizumab	20例naive	ORR 75%<br>mPFS 11.3月	39%患者有3-4级AEs，主要为发热和ALT升高，未见肺炎和间质性肺病
+    NCT0208812\t吉非替尼+durvalumab\t9例naïve（A组）<br>10例经28d G治疗（B组）\tORR 77.8% (A)<br>ORR 80% (B)\t导致治疗终止的3-4级AEs发生在B组共4例
+    KeyNote021\t吉非替尼+帕博利珠单抗\t12例naïve（A）<br>7例naïve（B）	ORR 41.7% SD 41.7% <br>mPFS 19.5月（A）<br>ORR 14.3%<br>57.1%未评估<br>mPFS 1.4月（B）	33.3%（4例）发生3级以上AEs，其中3例导致治疗终止<br>85.7%（6例）发生3级以上AEs，其中5例导致治疗终止
+    TATTON\t奥希替尼+durvalumab\t23例经EGFRTKIs治疗(A)<br>11例Naïve（B）\tORR 57.1% T790M阳性67%，阴性21%<br>ORR 80%（B）\tA组：26%发生间质性肺病<br>B组：64%发生间质性肺病
+    CAURAL\t奥希替尼+durvalumab（对照组为奥希替尼单药）\t12例经治且T790M阳性\tORR 64%（低于对照组的80%）<br>PFS未达到（对照组为19.3月）<br>12月生存率为86%（对照组为100%）\t8%发生3级以上AEs，间质性肺病发生1例且推测由奥希替尼引起'''
+    text = text.strip('\n').split('\n')
+    trs = ''
+    ws = [1600, 1800, 2000, 2000, 2600]
+    for index, t in enumerate(text):
+        ts = t.strip().split('\t')
+        tcs = ''
+        fill = '' if index % 2 == 1 else bg_blue
+        # for t1 in ts:
+        weight = 1 if index == 0 else 0
+        for col, t1 in enumerate(ts[:5]):
+            para = ''
+            for t2 in t1.split('<br>'):
+                para += p.write(p_set_tr, r_aiyi.text(t2, 9, weight=weight))
+            if para == '':
+                para = p.write()
+            tcs += tc.write(
+                para,
+                tc.set(ws[col], fill=fill, tcBorders=[])
+            )
+        trs += tr.write(tcs)
+    return table_aiyi(trs)
+
+
+def write_detail_table(var_items, cnv_items, sv_items, ploidy):
+    para = ''
+    if len(var_items) >0:
+        para += h4_aiyi('体细胞突变相关基因详细信息')
+        para += write_table_var(var_items)
+    if len(cnv_items) > 0:
+        para += h4_aiyi('扩增相关基因详细信息')
+        para += write_table_cnv(cnv_items, ploidy)
+    if len(sv_items) > 0:
+        para += h4_aiyi('融合相关基因详细信息')
+        para += write_table_svs(sv_items)
     return para
 
 

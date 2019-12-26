@@ -178,10 +178,6 @@ def tumor_download_panel():
         if res_neoantigens is not None:
             neoantigens = res_neoantigens.get('data') or []
 
-    variant_stars = filter(lambda x: x['add_star'] > 0, variant_list)
-    cnvs_stars = filter(lambda x: x['add_star'] > 0, cnvs)
-    svs_stars = filter(lambda x: x['add_star'] > 0, svs)
-    stars = sorted(variant_stars, key=lambda x: x['add_star'])
 
     w_sum = 10200
 
@@ -210,7 +206,6 @@ def tumor_download_panel():
         msi_info['sign'] = 'MSI-H'
     diagnose = sample_detail.get('diagnosis')
 
-    print diagnose, sample_detail.keys()
     tmb = overview.get('tmb')
     tmb_info = {
         'tmb': tmb,
@@ -272,23 +267,28 @@ def tumor_download_panel():
         msi_info['text'] = 'MSI-L微卫星低不稳定'
 
     tmb = overview.get('tmb')
+    try:
+        tmb = float(tmb)
+    except:
+        tmb = tmb
     tmb_tip = '注：NSCLC未经选择人群PD抗体有效率，具吸烟史为22%，无吸烟史为10%'
     if diagnose in '结直肠癌':
         tmb_tip = '注：MSS微卫星稳定结直肠癌患者PD1抗体有效率为0%；MSI-H微卫星不稳定结直肠癌患者有效率为29.6%。'
     tmb_info = {
         'w': w_sum-300-3000,
         'text': '',
-        'effect': '',
         'level': 'C',
-        'tmb_tip': tmb_tip
+        'tmb_tip': tmb_tip,
+        'effect': 'PD1等免疫检查点抗体治疗可能效果不显著'
     }
-
     if tmb <= 20:
         tmb_info['text'] = 'TMB肿瘤突变负荷低 （%s个突变/Mb，大于该癌种%s%%人群）' % (tmb, 85)
         tmb_info['level'] = 'B' if diagnose == '非小细胞肺癌' else 'C'
     elif tmb > 20:
         tmb_info['text'] = 'TMB肿瘤突变负荷高 （%s个突变/Mb，大于该癌种%s%%人群）' % (tmb, 85)
         tmb_info['level'] = 'A' if diagnose == '非小细胞肺癌' else 'B'
+    if tmb_info['effect'] != 'C':
+        tmb_info['effect'] = 'PD1等免疫检查点抗体治疗可能有效（%s）' % tmb_info['level']
     try:
         file_path = down_panel({
             'item_name': item_name,
