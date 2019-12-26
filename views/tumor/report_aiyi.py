@@ -1356,6 +1356,7 @@ def write_chapter_naiyao(stars, ploidy):
         lcn_em = star.get('lcn_em')  # 低拷贝数
         is_match3 = (tcn_em == 0 and ccf_expected_copies_em > 0.8) or (lcn_em == 0 and ccf_expected_copies_em > 0.9)
         if gene in genes1:
+            print gene
             genes[gene] = star  # 阳性
         if gene in genes2 and is_match3:
             genes[gene] = star  # 阳性
@@ -1369,8 +1370,15 @@ def write_chapter_naiyao(stars, ploidy):
         arr1 = []
         arr2 = []
         for g in gene_names:
-            if genes.get(g):
-                arr1.append(g[-1])
+            g_item = genes.get(g)
+            if g_item:
+                g_tip = g_item.get('tip') or ''
+                if '扩增' in text and '扩增' in g_tip :
+                    arr1.append(g[-1])
+                elif '融合' in text and '融合' in g_tip:
+                    arr1.append(g[-1])
+                elif g_item.get('add_star') > 0:
+                    arr1.append(g[-1])
             arr2.append(g[-1])
         action_name1 = '%s%s' % (gene_names[0][:-1], '/'.join(arr1))
         action_name2 = '%s%s' % (gene_names[0][:-1], '/'.join(arr2))
@@ -1381,11 +1389,12 @@ def write_chapter_naiyao(stars, ploidy):
             for g2 in gene_names:
                 g_item = genes.get(g2)
                 if g_item:
+                    tip = g_item.get('tip') or ''
                     if '扩增' in text:
                         cnv_items.append(g_item)
                     elif '融合' in text:
                         sv_items.append(g_item)
-                    else:
+                    elif tip:
                         var_items.append(g_item)
             # if '扩增' in text:
             #     cnv_items.append()
@@ -1506,13 +1515,19 @@ def write_chapter_chaojinzhan(stars, ploidy):
     var_items = []
     cnv_items = []
     sv_items = []
-
     def get_naiyao(gene_names, text, n=0):
         arr1 = []
         arr2 = []
         for g in gene_names:
-            if genes.get(g):
-                arr1.append(g[-1])
+            g_item = genes.get(g)
+            if g_item:
+                g_tip = g_item.get('tip') or ''
+                if '扩增' in text and '扩增' in g_tip :
+                    arr1.append(g[-1])
+                elif '融合' in text and '融合' in g_tip:
+                    arr1.append(g[-1])
+                elif g_item.get('add_star') > 0:
+                    arr1.append(g[-1])
             arr2.append(g[-1])
         action_name1 = '%s%s' % (gene_names[0][:-1], '/'.join(arr1))
         action_name2 = '%s%s' % (gene_names[0][:-1], '/'.join(arr2))
@@ -1523,11 +1538,12 @@ def write_chapter_chaojinzhan(stars, ploidy):
             for g2 in gene_names:
                 g_item = genes.get(g2)
                 if g_item:
+                    tip = g_item.get('tip') or ''
                     if '扩增' in text:
                         cnv_items.append(g_item)
                     elif '融合' in text:
                         sv_items.append(g_item)
-                    else:
+                    elif tip:
                         var_items.append(g_item)
             # if '扩增' in text:
             #     cnv_items.append()
@@ -1808,7 +1824,7 @@ def write_table_cnv(items, ploidy):
             star.get('lcn_em'),
             star.get('region_size'),
             star.get('wgd'),
-            float2percent(ploidy),
+            ploidy,
             star.get('facets_call'),
         ]
         trs += write_tr51(item, ws, row=k, count=len(items))
@@ -1822,11 +1838,11 @@ def write_chapter_cnvs(data):
     para = ''
     para += h4_aiyi('（1）重点基因拷贝数变异结果汇总')
     para += write_genes_cnv(stars)
-    run = r_aiyi.text(' 红色 ', color=white, fill=red, size=9)
+    run = r_aiyi.text(' 红色 ', color=white, fill=red, size=9, space=True)
     run += r_aiyi.text('，表示该基因扩增；', size=9)
-    run += r_aiyi.text(' 深蓝色 ', color=white, fill=dark_blue, size=9)
+    run += r_aiyi.text(' 深蓝色 ', color=white, fill=dark_blue, size=9, space=True)
     run += r_aiyi.text('，表示该基因纯合缺失；', size=9)
-    run += r_aiyi.text(' 淡蓝色 ', color=white, fill=blue, size=9)
+    run += r_aiyi.text(' 淡蓝色 ', color=white, fill=blue, size=9, space=True)
     run += r_aiyi.text('，表示该基因杂合缺失，', size=9)
     run += r_aiyi.text('扩增缺失状态未达阈值用灰色表示', size=9)
     para += p.write(p.set(spacing=[0.5, 0.5]), run)
@@ -2031,7 +2047,7 @@ def write_target_tip(data):
         para = ''
         run = ''
         d_len = 0
-        evidence_directions = ['Resistant (Support)', 'Responsive (Support)']
+        evidence_directions = ['Responsive (Support)', 'Resistant (Support)']
         # '耐药Resistant (Support)', '敏感Responsive (Support)'
         known_db = filter(lambda x: x.get('evidence_direction') in evidence_directions, known_db)
         known_db.sort(cmp=cmp_var)
