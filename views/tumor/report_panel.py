@@ -1877,7 +1877,7 @@ def sort_panel_data(data):
     rels = ''
     chapters = ''
     sample_detail = data.get('sample_detail') or {}
-    report_data = data.get('variant_list') or []
+    report_data = data.get('variant_stars') or []
     gene_info = data.get('gene_info') or []
     imgs, files = [], []
 
