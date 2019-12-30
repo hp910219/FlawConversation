@@ -71,7 +71,11 @@ def upload_report():
             if os.path.exists(dir_path) is False:
                 os.makedirs(dir_path)
             t = format_time(frm='%Y%m%d%H%M%S')
-            path = os.path.join(dir_path, name_array[-2] + t+'.'+name_array[-1])
+            if len(name_array) == 1:
+                file_name = '%s%s' % (name_array[-1], t)
+            else:
+                file_name = '%s%s.%s' % (name_array[-2], t, name_array[-1])
+            path = os.path.join(dir_path, file_name)
             f.save(path)
             return jsonify({'path': path, "message": 'success'})
         return jsonify({'len': len(request.files)})
