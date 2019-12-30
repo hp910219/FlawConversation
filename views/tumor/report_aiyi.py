@@ -197,7 +197,7 @@ def write_catalog():
 def write_chapter0(title_cn, data):
     para = ''
     sample_detail = data.get('sample_detail') or {}
-    para += write_patient_info(data['sample_detail'])
+    para += write_patient_info(data)
     title = u'靶向治疗提示'
     para += h4_aiyi(title, spacing=[0.5, 0.5])
     para += write_target_tip(data['target_tips'])
@@ -384,7 +384,7 @@ def write_chapter2(index, data):
             'data': tmb_info,
             'w': 3200,
             'infos': [
-                {'title': '结果说明：', 'text': '该结果通过肿瘤外显子组检测得到。全外显子组包含人体所有大约两万多个基因，大约有38M左右的编码区域。TMB肿瘤突变负荷指平均每M（兆）区域，肿瘤细胞发生的非同义突变的个数。同时，进一步将该结果与TCGA（肿瘤基因图谱）上相同癌种的TMB数据进行比对（如该癌种TCGA未收录，则与所有癌种的总集合进行比较），标注其TMB数值高于多少比例的人群。TMB拐点是通过该癌种人群TMB分布进行线性回归拟合得到的，拐点之前的人群TMB以相同的斜率逐渐增加，而拐点之后的人群TMB以完全不一样的斜率大幅度增加，拐点代表着肿瘤TMB的一种内在分布规律（PMID: 29056344）。（证据级别说明：常规标准时：非小细胞肺癌证据级别为B级，其他所有癌种均为C级；当TMB大于20，高于绝大多数情况阈值时，非小细胞肺癌更新为A级，其他癌种更新为B级。）'},
+                {'title': '结果说明', 'text': '该结果通过肿瘤外显子组检测得到。全外显子组包含人体所有大约两万多个基因，大约有38M左右的编码区域。TMB肿瘤突变负荷指平均每M（兆）区域，肿瘤细胞发生的非同义突变的个数。（证据级别说明：常规以10个突变/Mb标准时非小细胞肺癌证据级别为B级，结直肠癌和胰腺癌由于免疫治疗有效率低，常规阈值为20，其他所有癌种均为C级；当TMB大于20，高于绝大多数情况阈值时，非小细胞肺癌更新为A级，其他癌种（结直肠癌和胰腺癌除外）更新为B级。'},
                 {'title': '检测意义：', 'text': 'TMB在多项临床研究中均被证明能够有效区分PD1抗体、CTLA4抗体等免疫检查位点抗体治疗是否有效的人群。综合型研究表明，在不同肿瘤中，不同患者的PD1抗体治疗有效性的差异55%可以由TMB的差异解释。TMB是不同肿瘤间体细胞突变量的评估。一般情况下，TMB越高，该肿瘤可能会拥有更多的肿瘤新生抗原，该肿瘤也越有可能在经过免疫检查位点抗体解除肿瘤免疫逃逸之后，被患者自身的免疫系统所识别，相关治疗在该患者身上也就越可能有效。'},
             ]
         }
@@ -427,7 +427,7 @@ def write_chapter2(index, data):
     para += p.write(para_set, r_aiyi.text('肿瘤免疫表型理论是由Mellman在肿瘤免疫周期的基础上，进一步根据最新的研究成果，细化发展出来的一套肿瘤免疫分型体系。该分型体系根据相应的生物学机制，将肿瘤分成免疫沙漠型（棕色）、免疫豁免型（蓝色）和炎症型（红色）三种，并进一步根据宿主基因、微生物组、环境因素、治疗药物和癌症共五个维度，将影响免疫原性的多种研究进展整合成如下图所示，与免疫治疗疗效和免疫原性相关的癌症-免疫设定点。', '小五'))
     para += p.write(r_aiyi.picture(6, rId='2.4.3.2', posOffset=[2, 0.3]))
     # para += p.write(para_set) * 4
-    para += p.write(p.set(ind=[24.5, 0], line=12, spacing=[0, 0]), r_aiyi.text('癌症免疫设定点是指产生有效癌症免疫原性所需克服的阈值，为指导免疫治疗临床应用和研究提供一个系统性框架。该设定点可以理解为理解为刺激因子、抑制因子和TCR结合信号（T细胞抗原受体与新抗原、癌症相关抗原等癌症抗原的亲和力）的平衡。癌症免疫治疗主要是针对肿瘤部位，通过增加的刺激因子、减少抑制因子或者增加TCR结合信号这三种方式进行的。', '小五'))
+    para += p.write(p.set(ind=[24.5, 0], line=18, spacing=[0, 0]), r_aiyi.text('癌症免疫设定点是指产生有效癌症免疫原性所需克服的阈值，为指导免疫治疗临床应用和研究提供一个系统性框架。该设定点可以理解为理解为刺激因子、抑制因子和TCR结合信号（T细胞抗原受体与新抗原、癌症相关抗原等癌症抗原的亲和力）的平衡。癌症免疫治疗主要是针对肿瘤部位，通过增加的刺激因子、减少抑制因子或者增加TCR结合信号这三种方式进行的。', '小五'))
     para += h4_aiyi('4、免疫检查位点抗体疗联合传统治疗研究进展')
     para += p.write(para_set, r_aiyi.text('免疫检查位点抗体单药治疗虽然在临床治疗中显示出广泛的抗癌效果，不同癌种的总体有效率基本在20%左右，即使通过多种标志物进行预测可一定程度上减少无效人群，但其获益人群一样有限。从肿瘤免疫过程上看，将免疫阻隔型和免疫沙漠型的“冷”肿瘤，转变成免疫炎症型的“热”肿瘤，扩大免疫检查位点抗体的获益人群，可以通过联合治疗的方式进行。对PDL1、MSI、TMB等各类型标志物预测检查位点抗体单药治疗效获益可能性较低的患者，最好进行检查位点抗体与其他治疗方式的联合治疗。多项研究发现放疗、化疗和靶向治疗等传统治疗联合免疫检查位点抗体治疗能够获得惊人的效果，中位生存期、无疾病进展生存期和有效率等疗效指标翻倍的情况。同时，值得注意的是，联合治疗会成倍甚至多倍的提高毒副反应。基于对肿瘤免疫过程理解的加深，特异性针对特定肿瘤免疫过程的免疫治疗是联合治疗的更优选择。', '小五'))
     para += h4_aiyi('5、新型免疫治疗手段研究进展')
@@ -1709,6 +1709,7 @@ def write_chapter_signature(signature_etiology):
     para += p.write() * 6
     para += write_evidence_signature(items[1:], titles=items[0], ws=[1500, 1200, 2400, 4700])
     # para += p.write(r.br('page'))
+    para += p.write(p.set(spacing=[2, 6]), r_aiyi.picture(17.5, rId='signature_dict', posOffset=[0, 0.1], align=['center', '']))
     para += p.write(p.set(spacing=[2, 0]), r_aiyi.picture(7.5, rId='signature_pie', posOffset=[0, 0.6]))
     para += write_explain({"title": '结果说明：', 'text': '体细胞突变存在于人体的所有细胞中并且贯穿整个生命。它们是多种突变过程的结果，包括DNA复制机制内在的轻微错误，外源或内源诱变剂暴露，DNA酶促修饰和DNA修复缺陷。不同的突变过程产生独特的突变类型组合，称为“突变特征”。在过去的几年中，大规模的分析研究揭示了许多人类癌症类型的突变特征。目前这组突变特征是基于对40种不同类型的人类癌症中的10,952个外显子组和1,048个全基因组的分析得到的。使用六个取代亚型显示每个标记的概况：C> A，C> G，C> T，T> A，T> C和T> G，进而向前先后各延伸一个碱基，每个碱基有4种可能，所以，总共就有96个三核苷酸的突变类型。现在已经明确的，总共有30种明确注释的“突变特征”，每种特征都有对应的发生机制，如吸烟、错配修复缺陷、同源重组修复缺陷等。'}, ind=[23, 0])
     para += p.write(p.set(sect_pr=set_page('A4', header='rIdHeader%d' % 6)))
@@ -1941,19 +1942,23 @@ def write_db_info():
 
 
 def write_patient_info(data):
+    overview = data.get('overview') or {}
+    purity = float2percent(overview.get('purity'), 0)
+    print purity
+    sample_detail = data.get('sample_detail')
     para = ''
     trs = ''
     ws = [2300, 2300, 3100, 2500]
     pPr = p.set(jc='left', spacing=[0.5, 0.5], line=16, rule='exact')
     ps = [
-        '姓名: %s' % data['patient_name'],
-        '性别: %s' % sex2str(data['sex']),
-        '年龄: %s' % data['age'],
-        '患者ID: %s' % data['sample_id'],
-        '医院: %s' % data.get('inspection_department'),
-        '病理诊断: %s' % data.get('diagnosis'),
-        '组织类型: %s' % data.get('sample_type'),
-        '组织来源: %s' % data.get('tissue')
+        '姓名: %s' % sample_detail['patient_name'],
+        '性别: %s' % sex2str(sample_detail['sex']),
+        '年龄: %s' % sample_detail['age'],
+        '患者ID: %s' % sample_detail['sample_id'],
+        '医院: %s' % sample_detail.get('inspection_department'),
+        '病理诊断: %s' % sample_detail.get('diagnosis'),
+        '组织类型: %s(肿瘤细胞纯度%s)+白细胞' % (sample_detail.get('sample_type'), purity),
+        '组织来源: %s' % sample_detail.get('tissue')
     ]
     n = len(ps) / 2
     for k in range(2):
@@ -2198,8 +2203,7 @@ def write_evidence4(index):
     para = p.write(p.set(spacing=[0.5, 1], ind=[0.5, 0]), r_aiyi.text('相关循证医学证据：', weight=1))
     evidence_path = '4.%d.evidence.txt' % index
     evidence = []
-    if os.path.exists(evidence_path):
-        evidence = base_file.read(evidence_path, dict_name='').split('\n')
+    evidence = base_file.read(evidence_path, dict_name='').split('\n')
     for i in range(len(evidence)):
         text = evidence[i]
         weight = 0
@@ -2723,13 +2727,13 @@ def table_aiyi(trs2):
     return table.write(trs2, tblBorders=['top', 'bottom'], insideColor=white, bdColor=blue)
 
 
-def float2percent(p):
+def float2percent(p, n=2):
     try:
         p = float(p)
     except:
         print p
         return p
-    return '%.2f%%' % (p*100)
+    return '%s%%' % (round(p*100, n))
 
 
 #报告相关数据
