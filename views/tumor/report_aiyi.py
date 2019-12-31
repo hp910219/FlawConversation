@@ -125,9 +125,39 @@ def write_body(title_cn, title_en, data):
     variant_list = data.get('variant_list')
     report_detail = data.get('report_detail')
     overview = data.get('overview')
-    # print len(variant_list), report_detail.keys()
     stars = data.get('stars')
 
+    sample_detail = data.get('sample_detail')
+    sequencing_type = sample_detail.get('sequencing_type') or ''
+    #关于hrd
+    hrd_hisens_loh = overview.get('hrd_hisens_loh')
+    hrd_hisens_tai = overview.get('hrd_hisens_tai')
+    hrd_hisens_lst = overview.get('hrd_hisens_lst')
+    hrd = hrd_hisens_loh + hrd_hisens_lst + hrd_hisens_tai
+    # print len(variant_list), report_detail.keys()
+    if 'panel' in sequencing_type.lower():
+        if hrd > 42:
+            # stars.insert()
+            print hrd
+    else:
+        # if hrd > 42:
+        col1 = 'HRD评分'
+        col2 = ''
+        hrd_score = 'LOH=%s、TAI=%s、LST=%s' % (hrd_hisens_loh, hrd_hisens_tai, hrd_hisens_lst)
+        action1 = ''
+        if hrd > 42:
+            col2 = '高（%s, > 42, %s）' % (hrd, hrd_score)
+            hrd_index = 0
+            action1 = 'HRD高'
+        elif diagnose in ['卵巢癌', '乳腺癌', '前列腺癌']:
+            col2 = '低（%s, < 42, %s）' % (hrd, hrd_score)
+            hrd_index = len(stars)
+            action1 = 'HRD低'
+        else:
+            hrd_index = -1
+        if hrd_index >= 0:
+            print action1
+            stars.insert(hrd_index, {'col1': col1, 'col2': col2, 'hrd': hrd, 'action1': action1})
     msi_info = data.get('msi_info')
     tmb_info = data.get('tmb_info')
     ploidy = overview.get('ploidy')
@@ -204,11 +234,12 @@ def write_chapter0(title_cn, data):
     para += write_patient_info(data)
     title = u'靶向治疗提示'
     para += h4_aiyi(title, spacing=[0.5, 0.5])
-    para += write_target_tip(data['target_tips'])
+    sequencing_type = sample_detail.get('sequencing_type') or ''
+    para += write_target_tip(data)
     para += write_immun_tip(data.get('immun_tip'))
-    technology = '本检测基于第二代测序技术，本次检测使用IDT 39M全外显子探针联合35个融合基因内含子区域，以及其他50个基因在实体肿瘤中高发突变的热点区域。测序深度如下：肿瘤组织1000×，ctDNA 10000×，胚系对照100×。'
-    if sample_detail.get('sequencing_type ') == '全外显子检测':
-        technology = '检测技术：基于Illumina novaseq平台，检测外显子组联合35个融合基因，肿瘤组织500×、外周血100×'
+    technology = '检测技术：基于Illumina novaseq平台，检测外显子组联合35个融合基因，肿瘤组织500×、外周血100×'
+    if 'panel' in sequencing_type.lower():
+        technology = '本检测基于第二代测序技术，本次检测使用IDT 39M全外显子探针联合35个融合基因内含子区域，以及其他50个基因在实体肿瘤中高发突变的热点区域。测序深度如下：肿瘤组织1000×，ctDNA 10000×，胚系对照100×。'
     tips = [
         {'title': '化学治疗提示', 'text': data['chem_tip'], 'rId': blue_d},
         {'title': '最新研究进展治疗提示', 'sub_title': '（完整信息见附录）', 'text': data['recent_study'], 'rId': bg_blue},
@@ -258,7 +289,7 @@ def write_chapter1(data):
     for i, item in enumerate(target_tips):
         gene = item.get('gene') or item.get('gene1')
         action1 = item.get('action1')
-        action2 = '%s%s' % (gene, action1)
+        action2 = '%s%s' % (gene or '', action1)
         tcn_em = item.get('tcn_em')  # 拷贝数
         ccf_expected_copies_em = item.get('ccf_expected_copies_em') or item.get('clone_proportion') or '' # 肿瘤细胞比例
         dna_vaf = item.get('dna_vaf')
@@ -281,10 +312,17 @@ def write_chapter1(data):
         # )
         # tc1 = tc.write(para11, tc.set(w_sum, color=blue, fill=bg_blue))
         # para1 += table.write(tr.write(tc1), tblBorders=[])
+        # action_name =
+        action_name = ' %s(%s%s) ' % (gene, action1, cc)
+        para_hrd = ''
+        ind = [0.5, 0]
+        if item.get('hrd'):
+            action_name = 'HRD%s' % item.get('col2')
+            para_hrd = write_hrd(item, data, ind)
         para1 += p.write(
             p.set(shade=bg_blue, line=24),
             r_aiyi.text('  变异事件%s:  ' % (i + 1), space=True) +
-            r_aiyi.text(' %s(%s%s) ' % (gene, action1, cc), color=white, fill=red, space=True)
+            r_aiyi.text(action_name, color=white, fill=red, space=True)
         )
         # para1 += p.write(
         #     p.set(shade=red, line=24),
@@ -292,7 +330,7 @@ def write_chapter1(data):
         #                 , color=white, space=True)
         # )
         para_index = 1
-        ind = [0.5, 0]
+
         pPr = p.set(line=15, ind=ind, spacing=[0, 1])
         para_eve = ''
         oncogenicity_variant_summary = item.get('oncogenicity_variant_summary')
@@ -305,7 +343,7 @@ def write_chapter1(data):
             para_index += 1
         # para1 += para1
         # if len(items) == 0:
-        para1 += h4_aiyi('（%d）该基因临床治疗说明' % (para_index), ind=ind)
+
         # 原癌和抑癌
         para_gene = ''
         xingzhi = []
@@ -324,9 +362,11 @@ def write_chapter1(data):
         if cn_intro:
             para_gene += p.write(p.set(line=15, ind=[1, 0], spacing=[0, 1.5]), r_aiyi.text(cn_intro, 9))
         if para_gene:
+            para1 += h4_aiyi('（%d）该基因临床治疗说明' % (para_index), ind=ind)
             para1 += para_gene
         # else:
         #     para1 += p.write()
+        para1 += para_hrd
     para1 += p.write(p.set(sect_pr=set_page(page_margin=page_margin4, header='rIdHeader3')))
     para1 += write_chapter13(cats[3])
     # tip = tip
@@ -863,6 +903,19 @@ def write_common_diagnosis(data):
     return paras
 
 
+def write_hrd(item, data, ind):
+    paras = ''
+    p_set = p.set(line=15, ind=[1, 0], spacing=[0, 1.5])
+    paras += h4_aiyi('（1）HRD评分说明', ind=ind)
+    paras += p.write(p_set, r_aiyi.text('奥拉帕尼等PARP抑制剂主要通过协同致死的方式对肿瘤细胞起到杀伤作用，同源重组修复缺陷HRD是PARP抑制剂发挥作用的生物学基础。由于HRD涉及到多个基因的突变、甲基化等多种状态，目前无法直接检测，HRD评分通过检测肿瘤基因组的三个特征杂合性缺失（LOH）、端粒等位基因不平衡（TAI），和大规模的状态转换（LST）作为HRD的标志物。HRD评分为LOH、TAI和LST三个评分的总和，既往回顾性研究将HRD评分＞42作为HRD状态的阈值。（注：本检测采用WES数据评估HRD评分，与通过SNP芯片或者专门设计的捕获芯片检测的结果有少量差异。', 9))
+    paras += h4_aiyi('（2）HR通路基因检测结果', ind=ind)
+    variant_stars = data.get('variant_stars')
+    paras += write_genes_hr(variant_stars)
+    paras += h4_aiyi('（3）检测意义', ind=ind)
+    paras += p.write(p_set, r_aiyi.text('在临床试验中，NOVA研究中发现，在铂类敏感的复发高级别卵巢癌中，HRD评分高的患者，PARP抑制剂niraparib治疗组相比安慰剂组，PFS为12.9m vs 3.8m（PMID：27717299）。然而，HRD评分并非总能预测PARP抑制剂治疗效果，今年ASCO上报道的GeparOLA研究发现，HRD评分高、BRCA1/2突变的早期乳腺癌患者中，奥拉帕尼组与化疗组（卡铂联合紫杉醇）疗效类似，（pCR率55.1% vs 48.6%（2019 ASCO abstract 506）。HR通路相关基因变异与肿瘤的HRD状态密切相关。'))
+    return paras
+
+
 def filter_sv(x):
     # only_pr=-1时，somatic，其他为candidate
     only_pr = x.get('only_pr')
@@ -1059,6 +1112,41 @@ def write_genes_ddr(variants, diagnosis):
     paras += p.write(p.set(spacing=[0.5, 0.5]), run)
     paras += write_detail_table(var_items, [], [], '')
     return {'para': paras, 'tr1': tr11, 'tr2': tr2, 'tip': tip, 'level': level}
+
+
+def write_genes_hr(variant_stars):
+    col = 8
+    genes = '''BRCA1	BRCA2	ATM	ATR	ATRX	NBN	PALB2	RAD50
+    BARD1	BLM	BRIP1	CHEK1	CHEK2	RAD51C	RAD51D	RAD52
+    FANCA	FANCC	FANCD2	FANCE	FANCF	RAD51	RAD51B	BAP1
+    FANCG	FANCI	FANCL	FANCM	MRE11A	RAD54L	RPA1	WRN'''.split('\n')
+    trs2 = ''
+    ws = [(w_sum-400)/col] * col
+    var_items = []
+    for k in range(len(genes)):
+        line = genes[k]
+        gene_list = line.strip('\t').strip().split('\t')
+        gene_list += [''] * (col-len(gene_list))
+        tcs = ''
+        fill = '' if k % 2 == 0 else bg_blue
+        for j in range(len(gene_list)):
+            gene = gene_list[j]
+            fill1, tip, var_item = get_var_color(gene, variant_stars)
+            color, text, var_text = '000000', gene, ''
+            if fill1 not in ['', gray]:
+                color = white
+                if fill1 == red:
+                    var_items.append(var_item)
+            para = p.write(p_set_tr, r_aiyi.text(text, color=color, size=9, fill=fill1)) + var_text
+            tcs += tc.write(para, tc.set(w=ws[j], fill=fill, tcBorders=[]))
+        trs2 += tr.write(tcs)
+    paras = table_aiyi(trs2)
+    run = r_aiyi.text(' 红色 ', color=white, fill=red, size=9, space=True)
+    run += r_aiyi.text('，表示明确致病突变位点', size=9)
+    paras += p.write(p.set(spacing=[0.5, 0.5], ind=[1, 0]), run)
+    if len(var_items) > 0:
+        paras += write_detail_table(var_items, [], [], '')
+    return paras
 
 
 def get_var_color_ddr(gene, vars, diagnosis=''):
@@ -1779,7 +1867,7 @@ def write_table_var(stars):
     ws = [1000, 1700, 1700, 1000, 1400, 1200, 1000, 1000]
     trs = write_thead51(titles, pPr=p_set_tr, ws=ws)
     if len(stars) == 0:
-        trs += write_tr51(['无'] * len(titles), 0, 1)
+        trs += write_tr51(['无'] * len(titles), ws, 0, 1)
     for k in range(len(stars)):
         star = stars[k]
         gene = star['gene']
@@ -1996,10 +2084,11 @@ def cmp_drug(x, y):
 
 # part0 靶向治疗提示
 def write_target_tip(data):
-    items, show_extra, extra_item = data
+    target_tips = data.get('target_tips')
+    items, show_extra, extra_item = target_tips
     ws = [1200, 2400, w_sum - 1200 - 2400]
     trs = write_thead_target(ws)
-    if len(data) == 0:
+    if len(target_tips) == 0:
         trs += write_tr51(['无'] * len(ws), ws, 0, 1)
     for k in range(len(items)):
         fill = '' if k % 2 == 0 else bg_blue
@@ -2011,7 +2100,7 @@ def write_target_tip(data):
         tcs = ''
 
         tcs += tc.write(
-            p.write(p_set_tr, r_aiyi.text(item1.get('gene') or item1.get('gene1'), '小五')),
+            p.write(p_set_tr, r_aiyi.text(item1.get('gene') or item1.get('gene1') or item1.get('col1'), '小五')),
             tc.set(ws[0], fill=fill, color=bdColor, tcBorders=['bottom'])
         )
         ccf_expected_copies_em = item1.get('ccf_expected_copies_em') or item1.get('clone_proportion') # 肿瘤细胞比例
@@ -2049,11 +2138,13 @@ def write_target_tip(data):
         item1['tip'] = tip
         item1['action'] = ''
         item1['action_name'] = action_name
-        item1['action1'] = action1
+        if 'action1' not in item1:
+            item1['action1'] = action1
         # 【amino_acid_change】变异P.变化，
         # 【tcn_em】拷贝数，
+        col2 = item1.get('col2') or '%s（%s）' % (action_name, ccf)
         tcs += tc.write(
-            p.write(p_set_tr, r_aiyi.text('%s（%s）' % (action_name, ccf), '小五')),
+            p.write(p_set_tr, r_aiyi.text(col2, '小五')),
             tc.set(ws[1], fill=fill, color=bdColor, tcBorders=['bottom'])
         )
         known_db = item1.get('known_db') or []
@@ -2276,7 +2367,7 @@ def write_evidence_tc(d, t_item):
 
 
 def write_evidence1(gene, data, **kwargs):
-    data = filter(lambda x: x.get('evidence_statement'), data)
+    data = filter(lambda x: x.get('evidence_statement'), data or [])
     if len(data) == 0:
         return ''
     trs = ''
@@ -2484,8 +2575,7 @@ def write_genes(gene_list, col, width, table_jc='center', stars=[]):
             tip = ''
             if gene_index < len(gene_list):
                 item = gene_list[gene_index]
-                fill, tip = get_var_color(item, stars)
-                # fill = gray
+                fill, tip, var_item = get_var_color(item, stars)
             else:
                 fill = gray
                 item = ''
@@ -2508,8 +2598,8 @@ def get_var_color(gene, vars):
             add_star = item.get('add_star')
             tip = item.get('tip')
             if add_star > 0:
-                return red, tip
-    return '', ''
+                return red, tip, item
+    return '', '', None
 
 
 def write_genes_cnv(cnv_stars):

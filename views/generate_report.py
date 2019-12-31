@@ -374,9 +374,9 @@ def write_dignosis(diagnosis):
 
 
 def write_item(item):
-    tag = item.get('tag')
+    display_control = item.get('display_control') or {}
+    tag = display_control.get('tag')
     value = item.get('value')
-
     ind = item.get('ind') or [0, 0]
     imgs = []
     files = []
@@ -402,12 +402,14 @@ def write_item(item):
     run0 = ''
     if item_name:
         run0 += r_tcm.text('%s: ' % item_name, 11.5, space=True, weight=1)
+    print tag, value
     if tag in ['textarea',  'upload']:
         paras += p.write(para_setting(line=12, rule='auto', ind=ind), run0)
         if isinstance(value, list):
             value = '见附件'
         else:
             values = value.strip('\n').split('\n')
+            print value
             if value.endswith('.png') or value.endswith('.jpg'):
                 info = get_img_info(value)
                 r_pic = r_tcm.picture(15, rId=info.get('rId'), img_info=info)
