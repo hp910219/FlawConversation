@@ -402,25 +402,24 @@ def write_item(item):
     run0 = ''
     if item_name:
         run0 += r_tcm.text('%s: ' % item_name, 11.5, space=True, weight=1)
-    print tag, value
     if tag in ['textarea',  'upload']:
         paras += p.write(para_setting(line=12, rule='auto', ind=ind), run0)
         if isinstance(value, list):
             value = '见附件'
         else:
             values = value.strip('\n').split('\n')
-            print value
             if value.endswith('.png') or value.endswith('.jpg'):
                 info = get_img_info(value)
-                r_pic = r_tcm.picture(15, rId=info.get('rId'), img_info=info)
-                paras += p.write(para_setting(line=24), r_pic)
+                r_pic = r_tcm.picture(cy=8, rId=info.get('rId'), img_info=info)
+                paras += p.write(para_setting(line=24, spacing=[0, 12]), r_pic)
                 if info not in imgs:
                     imgs.append(info)
             elif tag == 'upload':
                 if value and value not in ['NA']:
                     files.append(value)
-            for v in values:
-                paras += p.write(para_setting(line=12, rule='auto', ind=ind), r_tcm.text(v, 10))
+            else:
+                for v in values:
+                    paras += p.write(para_setting(line=12, rule='auto', ind=ind), r_tcm.text(v, 10))
             return {
                 'para': paras,
                 'imgs': imgs,
@@ -513,14 +512,16 @@ def sort_jingan_data(data):
     diagnosis = data.get('diagnosis')
     patient_detail = data.get('patient_detail')
     sample_detail = data.get('sample_detail')
-    diagnosis0 = None if len(diagnosis) < 1 else diagnosis[0]
+    diagnosis0 = None if len(diagnosis) == 0 else diagnosis[0]
     history_info = None
-    template_name = '普适版'
-    if diagnosis0 is not None:
-        template_info0 = diagnosis0.get('template_info')
-        template_name = template_name or diagnosis0.get('template_name')
-        if template_info0 is not None:
-            history_info = template_info0[0][-1]
+    if diagnosis0:
+        template_infos = diagnosis0.get('template_info')
+        template_info0 = None if len(template_infos) == 0 else template_infos[0]
+        if template_info0:
+            if template_info0 is not None:
+                for tem in template_info0:
+                    if tem.get('block_name') == '病史信息':
+                        history_info = tem
     imgs, files = [], []
     for diag in diagnosis:
         sort_diag = write_dignosis(diag)
@@ -533,7 +534,7 @@ def sort_jingan_data(data):
     if patient_detail:
         patient_name = patient_detail.get('patient_name')
 
-    action_name = u'%s_%sCRF报告' % (patient_name, template_name)
+    action_name = u'%s_CRF报告' % (patient_name)
     conf = read_conf()
     if isinstance(conf, str):
         return conf
