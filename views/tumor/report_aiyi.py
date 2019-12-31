@@ -110,10 +110,12 @@ level_tips = [
 
 def get_report_core(data):
     overview = data.get('overview') or {}
+    other_pic = []
     signature_pic = overview.get('signature_pic')
-    signature_pic_info = get_img_info(signature_pic)
-    print os.path.exists(signature_pic), signature_pic
-    img_info = get_imgs_aiyi(img_dir, is_refresh=True, others=[signature_pic_info])
+    if signature_pic and os.path.exists(signature_pic):
+        signature_pic_info = get_img_info(signature_pic)
+        other_pic.append(signature_pic_info)
+    img_info = get_imgs_aiyi(img_dir, is_refresh=True, others=other_pic)
     body = write_body(title_cn, title_en, data)
     pages = write_pages(data.get('report_time'))
     pkgs1 = write_pkg_parts(img_info, body, other=pages)
