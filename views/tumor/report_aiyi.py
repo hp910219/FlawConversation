@@ -9,7 +9,7 @@ sys.setdefaultencoding('utf-8')
 
 from PIL import Image
 from jy_word.web_tool import test_chinese
-from jy_word.Word import bm_index0, get_imgs, uniq_list, get_img
+from jy_word.Word import bm_index0, get_imgs, uniq_list, get_img, get_img_info
 from jy_word.File import File
 from jy_word.Word import Paragraph, Run, Set_page, Table, Tc, Tr, HyperLink, Relationship, SDT
 from jy_word.Word import write_cat, write_pkg_parts
@@ -109,7 +109,11 @@ level_tips = [
 
 
 def get_report_core(data):
-    img_info = get_img_info(img_dir, is_refresh=True)
+    overview = data.get('overview') or {}
+    signature_pic = overview.get('signature_pic')
+    signature_pic_info = get_img_info(signature_pic)
+    print os.path.exists(signature_pic), signature_pic
+    img_info = get_imgs_aiyi(img_dir, is_refresh=True, others=[signature_pic_info])
     body = write_body(title_cn, title_en, data)
     pages = write_pages(data.get('report_time'))
     pkgs1 = write_pkg_parts(img_info, body, other=pages)
@@ -135,8 +139,8 @@ def write_body(title_cn, title_en, data):
     para_naiyao, tip_naiyao, tip_naiyao1, level_naiyao = write_chapter_naiyao(stars, ploidy)
     para_chaojinzhan, tip_chaojinzhan, tip_chaojinzhan1, level_chaojinzhan = write_chapter_chaojinzhan(stars, ploidy)
     para_hla, tip_hla, tip_hla1, level_hla = write_chapter_hla(overview, diagnose)
-    # print overview.get('signature_30'), '===='
-    para_signature, tip_signature = write_chapter_signature(overview.get('signature_30') or [])
+
+    para_signature, tip_signature, level_signature = write_chapter_signature(overview.get('signature_30') or [])
     para_yichuan, tip_yichuan, tip_yichuan1, level_yichuan = write_chapter_yichuan()
     data['immun_tip'] = [
         msi_info,
@@ -150,7 +154,7 @@ def write_body(title_cn, title_en, data):
     data['chem_tip'] = [
         '可能有效且毒副作用低的药物：%s' % ('无' if len(trs3[1][1]) == 0 else ', '.join(trs3[1][1])),
         ]
-    data['recent_study'] = [tip_yichuan, tip_signature]
+    data['recent_study'] = [{'text': tip_yichuan, 'level': ''}, {'text': tip_signature, 'level': level_signature}]
     data['para_ddr'] = para_ddr
     data['para_mingan'] = para_mingan
     data['para_naiyao'] = para_naiyao
@@ -219,14 +223,19 @@ def write_chapter0(title_cn, data):
             rId = tip.get('rId')
             if isinstance(t, dict):
                 text = t.get('text')
-                rId = t.get('rId')
+                rId = t.get('rId') or bg_blue
+                level = t.get('level')
+                if level:
+                    arr = filter(lambda x: x.get('level') == level, level_tips)
+                    if len(arr):
+                        rId = arr[0].get('color').lstrip('#')
             else:
                 text = t
             if len(text) > 0:
                 rId = '#' + rId
                 setting = {'stroke-color': rId, 'fill-color': rId, 'radius': 0.1}
                 para += p.write(
-                    p.set(line=9.5, rule='exact', spacing=[0, 0.5], ind=['hanging', 1.3]),
+                    p.set(line=10, rule='exact', spacing=[0, 0.5], ind=['hanging', 1.3]),
                     # r_aiyi.picture(cy=0.3, rId=rId, posOffset=[0, 0.15])
                     r_aiyi.radius(0.3, 0.3, **setting)
                     + r_aiyi.text('   ' + text, 9.5, space=True)
@@ -1701,19 +1710,17 @@ def write_chapter_hla(overview, diagnosis):
 
 
 def write_chapter_signature(signature_etiology):
-    items, tr1, tr2 = get_data45(signature_etiology)
+    tr1, tr2, tip, level = get_data45(signature_etiology)
+    if level:
+        tr2 += '(%s)' % level
     data = [tr1, tr2]
-    para = write_immun_table(data)
+    para = write_immun_table(data, level)
     para += p.write()
-    para += p.write(p.set(spacing=[2, 0]), r_aiyi.picture(17.5, rId='4.5.1signature', posOffset=[0, 0.1], align=['center', '']))
-    para += p.write() * 6
-    para += write_evidence_signature(items[1:], titles=items[0], ws=[1500, 1200, 2400, 4700])
-    # para += p.write(r.br('page'))
-    para += p.write(p.set(spacing=[2, 6]), r_aiyi.picture(17.5, rId='signature_dict', posOffset=[0, 0.1], align=['center', '']))
-    para += p.write(p.set(spacing=[2, 0]), r_aiyi.picture(7.5, rId='signature_pie', posOffset=[0, 0.6]))
+    para += p.write(p.set(spacing=[2, 12]), r_aiyi.picture(cy=8, rId='signature_dict', posOffset=[0, 0.1], align=['center', '']))
+    para += p.write(p.set(spacing=[2, 0]), r_aiyi.picture(7.5, rId='signature', posOffset=[0, 0.6]))
     para += write_explain({"title": '结果说明：', 'text': '体细胞突变存在于人体的所有细胞中并且贯穿整个生命。它们是多种突变过程的结果，包括DNA复制机制内在的轻微错误，外源或内源诱变剂暴露，DNA酶促修饰和DNA修复缺陷。不同的突变过程产生独特的突变类型组合，称为“突变特征”。在过去的几年中，大规模的分析研究揭示了许多人类癌症类型的突变特征。目前这组突变特征是基于对40种不同类型的人类癌症中的10,952个外显子组和1,048个全基因组的分析得到的。使用六个取代亚型显示每个标记的概况：C> A，C> G，C> T，T> A，T> C和T> G，进而向前先后各延伸一个碱基，每个碱基有4种可能，所以，总共就有96个三核苷酸的突变类型。现在已经明确的，总共有30种明确注释的“突变特征”，每种特征都有对应的发生机制，如吸烟、错配修复缺陷、同源重组修复缺陷等。'}, ind=[23, 0])
     para += p.write(p.set(sect_pr=set_page('A4', header='rIdHeader%d' % 6)))
-    return para, '通过突变特征分析，%s' % (tr2 or '暂无')
+    return para, tip, level
 
 
 def write_chapter_yichuan():
@@ -2788,9 +2795,7 @@ def get_page_titles():
     return titles
 
 
-def get_img_info(path, is_refresh=False):
-    crop_img(r'%s/signature.png' % (img_dir), r'%s/4.5.1signature.png' % img_dir)
-    crop_img(r'%s/signature_pie.png' % (img_dir), r'%s/4.5.2signature_pie.png' % img_dir)
+def get_imgs_aiyi(path, is_refresh=False, others=[]):
     if is_refresh:
         img_info = get_imgs(img_dir)
         img_info += get_imgs(path)
@@ -2799,6 +2804,7 @@ def get_img_info(path, is_refresh=False):
             is_exists = len(filter(lambda x: x['rId'] == info['rId'], img_info2))
             if is_exists == 0:
                 img_info2.append(info)
+        img_info2 += others
         my_file.write(img_info_path, img_info2)
     else:
         img_info2 = my_file.read(img_info_path)
@@ -2832,22 +2838,48 @@ def get_var_new(gene, items1):
 
 
 def get_data45(signature_etiology):
-    items = [['', 'Signature ID', '权重', '主要出现的癌种', '可能的病因', '评论']]
     tr1, tr2 = '', []
-    for item in signature_etiology:
-        s_id = item['Signature_ID']
-        item['Keyword'] = reset_sig(s_id)
-        if s_id != 'unknown':
-            result = '原因未知'
-            if item['Keyword'] != result:
-                result = '推测由%s导致' % item['Keyword']
-                tr2.append(item['Keyword'])
-            tr1 += '特征%s所占权重为%s，%s;' % (s_id, item['Weight'], result)
-            items.append(['', s_id, item['Weight'], item['Cancer_types'], item['Proposed_aetiology'], item['Comments']])
-    tip = '该癌症可能由%s' % ('、'.join(tr2))
-    if len(tr2) > 1:
-        tip += '共同'
-    return uniq_list(items), tr1.rstrip(';'), tip + '导致'
+    s_dict = {}
+    for s_id, item in enumerate(signature_etiology):
+        text = reset_sig(s_id+1)
+        if text != '未知':
+            arr = s_dict.get(text) or []
+            arr.append(float(item))
+            if text not in tr2:
+                tr2.append(text)
+            s_dict[text] = arr
+    pd1 = []
+    prap = []
+    tips = []
+    for k in s_dict.keys():
+        f = sum(s_dict[k])
+        if f > 0.5:
+            if k in ['APOBEC', '吸烟', 'POLE', '错配修复缺陷dMMR']:
+                pd1.append(k)
+            if k in ['同源重组修复缺陷HRD']:
+                prap.append(k)
+        elif f > 0:
+            tips.append('%s(%s)' % (k, float2percent(f, 1)))
+    tr1 = '通过突变特征分析，该肿瘤'
+    if len(tips) > 0:
+        tr1 += '可能由%s等原因导致' % ('、'.join(tips))
+    tr2 = '无相关治疗提示'
+    level = ''
+    tip = tr1
+    if len(pd1) > 0:
+        tr1 = '%s占据主导因素' % ('、'.join(pd1))
+        tr2 = '提示PD1等免疫检查点抗体治疗可能有效'
+        level = 'C'
+        tip += ', %s, %s' % (tr1, tr2)
+    if len(prap) > 0:
+        tr1 = '同源重组修复缺陷HRD占据主导因素'
+        tr2 = '提示奥拉帕尼等PARP抑制剂可能有效'
+        level = 'C'
+        tip += ''
+    tip += ', %s' % tr2
+    print tr1, tr2, level
+    return tr1, tr2, tip, level
+
 
 
 def get_data3(rs_geno, diagnose):
@@ -3029,12 +3061,10 @@ def concat_str(arr):
 def reset_sig(s_id):
     signature_cns = signature_cn.split('\n')
     for s_index, s in enumerate(signature_cns):
-        if s.strip().upper() == s_id.upper():
+        if s.strip() == str(s_id):
             if s_index < len(signature_cns) - 1:
                 text = signature_cns[s_index + 1].strip()
-                if text == '原因未知':
-                    return text
-                return text.replace('推测由', '').replace('导致', '')
+                return text
     return ''
 
 
