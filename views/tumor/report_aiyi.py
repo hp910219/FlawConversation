@@ -127,6 +127,7 @@ def write_body(title_cn, title_en, data):
     variant_list = data.get('variant_list')
     report_detail = data.get('report_detail')
     overview = data.get('overview')
+    stars0 = data.get('stars0')
     stars = data.get('stars')
 
     sample_detail = data.get('sample_detail')
@@ -136,11 +137,22 @@ def write_body(title_cn, title_en, data):
     hrd_hisens_tai = overview.get('hrd_hisens_tai')
     hrd_hisens_lst = overview.get('hrd_hisens_lst')
     hrd = hrd_hisens_loh + hrd_hisens_lst + hrd_hisens_tai
+    paras_hr, items_hr = write_hrd(sequencing_type, data, [0.5, 0])
     # print len(variant_list), report_detail.keys()
     if 'panel' in sequencing_type.lower():
-        if hrd > 42:
-            # stars.insert()
-            print hrd
+        action1 = ''
+        if len(items_hr) > 0:
+            col2 = '致病突变'
+            hrd_index = 0
+            title = 'HR通路相关基因发现明确致病突变'
+            action1 = title
+        else:
+            col2 = '未发现致病突变'
+            hrd_index = len(stars)
+            title = 'HR通路相关基因未发现明确致病突变'
+        if hrd_index >= 0:
+            data['paras_hr'] = paras_hr
+            stars0.insert(hrd_index, {'col1': 'HR通路相关基因', 'col2': col2, 'hr': title, 'action1': action1})
     else:
         # if hrd > 42:
         col1 = 'HRD评分'
@@ -158,18 +170,18 @@ def write_body(title_cn, title_en, data):
         else:
             hrd_index = -1
         if hrd_index >= 0:
-            print action1
-            stars.insert(hrd_index, {'col1': col1, 'col2': col2, 'hrd': hrd, 'action1': action1})
+            data['paras_hr'] = paras_hr
+            stars0.insert(hrd_index, {'col1': col1, 'col2': col2, 'hrd': hrd, 'action1': action1})
     msi_info = data.get('msi_info')
     tmb_info = data.get('tmb_info')
     ploidy = overview.get('ploidy')
-    data['target_tips'] = stars, False, []
+    data['target_tips'] = stars0, False, []
     chem_items, trs3 = get_data3(data.get('rs_geno'), diagnose)
 
     para_ddr, tip_ddr, tip_ddr1, level_ddr = write_chapter_ddr(stars if diagnose == '泌尿上皮癌' else variant_list, diagnose)
     para_mingan, tip_mingan, tip_mingan1, level_mingan = write_chapter_mingan(stars, diagnose, ploidy)
     para_naiyao, tip_naiyao, tip_naiyao1, level_naiyao = write_chapter_naiyao(stars, ploidy)
-    para_chaojinzhan, tip_chaojinzhan, tip_chaojinzhan1, level_chaojinzhan = write_chapter_chaojinzhan(stars, ploidy)
+    para_chaojinzhan, tip_chaojinzhan, tip_chaojinzhan1, level_chaojinzhan = write_chapter_chaojinzhan(data, ploidy)
     para_hla, tip_hla, tip_hla1, level_hla = write_chapter_hla(overview, diagnose)
 
     para_signature, tip_signature, level_signature = write_chapter_signature(overview.get('signature_30') or [])
@@ -300,7 +312,7 @@ def write_chapter1(data):
             cc = '，肿瘤细胞比例%s' % float2percent(ccf_expected_copies_em)
         elif dna_vaf:
             cc = '，突变丰度%s' % float2percent(dna_vaf)
-        if action2 not in action:
+        if action2 and action2 not in action:
             action.append(action2)
         vars = genes.get(gene) or []
         if item not in vars:
@@ -320,7 +332,10 @@ def write_chapter1(data):
         ind = [0.5, 0]
         if item.get('hrd'):
             action_name = 'HRD%s' % item.get('col2')
-            para_hrd = write_hrd(item, data, ind)
+            para_hrd = data.get('paras_hr')
+        elif item.get('hr'):
+            action_name = item.get('hr')
+            para_hrd = data.get('paras_hr')
         para1 += p.write(
             p.set(shade=bg_blue, line=24),
             r_aiyi.text('  变异事件%s:  ' % (i + 1), space=True) +
@@ -482,7 +497,7 @@ def write_chapter2(index, data):
     para += h4_aiyi('4、免疫检查位点抗体疗联合传统治疗研究进展')
     para += p.write(para_set, r_aiyi.text('免疫检查位点抗体单药治疗虽然在临床治疗中显示出广泛的抗癌效果，不同癌种的总体有效率基本在20%左右，即使通过多种标志物进行预测可一定程度上减少无效人群，但其获益人群一样有限。从肿瘤免疫过程上看，将免疫阻隔型和免疫沙漠型的“冷”肿瘤，转变成免疫炎症型的“热”肿瘤，扩大免疫检查位点抗体的获益人群，可以通过联合治疗的方式进行。对PDL1、MSI、TMB等各类型标志物预测检查位点抗体单药治疗效获益可能性较低的患者，最好进行检查位点抗体与其他治疗方式的联合治疗。多项研究发现放疗、化疗和靶向治疗等传统治疗联合免疫检查位点抗体治疗能够获得惊人的效果，中位生存期、无疾病进展生存期和有效率等疗效指标翻倍的情况。同时，值得注意的是，联合治疗会成倍甚至多倍的提高毒副反应。基于对肿瘤免疫过程理解的加深，特异性针对特定肿瘤免疫过程的免疫治疗是联合治疗的更优选择。', '小五'))
     para += h4_aiyi('5、新型免疫治疗手段研究进展')
-    para += p.write(para_set, r_aiyi.text('免疫治疗是癌症治疗有史以来最激动人心的治疗领域，甚至有的医生认为，癌症免疫治疗让人类真正真正看到了癌症被治愈的希望。随着PD1抗体在各癌种中的攻城略地，新型的免疫治疗手段也展现出未来的王者之相。'))
+    para += p.write(para_set, r_aiyi.text('免疫治疗是癌症治疗有史以来最激动人心的治疗领域，甚至有的医生认为，癌症免疫治疗让人类真正真正看到了癌症被治愈的希望。随着PD1抗体在各癌种中的攻城略地，新型的免疫治疗手段也展现出未来的王者之相。', '小五'))
     para += h4_aiyi('（1）个性化癌症治疗疫苗', size='五号')
     para += p.write(para_set, r_aiyi.text('癌症疫苗，这种通过主动免疫去扩大肿瘤特异性T细胞反应的治疗方式，一直被认为是癌症免疫治疗的有效手段。尽管大家能够清晰看到癌症疫苗的合理性，但是，过去在临床方面的尝试都是不成功的。不同患者之间的肿瘤抗原具有强烈的多样性，因此，个性化癌症疫苗的发展是必要的。随着二代测序和生物信息工具的逐步完善，癌症疫苗的核心环节，新抗原预测逐渐成熟，该技术在最近的研究中取得突破性的进展，且由于安全性较好，是最值得跟进参与的新型癌症免疫治疗手段之一。', '小五'))
     para += p.write(r_aiyi.picture(cy=12, rId='2.4.5.1', align=['center', ''], posOffset=[0, 0.2]))
@@ -565,7 +580,7 @@ def write_chapter5(index, data):
     if tumor_base_aligned:
         tumor_base_aligned = int((float(tumor_base_aligned) / 1024.0/1024/1024) * 100) / 100.0
     summary = '本检测报告共涉及两个样本，肿瘤组织样本和外周血。'
-    summary += '本次检测使用安捷伦捕获外显子捕获探针Sureslect Human All Exon V6，'
+    summary += '本次检测使用IDT 39M全外显子探针联合35个融合基因内含子区域，'
     summary += '目标测序数据量为肿瘤组织样本50G，'
     summary += '外周血样本10G，'
     summary += '实际可用cleandata数据量为肿瘤组织%sG，外周血样本%sG。' % (tumor_base_aligned, normal_base_aligned)
@@ -905,17 +920,25 @@ def write_common_diagnosis(data):
     return paras
 
 
-def write_hrd(item, data, ind):
+def write_hrd(sequencing_type, data, ind):
     paras = ''
     p_set = p.set(line=15, ind=[1, 0], spacing=[0, 1.5])
-    paras += h4_aiyi('（1）HRD评分说明', ind=ind)
-    paras += p.write(p_set, r_aiyi.text('奥拉帕尼等PARP抑制剂主要通过协同致死的方式对肿瘤细胞起到杀伤作用，同源重组修复缺陷HRD是PARP抑制剂发挥作用的生物学基础。由于HRD涉及到多个基因的突变、甲基化等多种状态，目前无法直接检测，HRD评分通过检测肿瘤基因组的三个特征杂合性缺失（LOH）、端粒等位基因不平衡（TAI），和大规模的状态转换（LST）作为HRD的标志物。HRD评分为LOH、TAI和LST三个评分的总和，既往回顾性研究将HRD评分＞42作为HRD状态的阈值。（注：本检测采用WES数据评估HRD评分，与通过SNP芯片或者专门设计的捕获芯片检测的结果有少量差异。', 9))
-    paras += h4_aiyi('（2）HR通路基因检测结果', ind=ind)
+    index = 1
     variant_stars = data.get('variant_stars')
-    paras += write_genes_hr(variant_stars)
-    paras += h4_aiyi('（3）检测意义', ind=ind)
-    paras += p.write(p_set, r_aiyi.text('在临床试验中，NOVA研究中发现，在铂类敏感的复发高级别卵巢癌中，HRD评分高的患者，PARP抑制剂niraparib治疗组相比安慰剂组，PFS为12.9m vs 3.8m（PMID：27717299）。然而，HRD评分并非总能预测PARP抑制剂治疗效果，今年ASCO上报道的GeparOLA研究发现，HRD评分高、BRCA1/2突变的早期乳腺癌患者中，奥拉帕尼组与化疗组（卡铂联合紫杉醇）疗效类似，（pCR率55.1% vs 48.6%（2019 ASCO abstract 506）。HR通路相关基因变异与肿瘤的HRD状态密切相关。'))
-    return paras
+    paras_hr, items_hr = write_genes_hr(variant_stars)
+    text = '在临床试验中，NOVA研究中发现，在铂类敏感的复发高级别卵巢癌中，HRD评分高的患者，PARP抑制剂niraparib治疗组相比安慰剂组，PFS为12.9m vs 3.8m（PMID：27717299）。然而，HRD评分并非总能预测PARP抑制剂治疗效果，今年ASCO上报道的GeparOLA研究发现，HRD评分高、BRCA1/2突变的早期乳腺癌患者中，奥拉帕尼组与化疗组（卡铂联合紫杉醇）疗效类似，（pCR率55.1% vs 48.6%（2019 ASCO abstract 506）。'
+    if 'panel' not in sequencing_type.lower():
+        paras += h4_aiyi('（1）HRD评分说明', ind=ind)
+        index += 1
+        paras += p.write(p_set, r_aiyi.text('奥拉帕尼等PARP抑制剂主要通过协同致死的方式对肿瘤细胞起到杀伤作用，同源重组修复缺陷HRD是PARP抑制剂发挥作用的生物学基础。由于HRD涉及到多个基因的突变、甲基化等多种状态，目前无法直接检测，HRD评分通过检测肿瘤基因组的三个特征杂合性缺失（LOH）、端粒等位基因不平衡（TAI），和大规模的状态转换（LST）作为HRD的标志物。HRD评分为LOH、TAI和LST三个评分的总和，既往回顾性研究将HRD评分＞42作为HRD状态的阈值。（注：本检测采用WES数据评估HRD评分，与通过SNP芯片或者专门设计的捕获芯片检测的结果有少量差异。', 9))
+        text += 'HR通路相关基因变异与肿瘤的HRD状态密切相关。'
+    else:
+        tip = ''
+    paras += h4_aiyi('（%s）HR通路基因检测结果' % index, ind=ind)
+    paras += paras_hr
+    paras += h4_aiyi('（%s）检测意义' % (index +1), ind=ind)
+    paras += p.write(p_set, r_aiyi.text(text))
+    return paras, items_hr
 
 
 def filter_sv(x):
@@ -1148,7 +1171,7 @@ def write_genes_hr(variant_stars):
     paras += p.write(p.set(spacing=[0.5, 0.5], ind=[1, 0]), run)
     if len(var_items) > 0:
         paras += write_detail_table(var_items, [], [], '')
-    return paras
+    return paras, var_items
 
 
 def get_var_color_ddr(gene, vars, diagnosis=''):
@@ -1472,7 +1495,7 @@ def write_chapter_naiyao(stars, ploidy):
             g_item = genes.get(g)
             if g_item:
                 g_tip = g_item.get('tip') or ''
-                if '扩增' in text and '扩增' in g_tip :
+                if ('扩增' in text or '缺失' in text) and '扩增' in g_tip :
                     arr1.append(g[-1])
                 elif '融合' in text and '融合' in g_tip:
                     arr1.append(g[-1])
@@ -1489,7 +1512,7 @@ def write_chapter_naiyao(stars, ploidy):
                 g_item = genes.get(g2)
                 if g_item:
                     tip = g_item.get('tip') or ''
-                    if '扩增' in text:
+                    if '扩增' in text or '缺失' in text:
                         cnv_items.append(g_item)
                     elif '融合' in text:
                         sv_items.append(g_item)
@@ -1585,7 +1608,7 @@ def write_chapter_naiyao(stars, ploidy):
     return para, tip, tr1, level
 
 
-def write_chapter_chaojinzhan(stars, ploidy):
+def write_chapter_chaojinzhan(data, ploidy):
     # 匹配规则：
     # 1、CDKN2A、CDKN2B、MDM2、MDM4、EGFR、11q13均为常规驱动基因阳性加星过来；
     # 2、DNMT3A为任意突变即可，但是对突变比例有限制：
@@ -1593,22 +1616,28 @@ def write_chapter_chaojinzhan(stars, ploidy):
     # 证据规则：
     # MDM2、MDM4、DNMT3A这三个基因的阳性，标注为 “PD1等免疫治疗抗体治疗可能具有超进展风险（D级）”
     # 其他都是  “PD1等免疫治疗抗体治疗可能具有超进展风险（C级）”
-
+    stars = data.get('stars')
+    variant_stars = data.get('variant_stars')
+    cnv_stars = data.get('cnv_stars')
     genes_red = []
     genes1 = 'CDKN2A、CDKN2B、MDM2、MDM4、EGFR'.split('、')
     genes_11q13 = 'CCND1、FGF3、FGF4、FGF19'.split('、')
     DNMT3A = 'DNMT3A'
     genes = {}
-    for star in stars:
+    for star in variant_stars:
         gene = star.get('gene')
         # gene = 'PDL1'
         ccf_expected_copies_em = star.get('ccf_expected_copies_em') or star.get('clone_proportion') # 肿瘤细胞比例
         dna_vaf = star.get('dna_vaf')  # 突变丰度
         is_match2 = (ccf_expected_copies_em is None and dna_vaf >= 0.1) or (ccf_expected_copies_em >= 0.5)
-        if gene in (genes1 + genes_11q13):
-            genes[gene] = star # 阳性
         if gene == DNMT3A and is_match2:
+            star['tip'] = '突变'
             genes[gene] = star  # 阳性
+    for star in cnv_stars:
+        gene = star.get('gene')
+        if gene in (genes1 + genes_11q13):
+            star['tip'] = '扩增'
+            genes[gene] = star # 阳性
 
     level = ''
     var_items = []
@@ -1622,7 +1651,7 @@ def write_chapter_chaojinzhan(stars, ploidy):
             g_item = genes.get(g)
             if g_item:
                 g_tip = g_item.get('tip') or ''
-                if '扩增' in text and '扩增' in g_tip :
+                if ('扩增' in text or '缺失' in text) and '扩增' in g_tip :
                     arr1.append(g[-1])
                 elif '融合' in text and '融合' in g_tip:
                     arr1.append(g[-1])
@@ -1631,6 +1660,9 @@ def write_chapter_chaojinzhan(stars, ploidy):
             arr2.append(g[-1])
         action_name1 = '%s%s' % (gene_names[0][:-1], '/'.join(arr1))
         action_name2 = '%s%s' % (gene_names[0][:-1], '/'.join(arr2))
+        if gene_names == genes_11q13:
+            action_name1 = '11q13(CCND1、FGF3、FGF4、FGF19)'
+            action_name2 = action_name1
         if len(arr1) > n:
             text00 = '%s基因发生%s' % (action_name1, text)
             items200 = {'text': text00, 'color': red}
@@ -1639,7 +1671,7 @@ def write_chapter_chaojinzhan(stars, ploidy):
                 g_item = genes.get(g2)
                 if g_item:
                     tip = g_item.get('tip') or ''
-                    if '扩增' in text:
+                    if '扩增' in text or '缺失' in text:
                         cnv_items.append(g_item)
                     elif '融合' in text:
                         sv_items.append(g_item)
@@ -1650,14 +1682,14 @@ def write_chapter_chaojinzhan(stars, ploidy):
         else:
             items200 = {'text': '%s基因未发生%s' % (action_name2, text), 'color': gray}
         return items200
-
+    items_11q13 = get_naiyao(genes_11q13, '扩增', 3)
     items2 = [
         get_naiyao(['CDKN2A', 'CDKN2B'], '缺失'),
         get_naiyao(['MDM2'], '扩增'),
         get_naiyao(['MDM4'], '扩增'),
         get_naiyao([DNMT3A], '突变'),
         get_naiyao(['EGFR'], '扩增'),
-        get_naiyao(genes_11q13, '扩增', 3),
+        items_11q13,
     ]
     tr1, tr2 = '免疫治疗超进展相关基因无变异', 'PD1等免疫检查位点抗体可能无超进展风险'
     tip = tr1
@@ -1668,8 +1700,7 @@ def write_chapter_chaojinzhan(stars, ploidy):
         if items2[1] or items2[2] or items2[3]:
             level = 'D'
         tr2 = 'PD1等免疫治疗抗体治疗可能具有超进展风险(%s)' % level
-    data = [tr1, tr2]
-    para = write_immun_table(data, level, dark if level else '')
+    para = write_immun_table([tr1, tr2], level, dark if level else '')
     para += p.write(p.set(line=1))
     para += write_mingan([items2], 6)
     para += p.write(p.set(line=1))
@@ -1850,9 +1881,7 @@ def write_chapter51(data):
     para = ''
     para += h4_aiyi('（1）体细胞突变汇总')
     ws = [1000, 1700, 1700, 1000, 1400, 1200, 1000, 1000]
-    pPr = p.set(jc='left', spacing=[0.5, 0.5], rule='exact')
     titles = ['基因', '核苷酸变化', '氨基酸变化', '外显子', '变异类型', '突变丰度', '覆盖度',  'Cosmic计数']
-    trs = write_thead51(titles, pPr=p_set_tr, ws=ws)
     stars = data.get('variant_list')
     stars = sorted(stars, cmp=cmp_var)
     stars = stars[:200]
@@ -2041,7 +2070,6 @@ def write_db_info():
 def write_patient_info(data):
     overview = data.get('overview') or {}
     purity = float2percent(overview.get('purity'), 0)
-    print purity
     sample_detail = data.get('sample_detail')
     para = ''
     trs = ''
@@ -2630,7 +2658,7 @@ def write_genes_cnv(cnv_stars):
                 color = white
             else:
                 fill1 = ''
-            para = p.write(p_set_tr, r_aiyi.text(text, color=color, size=9, fill=fill1))
+            para = p.write(p.set(line=12*1.3), r_aiyi.text(text, color=color, size=9, fill=fill1))
             tcs += tc.write(para, tc.set(w=ws[j], fill=fill, tcBorders=[]))
         if tcs:
             trs2 += tr.write(tcs)
@@ -2695,23 +2723,18 @@ def write_tr51(item, ws, row=0, count=0):
     return tr.write(tcs)
 
 
-def write_tr1(text, fill=''):
+def write_tr1(text, fill='', wingdings=True):
     pPr = p.set(jc='left', spacing=[0.5, 0.5])
     para = ''
     for t in text.split('\n'):
-        run = r_aiyi.text(' ' + t, size=9, color='' if fill in [gray, '', bg_blue] else white, wingdings=True, space=True)
+        run = r_aiyi.text(' ' + t, size=9, color='' if fill in [gray, '', bg_blue] else white, wingdings=wingdings, space=True)
         para += p.write(pPr, run)
     tcs2 = tc.write(para, tc.set(w=w_sum, fill=fill, tcBorders=[]))
     return tr.write(tcs2)
 
 
 def write_tr2(data, fill=gray, bdColor=gray):
-    pPr = p.set(jc='left', spacing=[0.5, 0.5])
-    para = ''
-    for t in data.split('\n'):
-        para += p.write(pPr, r_aiyi.text(t, size=9, color='' if fill in [gray, ''] else white))
-    tcs2 = tc.write(para, tc.set(w=w_sum, fill=fill, tcBorders=[]))
-    return tr.write(tcs2)
+    return write_tr1(data, fill, False)
 
 
 def write_pages(t):
@@ -2971,7 +2994,6 @@ def get_data45(signature_etiology):
     tip += ', %s' % tr2
     print tr1, tr2, level
     return tr1, tr2, tip, level
-
 
 
 def get_data3(rs_geno, diagnose):
