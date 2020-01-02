@@ -137,6 +137,7 @@ def auth_down_report():
         })
         return jsonify({'file_path': file_path})
     except:
+        traceback.print_exc()
         send_msg_by_dd(traceback.format_exc())
         return '发生故障，已通知管理员，请稍后...'
 
@@ -247,8 +248,10 @@ def tumor_download_panel():
 
     variant_stars = filter(lambda x: x['add_star'] > 0, variant_list)
     cnvs_stars = filter(lambda x: x['add_star'] > 0, cnvs)
+    svs_stars0 = filter(lambda x: x['add_star'] > 0, svs)
     svs_stars = filter(lambda x: filter_sv(x), svs)
     stars = sorted(variant_stars + cnvs_stars+svs_stars, key=lambda x: x['add_star'], reverse=True)
+    stars0 = sorted(variant_stars + cnvs_stars+svs_stars0, key=lambda x: x['add_star'], reverse=True)
 
     msi_sort_paired_total = overview.get('msi_sort_paired_total')
     msi_sort_paired_somatic = overview.get('msi_sort_paired_somatic')
@@ -304,6 +307,7 @@ def tumor_download_panel():
             'svs': svs,
             'stars': stars,
             'variant_stars': variant_stars,
+            'stars0': stars0,
             'cnv_stars': cnvs_stars,
             'sv_stars': svs_stars,
             'rs_geno': rs_geno or [],
