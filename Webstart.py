@@ -219,7 +219,9 @@ def tumor_download_panel():
         'effect': '',
         'level': 'C'
     }
-    if tmb < 20 and tmb >= 10:
+    if tmb < 10:
+        tmb_info['text'] = '肿瘤突变负荷TMB低 （%s个突变/Mb，大于该癌种%s%%人群，%s于该癌种突变负荷拐点）' % (tmb, 85, '低')
+    elif tmb < 20 and tmb >= 10:
         tmb_info['text'] = '肿瘤突变负荷TMB低 （%s个突变/Mb，大于该癌种%s%%人群，%s于该癌种突变负荷拐点）' % (tmb, 85, '低')
         tmb_info['level'] = 'B' if diagnose == '非小细胞肺癌' else 'C'
     elif tmb >= 20:
