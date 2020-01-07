@@ -570,7 +570,7 @@ def write_chapter5(index, data):
     para += p.write(p.set(sect_pr=set_page('A4', header='rIdHeader%d' % index)))
     # para += p.write(p.set(sect_pr=set_page()))
     para += h4_aiyi(cat=cats[4], spacing=[0, 0.5]) + write_chapter53(data)
-    para += h4_aiyi(cat=cats[5])
+    para += h4_aiyi(cat=cats[5], spacing=[0, 1])
     overview = data.get('overview')
     sample_purity = overview.get('purity')
     normal_base_aligned = overview.get('normal_base_aligned')  # 外周血数据量
@@ -803,7 +803,7 @@ def write_common_diagnosis(data):
         ]
     elif diagnosis == '胃癌':
         d_genes = [
-            {'db': 'cnv_stars', 'gene': 'HER', 'text': '扩增'},
+            {'db': 'cnv_stars', 'gene': 'HER', 'text': '扩增', 'gene1': 'ERBB2'},
             {'db': 'cnv_stars', 'gene': 'MET', 'text': '扩增'},
             {'db': 'cnv_stars', 'gene': 'FGFR1', 'text': '扩增'},
             {'db': 'cnv_stars', 'gene': 'FGFR2', 'text': '扩增'},
@@ -895,8 +895,9 @@ def write_common_diagnosis(data):
     for d_item in d_genes:
         jihe = data[d_item.get('db')]
         g = d_item.get('gene')
+        g1 = d_item.get('gene1') or g
         text = d_item.get('text')
-        d_items2 = filter(lambda x: x.get('gene') == g or (x.get('gene1') and x.get('gene1').split('(') == g), jihe)
+        d_items2 = filter(lambda x: x.get('gene') == g1 or (x.get('gene1') and x.get('gene1').split('(') == g), jihe)
         fill = ''
         d_text = g + text
         if len(d_items2) > 0:
@@ -1085,25 +1086,23 @@ def write_genes_ddr(variants, diagnosis):
         gene_list = gene['genes']
         gene_list += [''] * (col-len(gene_list))
         tcs = ''
+        fill = '' if k % 2 == 0 else bg_blue
         if 'title' in gene:
             para = p.write(pPr, r_aiyi.text(gene['title'], size=9))
-            tcs += tc.write(para, tc.set(w=ws[k], fill='' if k % 2 == 0 else bg_blue, color=white, tcBorders=[]))
+            tcs += tc.write(para, tc.set(w=ws[k], fill=fill, color=white, tcBorders=[]))
         for j in range(len(gene_list)):
             gene = gene_list[j]
-            fill, var_item = get_var_color_ddr(gene, variants, diagnosis)
+            fill1, var_item = get_var_color_ddr(gene, variants, diagnosis)
             if var_item is not None and var_item not in var_items:
                 var_items.append(var_item)
             color, text, var_text = '000000', gene, ''
-            if fill not in ['', gray]:
+            if fill1 not in ['', gray]:
                 color = white
-                if fill == red:
+                if fill1 == red:
                     reds.append(gene)
-                elif fill == orange:
+                elif fill1 == orange:
                     oranges.append(gene)
-                var_text = p.write(pPr, r_aiyi.text('突变', color=color, size=9))
-            else:
-                fill = '' if k % 2 == 0 else bg_blue
-            para = p.write(pPr, r_aiyi.text(text, color=color, size=9)) + var_text
+            para = p.write(pPr, r_aiyi.text(text, color=color, size=9, fill=fill1)) + var_text
             tcs += tc.write(para, tc.set(w=ws[j], fill=fill, color=white, tcBorders=[]))
         trs2 += tr.write(tcs, tr.set(trHeight=620))
     tr1 = 'DDR基因无变异'
@@ -1119,11 +1118,8 @@ def write_genes_ddr(variants, diagnosis):
             # 表示未明意义突变位点
             tr1 += '和%s未明意义突变' % ('、'.join(oranges))
         postfix = '' if len(reds + oranges) == 1 else '等事件'
-
         tip = 'DDR基因中发现%s突变%s' % (reds[0], postfix)
-
         tr11 = tr1 + '。'
-
         tr2 = 'PD1等免疫检查位点抗体等免疫治疗可能有效'
         level = 'C'
         if diagnosis in ['泌尿上皮癌', '非小细胞肺癌', '前列腺癌']:
@@ -1540,7 +1536,7 @@ def write_chapter_naiyao(stars, ploidy):
             get_naiyao(['APLNR'], '纯合失活变异'),
             get_naiyao(['PIAS4'], '扩增'),
             get_naiyao(['SOCS1'], '扩增'),
-        ],
+        ]
     ]
     tip = tr1
     if len(genes_red) > 0:
@@ -1819,9 +1815,9 @@ def write_chapter_hla(overview, diagnosis):
         texts.append('HLA-%s HLA-%s' % (h1, h2))
     postfix = '' if len(tip2s) == 1 else '等'
     postfix1 = '' if len(tip2s) < 2 else '事件'
-    tip0 = tip2 if youxiao else ('HLA分型结果中发现%s%s%s' % (tip2s[0], postfix, postfix1))
+    tip0 = tip2 if youxiao else ('HLA分型结果中发现%s%s%s' % (tip2s[0] if len(tip2s) < 2 else tip2s[1] , postfix, postfix1))
     tip01 = 'HLA分型结果中发现%s%s' % ('、'.join(tip2s), postfix1)
-    trs2 = write_tr1('            '.join(texts) + '\n' + tip2)
+    trs2 = write_tr1('            '.join(texts) + '\n' + tip2, bg_blue)
     trs2 += write_tr2(tip1, fill, color)
     para = table_aiyi(trs2)
     para += p.write()
@@ -1831,7 +1827,46 @@ def write_chapter_hla(overview, diagnosis):
 
 
 def write_chapter_signature(signature_etiology):
-    tr1, tr2, tip, level = get_data45(signature_etiology)
+    tr1, tr2 = '', []
+    s_dict = {}
+    signature_etiology = signature_etiology[-30:]
+    for s_id, item in enumerate(signature_etiology):
+        text = reset_sig(s_id+1)
+        if text != '未知':
+            arr = s_dict.get(text) or []
+            arr.append(float(item))
+            if text not in tr2:
+                tr2.append(text)
+            s_dict[text] = arr
+    pd1 = []
+    prap = []
+    tips = []
+    for k in s_dict.keys():
+        f = sum(s_dict[k])
+        if f > 0.5:
+            if k in ['APOBEC', '吸烟', 'POLE', '错配修复缺陷dMMR']:
+                pd1.append(k)
+            if k in ['同源重组修复缺陷HRD']:
+                prap.append(k)
+        elif f > 0:
+            tips.append('%s(%s)' % (k, float2percent(f, 1)))
+    tr1 = '通过突变特征分析，该肿瘤'
+    if len(tips) > 0:
+        tr1 += '可能由%s等原因导致' % ('、'.join(tips))
+    tr2 = '无相关治疗提示'
+    level = ''
+    tip = tr1
+    if len(pd1) > 0:
+        tr1 = '%s占据主导因素' % ('、'.join(pd1))
+        tr2 = '提示PD1等免疫检查点抗体治疗可能有效'
+        level = 'C'
+        tip += ', %s, %s' % (tr1, tr2)
+    if len(prap) > 0:
+        tr1 = '同源重组修复缺陷HRD占据主导因素'
+        tr2 = '提示奥拉帕尼等PARP抑制剂可能有效'
+        level = 'C'
+        tip += ''
+    tip += ', %s' % tr2
     if level:
         tr2 += '(%s)' % level
     data = [tr1, tr2]
@@ -1862,8 +1897,8 @@ def write_chapter_yichuan():
     para += p.write()
     para += write_46(items, col=5)
     para += p.write()
-    run = r_aiyi.text('红色，', color=red, size=9)
-    run += r_aiyi.text('表示该遗传性肿瘤综合征相关基因具有明确致病突变位点', size=9)
+    run = r_aiyi.text(' 红色 ', color=white, fill=red, size=9, space=True)
+    run += r_aiyi.text('，表示该遗传性肿瘤综合征相关基因具有明确致病突变位点', size=9)
     para += p.write(p.set(spacing=[0.5, 0.5]), run)
     return para, tr1, tr1, ''
 
@@ -1944,13 +1979,17 @@ def write_table_cnv(items, ploidy):
     titles = ['基因', '总拷贝数', '低拷贝数', '区域大小', 'WGD状态', '基因组倍性', '变异状态']
     ws = [w_sum / len(titles)] * len(titles)
     trs = write_thead51(titles, ws=ws)
+    try:
+        ploidy = round(ploidy, 1)
+    except:
+        ploidy = ploidy
     for k in range(len(items)):
         star = items[k]
         item = [
             star.get('gene'),
             star.get('tcn_em'),
             star.get('lcn_em'),
-            star.get('region_size'),
+            '%sM' % star.get('region_size'),
             star.get('wgd'),
             ploidy,
             star.get('facets_call'),
@@ -2345,45 +2384,6 @@ def write_evidence4(index):
         if after > 0:
             para += p.write(p.set(spacing=[0, after], shade=bg_blue, line=16, rule='exact', ind=[0.5, 0]), r_aiyi.text(text, 9.5, weight=weight))
     return para
-
-
-def write_evidence_signature(data, **kwargs):
-    trs = ''
-    ws = [w_sum/4] * 4
-    if 'ws' in kwargs:
-        ws = kwargs['ws']
-    pPr = p.set(jc='left', spacing=[0.5, 0.5])
-    if 'titles' not in kwargs:
-        titles = ['', '生物标志物', '药物', '证据类型', '匹配程度', '证据来源']
-    else:
-        titles = kwargs['titles']
-    data.insert(0, titles)
-    for k in range(len(data)):
-        tcs = ''
-        size = 9
-        item = data[k][1:]
-        for i in range(4):
-            t = item[i]
-            if isinstance(t, list):
-                t = '; '.join(['%s(%s级)' % (tt['drug'], tt['level']) for tt in t])
-            run = r_aiyi.text(t, size=size)
-            fill = bg_blue if k == 0 else 'auto'
-            tcs += tc.write(p.write(pPr, run), tc.set(w=ws[i], fill=fill, tcBorders=[]))
-        if len(tcs) > 0:
-            trs += tr.write(tcs)
-            if k > 0:
-                # print len(item)
-                # if 'titles' not in kwargs:
-                #     print item[4]
-                run = r_aiyi.text(titles[5], size=size)
-                tc5 = tc.write(p.write(pPr, run), tc.set(w=ws[0], tcBorders=borders, fill=gray, color=gray))
-                run1 = r_aiyi.text(item[4], size=size)
-                tc5 += tc.write(p.write(pPr, run1), tc.set(w=6000, tcBorders=borders, fill='auto', gridSpan=3, color=gray))
-                trs += tr.write(tc5)
-
-    if len(data) == 1:
-        trs += write_tr51(['无'] * len(ws), ws, 0, 1)
-    return table_aiyi(trs)
 
 
 def write_evidence_tc(d, t_item):
@@ -2950,50 +2950,6 @@ def get_var_new(gene, items1):
             if tcn_em > 0 and tcn_em <= 3 and lcn_em == 0:
                 return blue, '杂合缺失'
     return '', ''
-
-
-def get_data45(signature_etiology):
-    tr1, tr2 = '', []
-    s_dict = {}
-    for s_id, item in enumerate(signature_etiology):
-        text = reset_sig(s_id+1)
-        if text != '未知':
-            arr = s_dict.get(text) or []
-            arr.append(float(item))
-            if text not in tr2:
-                tr2.append(text)
-            s_dict[text] = arr
-    pd1 = []
-    prap = []
-    tips = []
-    for k in s_dict.keys():
-        f = sum(s_dict[k])
-        if f > 0.5:
-            if k in ['APOBEC', '吸烟', 'POLE', '错配修复缺陷dMMR']:
-                pd1.append(k)
-            if k in ['同源重组修复缺陷HRD']:
-                prap.append(k)
-        elif f > 0:
-            tips.append('%s(%s)' % (k, float2percent(f, 1)))
-    tr1 = '通过突变特征分析，该肿瘤'
-    if len(tips) > 0:
-        tr1 += '可能由%s等原因导致' % ('、'.join(tips))
-    tr2 = '无相关治疗提示'
-    level = ''
-    tip = tr1
-    if len(pd1) > 0:
-        tr1 = '%s占据主导因素' % ('、'.join(pd1))
-        tr2 = '提示PD1等免疫检查点抗体治疗可能有效'
-        level = 'C'
-        tip += ', %s, %s' % (tr1, tr2)
-    if len(prap) > 0:
-        tr1 = '同源重组修复缺陷HRD占据主导因素'
-        tr2 = '提示奥拉帕尼等PARP抑制剂可能有效'
-        level = 'C'
-        tip += ''
-    tip += ', %s' % tr2
-    print tr1, tr2, level
-    return tr1, tr2, tip, level
 
 
 def get_data3(rs_geno, diagnose):
