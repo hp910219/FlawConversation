@@ -175,6 +175,11 @@ def write_body(title_cn, title_en, data):
     msi_info = data.get('msi_info')
     tmb_info = data.get('tmb_info')
     ploidy = overview.get('ploidy')
+    try:
+        ploidy = round(float(ploidy), 1)
+    except:
+        ploidy = ploidy
+    data['ploidy'] = ploidy
     data['target_tips'] = stars0, False, []
     chem_items, trs3 = get_data3(data.get('rs_geno'), diagnose)
 
@@ -1149,7 +1154,7 @@ def write_genes_hr(variant_stars):
         gene_list = line.strip('\t').strip().split('\t')
         gene_list += [''] * (col-len(gene_list))
         tcs = ''
-        fill = '' if k % 2 == 0 else bg_blue
+        fill = '' if k % 2 == 1 else bg_blue
         for j in range(len(gene_list)):
             gene = gene_list[j]
             fill1, tip, var_item = get_var_color(gene, variant_stars)
@@ -1474,7 +1479,6 @@ def write_chapter_naiyao(stars, ploidy):
         lcn_em = star.get('lcn_em')  # 低拷贝数
         is_match3 = (tcn_em == 0 and ccf_expected_copies_em > 0.8) or (lcn_em == 0 and ccf_expected_copies_em > 0.9)
         if gene in genes1:
-            print gene
             genes[gene] = star  # 阳性
         if gene in genes2 and is_match3:
             genes[gene] = star  # 阳性
@@ -1979,10 +1983,7 @@ def write_table_cnv(items, ploidy):
     titles = ['基因', '总拷贝数', '低拷贝数', '区域大小', 'WGD状态', '基因组倍性', '变异状态']
     ws = [w_sum / len(titles)] * len(titles)
     trs = write_thead51(titles, ws=ws)
-    try:
-        ploidy = round(ploidy, 1)
-    except:
-        ploidy = ploidy
+
     for k in range(len(items)):
         star = items[k]
         item = [
@@ -1993,7 +1994,7 @@ def write_table_cnv(items, ploidy):
             star.get('wgd'),
             ploidy,
             star.get('facets_call'),
-        ]
+            ]
         trs += write_tr51(item, ws, row=k, count=len(items))
     return table_aiyi(trs)
 
@@ -2154,9 +2155,12 @@ def cmp_drug(x, y):
 # part0 靶向治疗提示
 def write_target_tip(data):
     target_tips = data.get('target_tips')
+    cnv_stars = data.get('cnv_stars')
+    # plo =
+    ploidy = data.get('ploidy')
     items, show_extra, extra_item = target_tips
     ws = [1200, 2400, w_sum - 1200 - 2400]
-    trs = write_thead_target(ws)
+    trs = write_thead_target(ws, cnv_stars, ploidy)
     if len(target_tips) == 0:
         trs += write_tr51(['无'] * len(ws), ws, 0, 1)
     for k in range(len(items)):
@@ -2594,10 +2598,12 @@ def write_46(items, **kwargs):
 
 def write_genes(gene_list, col, width, table_jc='center', stars=[]):
     trs2 = ''
-    ws = [width / col] * col
     fill, weight, jc = gray, 0, 'center'
     pPr = p.set(jc=jc, line=12, rule='auto')
     row = int(math.ceil(float(len(gene_list)) / col))
+    if row == 1:
+        col = len(gene_list)
+    ws = [width / col] * col
     for i in range(row):
         tcs = ''
         for j in range(col):
@@ -2614,7 +2620,7 @@ def write_genes(gene_list, col, width, table_jc='center', stars=[]):
                 color = white
                 var_text = p.write(pPr, r_aiyi.text(tip, color=color, size=9))
             else:
-                fill = '' if i % 2 == 0 else bg_blue
+                fill = '' if i % 2 == 1 else bg_blue
             para = p.write(pPr, r_aiyi.text(text, color=color, size=9)) + var_text
             tcs += tc.write(para, tc.set(w=ws[j], fill=fill, tcBorders=[]))
         if tcs:
@@ -2665,8 +2671,10 @@ def write_genes_cnv(cnv_stars):
     return table_aiyi(trs2)
 
 
-def write_thead_target(ws):
-    pPr = p.set(line=24)
+def write_thead_target(ws, cnv_stars, ploidy):
+
+    pPr = p_set_tr if len(cnv_stars) > 0 else p.set(line=24)
+    offy = 0.06 if len(cnv_stars) > 0 else 0.35
     tcs = ''
     size = 9.5
     titles = [
@@ -2676,11 +2684,14 @@ def write_thead_target(ws):
     for i in range(len(titles)):
         t = titles[i]
         run = t.get('run')
-        tcs += tc.write(p.write(pPr, run), tc.set(w=ws[i], color=blue, fill=bg_blue))
+        para = p.write(pPr, run)
+        if i == 1 and len(cnv_stars) > 0:
+            para += p.write(pPr, r_aiyi.text('(基因组倍性%s)' % (ploidy), 9))
+        tcs += tc.write(para, tc.set(w=ws[i], color=blue, fill=bg_blue))
     run3 = ''
     run3 += r_aiyi.text('药物推荐', size)
     for tip in level_tips:
-        run3 += r_aiyi.picture(0.41, 0.5, tip.get('text'), posOffset=[tip.get('x'), 0.35], wrap='behinddoc')
+        run3 += r_aiyi.picture(0.41, 0.5, tip.get('text'), posOffset=[tip.get('x'), offy], wrap='behinddoc')
         run3 += r_aiyi.text('     %s' % (tip.get('tip')), 6.5, space=True)
     tcs += tc.write(p.write(pPr, run3), tc.set(w=ws[-1], color=blue, fill=bg_blue))
     return tr.write(tcs)
