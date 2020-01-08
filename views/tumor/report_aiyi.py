@@ -2198,7 +2198,7 @@ def write_target_tip(data):
             lcn_em = item1.get('lcn_em')
             action_name = 'Exon %s %s' % (item1.get('exon_number'), amino)
             action1 = ' %s' % amino
-            if tumor_suppressor_gene == 1 and lcn_em == 0:
+            if tumor_suppressor_gene == 1 and str(lcn_em) == '0':
                 action_name += '合并野生型Allele缺失'
                 action1 += '合并野生型Allele缺失'
             tip = '突变'
