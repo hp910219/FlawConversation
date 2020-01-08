@@ -1459,7 +1459,7 @@ def write_chapter_mingan(stars, diagnose, ploidy):
 
 def write_chapter_naiyao(data, ploidy):
     # 匹配规则：
-    # 1、EGFR、ALK、STK11、CTNNB1、PIAS4、SOCS1均为常规驱动基因阳性加星过来；
+    # 1、EGFR、ALK、STK11、CTNNB1均为常规驱动基因阳性加星过来；
     # 2、PTEN、IFNGR1、IFNGR2、IRF1、B2M、JAK1、JAK2、APLNR满足以下条件之一才判断为阳性：
     #   ①，不考虑加星，拷贝数为0，纯合缺失且肿瘤细胞比例大于80%以上时；
     #   ②、“单核苷酸变异+小插入缺失”加星， 肿瘤细胞比例>80%、lcn_em = 0
@@ -1483,8 +1483,8 @@ def write_chapter_naiyao(data, ploidy):
         {'db': 'variant_list', 'gene': ['B2M'], 'text': '纯合失活变异'},
         {'db': 'variant_list', 'gene': ['JAK1', 'JAK2'], 'text': '纯合失活变异'},
         {'db': 'variant_list', 'gene': ['APLNR'], 'text': '纯合失活变异'},
-        {'db': 'cnv_stars', 'gene': ['PIAS4'], 'text': '扩增'},
-        {'db': 'cnv_stars', 'gene': ['SOCS1'], 'text': '扩增'},
+        {'db': 'cnvs', 'gene': ['PIAS4'], 'text': '扩增'},
+        {'db': 'cnvs', 'gene': ['SOCS1'], 'text': '扩增'},
     ]
     genes = {}
     level = ''
@@ -1613,7 +1613,6 @@ def write_chapter_chaojinzhan(data, ploidy):
     # 证据规则：
     # MDM2、MDM4、DNMT3A这三个基因的阳性，标注为 “PD1等免疫治疗抗体治疗可能具有超进展风险（D级）”
     # 其他都是  “PD1等免疫治疗抗体治疗可能具有超进展风险（C级）”
-    stars = data.get('stars')
     variant_stars = data.get('variant_stars')
     cnv_stars = data.get('cnv_stars')
     genes_red = []
