@@ -2193,8 +2193,14 @@ def write_target_tip(data):
         action1 = ''
         tip = ''
         if amino_acid_change:
-            action_name = 'Exon %s %s' % (item1.get('exon_number'), amino_acid_change.split('p.')[-1])
-            action1 = ' %s' % amino_acid_change.split('p.')[-1]
+            amino = amino_acid_change.split('p.')[-1]
+            tumor_suppressor_gene = item1.get('tumor_suppressor_gene')
+            lcn_em = item1.get('lcn_em')
+            action_name = 'Exon %s %s' % (item1.get('exon_number'), amino)
+            action1 = ' %s' % amino
+            if tumor_suppressor_gene == 1 and lcn_em == 0:
+                action_name += '合并野生型Allele缺失'
+                action1 += '合并野生型Allele缺失'
             tip = '突变'
         elif item1.get('gene1'):
             action1 = '融合'
