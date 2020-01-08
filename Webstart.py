@@ -126,7 +126,7 @@ def auth_down_report():
                 res_patient = sort_request1('GET', '/api/v2/patient/detail/%s/' % patient_no)
                 if res_patient is not None:
                     patient_detail = res_patient.get('data')
-                res_diagnosis = sort_request1('GET', '/api/v2/detection/diagnosis', data={'sample_no': sample_no})
+                res_diagnosis = sort_request1('GET', '/api/v2/detection/diagnosis/', data={'sample_no': sample_no})
                 if res_diagnosis is not None:
                     diagnosis = res_diagnosis.get('data')
     try:
@@ -270,8 +270,8 @@ def tumor_download_panel():
     }
     if msi_score >= 10:
         msi_info['text'] = 'MSI-H微卫星高不稳定'
-        msi_info['effect'] = 'PD1等免疫检查点抗体可能有效'
         msi_info['level'] = 'A'
+        msi_info['effect'] = 'PD1等免疫检查点抗体可能有效(A)'
     elif msi_score >= 3.5:
         msi_info['text'] = 'MSI-L微卫星低不稳定'
 
@@ -472,5 +472,6 @@ if __name__ == '__main__':
     shutil.copy(src, des)
     shutil.copy(src_kobars, des_kobars)
     shutil.copy(r'D:\pythonproject\KOBARSWeb\dist\umi.css', r'D:\pythonproject\TCMWeb\static\umi_kobars.css')
+    shutil.copy(r'D:\pythonproject\TCM3\dist\umi.css', r'D:\pythonproject\TCMWeb\static\umi.css')
     # shutil.copytree(r'D:\pythonproject\KOBARSWeb\dist', r'D:\pythonproject\TCMWeb\templates\kobars')
     app.run(host=host_ip, port=port)

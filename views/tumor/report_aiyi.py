@@ -185,7 +185,7 @@ def write_body(title_cn, title_en, data):
 
     para_ddr, tip_ddr, tip_ddr1, level_ddr = write_chapter_ddr(stars if diagnose == '泌尿上皮癌' else variant_list, diagnose)
     para_mingan, tip_mingan, tip_mingan1, level_mingan = write_chapter_mingan(stars, diagnose, ploidy)
-    para_naiyao, tip_naiyao, tip_naiyao1, level_naiyao = write_chapter_naiyao(stars, ploidy)
+    para_naiyao, tip_naiyao, tip_naiyao1, level_naiyao = write_chapter_naiyao(data, ploidy)
     para_chaojinzhan, tip_chaojinzhan, tip_chaojinzhan1, level_chaojinzhan = write_chapter_chaojinzhan(data, ploidy)
     para_hla, tip_hla, tip_hla1, level_hla = write_chapter_hla(overview, diagnose)
 
@@ -505,7 +505,7 @@ def write_chapter2(index, data):
     para += p.write(para_set, r_aiyi.text('免疫治疗是癌症治疗有史以来最激动人心的治疗领域，甚至有的医生认为，癌症免疫治疗让人类真正真正看到了癌症被治愈的希望。随着PD1抗体在各癌种中的攻城略地，新型的免疫治疗手段也展现出未来的王者之相。', '小五'))
     para += h4_aiyi('（1）个性化癌症治疗疫苗', size='五号')
     para += p.write(para_set, r_aiyi.text('癌症疫苗，这种通过主动免疫去扩大肿瘤特异性T细胞反应的治疗方式，一直被认为是癌症免疫治疗的有效手段。尽管大家能够清晰看到癌症疫苗的合理性，但是，过去在临床方面的尝试都是不成功的。不同患者之间的肿瘤抗原具有强烈的多样性，因此，个性化癌症疫苗的发展是必要的。随着二代测序和生物信息工具的逐步完善，癌症疫苗的核心环节，新抗原预测逐渐成熟，该技术在最近的研究中取得突破性的进展，且由于安全性较好，是最值得跟进参与的新型癌症免疫治疗手段之一。', '小五'))
-    para += p.write(r_aiyi.picture(cy=12, rId='2.4.5.1', align=['center', ''], posOffset=[0, 0.2]))
+    para += p.write(r_aiyi.picture(cy=11, rId='2.4.5.1', align=['center', ''], posOffset=[0, 0.2]))
     para += p.write(para_set) * 17
     para += h4_aiyi('（2）免疫检查位点抑制剂相关抗体', size='五号')
     para += p.write(para_set, r_aiyi.text('肿瘤免疫检查位点不仅仅PD1和CTLA-4，还有至少几十种免疫检查位点。目前该领域，IDO抑制剂、LAG3抑制剂在早期临床试验中显示出相当好的疗效，与PD1联合用药的情况下，部分结果甚至成倍提升有效率，其中IDO抑制剂，已经进入三期临床临床试验（注：IDO抑制剂Epacadostat与Keytruda联用的关键三期临床试验ECHO-301失败）。', '小五'))
@@ -513,7 +513,7 @@ def write_chapter2(index, data):
     para += p.write(para_set, r_aiyi.text('CAR-T和TCR-T都属于细胞治疗的范畴，主要通过对患者自身的T细胞进行工程化改造，让其能够发挥肿瘤细胞的杀灭功能。CAR-T，又称嵌合抗原受体T细胞治疗，是通过人工合成的受体使患者自身的T细胞能够进行肿瘤细胞识别，进而发挥肿瘤细胞杀伤效果。由于CAR-T细胞在实体瘤中的浸润能力相对较差，目前临床主要应用于血液肿瘤中。随着技术进展，如通过提升CAR-T中对增强T细胞浸润能力相关基因的表达，未来应该也能够在实体瘤治疗中发挥重要作用。TCR-T，又称T细胞识别受体（TCR）工程化改造T细胞治疗，是通过将对特定抗原亲和力强的TCR移植到患者自身的T细胞上使患者自身的T细胞发挥肿瘤细胞杀伤效果。其中特异性TCR-T，是指针对患者特异的新抗原进行设计的TCR-T治疗方式，是未来最有价值的癌症治疗手段，相比通过个性化疫苗诱导形成肿瘤杀伤T细胞，从原理上来说，特异性TCR-T治疗属于更靠后的免疫周期中的环节，可能具有更好的治疗效果。', '小五'))
     para += h4_aiyi('（4）溶瘤病毒', size='五号')
     para += p.write(para_set, r_aiyi.text('溶瘤病毒是一群倾向于感染和杀伤肿瘤细胞的病毒。溶瘤病毒治疗是指将本身对身体伤害较低的溶瘤病毒经工程化改造减毒处理和治疗效果提升后，感染肿瘤患者的治疗方式。这种治疗思路和方法，是多年前发现和临床实践过的方法，且2005年中国CFDA批准了一种溶瘤腺病毒。但是，单药治疗效果有限，并未引起广泛关注。随着PD1抗体治疗的普及，临床研究发现，溶瘤病毒联合PD1治疗能够大幅度提高PD1抗体治疗的有效率，2015年，溶瘤病毒治疗T-Vec批准用于黑色素瘤。溶瘤病毒在提高PDL1表达、逆转肿瘤相关免疫抑制等多个层面，均能够与PD1抗体治疗形成非常好的协同效果。', '小五'))
-    para += p.write(r_aiyi.picture(cy=10, rId='2.4.5.2', align=['center', ''], posOffset=[0, 1]))
+    para += p.write(r_aiyi.picture(cy=10, rId='2.4.5.2', align=['center', ''], posOffset=[0, 0.3]))
     para += p.write(p.set(sect_pr=set_page('A4', header='rIdHeader%d' % index)))
     return para
 
@@ -1457,51 +1457,71 @@ def write_chapter_mingan(stars, diagnose, ploidy):
     return para, tip, tr1, level
 
 
-def write_chapter_naiyao(stars, ploidy):
+def write_chapter_naiyao(data, ploidy):
     # 匹配规则：
-    # 1、EGFR、ALK、STK11、CTNNB1、PIAS4、SOCS1均为常规驱动基因阳性加星过来；
+    # 1、EGFR、ALK、STK11、CTNNB1均为常规驱动基因阳性加星过来；
     # 2、PTEN、IFNGR1、IFNGR2、IRF1、B2M、JAK1、JAK2、APLNR满足以下条件之一才判断为阳性：
-    #   ①，拷贝数为0，纯合缺失且肿瘤细胞比例大于80%以上时；
-    #   ②、>90%、lcn_em = 0
+    #   ①，不考虑加星，拷贝数为0，纯合缺失且肿瘤细胞比例大于80%以上时；
+    #   ②、“单核苷酸变异+小插入缺失”加星， 肿瘤细胞比例>80%、lcn_em = 0
+    # 3. PIAS4、SOCS1：拷贝数变异页出现该基因且“变异状态”列结果为“AMP”时为阳性facets_call：变异状态
     # 证据规则：所有证据均显示为C类证据
 
     genes_red = []
-    genes1 = 'EGFR、ALK、STK11、CTNNB1、PIAS4、SOCS1'.split('、')
+    genes1 = 'EGFR、ALK、STK11、CTNNB1'.split('、')
     genes2 = 'PTEN、IFNGR1、IFNGR2、IRF1、B2M、JAK1、JAK2、APLNR'.split('、')
     tr1 = '免疫治疗耐药驱动基因无变异'
     tr2 = 'PD1等免疫检查点抗体治疗可能耐药风险较低'
-    genes = {}
-    for star in stars:
-        gene = star.get('gene')
-        # gene = 'PDL1'
-        ccf_expected_copies_em = star.get('ccf_expected_copies_em') or star.get('clone_proportion') # 肿瘤细胞比例
-        tcn_em = star.get('tcn_em')  # 拷贝数
-        lcn_em = star.get('lcn_em')  # 低拷贝数
-        is_match3 = (tcn_em == 0 and ccf_expected_copies_em > 0.8) or (lcn_em == 0 and ccf_expected_copies_em > 0.9)
-        if gene in genes1:
-            genes[gene] = star  # 阳性
-        if gene in genes2 and is_match3:
-            genes[gene] = star  # 阳性
 
+    gene_names = [
+        {'db': 'variant_stars', 'gene': ['EGFR'], 'text': '激活突变'},
+        {'db': 'sv_stars', 'gene': ['ALK'], 'text': '融合'},
+        {'db': 'variant_stars', 'gene': ['STK11'], 'text': '失活变异'},
+        {'db': 'variant_stars', 'gene': ['CTNNB1'], 'text': '激活突变'},
+        {'db': 'variant_list', 'gene': ['PTEN'], 'text': '纯合失活变异'},
+        {'db': 'variant_list', 'gene': ['IFNGR1', 'IFNGR2'], 'text': '纯合失活变异'},
+        {'db': 'variant_list', 'gene': ['IRF1'], 'text': '纯合失活变异'},
+        {'db': 'variant_list', 'gene': ['B2M'], 'text': '纯合失活变异'},
+        {'db': 'variant_list', 'gene': ['JAK1', 'JAK2'], 'text': '纯合失活变异'},
+        {'db': 'variant_list', 'gene': ['APLNR'], 'text': '纯合失活变异'},
+        {'db': 'cnvs', 'gene': ['PIAS4'], 'text': '扩增'},
+        {'db': 'cnvs', 'gene': ['SOCS1'], 'text': '扩增'},
+    ]
+    genes = {}
     level = ''
     var_items = []
     cnv_items = []
     sv_items = []
 
-    def get_naiyao(gene_names, text, n=0):
+    table_items = []
+    for d_gene in gene_names:
+        gene_names = d_gene.get('gene')
+        db = d_gene.get('db')
+        items = data.get(db) or []
+        text = d_gene.get('text')
         arr1 = []
         arr2 = []
+        n = d_gene.get('n') or 0
         for g in gene_names:
-            g_item = genes.get(g)
-            if g_item:
-                g_tip = g_item.get('tip') or ''
-                if ('扩增' in text or '缺失' in text) and '扩增' in g_tip :
-                    arr1.append(g[-1])
-                elif '融合' in text and '融合' in g_tip:
-                    arr1.append(g[-1])
-                elif g_item.get('add_star') > 0:
-                    arr1.append(g[-1])
+            items_matched = filter(lambda x: x.get('gene') == g or (x.get('gene1') and x.get('gene1').split('(')[0] == g), items)
+            for item_matched in items_matched:
+                ccf_expected_copies_em = item_matched.get('ccf_expected_copies_em') or item_matched.get('clone_proportion') # 肿瘤细胞比例
+                tcn_em = item_matched.get('tcn_em')  # 拷贝数
+                lcn_em = item_matched.get('lcn_em')  # 低拷贝数
+                add_star = item_matched.get('add_star')
+                is_match3 = (tcn_em == 0 and ccf_expected_copies_em > 0.8) or (add_star > 0 and lcn_em == 0 and ccf_expected_copies_em > 0.8)
+                if g in genes1:
+                    genes[g] = item_matched  # 阳性
+                if g in genes2 and is_match3:
+                    genes[g] = item_matched  # 阳性
+                if g in ['PIAS4', 'SOCS1']:
+                    # PIAS4、SOCS1：拷贝数变异页出现该基因且“变异状态”列结果为“AMP”时为阳性
+                    facets_call = item_matched.get('facets_call')  # facets_call：变异状态
+                    if facets_call == 'AMP':
+                        genes[g] = item_matched
+            if genes.get(g):
+                arr1.append(g[-1])
             arr2.append(g[-1])
+
         action_name1 = '%s%s' % (gene_names[0][:-1], '/'.join(arr1))
         action_name2 = '%s%s' % (gene_names[0][:-1], '/'.join(arr2))
         if len(arr1) > n:
@@ -1511,48 +1531,25 @@ def write_chapter_naiyao(stars, ploidy):
             for g2 in gene_names:
                 g_item = genes.get(g2)
                 if g_item:
-                    tip = g_item.get('tip') or ''
-                    if '扩增' in text or '缺失' in text:
+                    if 'cnv' in db:
                         cnv_items.append(g_item)
-                    elif '融合' in text:
+                    elif 'sv' in db:
                         sv_items.append(g_item)
-                    elif tip:
+                    elif 'variant' in db:
                         var_items.append(g_item)
-            # if '扩增' in text:
-            #     cnv_items.append()
         else:
             items200 = {'text': '%s基因未发生%s' % (action_name2, text), 'color': gray}
-        return items200
+        table_items.append(items200)
 
-    items2 = [
-        [
-            get_naiyao(['EGFR'], '激活突变'),
-            get_naiyao(['ALK'], '融合'),
-            get_naiyao(['STK11'], '失活变异'),
-            get_naiyao(['CTNNB1'], '激活突变'),
-            get_naiyao(['PTEN'], '纯合失活变异'),
-            get_naiyao(['IFNGR1', 'IFNGR2'], '纯合失活变异'),
-        ],
-        [
-            get_naiyao(['IRF1'], '纯合失活变异'),
-            get_naiyao(['B2M'], '纯合失活变异'),
-            get_naiyao(['JAK1', 'JAK2'], '纯合失活变异'),
-            get_naiyao(['APLNR'], '纯合失活变异'),
-            get_naiyao(['PIAS4'], '扩增'),
-            get_naiyao(['SOCS1'], '扩增'),
-        ]
-    ]
     tip = tr1
     if len(genes_red) > 0:
         tr1 = '发现免疫治疗耐药驱动相关%s' % concat_str(genes_red)
         tip = '发现免疫治疗耐药驱动相关%s%s' % (genes_red[0], '' if len(genes_red) == 1 else '等')
         level = 'C'
         tr2 = 'PD1等免疫检查点抗体治疗可能具有耐药风险(%s)' % level
-    data = [tr1, tr2]
-    para = write_immun_table(data, level, dark if level else '')
+    para = write_immun_table([tr1, tr2], level, dark if level else '')
     para += p.write(p.set(line=1))
-    para += write_mingan(items2, 6)
-    para += p.write(p.set(line=1))
+    para += write_mingan([table_items[:6], table_items[6:]], 6)
     para += write_detail_table(var_items, cnv_items, sv_items, ploidy)
     para += p.write()
     para += write_explain({'title': '结果说明：',
@@ -1616,7 +1613,6 @@ def write_chapter_chaojinzhan(data, ploidy):
     # 证据规则：
     # MDM2、MDM4、DNMT3A这三个基因的阳性，标注为 “PD1等免疫治疗抗体治疗可能具有超进展风险（D级）”
     # 其他都是  “PD1等免疫治疗抗体治疗可能具有超进展风险（C级）”
-    stars = data.get('stars')
     variant_stars = data.get('variant_stars')
     cnv_stars = data.get('cnv_stars')
     genes_red = []
@@ -2002,7 +1998,7 @@ def write_table_cnv(items, ploidy):
 def write_chapter_cnvs(data):
     cnvs = data.get('cnvs')
     stars = data.get('cnv_stars')
-    ploidy = data.get('overview').get('ploidy')
+    ploidy = data.get('ploidy')
     para = ''
     para += h4_aiyi('（1）重点基因拷贝数变异结果汇总')
     para += write_genes_cnv(stars)
