@@ -1546,8 +1546,8 @@ def write_chapter_naiyao(data, ploidy):
 
     tip = tr1
     if len(genes_red) > 0:
-        tr1 = '发现免疫治疗耐药驱动相关%s' % concat_str(genes_red)
-        tip = '发现免疫治疗耐药驱动相关%s%s' % (genes_red[0], '' if len(genes_red) == 1 else '等')
+        tr1 = '免疫治疗耐药驱动相关%s' % concat_str(genes_red)
+        tip = '免疫治疗耐药驱动相关%s%s' % (genes_red[0], '' if len(genes_red) == 1 else '等')
         level = 'C'
         tr2 = 'PD1等免疫检查点抗体治疗可能具有耐药风险(%s)' % level
     para = write_immun_table([tr1, tr2], level, dark if level else '')
@@ -1757,6 +1757,8 @@ def write_chapter_hla(overview, diagnosis):
     #   HLA分型结果中发现A、B、C三个等位基因均为杂合状态、免疫治疗耐药分型HLA-B15:01
     #   HLA分型结果中发现A、B、C三个等位基因均为杂合状态、免疫治疗耐药超型HLA-B66、免疫治疗耐药分型HLA-B15:01
     # 可能无效（其他所有情况：如单纯杂合、如杂合且出现耐药超型且出现敏感超型、如杂合同时出现）
+    # hla1 = 'HLA-A32:01 | HLA-A24:02 | HLA-B44:03 | HLA-B39:01 | HLA-C07:02 | HLA-C04:01'.split(' | ')
+    hla1.sort()
     item = []
     naiyaos = []
     mingan = False
@@ -1795,6 +1797,7 @@ def write_chapter_hla(overview, diagnosis):
             level = 'C-同癌种证据'
         tip1 += '(%s)' % level
         tip2 = 'HLA分型结果中发现A、B、C三个等位基因均为杂合状态、免疫治疗敏感超型HLA-B44'
+        tip2s.append('免疫治疗敏感超型HLA-B44')
         youxiao = True
         fill = level_tips[2].get('color')
         color = white
@@ -1818,7 +1821,8 @@ def write_chapter_hla(overview, diagnosis):
         texts.append('HLA-%s HLA-%s' % (h1, h2))
     postfix = '' if len(tip2s) == 1 else '等'
     postfix1 = '' if len(tip2s) < 2 else '事件'
-    tip0 = tip2 if youxiao else ('HLA分型结果中发现%s%s%s' % (tip2s[0] if len(tip2s) < 2 else tip2s[1] , postfix, postfix1))
+    # tip0 = tip2 if youxiao else ('HLA分型结果中发现%s%s%s' % (tip2s[0] if len(tip2s) < 2 else tip2s[1] , postfix, postfix1))
+    tip0 = ('HLA分型结果中发现%s%s%s' % (tip2s[0] if len(tip2s) < 2 else tip2s[1] , postfix, postfix1))
     tip01 = 'HLA分型结果中发现%s%s' % ('、'.join(tip2s), postfix1)
     trs2 = write_tr1('            '.join(texts) + '\n' + tip2, bg_blue)
     trs2 += write_tr2(tip1, fill, color)
@@ -2319,7 +2323,6 @@ def write_immun_tip(immun_tip):
             text = item.get('text')
             color = item.get('color') or 'auto'
             level = item.get('level') or ''
-
             level1 = filter(lambda x: level.startswith(x['text']), level_tips)
             fill = item.get('fill') or ''
             if len(level1) > 0:
@@ -2330,7 +2333,7 @@ def write_immun_tip(immun_tip):
                 color = white
             run1 = r_aiyi.text(text.split('(')[0], '小五', color=color)
             if level:
-                run1 += r_aiyi.text(level, vertAlign='top', color=color)
+                run1 += r_aiyi.text(level[0], vertAlign='top', color=color)
             p1 = p.write(p.set(line=12, rule='auto'), run1)
 
             tcs += tc.write(
