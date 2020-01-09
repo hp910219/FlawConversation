@@ -435,7 +435,8 @@ def write_chapter2(index, data):
             'img_id': 'msi_score',
             'data': msi_info,
             'note': '注：肿瘤组织-正常样本配对分析的模式',
-            'before': 11,
+            'before': 8,
+            'cy': 4.19,
             'w': 3600,
             'infos': [
                 {'title': '结果说明：', 'text':
@@ -450,8 +451,9 @@ def write_chapter2(index, data):
                 {'title': '检测意义：', 'text': '目前FDA批准Pembrolizumab用于dMMR/MSI-H型的转移性实体瘤，Nivolumab用于dMMR/MSI-H的转移性结直肠癌。Science发表了NCT01876511的临床研究结果显示，Pembrolizumab用于治疗MSI-H的晚期肿瘤患者，MSI-H型肿瘤患者ORR高达54%。MSI-H在结直肠癌、胃癌、子宫内膜癌中较多，其他多种癌种都有一定量的分布。MSI是MMR（错配修复系统）的一个反映标志，MMR是人体细胞DNA修复的一种方式之一，MMR缺陷导致DNA出错的概率大规模提升，进而导致该类型肿瘤细胞具有非常高的突变量，而高的突变负荷进一步导致肿瘤细胞高概率采用PD1等通路的免疫逃逸机制。因此，PD1抗体对MSI-H/dMMR肿瘤更可能有效。'},
             ] },
         {
-            'title': h4_aiyi(cat=cats[3]), 'before': 0, 'note_before': 10,
+            'title': h4_aiyi(cat=cats[3]), 'before': 0, 'note_before': 13,
             'img_id': 'tmb',
+            'cy': 7,
             'note': tmb_info.get('tmb_tip'),
             'data': tmb_info,
             'w': 3200,
@@ -1019,7 +1021,7 @@ def write_chapter21(ch):
     para += write_immun_table([text, effect], level)
     para += p.write(
         p.set(jc='center', spacing=[ch['before'], 0]),
-        run=r_aiyi.picture(cx=10.93, rId=ch['img_id'], posOffset=[0, 1], align=['center', ''])
+        run=r_aiyi.picture(cy=ch['cy'], rId=ch['img_id'], posOffset=[0, 0.5], align=['center', ''])
     )
     para += p.write(p.set(jc='center', spacing=[ch['note_before'], 0]), r_aiyi.text(ch['note'], size=8.5))
     for i in ch['infos']:
