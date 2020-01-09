@@ -101,8 +101,10 @@ def save_file():
         dir_path = os.path.join(file_dir, 'annotate', 'input')
         if os.path.exists(dir_path) is False:
             os.makedirs(dir_path)
-        t = format_time(frm='%Y%m%d%H%M%S')
-        path = os.path.join(dir_path, t+'.txt')
+        file_name = rq.get('file_name')
+        if file_name is None:
+            file_name = '%s.txt' % format_time(frm='%Y%m%d%H%M%S')
+        path = os.path.join(dir_path, file_name)
         my_file.write(path, content)
         return jsonify({'path': path, "message": 'success'})
     except Exception, e:
