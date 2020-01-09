@@ -111,10 +111,11 @@ level_tips = [
 def get_report_core(data):
     overview = data.get('overview') or {}
     other_pic = []
-    signature_pic = overview.get('signature_pic')
-    if signature_pic and os.path.exists(signature_pic):
-        signature_pic_info = get_img_info(signature_pic)
-        other_pic.append(signature_pic_info)
+    for pic_k in ['signature_pic', 'tmb_pic']:
+        pic_path = overview.get(pic_k)
+        if pic_path and os.path.exists(pic_path):
+            pic_info = get_img_info(pic_path)
+            other_pic.append(pic_info)
     img_info = get_imgs_aiyi(img_dir, is_refresh=True, others=other_pic)
     body = write_body(title_cn, title_en, data)
     pages = write_pages(data.get('report_time'))
@@ -2188,6 +2189,7 @@ def write_target_tip(data):
         action_name = None
         action1 = ''
         tip = ''
+        lcn_text = ''
         if amino_acid_change:
             amino = amino_acid_change.split('p.')[-1]
             tumor_suppressor_gene = item1.get('tumor_suppressor_gene')
@@ -2195,8 +2197,9 @@ def write_target_tip(data):
             action_name = 'Exon %s %s' % (item1.get('exon_number'), amino)
             action1 = ' %s' % amino
             if tumor_suppressor_gene == 1 and str(lcn_em) == '0':
-                action_name += '合并野生型Allele缺失'
-                action1 += '合并野生型Allele缺失'
+                lcn_text = '合并野生型Allele缺失'
+                # action_name += '合并野生型Allele缺失'
+                # action1 += '合并野生型Allele缺失'
             tip = '突变'
         elif item1.get('gene1'):
             action1 = '融合'
@@ -2214,10 +2217,10 @@ def write_target_tip(data):
         item1['action'] = ''
         item1['action_name'] = action_name
         if 'action1' not in item1:
-            item1['action1'] = action1
+            item1['action1'] = action1 + lcn_text
         # 【amino_acid_change】变异P.变化，
         # 【tcn_em】拷贝数，
-        col2 = item1.get('col2') or '%s（%s）' % (action_name, ccf)
+        col2 = item1.get('col2') or '%s（%s）' % (action_name, ccf) + lcn_text
         tcs += tc.write(
             p.write(p_set_tr, r_aiyi.text(col2, '小五')),
             tc.set(ws[1], fill=fill, color=bdColor, tcBorders=['bottom'])
