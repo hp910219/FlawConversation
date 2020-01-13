@@ -288,17 +288,22 @@ def tumor_download_panel():
     tmb_info = {
         'w': w_sum-300-3000,
         'text': '',
-        'level': 'C',
+        'level': '',
         'tmb_tip': tmb_tip,
         'effect': 'PD1等免疫检查点抗体治疗可能效果不显著'
     }
-    if tmb <= 20:
+    if tmb > 10 and tmb < 20:
         tmb_info['text'] = 'TMB肿瘤突变负荷低 （%s个突变/Mb，大于该癌种%s%%人群）' % (tmb, 85)
         tmb_info['level'] = 'B' if diagnose == '非小细胞肺癌' else 'C'
-    elif tmb > 20:
+    elif tmb >= 20:
         tmb_info['text'] = 'TMB肿瘤突变负荷高 （%s个突变/Mb，大于该癌种%s%%人群）' % (tmb, 85)
-        tmb_info['level'] = 'A' if diagnose == '非小细胞肺癌' else 'B'
-    if tmb_info['effect'] != 'C':
+        if diagnose in ['结直肠癌', '胰腺癌']:
+            tmb_info['level'] = 'C'
+        elif diagnose in ['非小细胞肺癌']:
+            tmb_info['level'] = 'A'
+        else:
+            tmb_info['level'] = 'B'
+    if tmb_info['level']:
         tmb_info['effect'] = 'PD1等免疫检查点抗体治疗可能有效（%s）' % tmb_info['level']
     try:
         file_path = down_panel({
