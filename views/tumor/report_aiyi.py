@@ -140,6 +140,15 @@ def write_body(title_cn, title_en, data):
     hrd = hrd_hisens_loh + hrd_hisens_lst + hrd_hisens_tai
     paras_hr, items_hr = write_hrd(sequencing_type, data, [0.5, 0])
     # print len(variant_list), report_detail.keys()
+    #  KRAS、NRAS野生型,  都没有发生突变的话，A级推荐西妥昔单抗和帕尼单抗
+    yesheng = []
+    if diagnose in ['结直肠癌']:
+        for gene in ['KRAS', 'NRAS']:
+            arr = filter(lambda x: x.get('gene') == gene, variant_list)
+            if len(arr) == 0 and gene not in yesheng:
+                yesheng.append(gene)
+    # yesheng = ['KRAS', 'NRAS']
+    data['yesheng'] = yesheng
     if 'panel' in sequencing_type.lower():
         action1 = ''
         if len(items_hr) > 0:
@@ -171,6 +180,8 @@ def write_body(title_cn, title_en, data):
         else:
             hrd_index = -1
         if hrd_index >= 0:
+            if diagnose not in ['卵巢癌', '乳腺癌', '前列腺癌']:
+                hrd_index = len(stars)
             data['paras_hr'] = paras_hr
             stars0.insert(hrd_index, {'col1': col1, 'col2': col2, 'hrd': hrd, 'action1': action1})
     msi_info = data.get('msi_info')
@@ -393,7 +404,11 @@ def write_chapter1(data):
     para1 += p.write(p.set(sect_pr=set_page(page_margin=page_margin4, header='rIdHeader3')))
     para1 += write_chapter13(cats[3])
     # tip = tip
-    tip = '本次检测共找到%d个驱动基因的变异事件' % len(genes.keys())
+    yesheng = data.get('yesheng')
+    yesheng_text = ''
+    if len(yesheng) == 2:
+        yesheng_text = '发现%s野生型，' % ('、'.join(yesheng))
+    tip = '本次检测%s共找到%d个驱动基因的变异事件' % (yesheng_text, len(genes.keys()))
     if len(action) > 0:
         tip += '：'
     if len(action) < 2:
@@ -1848,12 +1863,13 @@ def write_chapter_signature(signature_etiology):
     pd1 = []
     prap = []
     tips = []
+
     for k in s_dict.keys():
         f = sum(s_dict[k])
         if f > 0.5:
-            if k in ['APOBEC', '吸烟', 'POLE', '错配修复缺陷dMMR']:
+            if k in ['APOBEC', u'吸烟', 'POLE', u'错配修复缺陷dMMR']:
                 pd1.append(k)
-            if k in ['同源重组修复缺陷HRD']:
+            if k in [u'同源重组修复缺陷HRD']:
                 prap.append(k)
         elif f > 0:
             tips.append('%s(%s)' % (k, float2percent(f, 1)))
@@ -2159,11 +2175,20 @@ def cmp_drug(x, y):
 def write_target_tip(data):
     target_tips = data.get('target_tips')
     cnv_stars = data.get('cnv_stars')
+    yesheng = data.get('yesheng')
     # plo =
     ploidy = data.get('ploidy')
     items, show_extra, extra_item = target_tips
     ws = [1200, 2400, w_sum - 1200 - 2400]
     trs = write_thead_target(ws, cnv_stars, ploidy)
+    if len(yesheng) == 2:
+        items.insert(0, {
+            'col1': '、'.join(yesheng), 'col2': '野生型', 'yesheng': True, 'action1': '野生型',
+            'known_db': [
+                {'evidence_direction': 'Responsive (Support)', 'aiyi_level': 'A', 'drugs': '西妥昔单抗'},
+                {'evidence_direction': 'Responsive (Support)', 'aiyi_level': 'A', 'drugs': '帕尼单抗'}
+            ]
+        })
     if len(target_tips) == 0:
         trs += write_tr51(['无'] * len(ws), ws, 0, 1)
     for k in range(len(items)):
@@ -2234,7 +2259,6 @@ def write_target_tip(data):
         known_db = item1.get('known_db') or []
         para = ''
         run = ''
-        d_len = 0
         evidence_directions = ['Responsive (Support)', 'Resistant (Support)']
         # '耐药Resistant (Support)', '敏感Responsive (Support)'
         known_db = filter(lambda x: x.get('evidence_direction') in evidence_directions, known_db)
@@ -2246,7 +2270,6 @@ def write_target_tip(data):
                 ds = filter(lambda x: x.get('aiyi_level') == level, ds1)
                 for d_item in ds:
                     d = d_item.get('drugs')
-                    evidence_direction = d_item.get('evidence_direction')
                     color = white
                     # '耐药Resistant (Support)', '敏感Responsive (Support)'
                     if evidence_direction == 'Resistant (Support)':
@@ -2277,6 +2300,8 @@ def write_target_tip(data):
             para = p.write(p_set_tr)
         tcs += tc.write(para, tc.set(ws[2], fill=fill, color=bdColor, tcBorders=['bottom']))
         trs += tr.write(tcs)
+    if len(yesheng) == 2:
+        del items[0]
     return table_aiyi(trs)
 
 
