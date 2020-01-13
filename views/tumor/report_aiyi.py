@@ -1852,6 +1852,7 @@ def write_chapter_signature(signature_etiology):
     tr1, tr2 = '', []
     s_dict = {}
     signature_etiology = signature_etiology[-30:]
+    # signature_etiology = ["0.508231606547237", "0", "0", "0", "0", "0.0611274931509934", "0", "0", "0.190740860285723", "0", "0", "0", "0", "0", "0.129833061544803", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0"]
     for s_id, item in enumerate(signature_etiology):
         text = reset_sig(s_id+1)
         if text != '未知':
@@ -1860,6 +1861,7 @@ def write_chapter_signature(signature_etiology):
             if text not in tr2:
                 tr2.append(text)
             s_dict[text] = arr
+            # print item, text
     pd1 = []
     prap = []
     tips = []
@@ -1871,8 +1873,9 @@ def write_chapter_signature(signature_etiology):
                 pd1.append(k)
             if k in [u'同源重组修复缺陷HRD']:
                 prap.append(k)
-        elif f > 0:
+        if f > 0:
             tips.append('%s(%s)' % (k, float2percent(f, 1)))
+    tips.sort(key=lambda x: x.split('(')[-1], reverse=True)
     tr1 = '通过突变特征分析，该肿瘤'
     if len(tips) > 0:
         tr1 += '可能由%s等原因导致' % ('、'.join(tips))
