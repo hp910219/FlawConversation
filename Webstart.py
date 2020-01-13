@@ -287,13 +287,12 @@ def tumor_download_panel():
         tmb_tip = '注：MSS微卫星稳定结直肠癌患者PD1抗体有效率为0%；MSI-H微卫星不稳定结直肠癌患者有效率为29.6%。'
     tmb_info = {
         'w': w_sum-300-3000,
-        'text': '',
+        'text': 'TMB肿瘤突变负荷低 （%s个突变/Mb，大于该癌种%s%%人群）' % (tmb, 85),
         'level': '',
         'tmb_tip': tmb_tip,
         'effect': 'PD1等免疫检查点抗体治疗可能效果不显著'
     }
-    if tmb > 10 and tmb < 20:
-        tmb_info['text'] = 'TMB肿瘤突变负荷低 （%s个突变/Mb，大于该癌种%s%%人群）' % (tmb, 85)
+    if tmb >= 10 and tmb < 20:
         if diagnose not in ['结直肠癌', '胰腺癌']:
             tmb_info['level'] = 'B' if diagnose == '非小细胞肺癌' else 'C'
     elif tmb >= 20:
