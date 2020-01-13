@@ -126,7 +126,6 @@ def get_report_core(data):
 def write_body(title_cn, title_en, data):
     diagnose = data.get('diagnosis')
     variant_list = data.get('variant_list')
-    report_detail = data.get('report_detail')
     overview = data.get('overview')
     stars0 = data.get('stars0')
     stars = data.get('stars')
@@ -213,26 +212,49 @@ def write_body(title_cn, title_en, data):
     data['para_signature'] = para_signature
     data['para_yichuan'] = para_yichuan
     body = ''
-    body += write_cover(title_cn, title_en)
-    body += write_catalog()
+    body += write_cover(data)
     body += write_chapter0(title_cn, data)
+    body += write_catalog()
     body += write_chapter1(data)
     body += write_chapter2(4, data)
     body += write_chapter3(5, trs3, chem_items)
     body += write_chapter4(6, data)
     body += write_chapter5(7, data)
-    body += write_backcover()
     # body = write_read_guide()
     return body
 
 
-def write_cover(cn, en):
+def write_cover(data):
     cx = 3.76
     run_logo1 = r_aiyi.picture(cx, rId='cover1', posOffset=[0, -1.37])
     run_logo2 = r_aiyi.picture(cx, rId='cover1', posOffset=[13.5, 22.2])
-    para = p.write(run_logo1)
-    para += p.write(r_aiyi.picture(21, rId='cover2', align=['center', ''], relativeFrom=['page', 'page'], posOffset=[0, 10]))
-    para += p.write(run_logo2)
+    para = ''
+    sample_detail = data.get('sample_detail')
+    report_time = data.get('report_time')
+    para += p.write(p.set(jc='center', spacing=[5, 0]), r_aiyi.text('肿瘤个体化诊疗基因检测', '小初', weight=1))
+    para += p.write(p.set(jc='center', spacing=[0.5, 4]), r_aiyi.text('Precision Oncology & Personalized Treatment', '小三', weight=1))
+    texts = [
+        {'label': '项目名称', 'value': u'实体瘤580基因检测'},
+        {'label': '患者姓名', 'key': 'patient_name'},
+        {'label': '样本编号', 'key': 'sample_id'},
+        {'label': '送检医院', 'key': 'inspection_department'},
+        {'label': '收样日期'},
+        {'label': '报告日期', 'value': report_time},
+    ]
+    size = '四号'
+    p_set = p.set(line=24, ind=[8, 0])
+    for t_item in texts:
+        label = t_item.get('label')
+        key = t_item.get('key')
+        value = t_item.get('value') or sample_detail.get(key) or ''
+        n = 34
+        len_cn = test_chinese(value)
+        kongge = n - len(value) - len_cn
+        left = 11
+        right = kongge - left
+        run = r_aiyi.text('%s：' % label, size, 1)
+        run += r_aiyi.text('%s%s%s' % (' ' * left, value, ' ' * right), size, 1, space=True, underline='single')
+        para += p.write(p_set, run)
     para += p.write(p.set(sect_pr=set_page('A4')))
     return para
 
@@ -2252,7 +2274,6 @@ def write_target_tip(data):
                     if evidence_direction == 'Resistant (Support)':
                         fill1 = gray
                         color = ''
-                        d += '(耐药)'
                     else:
                         fill1 = tip_item.get('color')
 

@@ -1949,6 +1949,9 @@ def down_common(data, sort_func):
     if item_name == 'aiyi':
         from views.tumor.report_aiyi import get_report_core
         pkg = get_report_core(data)
+    elif item_name == 'weizhi':
+        from views.tumor.report_weizhi import get_report_core
+        pkg = get_report_core(data)
     else:
     # if env.startswith('Development'):
         if os.path.exists(img_info_path):
