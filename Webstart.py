@@ -294,7 +294,8 @@ def tumor_download_panel():
     }
     if tmb > 10 and tmb < 20:
         tmb_info['text'] = 'TMB肿瘤突变负荷低 （%s个突变/Mb，大于该癌种%s%%人群）' % (tmb, 85)
-        tmb_info['level'] = 'B' if diagnose == '非小细胞肺癌' else 'C'
+        if diagnose not in ['结直肠癌', '胰腺癌']:
+            tmb_info['level'] = 'B' if diagnose == '非小细胞肺癌' else 'C'
     elif tmb >= 20:
         tmb_info['text'] = 'TMB肿瘤突变负荷高 （%s个突变/Mb，大于该癌种%s%%人群）' % (tmb, 85)
         if diagnose in ['结直肠癌', '胰腺癌']:
