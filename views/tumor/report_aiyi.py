@@ -1272,12 +1272,14 @@ def write_chapter_mingan(stars, diagnose, ploidy):
         if gene in ['TP53', 'KRAS']:
             if gene not in items03:
                 if is_match3:
-                    var_items.append(star)
+                    if star not in var_items:
+                        var_items.append(star)
                     items03.append(gene)
         if gene in ['TP53', 'ATM']:
             if gene not in items04:
                 if is_match3:
-                    var_items.append(star)
+                    if star not in var_items:
+                        var_items.append(star)
                     items04.append(gene)
         if gene in ['PBRM1'] and gene not in items10:
             if is_match3:
@@ -1327,6 +1329,9 @@ def write_chapter_mingan(stars, diagnose, ploidy):
             level = 'C-同癌种证据'
         genes_red.append(text02)
     if len(items03) < 2:
+        for v_index, v in enumerate(var_items[::-1]):
+            if v.get('gene') in ['TP53', 'KRAS']:
+                del var_items[v_index]
         items203 = {'text': 'TP53合并KRAS突变未发生', 'color': gray}
     else:
         text03 = '%s突变发生' % ('合并'.join(items03))
@@ -1335,6 +1340,9 @@ def write_chapter_mingan(stars, diagnose, ploidy):
             level = 'C-同癌种证据'
         genes_red.append(text03)
     if len(items04) < 2:
+        for v_index, v in enumerate(var_items[::-1]):
+            if v.get('gene') in ['TP53', 'ATM']:
+                del var_items[v_index]
         items204 = {'text': 'TP53合并ATM突变未发生', 'color': gray}
     else:
         if diagnose == '非小细胞肺癌':
