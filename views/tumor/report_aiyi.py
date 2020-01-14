@@ -335,15 +335,6 @@ def write_chapter1(data):
         if item not in vars:
             vars.append(item)
         genes[gene] = vars
-
-        # para11 = p.write(
-        #     p.set(line=24),
-        #     r_aiyi.text('  变异事件%s:  ' % (i + 1), space=True) +
-        #     r_aiyi.text(' %s(%s%s) ' % (gene, action1, cc), color=white, fill=red, space=True)
-        # )
-        # tc1 = tc.write(para11, tc.set(w_sum, color=blue, fill=bg_blue))
-        # para1 += table.write(tr.write(tc1), tblBorders=[])
-        # action_name =
         action_name = ' %s(%s%s) ' % (gene, action1, cc)
         para_hrd = ''
         ind = [0.5, 0]
@@ -355,14 +346,9 @@ def write_chapter1(data):
             para_hrd = data.get('paras_hr')
         para1 += p.write(
             p.set(shade=bg_blue, line=24),
-            r_aiyi.text('  变异事件%s:  ' % (i + 1), space=True) +
+            r_aiyi.text('  驱动变异%s:  ' % (i + 1), space=True) +
             r_aiyi.text(action_name, color=white, fill=red, space=True)
         )
-        # para1 += p.write(
-        #     p.set(shade=red, line=24),
-        #     r_aiyi.text('  变异事件%s：%s(%s%s)' % (i + 1, gene, action1, cc)
-        #                 , color=white, space=True)
-        # )
         para_index = 1
 
         pPr = p.set(line=15, ind=ind, spacing=[0, 1])
@@ -473,7 +459,7 @@ def write_chapter2(index, data):
             'data': tmb_info,
             'w': 3200,
             'infos': [
-                {'title': '结果说明', 'text': '该结果通过肿瘤外显子组检测得到。全外显子组包含人体所有大约两万多个基因，大约有38M左右的编码区域。TMB肿瘤突变负荷指平均每M（兆）区域，肿瘤细胞发生的非同义突变的个数。（证据级别说明：常规以10个突变/Mb标准时非小细胞肺癌证据级别为B级，结直肠癌和胰腺癌由于免疫治疗有效率低，常规阈值为20，其他所有癌种均为C级；当TMB大于20，高于绝大多数情况阈值时，非小细胞肺癌更新为A级，其他癌种（结直肠癌和胰腺癌除外）更新为B级。'},
+                {'title': '结果说明：', 'text': '该结果通过肿瘤外显子组检测得到。全外显子组包含人体所有大约两万多个基因，大约有38M左右的编码区域。TMB肿瘤突变负荷指平均每M（兆）区域，肿瘤细胞发生的非同义突变的个数。（证据级别说明：常规以10个突变/Mb标准时非小细胞肺癌证据级别为B级，结直肠癌和胰腺癌由于免疫治疗有效率低，常规阈值为20，其他所有癌种均为C级；当TMB大于20，高于绝大多数情况阈值时，非小细胞肺癌更新为A级，其他癌种（结直肠癌和胰腺癌除外）更新为B级。'},
                 {'title': '检测意义：', 'text': 'TMB在多项临床研究中均被证明能够有效区分PD1抗体、CTLA4抗体等免疫检查位点抗体治疗是否有效的人群。综合型研究表明，在不同肿瘤中，不同患者的PD1抗体治疗有效性的差异55%可以由TMB的差异解释。TMB是不同肿瘤间体细胞突变量的评估。一般情况下，TMB越高，该肿瘤可能会拥有更多的肿瘤新生抗原，该肿瘤也越有可能在经过免疫检查位点抗体解除肿瘤免疫逃逸之后，被患者自身的免疫系统所识别，相关治疗在该患者身上也就越可能有效。'},
             ]
         }

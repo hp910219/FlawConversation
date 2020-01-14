@@ -262,6 +262,7 @@ def tumor_download_panel():
     msi_score = int(msi_sort_paired_somatic/float(msi_sort_paired_total) * 10000) / 100.0
 
     msi_info = {
+        'index': 'MSI',
         'total': msi_sort_paired_total,
         'somatic': msi_sort_paired_somatic,
         'score': msi_score,
@@ -286,8 +287,10 @@ def tumor_download_panel():
     if diagnose in '结直肠癌':
         tmb_tip = '注：MSS微卫星稳定结直肠癌患者PD1抗体有效率为0%；MSI-H微卫星不稳定结直肠癌患者有效率为29.6%。'
     tmb_info = {
+        'index': 'TMB',
         'w': w_sum-300-3000,
         'text': 'TMB肿瘤突变负荷低 （%s个突变/Mb，大于该癌种%s%%人群）' % (tmb, 85),
+        'result': 'TMB肿瘤突变负荷低 （%s个突变/Mb）' % (tmb),
         'level': '',
         'tmb_tip': tmb_tip,
         'effect': 'PD1等免疫检查点抗体治疗可能效果不显著'
@@ -297,6 +300,7 @@ def tumor_download_panel():
             tmb_info['level'] = 'B' if diagnose == '非小细胞肺癌' else 'C'
     elif tmb >= 20:
         tmb_info['text'] = 'TMB肿瘤突变负荷高 （%s个突变/Mb，大于该癌种%s%%人群）' % (tmb, 85)
+        tmb_info['result'] = 'TMB肿瘤突变负荷高 （%s个突变/Mb）' % (tmb)
         if diagnose in ['结直肠癌', '胰腺癌']:
             tmb_info['level'] = 'C'
         elif diagnose in ['非小细胞肺癌']:
@@ -381,12 +385,13 @@ def get_file():
     pre = rq.get('query_path') or ''
     postfix = rq.get('postfix') or []
     root_path = rq.get('root_path') or ''
+    env_key = rq.get('env_key') or 'AY_USER_DATA_DIR'
     conf = read_conf()
     if isinstance(conf, str):
         return conf
     # print conf
     # JINGD_DATA_ROOT = os.environ.get('JINGD_DATA_ROOT') or conf.get('jingd_data_root')
-    JINGD_DATA_ROOT = os.environ.get('AY_USER_DATA_DIR') or conf.get('jingd_data_root')
+    JINGD_DATA_ROOT = os.environ.get(env_key) or conf.get('jingd_data_root')
     path = os.path.join(JINGD_DATA_ROOT, root_path, pre)
     if os.path.exists(path) is False:
         return 'Path not exists, %s' % path
