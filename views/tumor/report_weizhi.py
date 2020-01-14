@@ -87,6 +87,9 @@ w_sum = 10000+200
 # ##################下载报告所需方法######################
 dark = '000000'
 blue_d = '71BAE3'
+
+green = '3EAE95'
+green_lighter = 'B6E8DB'
 cnv_genes = [
     'MEF2B', 'FGF4', 'KEAP1', 'ESR1', 'MAPK1', 'TSC2', 'MGA', 'AGO2', 'PIK3R2', 'CCND1', 'GLI1', 'CDKN1B', 'MLH1', 'BCL6', 'MSH2', 'MSH6', 'TNFAIP3', 'DUSP4', 'CXCR4', 'FLT3',
     'CDKN1A', 'SOX9', 'SMO', 'FOXA1', 'RAF1', 'LATS1', 'BTG1', 'KRAS', 'VHL', 'PDGFRA', 'APC', 'HNF1A', 'CDK4', 'BRIP1', 'FGFR3', 'BARD1', 'CCND2', 'CDH1', 'PDGFRB', 'SMAD2',
@@ -100,11 +103,11 @@ cnv_genes = [
     'KDM5A', 'ETV1', 'SETD2', 'RHOA', 'FGFR1', 'RELN', 'ASXL2', 'FAT1', 'CDK12', 'BBC3', 'BAP1', 'MDM2', 'RAD51B', 'VEGFA', 'NTRK1', 'KMT2A', 'B2M', 'CIC', 'FOXP1', 'REL',
     'NCOA3', 'TTF1', 'GSTP1', 'BIRC7', 'RSF1', 'TOP1', 'TYMS', 'ABCC3', 'ASNS', 'LRP1B', 'NTRK3', 'TLK2',
 ]
-level_tips = [
-    {'text': 'A', 'tip': 'FDA/NCCN推荐药物', 'color': '#00B050', 'x': 1.4},
-    {'text': 'B', 'tip': '专家共识药物', 'color': '#00B0F0', 'x': 4.2},
-    {'text': 'C', 'tip': '临床证据药物', 'color': '#32B1D1', 'x': 6.15},
-    {'text': 'D', 'tip': '临床前证据药物', 'color': '#71BAE3', 'x': 8.15}
+level_tips_wz = [
+    {'text': 'A', 'tip': 'FDA/NCCN推荐药物', 'color': '#007CC8', 'x': 1.4},
+    {'text': 'B', 'tip': '专家共识药物', 'color': '#5ABADA', 'x': 4.2},
+    {'text': 'C', 'tip': '临床证据药物', 'color': '#95D8EB', 'x': 6.15},
+    {'text': 'D', 'tip': '临床前证据药物', 'color': '#BFE8F3', 'x': 8.15}
 ]
 
 
@@ -126,6 +129,7 @@ def get_report_core(data):
 def write_body(title_cn, title_en, data):
     diagnose = data.get('diagnosis')
     variant_list = data.get('variant_list')
+    report_detail = data.get('report_detail')
     overview = data.get('overview')
     stars0 = data.get('stars0')
     stars = data.get('stars')
@@ -139,6 +143,15 @@ def write_body(title_cn, title_en, data):
     hrd = hrd_hisens_loh + hrd_hisens_lst + hrd_hisens_tai
     paras_hr, items_hr = write_hrd(sequencing_type, data, [0.5, 0])
     # print len(variant_list), report_detail.keys()
+    #  KRAS、NRAS野生型,  都没有发生突变的话，A级推荐西妥昔单抗和帕尼单抗
+    yesheng = []
+    if diagnose in ['结直肠癌']:
+        for gene in ['KRAS', 'NRAS']:
+            arr = filter(lambda x: x.get('gene') == gene, variant_list)
+            if len(arr) == 0 and gene not in yesheng:
+                yesheng.append(gene)
+    # yesheng = ['KRAS', 'NRAS']
+    data['yesheng'] = yesheng
     if 'panel' in sequencing_type.lower():
         action1 = ''
         if len(items_hr) > 0:
@@ -170,6 +183,8 @@ def write_body(title_cn, title_en, data):
         else:
             hrd_index = -1
         if hrd_index >= 0:
+            if diagnose not in ['卵巢癌', '乳腺癌', '前列腺癌']:
+                hrd_index = len(stars)
             data['paras_hr'] = paras_hr
             stars0.insert(hrd_index, {'col1': col1, 'col2': col2, 'hrd': hrd, 'action1': action1})
     msi_info = data.get('msi_info')
@@ -194,16 +209,17 @@ def write_body(title_cn, title_en, data):
     data['immun_tip'] = [
         msi_info,
         tmb_info,
-        {'tip1': tip_ddr1, 'text': tip_ddr, 'level': level_ddr, 'w': (w_sum-300) / 2},
-        {'tip1': tip_mingan1, 'text': tip_mingan, 'level': level_mingan, 'w': (w_sum-300) / 2},
-        {'tip1': tip_naiyao1, 'text': tip_naiyao, 'level': level_naiyao, 'w': (w_sum-300) / 2},
-        {'tip1': tip_chaojinzhan1, 'text': tip_chaojinzhan, 'level': level_chaojinzhan, 'w': (w_sum-300) / 2},
-        {'tip1': tip_hla1, 'text': tip_hla, 'level': level_hla, 'w': w_sum}
+        {'index': 'DDR', 'tip1': tip_ddr1, 'text': tip_ddr, 'level': level_ddr, 'w': (w_sum-300) / 2},
+        {'index': '免疫敏感驱动基因', 'tip1': tip_mingan1, 'text': tip_mingan, 'level': level_mingan, 'w': (w_sum-300) / 2},
+        {'index': '免疫耐药驱动基因', 'tip1': tip_naiyao1, 'text': tip_naiyao, 'level': level_naiyao, 'w': (w_sum-300) / 2},
+        {'index': '免疫超进展', 'tip1': tip_chaojinzhan1, 'text': tip_chaojinzhan, 'level': level_chaojinzhan, 'w': (w_sum-300) / 2},
+        {'index': 'HLA分型', 'tip1': tip_hla1, 'text': tip_hla, 'level': level_hla, 'w': w_sum}
     ]
-    data['chem_tip'] = [
-        '可能有效且毒副作用低的药物：%s' % ('无' if len(trs3[1][1]) == 0 else ', '.join(trs3[1][1])),
-        ]
-    data['recent_study'] = [{'text': tip_yichuan, 'level': ''}, {'text': tip_signature, 'level': level_signature}]
+    data['chem_tip'] =  '可能有效且毒副作用低的药物：%s' % ('无' if len(trs3[1][1]) == 0 else ', '.join(trs3[1][1]))
+    data['yichuan'] = {
+        'text': tip_yichuan, 'level': level_yichuan, 'title': '肿瘤遗传性检测结果'
+    }
+
     data['para_ddr'] = para_ddr
     data['para_mingan'] = para_mingan
     data['para_naiyao'] = para_naiyao
@@ -225,9 +241,6 @@ def write_body(title_cn, title_en, data):
 
 
 def write_cover(data):
-    cx = 3.76
-    run_logo1 = r_aiyi.picture(cx, rId='cover1', posOffset=[0, -1.37])
-    run_logo2 = r_aiyi.picture(cx, rId='cover1', posOffset=[13.5, 22.2])
     para = ''
     sample_detail = data.get('sample_detail')
     report_time = data.get('report_time')
@@ -274,45 +287,52 @@ def write_chapter0(title_cn, data):
     para = ''
     sample_detail = data.get('sample_detail') or {}
     para += write_patient_info(data)
-    title = u'靶向治疗提示'
-    para += h4_aiyi(title, spacing=[0.5, 0.5])
     sequencing_type = sample_detail.get('sequencing_type') or ''
     para += write_target_tip(data)
-    para += write_immun_tip(data.get('immun_tip'))
+    para += write_immun_tip_weizhi(data.get('immun_tip'))
+    tip_items = [
+        {'title': '化学治疗提示', 'text': data['chem_tip']},
+        data['yichuan']
+    ]
+    for tip_item in tip_items:
+        trs = write_table_title(tip_item.get('title'))
+        tip_item['tcBorders'] = ['bottom']
+        trs += write_tr_weizhi([tip_item])
+        para += table_weizhi(trs)
+    run = r_aiyi.text('附注： 以上靶向、免疫、化学和最新研究进展治疗提示部分与后面附录信息遵循', '小五')
+    run += r_aiyi.text('A、B、C、D', '小五', weight=1)
+    run += r_aiyi.text('四个证据等级以及对应', '小五')
+    run += r_aiyi.text('颜色标识', '小五', weight=1)
+    run += r_aiyi.text('。', '小五')
+    para += p.write(run)
+    trs = ''
+    tcs = ''
+    for level_item in level_tips_wz:
+        tcs += write_tc_weizhi({'text': level_item.get('text'), 'tcFill': level_item.get('color'), 'w': 500, 'tcBorders': []})
+        tcs += write_tc_weizhi({'text': level_item.get('tip'), 'w': 1600, 'tcBorders': []})
+    tcs += write_tc_weizhi({'text': '提示可能有效', 'weight': 1, 'w': 1800, 'tcBorders': []})
+    trs += tr.write(tcs)
+    para += table_weizhi(trs)
     technology = '检测技术：基于Illumina novaseq平台，检测外显子组联合35个融合基因，肿瘤组织500×、外周血100×'
     if 'panel' in sequencing_type.lower():
         technology = '本检测基于第二代测序技术，本次检测使用IDT 39M全外显子探针联合35个融合基因内含子区域，以及其他50个基因在实体肿瘤中高发突变的热点区域。测序深度如下：肿瘤组织1000×，ctDNA 10000×，胚系对照100×。'
     tips = [
-        {'title': '化学治疗提示', 'text': data['chem_tip'], 'rId': blue_d},
-        {'title': '最新研究进展治疗提示', 'sub_title': '（完整信息见附录）', 'text': data['recent_study'], 'rId': bg_blue},
-        {'rId': bg_blue, 'title': '检测方法', 'text': technology + '\n相关局限性说明：由于肿瘤异质性等原因，本检测报告仅对本样本负责，患者诊疗决策需在临床医生指导下进行'},
+        {'title': '关于检测项目', 'text': technology + '\n相关局限性说明：由于肿瘤异质性等原因，本检测报告仅对本样本负责，患者诊疗决策需在临床医生指导下进行'},
+        {
+            'title': '样本和数据质控信息',
+            'text': '样本中肿瘤细胞比例约为51%，DNA总量为2388ng，符合检测标准。'
+                    + '\n本次检测的平均有效测序深度为932X，符合检测标准。'}
     ]
-    for tip in tips:
-        para += h4_aiyi(tip['title'], spacing=[1, 0.5])
-        tips = tip['text']
-        if isinstance(tip['text'], list) is False:
-            tips = tips.split('\n')
-        for t in tips:
-            rId = tip.get('rId')
-            if isinstance(t, dict):
-                text = t.get('text')
-                rId = t.get('rId') or bg_blue
-                level = t.get('level')
-                if level:
-                    arr = filter(lambda x: x.get('level') == level, level_tips)
-                    if len(arr):
-                        rId = arr[0].get('color').lstrip('#')
-            else:
-                text = t
-            if len(text) > 0:
-                rId = '#' + rId
-                setting = {'stroke-color': rId, 'fill-color': rId, 'radius': 0.1}
-                para += p.write(
-                    p.set(line=10, rule='exact', spacing=[0, 0.5], ind=['hanging', 1.3]),
-                    # r_aiyi.picture(cy=0.3, rId=rId, posOffset=[0, 0.15])
-                    r_aiyi.radius(0.3, 0.3, **setting)
-                    + r_aiyi.text('   ' + text, 9.5, space=True)
-                )
+    for tip_item in tips:
+        trs = write_table_title(tip_item.get('title'))
+        texts = tip_item.get('text').split('\n')
+        for text in texts:
+            trs += write_tr_weizhi([{'text': text, 'tcBorders': ['bottom']}])
+        para += table_weizhi(trs)
+    para += p.write(
+        p.set(spacing=[3, 0]),
+        r_aiyi.text('测序操作人             数据分析人             报告审核人', 10, color=green)
+    )
     para += p.write(p.set(sect_pr=sect_pr_content))
     para += write_read_guide()
     return para
@@ -415,7 +435,11 @@ def write_chapter1(data):
     para1 += p.write(p.set(sect_pr=set_page(page_margin=page_margin4, header='rIdHeader3')))
     para1 += write_chapter13(cats[3])
     # tip = tip
-    tip = '本次检测共找到%d个驱动基因的变异事件' % len(genes.keys())
+    yesheng = data.get('yesheng')
+    yesheng_text = ''
+    if len(yesheng) == 2:
+        yesheng_text = '发现%s野生型，' % ('、'.join(yesheng))
+    tip = '本次检测%s共找到%d个驱动基因的变异事件' % (yesheng_text, len(genes.keys()))
     if len(action) > 0:
         tip += '：'
     if len(action) < 2:
@@ -480,7 +504,7 @@ def write_chapter2(index, data):
             'data': tmb_info,
             'w': 3200,
             'infos': [
-                {'title': '结果说明', 'text': '该结果通过肿瘤外显子组检测得到。全外显子组包含人体所有大约两万多个基因，大约有38M左右的编码区域。TMB肿瘤突变负荷指平均每M（兆）区域，肿瘤细胞发生的非同义突变的个数。（证据级别说明：常规以10个突变/Mb标准时非小细胞肺癌证据级别为B级，结直肠癌和胰腺癌由于免疫治疗有效率低，常规阈值为20，其他所有癌种均为C级；当TMB大于20，高于绝大多数情况阈值时，非小细胞肺癌更新为A级，其他癌种（结直肠癌和胰腺癌除外）更新为B级。'},
+                {'title': '结果说明：', 'text': '该结果通过肿瘤外显子组检测得到。全外显子组包含人体所有大约两万多个基因，大约有38M左右的编码区域。TMB肿瘤突变负荷指平均每M（兆）区域，肿瘤细胞发生的非同义突变的个数。（证据级别说明：常规以10个突变/Mb标准时非小细胞肺癌证据级别为B级，结直肠癌和胰腺癌由于免疫治疗有效率低，常规阈值为20，其他所有癌种均为C级；当TMB大于20，高于绝大多数情况阈值时，非小细胞肺癌更新为A级，其他癌种（结直肠癌和胰腺癌除外）更新为B级。'},
                 {'title': '检测意义：', 'text': 'TMB在多项临床研究中均被证明能够有效区分PD1抗体、CTLA4抗体等免疫检查位点抗体治疗是否有效的人群。综合型研究表明，在不同肿瘤中，不同患者的PD1抗体治疗有效性的差异55%可以由TMB的差异解释。TMB是不同肿瘤间体细胞突变量的评估。一般情况下，TMB越高，该肿瘤可能会拥有更多的肿瘤新生抗原，该肿瘤也越有可能在经过免疫检查位点抗体解除肿瘤免疫逃逸之后，被患者自身的免疫系统所识别，相关治疗在该患者身上也就越可能有效。'},
             ]
         }
@@ -725,7 +749,7 @@ def write_read_guide():
         posy = -0.1
         kongge = [3, 5, 5, 4]
         lefts = [0, 1.97, 4, 5.72]
-        for t_n, t in enumerate(level_tips):
+        for t_n, t in enumerate(level_tips_wz):
             level = t.get('text')
             r_a += r_aiyi.picture(cx, rId=level, wrap='undertext', posOffset=[left+lefts[t_n], posy])
             text2 = '%s%s' % (' ' * kongge[t_n], level)
@@ -1155,7 +1179,7 @@ def write_genes_ddr(variants, diagnosis):
         if diagnosis in ['泌尿上皮癌', '非小细胞肺癌', '前列腺癌']:
             level = 'C-同癌种证据'
         tr2 += '(%s)' % level
-    paras = table_aiyi(trs2)
+    paras = table_weizhi(trs2)
     run = r_aiyi.text(' 红色 ', color=white, fill=red, size=9, space=True)
     run += r_aiyi.text('，表示明确致病突变位点；', size=9)
     run += r_aiyi.text(' 橙红色 ', color=white, fill=orange, size=9, space=True)
@@ -1191,7 +1215,7 @@ def write_genes_hr(variant_stars):
             para = p.write(p_set_tr, r_aiyi.text(text, color=color, size=9, fill=fill1)) + var_text
             tcs += tc.write(para, tc.set(w=ws[j], fill=fill, tcBorders=[]))
         trs2 += tr.write(tcs)
-    paras = table_aiyi(trs2)
+    paras = table_weizhi(trs2)
     run = r_aiyi.text(' 红色 ', color=white, fill=red, size=9, space=True)
     run += r_aiyi.text('，表示明确致病突变位点', size=9)
     paras += p.write(p.set(spacing=[0.5, 0.5], ind=[1, 0]), run)
@@ -1279,12 +1303,14 @@ def write_chapter_mingan(stars, diagnose, ploidy):
         if gene in ['TP53', 'KRAS']:
             if gene not in items03:
                 if is_match3:
-                    var_items.append(star)
+                    if star not in var_items:
+                        var_items.append(star)
                     items03.append(gene)
         if gene in ['TP53', 'ATM']:
             if gene not in items04:
                 if is_match3:
-                    var_items.append(star)
+                    if star not in var_items:
+                        var_items.append(star)
                     items04.append(gene)
         if gene in ['PBRM1'] and gene not in items10:
             if is_match3:
@@ -1334,6 +1360,9 @@ def write_chapter_mingan(stars, diagnose, ploidy):
             level = 'C-同癌种证据'
         genes_red.append(text02)
     if len(items03) < 2:
+        for v_index, v in enumerate(var_items[::-1]):
+            if v.get('gene') in ['TP53', 'KRAS']:
+                del var_items[v_index]
         items203 = {'text': 'TP53合并KRAS突变未发生', 'color': gray}
     else:
         text03 = '%s突变发生' % ('合并'.join(items03))
@@ -1342,6 +1371,9 @@ def write_chapter_mingan(stars, diagnose, ploidy):
             level = 'C-同癌种证据'
         genes_red.append(text03)
     if len(items04) < 2:
+        for v_index, v in enumerate(var_items[::-1]):
+            if v.get('gene') in ['TP53', 'ATM']:
+                del var_items[v_index]
         items204 = {'text': 'TP53合并ATM突变未发生', 'color': gray}
     else:
         if diagnose == '非小细胞肺癌':
@@ -1821,7 +1853,7 @@ def write_chapter_hla(overview, diagnosis):
         tip2 = 'HLA分型结果中发现A、B、C三个等位基因均为杂合状态、免疫治疗敏感超型HLA-B44'
         tip2s.append('免疫治疗敏感超型HLA-B44')
         youxiao = True
-        fill = level_tips[2].get('color')
+        fill = level_tips_wz[2].get('color')
         color = white
     elif is_zahe is False or (len(naiyaos) > 0 and is_zahe and mingan is False) :
         # 可能耐药（纯合或者出现耐药超型、分型且不出现敏感超型）
@@ -1848,7 +1880,7 @@ def write_chapter_hla(overview, diagnosis):
     tip01 = 'HLA分型结果中发现%s%s' % ('、'.join(tip2s), postfix1)
     trs2 = write_tr1('            '.join(texts) + '\n' + tip2, bg_blue)
     trs2 += write_tr2(tip1, fill, color)
-    para = table_aiyi(trs2)
+    para = table_weizhi(trs2)
     para += p.write()
     para += write_explain({'title': '结果说明：', 'text': 'HLA分型与免疫治疗疗效高度相关。HLA(human lymphocyte antigen ，人类淋巴细胞抗原)，是编码人类的主要组织相容性复合体（MHC）的基因。HLA是免疫系统区分自身和异体物质的基础。HLA主要包括HLA Ⅰ类分子和Ⅱ分子。HLAⅠ类分子又进一步细化分成A、B、C三个基因。特定的超型，如HLA-B44，与免疫检查点抗体治疗疗效好相关；HLA-B66（包括HLA-B*15：01），与免疫检查点抗体治疗疗效差相关。HLA Ⅰ类三个基因均杂合，免疫检查点抗体治疗反应更好。HLA杂合缺失的基因相关的新抗原可能在个性化治疗疫苗或者特异性细胞治疗中无效。'})
     para += write_evidence4(2)
@@ -1859,6 +1891,7 @@ def write_chapter_signature(signature_etiology):
     tr1, tr2 = '', []
     s_dict = {}
     signature_etiology = signature_etiology[-30:]
+    # signature_etiology = ["0.508231606547237", "0", "0", "0", "0", "0.0611274931509934", "0", "0", "0.190740860285723", "0", "0", "0", "0", "0", "0.129833061544803", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0"]
     for s_id, item in enumerate(signature_etiology):
         text = reset_sig(s_id+1)
         if text != '未知':
@@ -1867,18 +1900,21 @@ def write_chapter_signature(signature_etiology):
             if text not in tr2:
                 tr2.append(text)
             s_dict[text] = arr
+            # print item, text
     pd1 = []
     prap = []
     tips = []
+
     for k in s_dict.keys():
         f = sum(s_dict[k])
         if f > 0.5:
-            if k in ['APOBEC', '吸烟', 'POLE', '错配修复缺陷dMMR']:
+            if k in ['APOBEC', u'吸烟', 'POLE', u'错配修复缺陷dMMR']:
                 pd1.append(k)
-            if k in ['同源重组修复缺陷HRD']:
+            if k in [u'同源重组修复缺陷HRD']:
                 prap.append(k)
-        elif f > 0:
+        if f > 0:
             tips.append('%s(%s)' % (k, float2percent(f, 1)))
+    tips.sort(key=lambda x: x.split('(')[-1], reverse=True)
     tr1 = '通过突变特征分析，该肿瘤'
     if len(tips) > 0:
         tr1 += '可能由%s等原因导致' % ('、'.join(tips))
@@ -1977,7 +2013,7 @@ def write_table_var(stars):
             gene, nucleotide_change, amino_acid_change, exon_number, effect, dna_vaf, t_depth, cosmic_var_sum
         ]
         trs += write_tr51(item, ws, row=k, count=len(stars))
-    return table_aiyi(trs)
+    return table_weizhi(trs)
 
 
 def write_table_svs(stars):
@@ -2000,7 +2036,7 @@ def write_table_svs(stars):
             star.get('reads_support'),
         ]
         trs += write_tr51(item, ws, row=k, count=len(stars))
-    para += table_aiyi(trs)
+    para += table_weizhi(trs)
     return para
 
 
@@ -2021,7 +2057,7 @@ def write_table_cnv(items, ploidy):
             star.get('facets_call'),
             ]
         trs += write_tr51(item, ws, row=k, count=len(items))
-    return table_aiyi(trs)
+    return table_weizhi(trs)
 
 
 def write_chapter_cnvs(data):
@@ -2132,13 +2168,33 @@ def write_db_info():
     return para
 
 
+def cmp_drug(x, y):
+    for k in ['aiyi_level', 'evidence_direction']:
+        v = cmp(x.get(k), y.get(k))
+        # Resistant (Support) Responsive (Support)
+        if v != 0:
+            return v
+    return 0
+
+
+def write_table_title(title, gridSpan=0, sub_title=''):
+    tcs = ''
+    run = r_aiyi.text(title, 11, color=white, weight=1)
+    if sub_title:
+        run += r_aiyi.text(sub_title, '小五', color=white)
+    para = p.write(p.set(line=24, jc='center'), run)
+    tcs += tc.write(para, tc.set(w_sum, tcBorders=[], gridSpan=gridSpan, fill=green))
+    return tr.write(tcs)
+
+
 def write_patient_info(data):
     overview = data.get('overview') or {}
     purity = float2percent(overview.get('purity'), 0)
     sample_detail = data.get('sample_detail')
     para = ''
     trs = ''
-    ws = [2300, 2300, 3100, 2500]
+    ws = [2300, 2300, 3100, 2590]
+    trs += write_table_title('受检者信息和样本信息', gridSpan=len(ws))
     pPr = p.set(jc='left', spacing=[0.5, 0.5], line=16, rule='exact')
     ps = [
         '姓名: %s' % sample_detail['patient_name'],
@@ -2155,7 +2211,7 @@ def write_patient_info(data):
         tr2 = ps[k * n: (k+1) * n]
         tcs2 = ''
         size = 10
-        line_type = 'thickThinSmallGap' if k == 0 else 'single'
+        line_type = 'single'
         tcBorders = ['top'] if k == 0 else ['bottom']
         lineSize = 24 if k == 0 else 8
         for i in range(len(tr2)):
@@ -2164,28 +2220,33 @@ def write_patient_info(data):
             run += r_kaiti.text(ts[1].strip(), size=size, weight=1)
             tcs2 += tc.write(p.write(pPr, run), tc.set(w=ws[i], color=blue, tcBorders=tcBorders, line_type=line_type, lineSize=lineSize))
         trs += tr.write(tcs2)
-    para += table.write(trs, insideColor=white, tblBorders=[])
+    para += table_weizhi(trs)
+    para += p.write(
+        r_aiyi.text('附注：以上受检者信息和样本信息均为患者送检时提供的信息，本检测不对这些内容进行判读或解读。', '小五')
+    )
     return para
-
-
-def cmp_drug(x, y):
-    for k in ['aiyi_level', 'evidence_direction']:
-        v = cmp(x.get(k), y.get(k))
-        # Resistant (Support) Responsive (Support)
-        if v != 0:
-            return v
-    return 0
 
 
 # part0 靶向治疗提示
 def write_target_tip(data):
     target_tips = data.get('target_tips')
     cnv_stars = data.get('cnv_stars')
+    yesheng = data.get('yesheng')
     # plo =
     ploidy = data.get('ploidy')
     items, show_extra, extra_item = target_tips
-    ws = [1200, 2400, w_sum - 1200 - 2400]
-    trs = write_thead_target(ws, cnv_stars, ploidy)
+    ws = [1200, 2600, w_sum - 1200 - 2600]
+    trs = ''
+    trs += write_table_title('靶向治疗提示', len(ws))
+    trs += write_thead_weizhi(ws, cnv_stars, ploidy)
+    if len(yesheng) == 2:
+        items.insert(0, {
+            'col1': '、'.join(yesheng), 'col2': '野生型', 'yesheng': True, 'action1': '野生型',
+            'known_db': [
+                {'evidence_direction': 'Responsive (Support)', 'aiyi_level': 'A', 'drugs': '西妥昔单抗'},
+                {'evidence_direction': 'Responsive (Support)', 'aiyi_level': 'A', 'drugs': '帕尼单抗'}
+            ]
+        })
     if len(target_tips) == 0:
         trs += write_tr51(['无'] * len(ws), ws, 0, 1)
     for k in range(len(items)):
@@ -2198,7 +2259,7 @@ def write_target_tip(data):
         tcs = ''
 
         tcs += tc.write(
-            p.write(p_set_tr, r_aiyi.text(item1.get('gene') or item1.get('gene1') or item1.get('col1'), '小五')),
+            p.write(p_set_tr, r_aiyi.text(item1.get('gene') or item1.get('gene1') or item1.get('col1'), '小五', italic=True, weight=1)),
             tc.set(ws[0], fill=fill, color=bdColor, tcBorders=['bottom'])
         )
         ccf_expected_copies_em = item1.get('ccf_expected_copies_em') or item1.get('clone_proportion') # 肿瘤细胞比例
@@ -2256,24 +2317,23 @@ def write_target_tip(data):
         known_db = item1.get('known_db') or []
         para = ''
         run = ''
-        d_len = 0
         evidence_directions = ['Responsive (Support)', 'Resistant (Support)']
         # '耐药Resistant (Support)', '敏感Responsive (Support)'
         known_db = filter(lambda x: x.get('evidence_direction') in evidence_directions, known_db)
         known_db.sort(cmp=cmp_var)
         for evidence_direction in evidence_directions:
             ds1 = filter(lambda x: x.get('evidence_direction') in evidence_direction, known_db)
-            for tip_item in level_tips:
+            for tip_item in level_tips_wz:
                 level = tip_item.get('text')
                 ds = filter(lambda x: x.get('aiyi_level') == level, ds1)
                 for d_item in ds:
                     d = d_item.get('drugs')
-                    evidence_direction = d_item.get('evidence_direction')
                     color = white
                     # '耐药Resistant (Support)', '敏感Responsive (Support)'
                     if evidence_direction == 'Resistant (Support)':
                         fill1 = gray
                         color = ''
+                        d += '(耐药)'
                     else:
                         fill1 = tip_item.get('color')
 
@@ -2298,85 +2358,27 @@ def write_target_tip(data):
             para = p.write(p_set_tr)
         tcs += tc.write(para, tc.set(ws[2], fill=fill, color=bdColor, tcBorders=['bottom']))
         trs += tr.write(tcs)
-    return table_aiyi(trs)
+    if len(yesheng) == 2:
+        del items[0]
+    return table_weizhi(trs)
 
 
 # part0 免疫治疗提示
-def write_immun_tip(immun_tip):
-    para = ''
-    run = r_heiti.text('免疫治疗提示', '小四', 1)
-    run += r_aiyi.text('(               分别指指南、专家共识、临床证据和临床前证据阳性,提示PD1等免疫检查点抗体治疗,可能有效.    提示可能无效.    提示可能耐药)', '小六')
-    tips = [
-        {'text': 'A'},
-        {'text': 'B'},
-        {'text': 'C'},
-        {'text': 'D'}
-    ]
-    for t_index, tip in enumerate(tips):
-        run += r_aiyi.picture(0.38, rId=tip.get('text'), posOffset=[2.71 + t_index * 0.42, 0.38], wrap='undertext')
-    run += r_aiyi.picture(0.38, rId='white_block', posOffset=[14.1, 0.4], wrap='undertext')
-    run += r_aiyi.picture(0.38, rId='gray_block', posOffset=[16, 0.4], wrap='undertext')
-    para += p.write(p.set(spacing=[0.5, 0.5], line=15, rule='exact', outline=4), run)
-    gap = {'text': ' ', 'bdColor': white, 'fill': white, 'w': 300}
-    items1 = [
-        [
-            immun_tip[0],
-            gap,
-            immun_tip[1]
-        ],
-        [
-            immun_tip[2],
-            gap,
-            immun_tip[3]
-        ],
-        [
-            immun_tip[4],
-            gap,
-            immun_tip[5]
-        ],
-        [
-            immun_tip[6]
-        ]
-    ]
-    for i_index, items in enumerate(items1):
-        trs = ''
-        tcs = ''
-        for item in items:
-            text = item.get('text')
-            color = item.get('color') or 'auto'
-            level = item.get('level') or ''
-            level1 = filter(lambda x: level.startswith(x['text']), level_tips)
-            fill = item.get('fill') or ''
-            if len(level1) > 0:
-                fill = level1[0].get('color')
-                if '超进展' in text or '耐药' in text:
-                    fill = gray
-            if fill not in ['', gray]:
-                color = white
-            run1 = r_aiyi.text(text.split('(')[0], '小五', color=color)
-            if level:
-                run1 += r_aiyi.text(level[0], vertAlign='top', color=color)
-            p1 = p.write(p.set(line=12, rule='auto'), run1)
-
-            tcs += tc.write(
-                p1,
-                tc.set(
-                    item.get('w'),
-                    lineSize=24,
-                    tcBorders=borders,
-                    fill=fill,
-                    color=fill or gray
-                )
-            )
-        trs += tr.write(tcs)
-        para += table.write(trs, tblBorders=[])
-        if i_index < (len(items1) -1):
-            para += p.write(p.set(line=8, rule='exact'))
-    return para
+def write_immun_tip_weizhi(immun_tip):
+    ws = [2000, w_sum-2000]
+    trs = write_table_title('免疫治疗提示', 2, '（PD1等免疫检查点抗体治疗）')
+    for immun_item in immun_tip:
+        level = immun_item.get('level')
+        fill = get_level_color(level)
+        trs += write_tr_weizhi([
+            {'text': immun_item.get('index'), 'weight': 1, 'w': ws[0], 'tcFill': fill},
+            {'text': immun_item.get('result') or immun_item.get('text'), 'weight': 1, 'w': ws[1], 'tcFill': fill, 'jc': 'center'},
+        ])
+    return table_weizhi(trs)
 
 
 def write_immun_table(data, level='', color=''):
-    level1 = filter(lambda x: level.startswith(x['text']), level_tips)
+    level1 = filter(lambda x: level.startswith(x['text']), level_tips_wz)
     fill2 = ''
     if len(level1) > 0:
         fill2 = level1[0].get('color')
@@ -2391,14 +2393,14 @@ def write_evidence_new(evidences):
     para = ''
     para += p.write(p.set(spacing=[1.5, 0], ind=[0.5, 0]), r_aiyi.text('相关循证医学证据：', 12, weight=1))
     for i in range(len(evidences)):
-        text = evidences[i]
+        item = evidences[i]
         p_set0 = p.set(spacing=[1, 0.5], shade=bg_blue, ind=['hanging', 0.5], line=17, rule='exact')
         p_set = p.set(spacing=[0, 0.2], shade=bg_blue, ind=['hanging', 0.5], line=17, rule='exact')
-        para += p.write(p_set0, r_aiyi.text(' ' + text.get('disease'), 10.5, weight=1, space=True))
-        para += p.write(p_set, r_aiyi.text(' %s' % text.get('title'), 9, space=True, weight=1))
-        para += p.write(p_set, r_aiyi.text(' %s' % text.get('text'), 9, space=True))
-        if 'para' in text:
-            para += text['para']
+        para += p.write(p_set0, r_aiyi.text(' ' + item.get('disease'), 10.5, weight=1, space=True))
+        para += p.write(p_set, r_aiyi.text(' %s' % item.get('title'), 9, space=True, weight=1))
+        para += p.write(p_set, r_aiyi.text(' %s' % item.get('text'), 9, space=True))
+        if 'para' in item:
+            para += item['para']
     return para
 
 
@@ -2473,7 +2475,7 @@ def write_evidence1(gene, data, **kwargs):
         tcs2 += write_evidence_tc(d, t_item2)
         trs += tr.write(tcs2)
     if trs:
-        return table_aiyi(trs)
+        return table_weizhi(trs)
     return ''
 
 
@@ -2506,7 +2508,7 @@ def write_chemotherapy(trs, ws):
             run = r_aiyi.text(item, size=size, weight=weight)
             tcs += tc.write(p.write(pPr, run), tc.set(w=ws[k], fill=fill, tcBorders=[]))
         trs2 += tr.write(tcs)
-    return table_aiyi(trs2)
+    return table_weizhi(trs2)
 
 
 def write_gene_list3(genes, width=w_sum):
@@ -2530,7 +2532,7 @@ def write_gene_list3(genes, width=w_sum):
                 para += p.write(pPr, r_aiyi.text(item['summary'], size))
                 tcs += tc.write(para, tc.set(w=ws[k], fill=fill, color=white, tcBorders=borders))
         trs2 += tr.write(tcs)
-    return table_aiyi(trs2)
+    return table_weizhi(trs2)
 
 
 def write_genotype(gt, ws):
@@ -2552,7 +2554,7 @@ def write_genotype(gt, ws):
         run = r_aiyi.text(gt[key], size=size, weight=weight)
         tcs += tc.write(p.write(pPr, run), tc.set(w=ws[k], fill=fill, color=bg_blue, tcBorders=borders))
     trs2 += tr.write(tcs)
-    return table_aiyi(trs2) + p.write()
+    return table_weizhi(trs2) + p.write()
 
 
 def write_mingan(items, ncol):
@@ -2578,7 +2580,7 @@ def write_mingan(items, ncol):
             para = p.write(p_set_tr, r_aiyi.text(text, color=color, size=9, fill=fill1))
             tcs += tc.write(para, tc.set(w=ws[row], fill=fill, tcBorders=[]))
         trs2 += tr.write(tcs)
-    return table_aiyi(trs2)
+    return table_weizhi(trs2)
 
 
 def write_43(genes, ncol):
@@ -2599,7 +2601,7 @@ def write_43(genes, ncol):
         para = p.write(pPr, r_aiyi.text(item['text'], color=color, size=9))
         tcs += tc.write(para, tc.set(w=ws[j], fill=fill, tcBorders=borders, color=white))
     trs2 = tr.write(tcs, tr.set(trHeight=800))
-    return table_aiyi(trs2)
+    return table_weizhi(trs2)
 
 
 def write_46(items, **kwargs):
@@ -2625,7 +2627,7 @@ def write_46(items, **kwargs):
             tcs += tc.write(para, tc.set(w=ws[j], fill=fill, tcBorders=[]))
         if len(tcs) > 0:
             trs2 += tr.write(tcs, tr.set(trHeight=800))
-    return table_aiyi(trs2)
+    return table_weizhi(trs2)
 
 
 def write_genes(gene_list, col, width, table_jc='center', stars=[]):
@@ -2657,7 +2659,7 @@ def write_genes(gene_list, col, width, table_jc='center', stars=[]):
             tcs += tc.write(para, tc.set(w=ws[j], fill=fill, tcBorders=[]))
         if tcs:
             trs2 += tr.write(tcs, tr.set(trHeight=660))
-    return table_aiyi(trs2)
+    return table_weizhi(trs2)
 
 
 def get_var_color(gene, vars):
@@ -2668,6 +2670,14 @@ def get_var_color(gene, vars):
             if add_star > 0:
                 return red, tip, item
     return '', '', None
+
+
+def get_level_color(level):
+    if level:
+        for l_item in level_tips_wz:
+            if level.startswith(l_item.get('text')):
+                return l_item.get('color')
+    return ''
 
 
 def write_genes_cnv(cnv_stars):
@@ -2700,18 +2710,17 @@ def write_genes_cnv(cnv_stars):
             tcs += tc.write(para, tc.set(w=ws[j], fill=fill, tcBorders=[]))
         if tcs:
             trs2 += tr.write(tcs)
-    return table_aiyi(trs2)
+    return table_weizhi(trs2)
 
 
-def write_thead_target(ws, cnv_stars, ploidy):
-
+def write_thead_weizhi(ws, cnv_stars, ploidy):
     pPr = p_set_tr if len(cnv_stars) > 0 else p.set(line=24)
-    offy = 0.06 if len(cnv_stars) > 0 else 0.35
     tcs = ''
     size = 9.5
     titles = [
         {'run': r_aiyi.text('基因', size)},
-        {'run': r_aiyi.text('变异(肿瘤细胞比例)', size)}
+        {'run': r_aiyi.text('检测结果(突变肿瘤细胞比例)', size)},
+        {'run': r_aiyi.text('可能获益的治疗方式', size)},
     ]
     for i in range(len(titles)):
         t = titles[i]
@@ -2719,13 +2728,7 @@ def write_thead_target(ws, cnv_stars, ploidy):
         para = p.write(pPr, run)
         if i == 1 and len(cnv_stars) > 0:
             para += p.write(pPr, r_aiyi.text('(基因组倍性%s)' % (ploidy), 9))
-        tcs += tc.write(para, tc.set(w=ws[i], color=blue, fill=bg_blue))
-    run3 = ''
-    run3 += r_aiyi.text('药物推荐', size)
-    for tip in level_tips:
-        run3 += r_aiyi.picture(0.41, 0.5, tip.get('text'), posOffset=[tip.get('x'), offy], wrap='behinddoc')
-        run3 += r_aiyi.text('     %s' % (tip.get('tip')), 6.5, space=True)
-    tcs += tc.write(p.write(pPr, run3), tc.set(w=ws[-1], color=blue, fill=bg_blue))
+        tcs += tc.write(para, tc.set(w=ws[i], color=green_lighter, fill=green_lighter))
     return tr.write(tcs)
 
 
@@ -2780,6 +2783,36 @@ def write_tr2(data, fill=gray, bdColor=gray):
     return write_tr1(data, fill, False)
 
 
+def write_tr_weizhi(items, cantSplit=''):
+    if len(items) == 0:
+        return ''
+    tcs = ''
+    for item in items:
+        tcs += write_tc_weizhi(item)
+    return tr.write(tcs, tr.set(cantSplit=cantSplit))
+
+
+def write_tc_weizhi(item):
+    text = item.get('text') or ''
+    jc = item.get('jc') or 'left'
+    pPr = item.get('pPr') or p.set(jc=jc, spacing=[0.5, 0.5])
+    size = item.get('size') or '小五'
+    weight = item.get('weight') or 0
+    wingdings = item.get('wingdings') or False
+    para = ''
+    tcFill = item.get('tcFill') or ''
+    tcColor = item.get('tcColor') or gray
+    level = item.get('level')
+    if level:
+        tcFill = get_level_color(level)
+    tcBorders = item.get('tcBorders') or ['top', 'bottom']
+    gridSpan = item.get('gridSpan') or 0
+    for t in text.split('\n'):
+        run = r_aiyi.text(' ' + t, size=size, weight=weight, wingdings=wingdings, space=True)
+        para += p.write(pPr, run)
+    return tc.write(para, tc.set(w=w_sum, fill=tcFill, tcBorders=tcBorders, gridSpan=gridSpan, color=tcColor))
+
+
 def write_pages(t):
     title = get_page_titles()
     relationship = Relationship()
@@ -2825,7 +2858,7 @@ def write_kangyuan(neoantigens):
             q = '(%s)' % q
         item = [item['gene'], item['mut_peptide'], '/'.join([item['mut_aff'], item['ref_aff']]), item['mut'] +q, item['hla']]
         trs += write_tr51(item, ws, n, len(neoantigen))
-    para += table_aiyi(trs)
+    para += table_weizhi(trs)
     para += p.write(r_aiyi.text('注：仅显示部分重要新抗原信息', size=8.5))
     para += write_explain({'title': '结果说明：',
                            'text': '新抗原是指因肿瘤基因突变所导致的能够被该患者免疫系统HLA分子所识别，有潜力能够激活患者免疫系统的新生抗原，这是一组异常多肽片段。新抗原预测信息能够作为癌症个性化治疗疫苗或者特异性细胞治疗最核心的信息。新抗原预测一般 通过外显子组测序得到该患者所有的编码区域基因突变，进一步通过外显子组或者转录组获得该患者的HLA分型，根据基因突变信息和HLA分子信息，预测各个突变位点与该患者HLA分子结合的亲和力，并进一步通过转录组测序筛选其中表达的新抗原。本次未行转录组检测，会明显降低新抗原预测的准确性。'})
@@ -2861,7 +2894,7 @@ def write_table_naiyao():
                 tc.set(ws[col], fill=fill, tcBorders=[])
             )
         trs += tr.write(tcs)
-    return table_aiyi(trs)
+    return table_weizhi(trs)
 
 
 def write_detail_table(var_items, cnv_items, sv_items, ploidy):
@@ -2888,8 +2921,8 @@ def h4_aiyi(text='', size=12, spacing=[1, 0.5], weight=1, ind=[0, 0], line=15, r
     return p.write(p.set(spacing=spacing, line=line, rule='exact', outline=4, ind=ind, jc=jc), run, bm_name)
 
 
-def table_aiyi(trs2):
-    return table.write(trs2, tblBorders=['top', 'bottom'], insideColor=white, bdColor=blue)
+def table_weizhi(trs2):
+    return table.write(trs2, tblBorders=['bottom'],  bdColor=gray) + p.write(p.set(line=1, rule='exact'))
 
 
 def float2percent(p, n=2):
