@@ -346,7 +346,7 @@ def write_chapter1(data):
         action_name = ' %s(%s%s) ' % (gene, action1, cc)
         para_hrd = ''
         ind = [0.5, 0]
-        run_action = ''
+        run_action = r_aiyi.text('  ', space=True)
         if item.get('hrd'):
             action_name = ' HRD评分%s' % item.get('col2')
             para_hrd = data.get('paras_hr')
