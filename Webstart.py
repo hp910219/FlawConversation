@@ -227,15 +227,24 @@ def tumor_download_panel():
         'level': 'C'
     }
     tmb_tip = '（%s个突变/Mb，大于该癌种%s人群）' % (tmb, tmb_percentage)
+    tmb_effect = '低'
     if tmb < 10:
         tmb_info['text'] = '肿瘤突变负荷TMB低 %s' % (tmb_tip)
-    elif tmb <= 20 and tmb >= 10:
+    elif tmb < 20 and tmb >= 10:
         tmb_info['text'] = '肿瘤突变负荷TMB低 %s' % (tmb_tip)
         tmb_info['level'] = 'B' if diagnose == '非小细胞肺癌' else 'C'
+        if diagnose not in ['结直肠癌', '胰腺癌']:
+            tmb_effect = '高'
     elif tmb > 20:
         tmb_info['text'] = '肿瘤突变负荷TMB高 %s' % (tmb_tip)
-        tmb_info['level'] = 'A' if diagnose == '非小细胞肺癌' else 'B'
-
+        if diagnose in ['结直肠癌', '胰腺癌']:
+            tmb_info['level'] = 'C'
+        elif diagnose not in ['非小细胞肺癌']:
+            tmb_info['level'] = 'A'
+        else:
+            tmb_info['level'] = 'B'
+        tmb_effect = '高'
+    tmb_info['text'] = '肿瘤突变负荷TMB%s%s' % (tmb_effect, tmb_tip)
     hla_genes = ['HLA-A', 'HLA-B', 'HLA-C']
     hla_items = []
     hla_type = '杂合型'
