@@ -84,7 +84,7 @@ def sort_request1(method, url, api_service='api', auth=None, data=None, remote_a
         error_message += u'【用户名】：%s\n' % sss.split(':')[0]
     except:
         import traceback
-        traceback.print_exc()
+        # traceback.print_exc()
         error_message += ''
     # if self.is_print:
     #     print error_message
