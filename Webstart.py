@@ -217,6 +217,8 @@ def tumor_download_panel():
     diagnose = sample_detail.get('diagnosis')
 
     tmb = overview.get('tmb')
+    tmb_percentage = overview.get('tmb_percentage')
+
     tmb_info = {
         'tmb': tmb,
         'w': w_sum-300-2000,
@@ -224,13 +226,14 @@ def tumor_download_panel():
         'effect': '',
         'level': 'C'
     }
+    tmb_tip = '（%s个突变/Mb，大于该癌种%s人群）' % (tmb, tmb_percentage)
     if tmb < 10:
-        tmb_info['text'] = '肿瘤突变负荷TMB低 （%s个突变/Mb，大于该癌种%s%%人群，%s于该癌种突变负荷拐点）' % (tmb, 85, '低')
-    elif tmb < 20 and tmb >= 10:
-        tmb_info['text'] = '肿瘤突变负荷TMB低 （%s个突变/Mb，大于该癌种%s%%人群，%s于该癌种突变负荷拐点）' % (tmb, 85, '低')
+        tmb_info['text'] = '肿瘤突变负荷TMB低 %s' % (tmb_tip)
+    elif tmb <= 20 and tmb >= 10:
+        tmb_info['text'] = '肿瘤突变负荷TMB低 %s' % (tmb_tip)
         tmb_info['level'] = 'B' if diagnose == '非小细胞肺癌' else 'C'
-    elif tmb >= 20:
-        tmb_info['text'] = '肿瘤突变负荷TMB高 （%s个突变/Mb，大于该癌种%s%%人群，%s于该癌种突变负荷拐点）' % (tmb, 85, '高')
+    elif tmb > 20:
+        tmb_info['text'] = '肿瘤突变负荷TMB高 %s' % (tmb_tip)
         tmb_info['level'] = 'A' if diagnose == '非小细胞肺癌' else 'B'
 
     hla_genes = ['HLA-A', 'HLA-B', 'HLA-C']
