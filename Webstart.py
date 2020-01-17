@@ -216,35 +216,6 @@ def tumor_download_panel():
         msi_info['sign'] = 'MSI-H'
     diagnose = sample_detail.get('diagnosis')
 
-    tmb = overview.get('tmb')
-    tmb_percentage = overview.get('tmb_percentage')
-
-    tmb_info = {
-        'tmb': tmb,
-        'w': w_sum-300-2000,
-        'text': '',
-        'effect': '',
-        'level': 'C'
-    }
-    tmb_tip = '（%s个突变/Mb，大于该癌种%s人群）' % (tmb, float2percent(tmb_percentage, 1))
-    tmb_effect = '低'
-    if tmb < 10:
-        tmb_info['text'] = '肿瘤突变负荷TMB低 %s' % (tmb_tip)
-    elif tmb < 20 and tmb >= 10:
-        tmb_info['text'] = '肿瘤突变负荷TMB低 %s' % (tmb_tip)
-        tmb_info['level'] = 'B' if diagnose == '非小细胞肺癌' else 'C'
-        if diagnose not in ['结直肠癌', '胰腺癌']:
-            tmb_effect = '高'
-    elif tmb > 20:
-        tmb_info['text'] = '肿瘤突变负荷TMB高 %s' % (tmb_tip)
-        if diagnose in ['结直肠癌', '胰腺癌']:
-            tmb_info['level'] = 'C'
-        elif diagnose not in ['非小细胞肺癌']:
-            tmb_info['level'] = 'A'
-        else:
-            tmb_info['level'] = 'B'
-        tmb_effect = '高'
-    tmb_info['text'] = '肿瘤突变负荷TMB%s%s' % (tmb_effect, tmb_tip)
     hla_genes = ['HLA-A', 'HLA-B', 'HLA-C']
     hla_items = []
     hla_type = '杂合型'
@@ -310,11 +281,24 @@ def tumor_download_panel():
         'tmb_tip': tmb_tip,
         'effect': 'PD1等免疫检查点抗体治疗可能效果不显著'
     }
+    tmb = overview.get('tmb')
+    tmb_percentage = overview.get('tmb_percentage')
+
+    tmb_info = {
+        'tmb': tmb,
+        'w': w_sum-300-2000,
+        'text': '',
+        'effect': '',
+        'level': 'C'
+    }
+    tmb_tip = '（%s个突变/Mb，大于该癌种%s人群）' % (tmb, float2percent(tmb_percentage, 1))
+    tmb_effect = '低'
     if tmb >= 10 and tmb < 20:
         if diagnose not in ['结直肠癌', '胰腺癌']:
             tmb_info['level'] = 'B' if diagnose == '非小细胞肺癌' else 'C'
+            tmb_effect = '高'
     elif tmb >= 20:
-        tmb_info['text'] = 'TMB肿瘤突变负荷高 （%s个突变/Mb，大于该癌种%s%%人群）' % (tmb, 85)
+        tmb_effect = '高'
         tmb_info['result'] = 'TMB肿瘤突变负荷高 （%s个突变/Mb）' % (tmb)
         if diagnose in ['结直肠癌', '胰腺癌']:
             tmb_info['level'] = 'C'
@@ -322,6 +306,7 @@ def tumor_download_panel():
             tmb_info['level'] = 'A'
         else:
             tmb_info['level'] = 'B'
+    tmb_info['text'] = '肿瘤突变负荷TMB%s%s' % (tmb_effect, tmb_tip)
     if tmb_info['level']:
         tmb_info['effect'] = 'PD1等免疫检查点抗体治疗可能有效（%s）' % tmb_info['level']
     try:
