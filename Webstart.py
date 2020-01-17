@@ -286,7 +286,7 @@ def tumor_download_panel():
 
     tmb_info = {
         'tmb': tmb,
-        'w': w_sum-300-2000,
+        'w': w_sum-300-3000,
         'text': '',
         'effect': '',
         'level': 'C'
