@@ -1,6 +1,7 @@
 #! /usr/bin/env python
 # coding: utf-8
 import os
+import sys
 import traceback
 
 from flask import jsonify, request, render_template, send_from_directory, redirect
@@ -15,6 +16,8 @@ from views.generate_report import generate_word
 from views.tumor.report_panel import down_panel
 from views.tumor.report_aiyi import filter_sv
 
+reload(sys)
+sys.setdefaultencoding('utf-8')
 
 app = create_app()
 restart_time = format_time(frm='%Y%m%d%H%M%S')
@@ -411,6 +414,12 @@ def get_file_content():
     if os.path.exists(path) is False:
         return 'Path not exists, %s' % path
     data = my_file.read(path)
+    import chardet
+    try:
+        encoding = chardet.detect(text)['encoding']
+        data = data.decode(encoding, 'ignore').encode('utf-8')
+    except:
+        traceback.print_exc()
     return jsonify({'message': 'success', 'data': data, 'file_path': path})
 
 
