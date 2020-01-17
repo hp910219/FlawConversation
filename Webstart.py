@@ -14,7 +14,7 @@ from create_app import create_app, sort_request1
 from create_auth_code import create_strs, my_file, auth_code_path
 from views.generate_report import generate_word
 from views.tumor.report_panel import down_panel
-from views.tumor.report_aiyi import filter_sv
+from views.tumor.report_aiyi import filter_sv, float2percent
 
 reload(sys)
 sys.setdefaultencoding('utf-8')
@@ -226,7 +226,7 @@ def tumor_download_panel():
         'effect': '',
         'level': 'C'
     }
-    tmb_tip = '（%s个突变/Mb，大于该癌种%s人群）' % (tmb, tmb_percentage)
+    tmb_tip = '（%s个突变/Mb，大于该癌种%s人群）' % (tmb, float2percent(tmb_percentage, 1))
     tmb_effect = '低'
     if tmb < 10:
         tmb_info['text'] = '肿瘤突变负荷TMB低 %s' % (tmb_tip)
