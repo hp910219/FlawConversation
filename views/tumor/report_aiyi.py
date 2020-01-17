@@ -183,6 +183,8 @@ def write_body(title_cn, title_en, data):
             if diagnose not in ['卵巢癌', '乳腺癌', '前列腺癌']:
                 hrd_index = len(stars)
             data['paras_hr'] = paras_hr
+            data['hrd_tip'] = action1.replace('HRD', 'HRD评分')
+            data['hrd_index'] = hrd_index
             stars0.insert(hrd_index, {'col1': col1, 'col2': col2, 'hrd': hrd, 'action1': action1})
     msi_info = data.get('msi_info')
     tmb_info = data.get('tmb_info')
@@ -271,17 +273,25 @@ def write_chapter0(title_cn, data):
     technology = '检测技术：基于Illumina novaseq平台，检测外显子组联合35个融合基因，肿瘤组织500×、外周血100×'
     if 'panel' in sequencing_type.lower():
         technology = '本检测基于第二代测序技术，本次检测使用IDT 39M全外显子探针联合35个融合基因内含子区域，以及其他50个基因在实体肿瘤中高发突变的热点区域。测序深度如下：肿瘤组织1000×，ctDNA 10000×，胚系对照100×。'
+    purity = data.get('overview').get('purity')
+    try:
+        purity= float(purity)
+    except:
+        purity = purity
     tips = [
         {'title': '化学治疗提示', 'text': data['chem_tip'], 'rId': blue_d},
         {'title': '最新研究进展治疗提示', 'sub_title': '（完整信息见附录）', 'text': data['recent_study'], 'rId': bg_blue},
         {'rId': bg_blue, 'title': '检测方法', 'text': technology + '\n相关局限性说明：由于肿瘤异质性等原因，本检测报告仅对本样本负责，患者诊疗决策需在临床医生指导下进行'},
     ]
+    if isinstance(purity, float) and purity < 0.2:
+        tips.append({'rId': '000000', 'text': '该组织样本肿瘤细胞纯度过低，相关变异检测结果具假阴性可能性'})
     for tip in tips:
-        para += h4_aiyi(tip['title'], spacing=[1, 0.5])
-        tips = tip['text']
+        if 'title' in tip:
+            para += h4_aiyi(tip['title'], spacing=[1, 0.5])
+        tips_text = tip['text']
         if isinstance(tip['text'], list) is False:
-            tips = tips.split('\n')
-        for t in tips:
+            tips_text = tips_text.split('\n')
+        for t in tips_text:
             rId = tip.get('rId')
             if isinstance(t, dict):
                 text = t.get('text')
@@ -321,7 +331,6 @@ def write_chapter1(data):
         gene = item.get('gene') or item.get('gene1')
         action1 = item.get('action1')
         action2 = '%s%s' % (gene or '', action1)
-        tcn_em = item.get('tcn_em')  # 拷贝数
         ccf_expected_copies_em = item.get('ccf_expected_copies_em') or item.get('clone_proportion') or '' # 肿瘤细胞比例
         dna_vaf = item.get('dna_vaf')
         cc = ''
@@ -329,8 +338,7 @@ def write_chapter1(data):
             cc = '，肿瘤细胞比例%s' % float2percent(ccf_expected_copies_em)
         elif dna_vaf:
             cc = '，突变丰度%s' % float2percent(dna_vaf)
-        if action2 and action2 not in action:
-            action.append(action2)
+
         vars = genes.get(gene) or []
         if item not in vars:
             vars.append(item)
@@ -338,15 +346,21 @@ def write_chapter1(data):
         action_name = ' %s(%s%s) ' % (gene, action1, cc)
         para_hrd = ''
         ind = [0.5, 0]
+        run_action = ''
         if item.get('hrd'):
-            action_name = 'HRD%s' % item.get('col2')
+            action_name = ' HRD评分%s' % item.get('col2')
             para_hrd = data.get('paras_hr')
+            # action.append(data.get('hrd_tip'))
         elif item.get('hr'):
             action_name = item.get('hr')
             para_hrd = data.get('paras_hr')
+        else:
+            if action2 and action2 not in action:
+                action.append(action2)
+            run_action = r_aiyi.text('  驱动变异%s:  ' % (i + 1), space=True)
         para1 += p.write(
             p.set(shade=bg_blue, line=24),
-            r_aiyi.text('  驱动变异%s:  ' % (i + 1), space=True) +
+            run_action +
             r_aiyi.text(action_name, color=white, fill=red, space=True)
         )
         para_index = 1
@@ -394,6 +408,12 @@ def write_chapter1(data):
     yesheng_text = ''
     if len(yesheng) == 2:
         yesheng_text = '发现%s野生型，' % ('、'.join(yesheng))
+    hrd_tip = data.get('hrd_tip')
+    hrd_index = data.get('hrd_index')
+    if hrd_tip and hrd_index == 0:
+        if yesheng_text == '':
+            yesheng_text += '发现'
+        yesheng_text = '%s，' % hrd_tip
     tip = '本次检测%s共找到%d个驱动基因的变异事件' % (yesheng_text, len(genes.keys()))
     if len(action) > 0:
         tip += '：'
@@ -401,6 +421,8 @@ def write_chapter1(data):
         tip += '%s' % ''.join(action)
     else:
         tip += '、'.join(action[:-1]) + '和' + action[-1]
+    if hrd_tip and 'HRD' not in yesheng_text:
+        tip += '，%s' % hrd_tip
     tip += '。'
     paras = para
     paras += p.write(p.set(line=19.2, rule='exact'), r_aiyi.text(tip))
@@ -772,7 +794,7 @@ def write_common_diagnosis(data):
             {'db': 'variant_stars', 'gene': 'EGFR', 'text': '突变'},
             {'db': 'variant_stars', 'gene': 'KRAS', 'text': '突变'},
             {'db': 'variant_stars', 'gene': 'BRAF', 'text': '突变'},
-            {'db': 'variant_stars', 'gene': 'HER2', 'text': '突变'},
+            {'db': 'variant_stars', 'gene': 'HER2', 'text': '突变', 'gene1': 'ERBB2'},
             {'db': 'sv_stars', 'gene': 'ALK', 'text': '融合'},
             {'db': 'sv_stars', 'gene': 'ROS1', 'text': '融合'},
             {'db': 'sv_stars', 'gene': 'RET', 'text': '融合'},
@@ -789,7 +811,7 @@ def write_common_diagnosis(data):
             {'db': 'variant_stars', 'gene': 'NRAS', 'text': '突变'},
             {'db': 'variant_stars', 'gene': 'BRAF', 'text': '突变'},
             {'db': 'variant_stars', 'gene': 'PIK3CA', 'text': '突变'},
-            {'db': 'cnv_stars', 'gene': 'HER2', 'text': '扩增'},
+            {'db': 'cnv_stars', 'gene': 'HER2', 'text': '扩增', 'gene1': 'ERBB2'},
             {'db': 'cnv_stars', 'gene': 'MET', 'text': '扩增'},
             {'db': 'sv_stars', 'gene': 'ALK', 'text': '融合'},
             {'db': 'sv_stars', 'gene': 'ROS1', 'text': '融合'},
@@ -799,7 +821,7 @@ def write_common_diagnosis(data):
         ]
     elif diagnosis == '乳腺癌':
         d_genes = [
-            {'db': 'cnv_stars', 'gene': 'HER2', 'text': '扩增'},
+            {'db': 'cnv_stars', 'gene': 'HER2', 'text': '扩增', 'gene1': 'ERBB2'},
             {'db': 'variant_stars', 'gene': 'PIK3CA', 'text': '突变'},
             {'db': 'variant_stars', 'gene': 'BRCA1', 'text': '突变'},
             {'db': 'variant_stars', 'gene': 'BRCA2', 'text': '突变'},
@@ -812,7 +834,7 @@ def write_common_diagnosis(data):
         ]
     elif diagnosis == '胃癌':
         d_genes = [
-            {'db': 'cnv_stars', 'gene': 'HER', 'text': '扩增', 'gene1': 'ERBB2'},
+            {'db': 'cnv_stars', 'gene': 'HER2', 'text': '扩增', 'gene1': 'ERBB2'},
             {'db': 'cnv_stars', 'gene': 'MET', 'text': '扩增'},
             {'db': 'cnv_stars', 'gene': 'FGFR1', 'text': '扩增'},
             {'db': 'cnv_stars', 'gene': 'FGFR2', 'text': '扩增'},
@@ -1817,6 +1839,7 @@ def write_chapter_hla(overview, diagnosis):
         # HLA分型结果中发现A、B、C三个等位基因均为杂合状态、免疫治疗耐药超型HLA-B66
         # HLA分型结果中发现A、B、C三个等位基因均为杂合状态、免疫治疗耐药分型HLA-B15:01
         # HLA分型结果中发现A、B、C三个等位基因均为杂合状态、免疫治疗耐药超型HLA-B66、免疫治疗耐药分型HLA-B15:01
+        tip2s[0] = tip2s[0].replace('发现等位基因纯合现象', '发现免疫治疗耐药相关等位基因纯合现象')
         tip1 = 'PD1等免疫检查点抗体治疗可能具有耐药风险'
         fill = gray
     else:
