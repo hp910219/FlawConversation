@@ -275,23 +275,15 @@ def tumor_download_panel():
     tmb_info = {
         'index': 'TMB',
         'w': w_sum-300-3000,
-        'text': 'TMB肿瘤突变负荷低 （%s个突变/Mb，大于该癌种%s%%人群）' % (tmb, 85),
         'result': 'TMB肿瘤突变负荷低 （%s个突变/Mb）' % (tmb),
         'level': '',
         'tmb_tip': tmb_tip,
         'effect': 'PD1等免疫检查点抗体治疗可能效果不显著'
     }
-    tmb = overview.get('tmb')
     tmb_percentage = overview.get('tmb_percentage')
-
-    tmb_info = {
-        'tmb': tmb,
-        'w': w_sum-300-3000,
-        'text': '',
-        'effect': '',
-        'level': 'C'
-    }
-    tmb_tip = '（%s个突变/Mb，大于该癌种%s人群）' % (tmb, float2percent(tmb_percentage, 1))
+    tmb_percentage_text = ''
+    if tmb_percentage:
+        tmb_percentage_text = '，大于该癌种%s人群' % float2percent(tmb_percentage, 1)
     tmb_effect = '低'
     if tmb >= 10 and tmb < 20:
         if diagnose not in ['结直肠癌', '胰腺癌']:
@@ -299,14 +291,14 @@ def tumor_download_panel():
             tmb_effect = '高'
     elif tmb >= 20:
         tmb_effect = '高'
-        tmb_info['result'] = 'TMB肿瘤突变负荷高 （%s个突变/Mb）' % (tmb)
         if diagnose in ['结直肠癌', '胰腺癌']:
             tmb_info['level'] = 'C'
         elif diagnose in ['非小细胞肺癌']:
             tmb_info['level'] = 'A'
         else:
             tmb_info['level'] = 'B'
-    tmb_info['text'] = '肿瘤突变负荷TMB%s%s' % (tmb_effect, tmb_tip)
+    tmb_info['result'] = 'TMB肿瘤突变负荷%s （%s个突变/Mb）' % (tmb_effect, tmb)
+    tmb_info['text'] = '肿瘤突变负荷TMB%s（%s个突变/Mb%s）' % (tmb_effect, tmb, tmb_percentage_text)
     if tmb_info['level']:
         tmb_info['effect'] = 'PD1等免疫检查点抗体治疗可能有效（%s）' % tmb_info['level']
     try:
