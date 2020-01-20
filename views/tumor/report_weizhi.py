@@ -23,6 +23,7 @@ bg_blue = 'EFFBFF'
 dark_blue = '002060'
 white = 'FFFFFF'
 red = 'ED1C24'
+red_lighter = 'FF8B8B'
 orange = 'F14623'
 colors = ['2C3792', '3871C1', '50ADE5', '37AB9C', '27963C', '40B93C', '80CC28']
 borders = ['top', 'right', 'bottom', 'left']
@@ -58,7 +59,8 @@ page_margin4 = [4, 1.5, 2.54, 1.5, 1.5, 1.75]
 p_set_tr = p.set(line=12*1.15)
 sect_pr_catalog = set_page('A4', footer='rIdFooter1')
 # sect_pr_catalog = set_page('A4', footer='rIdFooter1', header='rIdHeader1')
-sect_pr_content = set_page('A4', footer='rIdReport_time', pgNumType_s=1, header='rIdHeader2')
+sect_pr_catalog1 = set_page('A4', header='rIdHeader2', footer='rIdReport_time')
+sect_pr_content = set_page('A4', footer='rIdFooter1', pgNumType_s=1, header='rIdHeader2')
 con1 = p.write(p.set(rule='exact', line=12, sect_pr=set_page(type='continuous', cols=1)))
 con2 = p.write(p.set(rule='exact', line=12, sect_pr=set_page(type='continuous', cols=2, space=40)))
 page_br = p.write(set_page(page_margin=page_margin))
@@ -112,6 +114,7 @@ level_tips_wz = [
 
 
 def get_report_core(data):
+    sample_detail = data.get('sample_detail') or {}
     overview = data.get('overview') or {}
     other_pic = []
     for pic_k in ['signature_pic', 'tmb_pic']:
@@ -121,7 +124,7 @@ def get_report_core(data):
             other_pic.append(pic_info)
     img_info = get_imgs_aiyi(img_dir, is_refresh=True, others=other_pic)
     body = write_body(title_cn, title_en, data)
-    pages = write_pages(data.get('report_time'))
+    pages = write_pages(data.get('report_time'), sample_detail.get('sample_id'))
     pkgs1 = write_pkg_parts(img_info, body, other=pages)
     return pkgs1
 
@@ -186,6 +189,8 @@ def write_body(title_cn, title_en, data):
             if diagnose not in ['卵巢癌', '乳腺癌', '前列腺癌']:
                 hrd_index = len(stars)
             data['paras_hr'] = paras_hr
+            data['hrd_tip'] = action1.replace('HRD', 'HRD评分')
+            data['hrd_index'] = hrd_index
             stars0.insert(hrd_index, {'col1': col1, 'col2': col2, 'hrd': hrd, 'action1': action1})
     msi_info = data.get('msi_info')
     tmb_info = data.get('tmb_info')
@@ -268,7 +273,7 @@ def write_cover(data):
         run = r_aiyi.text('%s：' % label, size, 1)
         run += r_aiyi.text('%s%s%s' % (' ' * left, value, ' ' * right), size, 1, space=True, underline='single')
         para += p.write(p_set, run)
-    para += p.write(p.set(sect_pr=set_page('A4')))
+    para += p.write(p.set(sect_pr=sect_pr_catalog1))
     return para
 
 
@@ -277,42 +282,48 @@ def write_catalog():
     para = p.write(
         p.set(spacing=[0, 0], jc='center', outline=3, line=24, rule='auto'),
         r_aiyi.text("目录", size=18, color=white) +
-        r_aiyi.picture(12, rId='content', relativeFrom=['page', 'page'], align=['center', 'center'])
+        r_aiyi.picture(15, rId='content_weizhi', relativeFrom=['page', 'page'], align=['center', 'center'])
     )
-    para += p.write(p.set(sect_pr=sect_pr_catalog))
+    para += p.write(p.set(sect_pr=sect_pr_catalog1))
     return para
 
 
 def write_chapter0(title_cn, data):
     para = ''
     sample_detail = data.get('sample_detail') or {}
-    para += write_patient_info(data)
+    para += write_patient_info(data) + p.write()
     sequencing_type = sample_detail.get('sequencing_type') or ''
-    para += write_target_tip(data)
+    para += write_target_tip(data) + p.write()
     para += write_immun_tip_weizhi(data.get('immun_tip'))
     tip_items = [
         {'title': '化学治疗提示', 'text': data['chem_tip']},
         data['yichuan']
     ]
     for tip_item in tip_items:
-        trs = write_table_title(tip_item.get('title'))
+        trs_tip0 = write_table_title(tip_item.get('title'))
         tip_item['tcBorders'] = ['bottom']
-        trs += write_tr_weizhi([tip_item])
-        para += table_weizhi(trs)
+        trs_tip0 += write_tr_weizhi([tip_item])
+        para += table_weizhi(trs_tip0) + p.write()
     run = r_aiyi.text('附注： 以上靶向、免疫、化学和最新研究进展治疗提示部分与后面附录信息遵循', '小五')
     run += r_aiyi.text('A、B、C、D', '小五', weight=1)
     run += r_aiyi.text('四个证据等级以及对应', '小五')
     run += r_aiyi.text('颜色标识', '小五', weight=1)
     run += r_aiyi.text('。', '小五')
     para += p.write(run)
-    trs = ''
-    tcs = ''
+    tcs_level = ''
     for level_item in level_tips_wz:
-        tcs += write_tc_weizhi({'text': level_item.get('text'), 'tcFill': level_item.get('color'), 'w': 500, 'tcBorders': []})
-        tcs += write_tc_weizhi({'text': level_item.get('tip'), 'w': 1600, 'tcBorders': []})
-    tcs += write_tc_weizhi({'text': '提示可能有效', 'weight': 1, 'w': 1800, 'tcBorders': []})
-    trs += tr.write(tcs)
-    para += table_weizhi(trs)
+        text = level_item.get('text')
+        tcs_level += write_tc_weizhi({'text': text, 'tcFill': level_item.get('color'), 'w': 450, 'tcBorders': []})
+        tcs_level += write_tc_weizhi({'text': level_item.get('tip'), 'w': 2000 if text == 'A' else 1600, 'tcBorders': []})
+    tcs_level += write_tc_weizhi({'text': '提示可能有效', 'weight': 1, 'w': 1600, 'tcBorders': []})
+    tcs_level1 = ''
+    tcs_level1 += write_tc_weizhi({'text': ' ', 'weight': 1, 'w': 450, 'tcBorders': ['top', 'bottom', 'left', 'right'], 'tcColor': gray})
+    tcs_level1 += write_tc_weizhi({'text': '提示可能无效', 'weight': 1, 'w': 2000, 'tcBorders': []})
+    tcs_level1 += write_tc_weizhi({'text': ' ', 'weight': 1, 'w': 450, 'tcBorders': [], 'tcFill': gray})
+    tcs_level1 += write_tc_weizhi({'text': '提示可能耐药', 'weight': 1, 'w': 1600, 'tcBorders': ['top', 'bottom', 'left', 'right']})
+    tcs_level1 += write_tc_weizhi({'text': ' ', 'weight': 1, 'w': w_sum-4500, 'tcBorders': []})
+    para += table_weizhi(tr.write(tcs_level))
+    para += table_weizhi(tr.write(tcs_level1)) + p.write()
     technology = '检测技术：基于Illumina novaseq平台，检测外显子组联合35个融合基因，肿瘤组织500×、外周血100×'
     if 'panel' in sequencing_type.lower():
         technology = '本检测基于第二代测序技术，本次检测使用IDT 39M全外显子探针联合35个融合基因内含子区域，以及其他50个基因在实体肿瘤中高发突变的热点区域。测序深度如下：肿瘤组织1000×，ctDNA 10000×，胚系对照100×。'
@@ -324,23 +335,29 @@ def write_chapter0(title_cn, data):
                     + '\n本次检测的平均有效测序深度为932X，符合检测标准。'}
     ]
     for tip_item in tips:
-        trs = write_table_title(tip_item.get('title'))
+        trs_tip = write_table_title(tip_item.get('title'))
         texts = tip_item.get('text').split('\n')
         for text in texts:
-            trs += write_tr_weizhi([{'text': text, 'tcBorders': ['bottom']}])
-        para += table_weizhi(trs)
+            trs_tip += write_tr_weizhi([{'text': text, 'tcBorders': ['bottom']}])
+        para += table_weizhi(trs_tip) + p.write()
     para += p.write(
         p.set(spacing=[3, 0]),
         r_aiyi.text('测序操作人             数据分析人             报告审核人', 10, color=green)
     )
-    para += p.write(p.set(sect_pr=sect_pr_content))
-    para += write_read_guide()
+    para += p.write(p.set(sect_pr=sect_pr_catalog1))
     return para
 
 
 def write_chapter1(data):
     cats = get_catalog()[0: 4]
     para = ''
+    para += p.write(p.set(jc='center'), r_aiyi.text('附  录', '小四', weight=1))
+    para += p.write(r_aiyi.text('说明：附录中采用统一颜色标识对基因突变信息进行标注，其中：', 10))
+    run = r_aiyi.text(' 红色 ', color=white, fill=red, size=9, space=True)
+    run += r_aiyi.text('，表示明确致病突变位点；', size=9)
+    run += r_aiyi.text(' 浅红色 ', color=white, fill=red_lighter, size=9, space=True)
+    run += r_aiyi.text('，表示未明意义突变位点', size=9)
+    para += p.write(p.set(spacing=[0, 0.5]), run)
     para += h4_aiyi(cat=cats[1], spacing=[0, 1])
 
     para1 = ''
@@ -360,8 +377,6 @@ def write_chapter1(data):
             cc = '，肿瘤细胞比例%s' % float2percent(ccf_expected_copies_em)
         elif dna_vaf:
             cc = '，突变丰度%s' % float2percent(dna_vaf)
-        if action2 and action2 not in action:
-            action.append(action2)
         vars = genes.get(gene) or []
         if item not in vars:
             vars.append(item)
@@ -378,16 +393,22 @@ def write_chapter1(data):
         action_name = ' %s(%s%s) ' % (gene, action1, cc)
         para_hrd = ''
         ind = [0.5, 0]
+        run_action = r_aiyi.text('  ', space=True)
         if item.get('hrd'):
-            action_name = 'HRD%s' % item.get('col2')
+            action_name = ' HRD评分%s' % item.get('col2')
             para_hrd = data.get('paras_hr')
+            # action.append(data.get('hrd_tip'))
         elif item.get('hr'):
             action_name = item.get('hr')
             para_hrd = data.get('paras_hr')
+        else:
+            if action2 and action2 not in action:
+                action.append(action2)
+            run_action = r_aiyi.text('  驱动变异%s:  ' % (i + 1), color=white, space=True)
         para1 += p.write(
-            p.set(shade=bg_blue, line=24),
-            r_aiyi.text('  变异事件%s:  ' % (i + 1), space=True) +
-            r_aiyi.text(action_name, color=white, fill=red, space=True)
+            p.set(shade=green, line=24, jc='center'),
+            run_action +
+            r_aiyi.text(action_name, color=white, space=True)
         )
         # para1 += p.write(
         #     p.set(shade=red, line=24),
@@ -432,13 +453,19 @@ def write_chapter1(data):
         # else:
         #     para1 += p.write()
         para1 += para_hrd
-    para1 += p.write(p.set(sect_pr=set_page(page_margin=page_margin4, header='rIdHeader3')))
+    para1 += p.write(p.set(sect_pr=set_page(page_margin=page_margin4, header='rIdHeader3', footer='rIdFooter2', pgNumType_s=1)))
     para1 += write_chapter13(cats[3])
     # tip = tip
     yesheng = data.get('yesheng')
     yesheng_text = ''
     if len(yesheng) == 2:
         yesheng_text = '发现%s野生型，' % ('、'.join(yesheng))
+    hrd_tip = data.get('hrd_tip')
+    hrd_index = data.get('hrd_index')
+    if hrd_tip and hrd_index == 0:
+        if yesheng_text == '':
+            yesheng_text += '发现'
+        yesheng_text = '%s，' % hrd_tip
     tip = '本次检测%s共找到%d个驱动基因的变异事件' % (yesheng_text, len(genes.keys()))
     if len(action) > 0:
         tip += '：'
@@ -446,6 +473,8 @@ def write_chapter1(data):
         tip += '%s' % ''.join(action)
     else:
         tip += '、'.join(action[:-1]) + '和' + action[-1]
+    if hrd_tip and 'HRD' not in yesheng_text:
+        tip += '，%s' % hrd_tip
     tip += '。'
     paras = para
     paras += p.write(p.set(line=19.2, rule='exact'), r_aiyi.text(tip))
@@ -602,7 +631,6 @@ def write_chapter4(index, data):
     cats = get_catalog()[18: 22]
     para = ''
     # print cats[1].get('title'), '==='
-    para += h4_aiyi(cat=cats[1], spacing=[0, 1]) + data['para_signature']
     para += h4_aiyi(cat=cats[2]) + data['para_yichuan']
     para += p.write(p.set(sect_pr=set_page('A4', header='rIdHeader%d' % index)))
     return para
@@ -614,7 +642,6 @@ def write_chapter5(index, data):
     para = ''
     para += h4_aiyi(cat=cats[1], spacing=[0, 1])
     para += write_chapter51(data)
-    para += p.write(p.set(sect_pr=set_page('A4', header='rIdHeader%d' % index)))
     para += h4_aiyi(cat=cats[2])
     para += write_chapter_cnvs(data)
     svs = data.get('svs')
@@ -624,74 +651,11 @@ def write_chapter5(index, data):
     para += p.write(p.set(sect_pr=set_page('A4', header='rIdHeader%d' % index)))
     # para += p.write(p.set(sect_pr=set_page()))
     para += h4_aiyi(cat=cats[4], spacing=[0, 0.5]) + write_chapter53(data)
-    para += h4_aiyi(cat=cats[5], spacing=[0, 1])
-    overview = data.get('overview')
-    sample_purity = overview.get('purity')
-    normal_base_aligned = overview.get('normal_base_aligned')  # 外周血数据量
-    tumor_base_aligned = overview.get('tumor_base_aligned')  # 肿瘤数据量
-    if normal_base_aligned:
-        normal_base_aligned = int((float(normal_base_aligned) / 1024.0/1024/1024) * 100) / 100.0
-    if tumor_base_aligned:
-        tumor_base_aligned = int((float(tumor_base_aligned) / 1024.0/1024/1024) * 100) / 100.0
-    summary = '本检测报告共涉及两个样本，肿瘤组织样本和外周血。'
-    summary += '本次检测使用IDT 39M全外显子探针联合35个融合基因内含子区域，'
-    summary += '目标测序数据量为肿瘤组织样本50G，'
-    summary += '外周血样本10G，'
-    summary += '实际可用cleandata数据量为肿瘤组织%sG，外周血样本%sG。' % (tumor_base_aligned, normal_base_aligned)
-    summary += '经分析，肿瘤组织的预测肿瘤细胞纯度为%s，' % float2percent(overview.get('purity'))
-    summary += '经初步分析共获得体细胞SNV %s个，' % overview.get('snv_no')
-    summary += '体细胞Indel %s个。' % overview.get('indel_no')
-    line = get_line('protocol')
-    para += p.write(p.set(spacing=[0, 1.5], line=19.2, rule='exact'), r_aiyi.text(summary, '小五'))
-    p_set1 = p.set(spacing=[0, 1.5], line=19.2, rule='exact')
-    para += p.write(
-        p_set1,
-        r_aiyi.text('感谢您选择北京皑医科技有限公司（皑医）提供的癌症多组学临床检测。皑医是由中国从业十年的第一批癌症精准医疗资深专家、医科院北京协和医学院的医学专家和中科院计算所的技术专家共同发起成立的一家癌症多组学数据临床解读公司。皑医致力于协助中国顶级肿瘤医生，以患者获益为中心，重新定义癌症，延长患者有质量生存时间。', '小五')
-    )
-    para += p.write(
-        p_set1,
-        r_aiyi.text('AIomics1癌症多组学临床检测，现阶段主要包括全外显子组、转录组和微生物组这三个标准化的组学检测。皑医将获得的高达70G以上的数据进行标准化的深度解读。首先，通过根据ASCO（美国临床肿瘤协会）、AMP（美国分子病理学协会）和CAP（美国病理学家联合学会）的国际指南进行变异解读相关生物信息流程质量控制；其次，在NCCN指南基础上，深度整合CGI、CIVic、OncoKB等多个解读数据库，并结合专家知识进行确认；最后，为了让患者更快的接触了解跟自己组学特征相关的研究进展专门性设计了 “最新研究进展” 模块。这是基于癌症真实世界研究和精准医疗高度发展，癌症循证医学证据以爆炸性的方式在扩大的现状所作的创新性设计。', '小五')
-    )
-    para += p.write(
-        p_set1,
-        r_aiyi.text('AIomics1癌症多组学临床检测标准化检测环节，由皑医委托北京贝瑞和康生物技术有限公司（贝瑞）进行检测。贝瑞拥有CFDA批准的第三方检验所资质（医疗机构执业许可证，诊疗科目：临床细胞分子遗传学专业），具备完善的实验质控流程。相关资质和质控流程是数据获取可靠性的核心保证。结合贝瑞的标准化检测和皑医的个性化化深度解读，AIomics1癌症多组学临床检测能够为您提供国际标准质量控制、紧扣癌症最新研究进展的系统性精准诊疗提示。', '小五')
-    )
-    para += p.write(r_aiyi.picture(8, rId='protocol', posOffset=[0, 2]))
-    para += p.write(p.set(ind=[38.5, 0], spacing=[3, 0]), r_aiyi.text('北京皑医科技有限公司'))
-    para += p.write(p.set(ind=[38.5, 0], spacing=[1, 0]), r_aiyi.text('盖章：'))
-    para += p.write(p.set(ind=[38.5, 0], spacing=[1, 0]), r_aiyi.text(data['report_time']))
-    para += p.write(p.set(sect_pr=set_page(header='rIdHeader8', footer='rIdFooter1')))
     return para
 
 
 def write_backcover():
-    para = p.write(r_aiyi.picture(2.4, rId='logo', posOffset=[0, 10], align=['center', ''], relativeFrom=['page', 'page']))
-    para += p.write(p.set(spacing=[20, 10], jc='center'), r_aiyi.text('重新定义癌症', 26, color=blue))
-    para += p.write(p.set(line=19.2, rule='exact'), r_aiyi.text('皑医是由中国从业十年的第一批癌症精准医疗资深专家、医科院北京协和医学院的医学专家和中科院计算所的技术专家共同发起成立的一家癌症多组学数据临床解读公司。皑医致力于协助中国顶级肿瘤医生，以患者获益为中心，重新定义癌症，延长患者有质量生存时间。'))
-    imgs = [
-        [
-            {'id': 'logo', 'posOffset': 0.11, 'text': '北京皑医科技有限公司     '},
-            {'id': 'location', 'posOffset': 5.17, 'text': '北京市中关村科技园区大兴生物医药基地绿地启航3号楼1003'},
-        ],
-        [
-            {'id': 'website', 'posOffset': 0, 'text': 'https://aiyi.link          '},
-            {'id': 'phone', 'posOffset': 5.17, 'text': '010-86399801'}
-        ]
-    ]
-    for i in range(len(imgs)):
-        infos = imgs[i]
-        run = ''
-        y = 0.2
-        before = 0.5
-        if i == 1:
-            y = 0.26
-            before = 0.3
-        for info in infos:
-            run += r_aiyi.picture(cy=0.6, rId=info['id'], posOffset=[info['posOffset'], y])
-            run += r_aiyi.text(info['text'], 9, space=True)
-        para += p.write(p.set(spacing=[before, 0]), run)
-    para += set_page(header='rIdHeader8', footer='rIdFooter1')
-    return para
+    return ''
 
 
 def write_read_guide():
@@ -1017,14 +981,16 @@ def filter_sv(x):
     return False
 
 
-def write_explains(content):
+def write_explains(content, p_set=None):
     para = ''
+    if p_set is None:
+        p_set = p.set(line=1, rule='exact')
     for text in content.split('\n'):
         texts = text.split('：')
         if len(texts) > 1:
-            para += write_explain({'title': '%s：' % texts[0], 'text': '：'.join(texts[1:])})
+            para += write_explain({'title': '%s：' % texts[0], 'text': '：'.join(texts[1:])}, p_set=p_set)
         else:
-            para += p.write(p.set(line=14, rule='exact'), r_aiyi.text(text))
+            para += p.write(p_set, r_aiyi.text(text))
     return para
 
 
@@ -1154,7 +1120,7 @@ def write_genes_ddr(variants, diagnosis):
                 color = white
                 if fill1 == red:
                     reds.append(gene)
-                elif fill1 == orange:
+                elif fill1 == red_lighter:
                     oranges.append(gene)
             para = p.write(pPr, r_aiyi.text(text, color=color, size=9, fill=fill1)) + var_text
             tcs += tc.write(para, tc.set(w=ws[j], fill=fill, color=white, tcBorders=[]))
@@ -1179,12 +1145,7 @@ def write_genes_ddr(variants, diagnosis):
         if diagnosis in ['泌尿上皮癌', '非小细胞肺癌', '前列腺癌']:
             level = 'C-同癌种证据'
         tr2 += '(%s)' % level
-    paras = table_weizhi(trs2)
-    run = r_aiyi.text(' 红色 ', color=white, fill=red, size=9, space=True)
-    run += r_aiyi.text('，表示明确致病突变位点；', size=9)
-    run += r_aiyi.text(' 橙红色 ', color=white, fill=orange, size=9, space=True)
-    run += r_aiyi.text('，表示未明意义突变位点', size=9)
-    paras += p.write(p.set(spacing=[0.5, 0.5]), run)
+    paras = table_weizhi(trs2) + p.write()
     paras += write_detail_table(var_items, [], [], '')
     return {'para': paras, 'tr1': tr11, 'tr2': tr2, 'tip': tip, 'level': level}
 
@@ -1216,9 +1177,7 @@ def write_genes_hr(variant_stars):
             tcs += tc.write(para, tc.set(w=ws[j], fill=fill, tcBorders=[]))
         trs2 += tr.write(tcs)
     paras = table_weizhi(trs2)
-    run = r_aiyi.text(' 红色 ', color=white, fill=red, size=9, space=True)
-    run += r_aiyi.text('，表示明确致病突变位点', size=9)
-    paras += p.write(p.set(spacing=[0.5, 0.5], ind=[1, 0]), run)
+    paras += p.write(p.set(spacing=[0.5, 0.5], ind=[1, 0]))
     if len(var_items) > 0:
         paras += write_detail_table(var_items, [], [], '')
     return paras, var_items
@@ -1239,9 +1198,9 @@ def get_var_color_ddr(gene, vars, diagnosis=''):
                 if ccf_expected_copies_em is None:
                     dna_vaf = item.get('dna_vaf')
                     if dna_vaf >= 0.1:
-                        return orange, item
+                        return red_lighter, item
                 if ccf_expected_copies_em >= 0.5:
-                    return orange, item
+                    return red_lighter, item
     return '', None
 
 
@@ -1872,15 +1831,18 @@ def write_chapter_hla(overview, diagnosis):
     for j in range(3):
         h1 = item[j * 2]
         h2 = item[j * 2+1]
-        texts.append('HLA-%s HLA-%s' % (h1, h2))
+        texts.append({'text': 'HLA-%s HLA-%s' % (h1, h2), 'w': w_sum/3})
     postfix = '' if len(tip2s) == 1 else '等'
     postfix1 = '' if len(tip2s) < 2 else '事件'
     # tip0 = tip2 if youxiao else ('HLA分型结果中发现%s%s%s' % (tip2s[0] if len(tip2s) < 2 else tip2s[1] , postfix, postfix1))
     tip0 = ('HLA分型结果中发现%s%s%s' % (tip2s[0] if len(tip2s) < 2 else tip2s[1] , postfix, postfix1))
     tip01 = 'HLA分型结果中发现%s%s' % ('、'.join(tip2s), postfix1)
-    trs2 = write_tr1('            '.join(texts) + '\n' + tip2, bg_blue)
+    trs2 = write_tr1(tip2, bg_blue)
     trs2 += write_tr2(tip1, fill, color)
-    para = table_weizhi(trs2)
+    para = table_weizhi(trs2) + p.write(p.set(line=4))
+    trs3 = ''
+    trs3 = write_tr_weizhi(texts)
+    para += table_weizhi(trs3)
     para += p.write()
     para += write_explain({'title': '结果说明：', 'text': 'HLA分型与免疫治疗疗效高度相关。HLA(human lymphocyte antigen ，人类淋巴细胞抗原)，是编码人类的主要组织相容性复合体（MHC）的基因。HLA是免疫系统区分自身和异体物质的基础。HLA主要包括HLA Ⅰ类分子和Ⅱ分子。HLAⅠ类分子又进一步细化分成A、B、C三个基因。特定的超型，如HLA-B44，与免疫检查点抗体治疗疗效好相关；HLA-B66（包括HLA-B*15：01），与免疫检查点抗体治疗疗效差相关。HLA Ⅰ类三个基因均杂合，免疫检查点抗体治疗反应更好。HLA杂合缺失的基因相关的新抗原可能在个性化治疗疫苗或者特异性细胞治疗中无效。'})
     para += write_evidence4(2)
@@ -1979,16 +1941,11 @@ def cmp_var(x, y):
 
 def write_chapter51(data):
     para = ''
-    para += h4_aiyi('（1）体细胞突变汇总')
-    ws = [1000, 1700, 1700, 1000, 1400, 1200, 1000, 1000]
-    titles = ['基因', '核苷酸变化', '氨基酸变化', '外显子', '变异类型', '突变丰度', '覆盖度',  'Cosmic计数']
+    para += h4_aiyi('体细胞突变')
     stars = data.get('variant_list')
     stars = sorted(stars, cmp=cmp_var)
     stars = stars[:200]
     para += write_table_var(stars)
-    para += p.write()
-    para += h4_aiyi('（2）遗传性肿瘤、HRD、DDR相关基因胚系突变汇总')
-    para += p.write('呈现基因list上出现的所有突变，把明确治病给突变排在前面，并作标记')
     return para
 
 
@@ -2090,12 +2047,12 @@ def write_chapter_cnvs(data):
 
 
 def write_chapter53(data):
-    para = p.write(p.set(line=16, rule='exact'), r_aiyi.text('评估肿瘤重点信号通路的状态是从全局对癌症进行理解的重要方式。肿瘤相关驱动基因一般都处在肿瘤的重点信号通路上。该样本相关的肿瘤驱动基因变异和非驱动基因变异究竟累及哪些信号通路，信号通路之间各个基因的关系如何，针对相关信号通路的治疗方式以及各个信号通路上下游的信号通路的分布，都能够协助医生和患者理解肿瘤所处状态。'))
+    para = p.write(p.set(line=16, rule='exact'), r_aiyi.text('评估肿瘤重点信号通路的状态是从全局对癌症进行理解的重要方式。肿瘤相关驱动基因一般都处在肿瘤的重点信号通路上。该样本相关的肿瘤驱动基因变异和非驱动基因变异究竟累及哪些信号通路，信号通路之间各个基因的关系如何，针对相关信号通路的治疗方式以及各个信号通路上下游的信号通路的分布，都能够协助医生和患者理解肿瘤所处状态。', 10, weight=1))
     para += p.write()
     for i in range(gene_list53.nrows):
         title = gene_list53.cell_value(i, 0)
         stars = (data.get('cnv_stars') + data.get('variant_stars'))if '融合' not in title else data.get('sv_stars')
-        ch = {'title': '%d.%s' % (i + 1, title), 'para': gene_list53.cell_value(i, 1)}
+        ch = {'title': title, 'para': gene_list53.cell_value(i, 1)}
         genes = []
         for j in range(3, gene_list53.ncols):
             v = gene_list53.cell_value(i, j)
@@ -2108,18 +2065,25 @@ def write_chapter53(data):
 
 # Part5 . 3 通路涉及重点基因变异情况
 def write_chapter5311(ch, index, stars):
-    p_set = p.set(line=14, rule='exact')
-    para = p.write(p_set, r_aiyi.text(ch['title'], '小四', 1))
+    p_set = p.set(spacing=[0.2, 0.2])
+    para = p.write(p.set(line=18, shade=green_lighter, jc='center'),
+                   r_aiyi.text(ch['title'], '小四', 1))
     # para += con1
-    para += p.write()
+    para += write_explains(ch['para'], p_set)
+    # para += p.write()
     # print ch['title'], '5.3.%d.1' % (index + 1)
     # title = '' if 'img_id' not in ch else '（1）'
     # para += p.write(p_set, r_aiyi.text('%s通路涉及重点基因变异情况：' % title, weight=1))
-    para += p.write(p.set(spacing=[0, 13.5]), r_aiyi.picture(cx=7.8, rId='5.3.%d.1' % (index + 1), align=['center', ''], posOffset=[0, 0.6]))
+    para_pic = p.write(p.set(spacing=[0, 13.5]), r_aiyi.picture(cx=7.8, rId='5.3.%d.1' % (index + 1), align=['center', ''], posOffset=[0, 0.6]))
+    para += table_weizhi(tr.write(tc.write(para_pic, tc.set(w_sum, color=gray))))
     n = 10
+    para += p.write(p.set(line=6))
+    para += p.write(p.set(line=18, shade='A6A6A6', jc='center'),
+                   r_aiyi.text(ch['title'] + '重点基因变异情况', '五号', color=white))
     para += write_genes((ch['genes']), n, w_sum, 'right', stars)
     para += p.write()
-    para += write_explains(ch['para'])
+
+
     para += p.write(p.set(sect_pr=set_page()))
     return para
 
@@ -2182,7 +2146,7 @@ def write_table_title(title, gridSpan=0, sub_title=''):
     run = r_aiyi.text(title, 11, color=white, weight=1)
     if sub_title:
         run += r_aiyi.text(sub_title, '小五', color=white)
-    para = p.write(p.set(line=24, jc='center'), run)
+    para = p.write(p.set(line=18, jc='center'), run)
     tcs += tc.write(para, tc.set(w_sum, tcBorders=[], gridSpan=gridSpan, fill=green))
     return tr.write(tcs)
 
@@ -2193,9 +2157,7 @@ def write_patient_info(data):
     sample_detail = data.get('sample_detail')
     para = ''
     trs = ''
-    ws = [2300, 2300, 3100, 2590]
-    trs += write_table_title('受检者信息和样本信息', gridSpan=len(ws))
-    pPr = p.set(jc='left', spacing=[0.5, 0.5], line=16, rule='exact')
+    trs += write_table_title('受检者信息和样本信息', gridSpan=8)
     ps = [
         '姓名: %s' % sample_detail['patient_name'],
         '性别: %s' % sex2str(sample_detail['sex']),
@@ -2206,20 +2168,44 @@ def write_patient_info(data):
         '组织类型: %s(肿瘤细胞纯度%s)+白细胞' % (sample_detail.get('sample_type'), purity),
         '组织来源: %s' % sample_detail.get('tissue')
     ]
+    w = 1200
+    items = [
+        [
+            {'text': '姓名:', 'w': w},
+            {'text': sample_detail.get('patient_name'), 'w': w},
+            {'text': '性别:', 'w': w},
+            {'text': sex2str(sample_detail['sex']), 'w': w},
+            {'text': '年龄:', 'w': w},
+            {'text': sample_detail.get('patient_name'), 'w': w},
+            {'text': '医院:', 'w': w},
+            {'text': sample_detail.get('inspection_department'), 'w': 1800},
+        ],
+        [
+            {'text': '病理诊断:', 'w': w},
+            {'text': sample_detail.get('diagnosis'), 'w': w * 3, 'gridSpan': 3},
+            {'text': '既往靶向/免疫用药方案:', 'w': w * 2, 'gridSpan': 2},
+            {'text': '', 'w': 3000, 'gridSpan': 2},
+        ],
+        [
+            {'text': '样本编号:', 'w': w},
+            {'text': sample_detail.get('sample_id'), 'w': w * 2, 'gridSpan': 2},
+            {'text': '组织来源:', 'w': w},
+            {'text': sample_detail.get('tissue'), 'w': w * 2, 'gridSpan': 2},
+            {'text': '样本类型:', 'w': w},
+            {'text': sample_detail.get('sample_type'), 'w': 1800}
+        ],
+        [
+            {'text': '取样日期:', 'w': w},
+            {'text': '', 'w': w * 2, 'gridSpan': 2},
+            {'text': '送检日期:', 'w': w},
+            {'text': '', 'w': w * 2, 'gridSpan': 2},
+            {'text': '报告日期:', 'w': w},
+            {'text': data.get('report_time'), 'w': 1800}
+        ]
+    ]
     n = len(ps) / 2
-    for k in range(2):
-        tr2 = ps[k * n: (k+1) * n]
-        tcs2 = ''
-        size = 10
-        line_type = 'single'
-        tcBorders = ['top'] if k == 0 else ['bottom']
-        lineSize = 24 if k == 0 else 8
-        for i in range(len(tr2)):
-            ts = tr2[i].split(':')
-            run = r_aiyi.text(ts[0].strip() + ': ', size=size, weight=0)
-            run += r_kaiti.text(ts[1].strip(), size=size, weight=1)
-            tcs2 += tc.write(p.write(pPr, run), tc.set(w=ws[i], color=blue, tcBorders=tcBorders, line_type=line_type, lineSize=lineSize))
-        trs += tr.write(tcs2)
+    for item in items:
+        trs += write_tr_weizhi(item)
     para += table_weizhi(trs)
     para += p.write(
         r_aiyi.text('附注：以上受检者信息和样本信息均为患者送检时提供的信息，本检测不对这些内容进行判读或解读。', '小五')
@@ -2235,7 +2221,7 @@ def write_target_tip(data):
     # plo =
     ploidy = data.get('ploidy')
     items, show_extra, extra_item = target_tips
-    ws = [1200, 2600, w_sum - 1200 - 2600]
+    ws = [1200, 2800, w_sum - 1200 - 2800]
     trs = ''
     trs += write_table_title('靶向治疗提示', len(ws))
     trs += write_thead_weizhi(ws, cnv_stars, ploidy)
@@ -2365,16 +2351,19 @@ def write_target_tip(data):
 
 # part0 免疫治疗提示
 def write_immun_tip_weizhi(immun_tip):
-    ws = [2000, w_sum-2000]
     trs = write_table_title('免疫治疗提示', 2, '（PD1等免疫检查点抗体治疗）')
+    # trs = ''
     for immun_item in immun_tip:
         level = immun_item.get('level')
         fill = get_level_color(level)
+        text = immun_item.get('result') or immun_item.get('text')
+        if level:
+            text += '(%s级)' % level
         trs += write_tr_weizhi([
-            {'text': immun_item.get('index'), 'weight': 1, 'w': ws[0], 'tcFill': fill},
-            {'text': immun_item.get('result') or immun_item.get('text'), 'weight': 1, 'w': ws[1], 'tcFill': fill, 'jc': 'center'},
+            {'text': immun_item.get('index'), 'weight': 1, 'w': 2000, 'tcFill': fill},
+            {'text': text, 'weight': 1, 'w': w_sum-2000, 'tcFill': fill, 'jc': 'center'},
         ])
-    return table_weizhi(trs)
+    return table_weizhi(trs) + p.write()
 
 
 def write_immun_table(data, level='', color=''):
@@ -2385,7 +2374,7 @@ def write_immun_table(data, level='', color=''):
     if color:
         fill2 = color
     trs2 = write_tr1(data[0], bg_blue if fill2 =='' else '')
-    trs2 += write_tr2(data[1], fill2, bdColor=fill2)
+    trs2 += write_tr2(data[1], bg_blue if fill2 =='' else '', bdColor=fill2)
     return table.write(trs2, bdColor=fill2 or blue, tblBorders=['top', 'bottom'])
 
 
@@ -2479,9 +2468,10 @@ def write_evidence1(gene, data, **kwargs):
     return ''
 
 
-def write_explain(i, ind=[0, 0]):
+def write_explain(i, ind=[0, 0], p_set=None):
     run = r_aiyi.text(i['title'], weight=1) + r_aiyi.text(i['text'], size=9)
-    p_set = p.set(ind=ind, line=16, rule='exact')
+    if p_set is None:
+        p_set = p.set(ind=ind, line=16, rule='exact')
     return p.write(p_set, run)
     # para = ''
     # para += p.write(p_set, r.text(i['title'], weight=1))
@@ -2769,18 +2759,18 @@ def write_tr51(item, ws, row=0, count=0):
     return tr.write(tcs)
 
 
-def write_tr1(text, fill='', wingdings=True):
-    pPr = p.set(jc='left', spacing=[0.5, 0.5])
+def write_tr1(text, fill='', wingdings=True, jc='center', weight=0):
+    pPr = p.set(jc=jc, spacing=[0.5, 0.5])
     para = ''
     for t in text.split('\n'):
-        run = r_aiyi.text(' ' + t, size=9, color='' if fill in [gray, '', bg_blue] else white, wingdings=wingdings, space=True)
+        run = r_aiyi.text(' ' + t, size=9, color='' if fill in [gray, '', bg_blue] else white, wingdings=wingdings, space=True, weight=weight)
         para += p.write(pPr, run)
     tcs2 = tc.write(para, tc.set(w=w_sum, fill=fill, tcBorders=[]))
     return tr.write(tcs2)
 
 
 def write_tr2(data, fill=gray, bdColor=gray):
-    return write_tr1(data, fill, False)
+    return write_tr1(data, fill, False, weight=1)
 
 
 def write_tr_weizhi(items, cantSplit=''):
@@ -2795,7 +2785,7 @@ def write_tr_weizhi(items, cantSplit=''):
 def write_tc_weizhi(item):
     text = item.get('text') or ''
     jc = item.get('jc') or 'left'
-    pPr = item.get('pPr') or p.set(jc=jc, spacing=[0.5, 0.5])
+    pPr = item.get('pPr') or p.set(jc=jc, spacing=[0.3, 0.3])
     size = item.get('size') or '小五'
     weight = item.get('weight') or 0
     wingdings = item.get('wingdings') or False
@@ -2803,6 +2793,7 @@ def write_tc_weizhi(item):
     tcFill = item.get('tcFill') or ''
     tcColor = item.get('tcColor') or gray
     level = item.get('level')
+    w = item.get('w') or w_sum
     if level:
         tcFill = get_level_color(level)
     tcBorders = item.get('tcBorders') or ['top', 'bottom']
@@ -2810,10 +2801,10 @@ def write_tc_weizhi(item):
     for t in text.split('\n'):
         run = r_aiyi.text(' ' + t, size=size, weight=weight, wingdings=wingdings, space=True)
         para += p.write(pPr, run)
-    return tc.write(para, tc.set(w=w_sum, fill=tcFill, tcBorders=tcBorders, gridSpan=gridSpan, color=tcColor))
+    return tc.write(para, tc.set(w=w, fill=tcFill, tcBorders=tcBorders, gridSpan=gridSpan, color=tcColor))
 
 
-def write_pages(t):
+def write_pages(t, sample_id):
     title = get_page_titles()
     relationship = Relationship()
     pkg_parts, relationshipss = '', ''
@@ -2823,9 +2814,9 @@ def write_pages(t):
         if i == len(title) - 1:
             paras1, rel = '', ''
         else:
-            paras = p.write(p.set(spacing=[1, 0]), r_aiyi.text(title[i], 9, color='00ADEF', space=True) + r_aiyi.picture(cy=1.25, rId='logo', posOffset=[0, -1.2], zoom=0.35))
+            paras = p.write(p.set(spacing=[1, 0]), r_aiyi.text(title[i], 9, color=green, space=True) + r_aiyi.picture(cy=1.95, rId='logo_weizhi', posOffset=[0, -1.2], zoom=0.35, align=['right', '']))
             paras1 = table.write(tr.write(tc.write(paras, tc.set(w=10000, tcBorders=[]))), ws=[10000], tblBorders=['bottom'], bdColor='DDDDDD', border_size=18)
-            rel = relationship.write_rel('logo', target_name='media/logo.png')
+            rel = relationship.write_rel('logo_weizhi', target_name='media/logo_weizhi.png')
         pkg_parts += relationship.about_page(h_index, paras1, page_type='header', rels=rel)
         relationshipss += relationship.write_rel(h_index, 'header')
 
@@ -2834,8 +2825,8 @@ def write_pages(t):
     footer_id = 'report_time'
     size = 9
     paras = ''
-    paras += p.write(p.set(jc='right'), sdt.write())
-    paras += p.write(p.set(jc='right'), r_aiyi.text( '检测报告时间: %s' % t, size))
+    # paras += p.write(p.set(jc='right'), sdt.write())
+    paras += p.write(r_aiyi.text( '样本编号：%s         报告日期： %s' % (sample_id, t), size))
     relationships = relationship.write_rel(footer_id, page_type)
     footer = relationship.about_page(footer_id, paras, page_type=page_type)
     # return footer, relationships
@@ -2915,8 +2906,6 @@ def h4_aiyi(text='', size=12, spacing=[1, 0.5], weight=1, ind=[0, 0], line=15, r
     if cat is not None:
         bm_name = cat['bm']
         text = cat['title']
-    if bm_name != '':
-        print text
     run = r_heiti.text(text, size=size, weight=weight, color=color) + runs
     return p.write(p.set(spacing=spacing, line=line, rule='exact', outline=4, ind=ind, jc=jc), run, bm_name)
 
@@ -2973,7 +2962,7 @@ def get_catalog():
 
 
 def get_page_titles():
-    title_cn, title_en = u'多组学临床检测报告', 'AIomics1'
+    title_cn, title_en = u' ', ' '
     title = '%s附录目录%s%s' % (title_cn, ' ' * 64,  title_en)
     title1 = '%s%s%s' % (title_cn, ' ' * (64+11),  title_en)
     titles = [title, title1]
