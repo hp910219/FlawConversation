@@ -1840,7 +1840,6 @@ def write_chapter_hla(overview, diagnosis):
     trs2 = write_tr1(tip2, bg_blue)
     trs2 += write_tr2(tip1, fill, color)
     para = table_weizhi(trs2) + p.write(p.set(line=4))
-    trs3 = ''
     trs3 = write_tr_weizhi(texts)
     para += table_weizhi(trs3)
     para += p.write()
