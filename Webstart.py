@@ -403,7 +403,14 @@ def remark_crud():
             item_delete = my_file.read(path_delete)
             if item_delete.get('account') == rq.get('account'):
                 os.remove(path_delete)
-        items = filter(lambda x: x.get('account') == rq.get('account') and x.get('add_time') == add_time, items)
+    if method.lower() == 'put':
+        rq = request.json
+        add_time = rq.get('add_time')
+        path_put = os.path.join(remark_dir, 'remark_%s.json' % add_time)
+        if os.path.exists(path_put):
+            item_put = my_file.read(path_put)
+            item_put.update(rq)
+            my_file.write(path_put, item_put)
     account = request.args.get('account')
     items = filter(lambda x: x.get('account') == account, items)
     items.reverse()
