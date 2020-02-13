@@ -371,6 +371,45 @@ def auth_code_crud():
     return jsonify(f_item)
 
 
+@app.route("/tcm/remark/crud/", methods=["GET", "POST", "PUT", "DELETE"])
+def remark_crud():
+    conf = read_conf()
+    if isinstance(conf, str):
+        return conf
+    file_dir = conf.get('file_dir')
+    if file_dir is None:
+        return 'file_dir not in config.conf'
+    remark_dir = os.path.join(file_dir, 'remark')
+    if os.path.exists(remark_dir) is False:
+        os.makedirs(remark_dir)
+    items = []
+    for i in os.listdir(remark_dir):
+        path = os.path.join(remark_dir, i)
+        item = my_file.read(path)
+        items.append(item)
+    method = request.headers.get('API-METHOD') or request.method
+    t = format_time(frm='%Y%m%d%H%M%S')
+    if method == 'POST':
+        rq = request.json
+        rq['add_time'] = t
+        path_new = os.path.join(remark_dir, 'remark_%s.json' % t)
+        my_file.write(path_new, rq)
+        items.append(rq)
+    if method.lower() == 'delete':
+        rq = request.json
+        add_time = rq.get('add_time')
+        path_delete = os.path.join(remark_dir, 'remark_%s.json' % add_time)
+        if os.path.exists(path_delete):
+            item_delete = my_file.read(path_delete)
+            if item_delete.get('account') == rq.get('account'):
+                os.remove(path_delete)
+        items = filter(lambda x: x.get('account') == rq.get('account') and x.get('add_time') == add_time, items)
+    account = request.args.get('account')
+    items = filter(lambda x: x.get('account') == account, items)
+    items.reverse()
+    return jsonify(items)
+
+
 @app.route('/tcm/file/', methods=['POST'])
 def get_file():
     rq = request.json
@@ -465,23 +504,29 @@ def get_avi_taxonomy():
 
 
 if __name__ == '__main__':
+    import shutil
+    from jy_word.web_tool import get_host, killport
     port = 9003
-    from jy_word.web_tool import get_host
     host_info = get_host(port)
     text = '/detection/admin/'
     '98a749a93a86d15af5b9634c2db53f71'
-    host_ip= host_info.get('ip')
-    from jy_word.web_tool import killport
+    host_ip = host_info.get('ip')
     # killport(9005)
     killport(port)    # host_ip = '192.168.105.66'
-    src = r'D:\pythonproject\TCM3\dist\umi.js'
-    des = r'D:\pythonproject\TCMWeb\static\umi.js'
+    dir_name = os.path.dirname(__file__)
+    static_dir = os.path.join(dir_name, 'static')
+    project_dir = os.path.dirname(dir_name)
+    tcm_dir = os.path.join(project_dir, 'TCM')
+    tcm_dist = os.path.join(tcm_dir, 'dist')
+    for postfix in ['js', 'css']:
+        file_name = 'umi.%s' % postfix
+        src = os.path.join(tcm_dist, file_name)
+        des = os.path.join(static_dir, file_name)
+        if os.path.exists(src):
+            shutil.copy(src, des)
     src_kobars = r'D:\pythonproject\KOBARSWeb\dist\umi.js'
     des_kobars = r'D:\pythonproject\TCMWeb\static\umi_kobars.js'
-    import shutil
-    shutil.copy(src, des)
-    shutil.copy(src_kobars, des_kobars)
-    shutil.copy(r'D:\pythonproject\KOBARSWeb\dist\umi.css', r'D:\pythonproject\TCMWeb\static\umi_kobars.css')
-    shutil.copy(r'D:\pythonproject\TCM3\dist\umi.css', r'D:\pythonproject\TCMWeb\static\umi.css')
+    # shutil.copy(src_kobars, des_kobars)
+    # shutil.copy(r'D:\pythonproject\KOBARSWeb\dist\umi.css', r'D:\pythonproject\TCMWeb\static\umi_kobars.css')
     # shutil.copytree(r'D:\pythonproject\KOBARSWeb\dist', r'D:\pythonproject\TCMWeb\templates\kobars')
     app.run(host=host_ip, port=port)
