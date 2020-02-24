@@ -191,31 +191,7 @@ def tumor_download_panel():
 
     w_sum = 10200
 
-    msi_sort_paired_total = overview.get('msi_sort_paired_total')
-    msi_sort_paired_somatic = overview.get('msi_sort_paired_somatic')
-    msi_score = int(msi_sort_paired_somatic/float(msi_sort_paired_total) * 10000) / 100.0
-
-    msi_info = {
-        'total': msi_sort_paired_total,
-        'somatic': msi_sort_paired_somatic,
-        'score': msi_score,
-        'text': 'MSS微卫星稳定',
-        'effect': 'PD1等免疫检查点抗体可能效果不显著',
-        'level': '',
-        'w': 2000
-    }
-    if msi_score < 3.5:
-        msi_info['sign'] = 'MSS'
-    elif msi_score < 10:
-        msi_info['text'] = 'MSS微卫星低不稳定'
-        msi_info['sign'] = 'MSI-L'
-    elif msi_score >= 10:
-        msi_info['text'] = 'MSS微卫星高不稳定'
-        msi_info['effect'] = 'PD1等免疫检查点抗体可能有效'
-        msi_info['level'] = 'A'
-        msi_info['sign'] = 'MSI-H'
-    diagnose = sample_detail.get('diagnosis')
-
+    diagnose = sample_detail.get('diagnosis') or ''
     hla_genes = ['HLA-A', 'HLA-B', 'HLA-C']
     hla_items = []
     hla_type = '杂合型'
@@ -245,7 +221,10 @@ def tumor_download_panel():
 
     msi_sort_paired_total = overview.get('msi_sort_paired_total')
     msi_sort_paired_somatic = overview.get('msi_sort_paired_somatic')
-    msi_score = int(msi_sort_paired_somatic/float(msi_sort_paired_total) * 10000) / 100.0
+    try:
+        msi_score = int(msi_sort_paired_somatic / float(msi_sort_paired_total) * 10000) / 100.0
+    except:
+        msi_score = 0
 
     msi_info = {
         'index': 'MSI',
@@ -257,12 +236,16 @@ def tumor_download_panel():
         'level': '',
         'w': 3000
     }
-    if msi_score >= 10:
-        msi_info['text'] = 'MSI-H微卫星高不稳定'
+    if msi_score < 3.5:
+        msi_info['sign'] = 'MSS'
+    elif msi_score < 10:
+        msi_info['text'] = 'MSS微卫星低不稳定'
+        msi_info['sign'] = 'MSI-L'
+    elif msi_score >= 10:
+        msi_info['text'] = 'MSS微卫星高不稳定'
+        msi_info['effect'] = 'PD1等免疫检查点抗体可能有效'
         msi_info['level'] = 'A'
-        msi_info['effect'] = 'PD1等免疫检查点抗体可能有效(A)'
-    elif msi_score >= 3.5:
-        msi_info['text'] = 'MSI-L微卫星低不稳定'
+        msi_info['sign'] = 'MSI-H'
 
     tmb = overview.get('tmb')
     try:
@@ -323,9 +306,10 @@ def tumor_download_panel():
         })
         return jsonify({'file_path': file_path})
     except:
+        message = '下载报告遇到问题，已通知管理员。%s' % traceback.format_exc()
         traceback.print_exc()
-        send_msg_by_dd(traceback.format_exc())
-        return '发生故障，已通知管理员，请稍后...'
+        send_msg_by_dd(message)
+        return {'message': message}
 
 
 @app.route('/tcm/download/', methods=["GET", "POST", "PUT", "DELETE", 'OPTIONS'])

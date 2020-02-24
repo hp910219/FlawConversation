@@ -140,9 +140,9 @@ def write_body(title_cn, title_en, data):
     sample_detail = data.get('sample_detail')
     sequencing_type = sample_detail.get('sequencing_type') or ''
     #关于hrd
-    hrd_hisens_loh = overview.get('hrd_hisens_loh')
-    hrd_hisens_tai = overview.get('hrd_hisens_tai')
-    hrd_hisens_lst = overview.get('hrd_hisens_lst')
+    hrd_hisens_loh = overview.get('hrd_hisens_loh') or 0
+    hrd_hisens_tai = overview.get('hrd_hisens_tai') or 0
+    hrd_hisens_lst = overview.get('hrd_hisens_lst') or 0
     hrd = hrd_hisens_loh + hrd_hisens_lst + hrd_hisens_tai
     paras_hr, items_hr = write_hrd(sequencing_type, data, [0.5, 0])
     # print len(variant_list), report_detail.keys()
@@ -260,19 +260,24 @@ def write_cover(data):
         {'label': '报告日期', 'value': report_time},
     ]
     size = '四号'
-    p_set = p.set(line=24, ind=[8, 0])
+    trs = ''
+    ws = [1800, 5600]
     for t_item in texts:
         label = t_item.get('label')
         key = t_item.get('key')
         value = t_item.get('value') or sample_detail.get(key) or ''
-        n = 34
-        len_cn = test_chinese(value)
-        kongge = n - len(value) - len_cn
-        left = 11
-        right = kongge - left
-        run = r_aiyi.text('%s：' % label, size, 1)
-        run += r_aiyi.text('%s%s%s' % (' ' * left, value, ' ' * right), size, 1, space=True, underline='single')
-        para += p.write(p_set, run)
+        tcs = ''
+        p_set = {
+            'size': size, 'weight': 1, 'pPr': p.set(line=12, spacing=[0.3, 0], jc='center')
+        }
+        item1 = {'text': '%s：' % label, 'w': ws[0], 'tcBorders': [], 'tcColor': white}
+        item2 = {'text': value, 'w': ws[1], 'tcBorders': ['bottom'], 'tcColor': 'black', 'lineSize': 12}
+        item1.update(p_set)
+        item2.update(p_set)
+        tcs += write_tc_weizhi(item1)
+        tcs += write_tc_weizhi(item2)
+        trs += tr.write(tcs)
+    para += table.write(trs, tblBorders=[])
     para += p.write(p.set(sect_pr=sect_pr_catalog1))
     return para
 
@@ -2151,29 +2156,17 @@ def write_table_title(title, gridSpan=0, sub_title=''):
 
 
 def write_patient_info(data):
-    overview = data.get('overview') or {}
-    purity = float2percent(overview.get('purity'), 0)
     sample_detail = data.get('sample_detail')
     para = ''
     trs = ''
     trs += write_table_title('受检者信息和样本信息', gridSpan=8)
-    ps = [
-        '姓名: %s' % sample_detail['patient_name'],
-        '性别: %s' % sex2str(sample_detail['sex']),
-        '年龄: %s' % sample_detail['age'],
-        '患者ID: %s' % sample_detail['sample_id'],
-        '医院: %s' % sample_detail.get('inspection_department'),
-        '病理诊断: %s' % sample_detail.get('diagnosis'),
-        '组织类型: %s(肿瘤细胞纯度%s)+白细胞' % (sample_detail.get('sample_type'), purity),
-        '组织来源: %s' % sample_detail.get('tissue')
-    ]
     w = 1200
     items = [
         [
             {'text': '姓名:', 'w': w},
             {'text': sample_detail.get('patient_name'), 'w': w},
             {'text': '性别:', 'w': w},
-            {'text': sex2str(sample_detail['sex']), 'w': w},
+            {'text': sex2str(sample_detail.get('sex')), 'w': w},
             {'text': '年龄:', 'w': w},
             {'text': sample_detail.get('patient_name'), 'w': w},
             {'text': '医院:', 'w': w},
@@ -2202,7 +2195,6 @@ def write_patient_info(data):
             {'text': data.get('report_time'), 'w': 1800}
         ]
     ]
-    n = len(ps) / 2
     for item in items:
         trs += write_tr_weizhi(item)
     para += table_weizhi(trs)
@@ -2797,10 +2789,11 @@ def write_tc_weizhi(item):
         tcFill = get_level_color(level)
     tcBorders = item.get('tcBorders') or ['top', 'bottom']
     gridSpan = item.get('gridSpan') or 0
+    lineSize = item.get('lineSize') or 8
     for t in text.split('\n'):
         run = r_aiyi.text(' ' + t, size=size, weight=weight, wingdings=wingdings, space=True)
         para += p.write(pPr, run)
-    return tc.write(para, tc.set(w=w, fill=tcFill, tcBorders=tcBorders, gridSpan=gridSpan, color=tcColor))
+    return tc.write(para, tc.set(w=w, fill=tcFill, tcBorders=tcBorders, gridSpan=gridSpan, color=tcColor, lineSize=lineSize))
 
 
 def write_pages(t, sample_id):
@@ -2813,8 +2806,9 @@ def write_pages(t, sample_id):
         if i == len(title) - 1:
             paras1, rel = '', ''
         else:
-            paras = p.write(p.set(spacing=[1, 0]), r_aiyi.text(title[i], 9, color=green, space=True) + r_aiyi.picture(cy=1.95, rId='logo_weizhi', posOffset=[0, -1.2], zoom=0.35, align=['right', '']))
-            paras1 = table.write(tr.write(tc.write(paras, tc.set(w=10000, tcBorders=[]))), ws=[10000], tblBorders=['bottom'], bdColor='DDDDDD', border_size=18)
+            paras = p.write(p.set(spacing=[1, 0]), r_aiyi.text(title[i], 9, color=green, space=True)
+                            + r_aiyi.picture(cy=1.95, rId='logo_weizhi', posOffset=[0, -2], align=['right', '']))
+            paras1 = table.write(tr.write(tc.write(paras, tc.set(w=10000, tcBorders=[]))), ws=[10000], tblBorders=[])
             rel = relationship.write_rel('logo_weizhi', target_name='media/logo_weizhi.png')
         pkg_parts += relationship.about_page(h_index, paras1, page_type='header', rels=rel)
         relationshipss += relationship.write_rel(h_index, 'header')
