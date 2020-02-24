@@ -2097,6 +2097,8 @@ def write_chapter5311(ch, index, stars):
     para += p.write()
     if index < 10:
         para += p.write(p.set(sect_pr=set_page()))
+    else:
+        para += set_page()
     return para
 
 
