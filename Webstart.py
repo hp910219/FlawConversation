@@ -243,7 +243,7 @@ def tumor_download_panel():
         msi_info['sign'] = 'MSI-L'
     elif msi_score >= 10:
         msi_info['text'] = 'MSS微卫星高不稳定'
-        msi_info['effect'] = 'PD1等免疫检查点抗体可能有效'
+        msi_info['effect'] = 'PD1等免疫检查点抗体可能有效(A)'
         msi_info['level'] = 'A'
         msi_info['sign'] = 'MSI-H'
 

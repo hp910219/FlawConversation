@@ -339,15 +339,16 @@ def write_chapter0(title_cn, data):
     tcs_level1 += write_tc_weizhi({'text': ' ', 'weight': 1, 'w': w_sum-4500, 'tcBorders': []})
     para += table_weizhi(tr.write(tcs_level))
     para += table_weizhi(tr.write(tcs_level1)) + p.write()
-    technology = '检测技术：基于Illumina novaseq平台，检测外显子组联合35个融合基因，肿瘤组织500×、外周血100×'
-    if 'panel' in sequencing_type.lower():
-        technology = '本检测基于第二代测序技术，本次检测使用IDT 39M全外显子探针联合35个融合基因内含子区域，以及其他50个基因在实体肿瘤中高发突变的热点区域。测序深度如下：肿瘤组织1000×，ctDNA 10000×，胚系对照100×。'
+    technology = '本检测基于第二代测序技术，捕获580个与癌症发生发展的生物学原理及个性化治疗方案高度相关的基因的重要外显子及部分内含子区域，以及其他50个基因在实体肿瘤中高发突变的热点区域，进行高深度测序，测量这些基因中出现的来自组织或循环肿瘤DNA的突变、重排、拷贝数增加等变异事件，从而对靶向、免疫、化学或其他可能的治疗方式根据证据等级进行提示。'
+    overview = data.get('overview') or {}
+    purity = float2percent(overview.get('purity'), 0)
     tips = [
         {'title': '关于检测项目', 'text': technology + '\n相关局限性说明：由于肿瘤异质性等原因，本检测报告仅对本样本负责，患者诊疗决策需在临床医生指导下进行'},
         {
             'title': '样本和数据质控信息',
-            'text': '样本中肿瘤细胞比例约为51%，DNA总量为2388ng，符合检测标准。'
-                    + '\n本次检测的平均有效测序深度为932X，符合检测标准。'}
+            'text': '样本中肿瘤细胞比例约为%s，DNA总量为2388ng，符合检测标准。' % purity
+                    + '\n本次检测的平均有效测序深度为%s，符合检测标准。' % overview.get('tumor_mean_target_coverage')
+        }
     ]
     for tip_item in tips:
         trs_tip = write_table_title(tip_item.get('title'))
@@ -1064,7 +1065,7 @@ def write_chapter_ddr(variants, diagnosis):
         {
             'disease': '泌尿上皮癌',
             'title': 'DDR基因明确致病突变泌尿上皮癌患者PD1抗体治疗反应率为80%，意义未明突变患者有效率为54%（2018《JCO》）',
-            'text': '60例泌尿上皮癌患者入组相关抗PD治疗前瞻性临床实验。DDR基因（共34个基因）突变患者28例（47%），其中明确致病突变患者15例（25%）。出现任意DDR基因突变的患者与更高的治疗反应率相关(67.9% v 18.8%; P<0.001)。 其中明确致病突变患者治疗反应率为80%，意义不明突变患者有效率为54%，显著高于DDR基因野生型患者（19%，P<0.001）(PMID：29489427)'
+            'text': '60例泌尿上皮癌患者入组相关PD1抗体治疗前瞻性临床实验。DDR基因（共34个基因）突变患者28例（47%），其中明确致病突变患者15例（25%）。出现任意DDR基因突变的患者与更高的治疗反应率相关(67.9% v 18.8%; P<0.001)。 其中明确致病突变患者治疗反应率为80%，意义不明突变患者有效率为54%，显著高于DDR基因野生型患者（19%，P<0.001）(PMID：29489427)'
         },
         {
             'disease': '非小细胞肺癌',
@@ -1460,12 +1461,12 @@ def write_chapter_mingan(stars, diagnose, ploidy):
         {
             'disease': '肾癌与PBRM1基因失活变异',
             'title': 'PBRM1突变肾癌患者中PBRM1作为免疫检查点治疗反应标志物的临床验证及其局限性（2019《JAMA Oncology》；2018《Nature medicine》）',
-            'text': '在一个证明既往接受过抗血管生成治疗后抗PD1治疗相比依维莫司显著改善总生存的三期临床实验的肾细胞癌队列中对其中382例（总队列共803例）患者进行基因分析发现，PBRM1突变与PD1治疗更高的临床获益（34.6% vs 19.7% p=0.04）、PFS增加（HR为0.67，P=0.03）和OS增加（HR=0.67，P=0.03）相关。然而值得注意的是，既往研究发现，PBRM1失活状态与抗血管生成疗效相关且未经抗血管生成治疗的肾细胞癌患者PBRM1失活状态与免疫检查点疗效无关（PMID: 29301960；PMID：29867230）'
+            'text': '在一个证明既往接受过抗血管生成治疗后抗PD1治疗相比依维莫司显著改善总生存的三期临床实验的肾细胞癌队列中对其中382例（总队列共803例）患者进行基因分析发现，PBRM1突变与PD1治疗更高的临床获益（34.6% vs 19.7% p=0.04）、PFS增加（HR为0.67，P=0.03）和OS增加（HR=0.67，P=0.03）相关。然而值得注意的是，既往研究发现，PBRM1失活状态与抗血管生成疗效相关且未经抗血管生成治疗的肾细胞癌患者PBRM1失活状态与免疫检查点疗效无关（PMID: 31486842；PMID：29867230）'
         },
         {
             'disease': '非小细胞肺癌、类恶性横纹肌样瘤胸部肿瘤、高钙血型小细胞卵巢癌与SMARCA4纯合失活',
             'title': 'SMARCA4失活驱动的多种肿瘤PD1治疗有效的案例报道（2018《JNCI》；2019《Thoracic cancer》；2019《Annal of oncology》）',
-            'text': '由SMARCA4失活的单基因疾病（低TMB）高钙血型小细胞卵巢癌，4例患者PD1抗体治疗有效（1例持续部分反应6个月；3例维持无疾病状态1.5年或者更长）。在11例样本中，绝大多数（8例）PDL1表达且具有强烈的T细胞浸润。1例SMARCA4完全失活（免疫组化阴性）、TMB相对较高（全外显子测序共找到396个突变，大约11个/Mb）的非小细胞肺癌部分反应，持续疾病控制时间超过14月。1例SMARCA4失活、PDL1阴性的胸部肿瘤经PD1抗体治疗11个月后，获得相对于基线高达-72%的PR（PMID: 29301960；PMID：29867230）'
+            'text': '由SMARCA4失活的单基因疾病（低TMB）高钙血型小细胞卵巢癌，4例患者PD1抗体治疗有效（1例持续部分反应6个月；3例维持无疾病状态1.5年或者更长）。在11例样本中，绝大多数（8例）PDL1表达且具有强烈的T细胞浸润。1例SMARCA4完全失活（免疫组化阴性）、TMB相对较高（全外显子测序共找到396个突变，大约11个/Mb）的非小细胞肺癌部分反应，持续疾病控制时间超过14月。1例SMARCA4失活、PDL1阴性的胸部肿瘤经PD1抗体治疗11个月后，获得相对于基线高达-72%的PR（PMID:29365144；PMID:30972962; PMID:31114851）'
         },
         {
             'disease': '非小细胞肺癌与ARID1A基因失活变异',
@@ -1576,6 +1577,7 @@ def write_chapter_naiyao(data, ploidy):
         tip = '免疫治疗耐药驱动相关%s%s' % (genes_red[0], '' if len(genes_red) == 1 else '等')
         level = 'C'
         tr2 = 'PD1等免疫检查点抗体治疗可能具有耐药风险(%s)' % level
+    # level = 'C'
     para = write_immun_table([tr1, tr2], level, dark if level else '')
     para += p.write(p.set(line=1))
     para += write_mingan([table_items[:6], table_items[6:]], 6)
@@ -1725,6 +1727,7 @@ def write_chapter_chaojinzhan(data, ploidy):
         if items2[1] or items2[2] or items2[3]:
             level = 'D'
         tr2 = 'PD1等免疫治疗抗体治疗可能具有超进展风险(%s)' % level
+    # level = 'C'
     para = write_immun_table([tr1, tr2], level, dark if level else '')
     para += p.write(p.set(line=1))
     para += write_mingan([items2], 6)
@@ -1856,7 +1859,7 @@ def write_chapter_hla(overview, diagnosis):
     trs3 = write_tr_weizhi(texts)
     para += table_weizhi(trs3)
     para += p.write()
-    para += write_explain({'title': '结果说明：', 'text': 'HLA分型与免疫治疗疗效高度相关。HLA(human lymphocyte antigen ，人类淋巴细胞抗原)，是编码人类的主要组织相容性复合体（MHC）的基因。HLA是免疫系统区分自身和异体物质的基础。HLA主要包括HLA Ⅰ类分子和Ⅱ分子。HLAⅠ类分子又进一步细化分成A、B、C三个基因。特定的超型，如HLA-B44，与免疫检查点抗体治疗疗效好相关；HLA-B66（包括HLA-B*15：01），与免疫检查点抗体治疗疗效差相关。HLA Ⅰ类三个基因均杂合，免疫检查点抗体治疗反应更好。HLA杂合缺失的基因相关的新抗原可能在个性化治疗疫苗或者特异性细胞治疗中无效。'})
+    para += write_explain({'title': '结果说明：', 'text': 'HLA分型与免疫治疗疗效高度相关。HLA(human lymphocyte antigen ，人类淋巴细胞抗原)，是编码人类的主要组织相容性复合体（MHC）的基因。HLA是免疫系统区分自身和异体物质的基础。HLA主要包括HLA Ⅰ类分子和Ⅱ分子。HLAⅠ类分子又进一步细化分成A、B、C三个基因。特定的超型，如HLA-B44，与免疫检查点抗体治疗疗效好相关；HLA-B66（包括HLA-B*15：01），与免疫检查点抗体治疗疗效差相关。HLA Ⅰ类三个基因均纯合，免疫检查点抗体治疗反应更好。HLA杂合缺失的基因相关的新抗原可能在个性化治疗疫苗或者特异性细胞治疗中无效。'})
     para += write_evidence4(2)
     return para, tip0, tip01, level
 
@@ -2044,17 +2047,17 @@ def write_chapter_cnvs(data):
     run += r_aiyi.text('，表示该基因杂合缺失，', size=9)
     run += r_aiyi.text('扩增缺失状态未达阈值用灰色表示', size=9)
     para += p.write(p.set(spacing=[0.5, 0.5]), run)
-    #
-    # extra = []
-    # for gene in ['ERBB2', 'MET']:
-    #     arr1 = filter(lambda x: x.get('gene') == gene, stars)
-    #     if len(arr1) == 0:
-    #         extra += filter(lambda x: x.get('gene') == gene, cnvs)
+
+    extra = []
+    for gene in ['ERBB2', 'MET']:
+        arr1 = filter(lambda x: x.get('gene') == gene, stars)
+        if len(arr1) == 0:
+            extra += filter(lambda x: x.get('gene') == gene, cnvs)
     # para += h4_aiyi('（2）拷贝数变异相关基因详细信息汇总')
-    # para += write_table_cnv(stars + extra, ploidy)
-    # para += p.write(
-    #     r_aiyi.text('注：肿瘤纯度低于30%时，二代测序拷贝数变异检测准确性会发生比较明显下降。', '小五')
-    # )
+    para += write_table_cnv(stars + extra, ploidy)
+    para += p.write(
+        r_aiyi.text('注：肿瘤纯度低于30%时，二代测序拷贝数变异检测准确性会发生比较明显下降。', '小五')
+    )
     return para
 
 
@@ -2360,6 +2363,10 @@ def write_immun_tip_weizhi(immun_tip):
         text = immun_item.get('result') or immun_item.get('text')
         if level:
             text += '(%s级)' % level
+            if '耐药' in text or '超进展' in text:
+                fill = gray
+        elif 'HLA' in text and '耐药' in text and '纯合' in text:
+            fill = gray
         trs += write_tr_weizhi([
             {'text': immun_item.get('index'), 'weight': 1, 'w': 2000, 'tcFill': fill},
             {'text': text, 'weight': 1, 'w': w_sum-2000, 'tcFill': fill, 'jc': 'center'},
@@ -2374,8 +2381,8 @@ def write_immun_table(data, level='', color=''):
         fill2 = level1[0].get('color')
     if color:
         fill2 = color
-    trs2 = write_tr1(data[0], bg_blue if fill2 =='' else '')
-    trs2 += write_tr2(data[1], bg_blue if fill2 =='' else '', bdColor=fill2)
+    trs2 = write_tr1(data[0], bg_blue if fill2 == '' else '')
+    trs2 += write_tr2(data[1], fill2 or bg_blue, bdColor=fill2)
     return table.write(trs2, bdColor=fill2 or blue, tblBorders=['top', 'bottom'])
 
 
