@@ -2016,7 +2016,8 @@ def write_table_cnv(items, ploidy):
     titles = ['基因', '总拷贝数', '低拷贝数', '区域大小', 'WGD状态', '基因组倍性', '变异状态']
     ws = [w_sum / len(titles)] * len(titles)
     trs = write_thead51(titles, ws=ws)
-
+    if len(items) == 0:
+        trs += write_tr51(['无'] * len(titles), ws, 0, 1)
     for k in range(len(items)):
         star = items[k]
         item = [
