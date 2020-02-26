@@ -134,9 +134,9 @@ def write_body(title_cn, title_en, data):
     sample_detail = data.get('sample_detail')
     sequencing_type = sample_detail.get('sequencing_type') or ''
     #关于hrd
-    hrd_hisens_loh = overview.get('hrd_hisens_loh')
-    hrd_hisens_tai = overview.get('hrd_hisens_tai')
-    hrd_hisens_lst = overview.get('hrd_hisens_lst')
+    hrd_hisens_loh = overview.get('hrd_hisens_loh') or 0
+    hrd_hisens_tai = overview.get('hrd_hisens_tai') or 0
+    hrd_hisens_lst = overview.get('hrd_hisens_lst') or 0
     hrd = hrd_hisens_loh + hrd_hisens_lst + hrd_hisens_tai
     paras_hr, items_hr = write_hrd(sequencing_type, data, [0.5, 0])
     # print len(variant_list), report_detail.keys()
@@ -2155,10 +2155,10 @@ def write_patient_info(data):
     ws = [2300, 2300, 3100, 2500]
     pPr = p.set(jc='left', spacing=[0.5, 0.5], line=16, rule='exact')
     ps = [
-        '姓名: %s' % sample_detail['patient_name'],
-        '性别: %s' % sex2str(sample_detail['sex']),
-        '年龄: %s' % sample_detail['age'],
-        '患者ID: %s' % sample_detail['sample_id'],
+        '姓名: %s' % sample_detail.get('patient_name'),
+        '性别: %s' % sex2str(sample_detail.get('sex')),
+        '年龄: %s' % sample_detail.get('age'),
+        '患者ID: %s' % sample_detail.get('sample_id'),
         '医院: %s' % sample_detail.get('inspection_department'),
         '病理诊断: %s' % sample_detail.get('diagnosis'),
         '组织类型: %s(肿瘤细胞纯度%s)+白细胞' % (sample_detail.get('sample_type'), purity),
