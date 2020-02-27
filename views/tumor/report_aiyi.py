@@ -2160,7 +2160,7 @@ def write_patient_info(data):
         '年龄: %s' % sample_detail.get('age'),
         '患者ID: %s' % sample_detail.get('sample_id'),
         '医院: %s' % sample_detail.get('inspection_department'),
-        '病理诊断: %s' % sample_detail.get('diagnosis'),
+        '病理诊断: %s' % (sample_detail.get('comment') or sample_detail.get('diagnosis')),
         '组织类型: %s(肿瘤细胞纯度%s)+白细胞' % (sample_detail.get('sample_type'), purity),
         '组织来源: %s' % sample_detail.get('tissue')
     ]

@@ -188,9 +188,7 @@ def tumor_download_panel():
         if res_neoantigens is not None:
             neoantigens = res_neoantigens.get('data') or []
 
-
     w_sum = 10200
-
     diagnose = sample_detail.get('diagnosis') or ''
     hla_genes = ['HLA-A', 'HLA-B', 'HLA-C']
     hla_items = []
@@ -416,7 +414,8 @@ def get_file():
     JINGD_DATA_ROOT = os.environ.get(env_key) or conf.get('jingd_data_root')
     path = os.path.join(JINGD_DATA_ROOT, root_path, pre)
     if os.path.exists(path) is False:
-        return 'Path not exists, %s' % path
+        os.makedirs(path)
+        return jsonify({'message': 'Path not exists, %s' % path})
     file2 = File(path)
     data = file2.get_file_list('s', '', postfix=postfix)
     data['data']['data_root'] = JINGD_DATA_ROOT
