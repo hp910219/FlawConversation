@@ -21,7 +21,9 @@ sys.setdefaultencoding('utf-8')
 
 app = create_app()
 restart_time = format_time(frm='%Y%m%d%H%M%S')
-
+dir_name = os.path.dirname(__file__)
+static_dir = os.path.join(dir_name, 'static')
+project_dir = os.path.dirname(dir_name)
 
 @app.route('/kobas3/')
 @app.route('/kobas3')
@@ -493,8 +495,23 @@ def get_avi_taxonomy():
     return jsonify({'data': items3, 'message': 'success'})
 
 
-if __name__ == '__main__':
+def update_static(project_dir, postfix1=''):
     import shutil
+    dist_dir = os.path.join(project_dir, 'dist')
+    for postfix in ['js', 'css']:
+        src_file_name = 'umi.%s' % postfix
+        file_name = src_file_name
+        if postfix1:
+            file_name = 'umi_%s.%s' % (postfix1, postfix)
+        src = os.path.join(dist_dir, src_file_name)
+        des = os.path.join(static_dir, file_name)
+        if os.path.exists(src):
+            print src, des
+            shutil.copy(src, des)
+
+
+if __name__ == '__main__':
+
     from jy_word.web_tool import get_host, killport
     port = 9003
     host_info = get_host(port)
@@ -503,20 +520,8 @@ if __name__ == '__main__':
     host_ip = host_info.get('ip')
     # killport(9005)
     killport(port)    # host_ip = '192.168.105.66'
-    dir_name = os.path.dirname(__file__)
-    static_dir = os.path.join(dir_name, 'static')
-    project_dir = os.path.dirname(dir_name)
-    tcm_dir = os.path.join(project_dir, 'TCM')
-    tcm_dist = os.path.join(tcm_dir, 'dist')
-    for postfix in ['js', 'css']:
-        file_name = 'umi.%s' % postfix
-        src = os.path.join(tcm_dist, file_name)
-        des = os.path.join(static_dir, file_name)
-        if os.path.exists(src):
-            shutil.copy(src, des)
-    src_kobars = r'D:\Projects\KOBARSWeb\KOBARSWeb\dist\umi.js'
-    des_kobars = os.path.join(static_dir, 'umi_kobars.js')
-    shutil.copy(src_kobars, des_kobars)
-    # shutil.copy(r'D:\pythonproject\KOBARSWeb\dist\umi.css', r'D:\pythonproject\TCMWeb\static\umi_kobars.css')
+
+    update_static(os.path.join(project_dir, 'TCM'))
+    update_static(os.path.join(project_dir, 'KOBARSWeb', 'KOBARSWeb'), 'kobars')
     # shutil.copytree(r'D:\pythonproject\KOBARSWeb\dist', r'D:\pythonproject\TCMWeb\templates\kobars')
     app.run(host=host_ip, port=port)
