@@ -239,10 +239,10 @@ def tumor_download_panel():
     if msi_score < 3.5:
         msi_info['sign'] = 'MSS'
     elif msi_score < 10:
-        msi_info['text'] = 'MSS微卫星低不稳定'
+        msi_info['text'] = 'MSI-L微卫星低不稳定'
         msi_info['sign'] = 'MSI-L'
     elif msi_score >= 10:
-        msi_info['text'] = 'MSS微卫星高不稳定'
+        msi_info['text'] = 'MSI-H微卫星高不稳定'
         msi_info['effect'] = 'PD1等免疫检查点抗体可能有效(A)'
         msi_info['level'] = 'A'
         msi_info['sign'] = 'MSI-H'
@@ -506,7 +506,7 @@ def update_static(project_dir, postfix1=''):
         src = os.path.join(dist_dir, src_file_name)
         des = os.path.join(static_dir, file_name)
         if os.path.exists(src):
-            print src, des
+            # print src, des
             shutil.copy(src, des)
 
 
