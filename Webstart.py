@@ -514,9 +514,9 @@ if __name__ == '__main__':
         des = os.path.join(static_dir, file_name)
         if os.path.exists(src):
             shutil.copy(src, des)
-    src_kobars = r'D:\pythonproject\KOBARSWeb\dist\umi.js'
-    des_kobars = r'D:\pythonproject\TCMWeb\static\umi_kobars.js'
-    # shutil.copy(src_kobars, des_kobars)
+    src_kobars = r'D:\Projects\KOBARSWeb\KOBARSWeb\dist\umi.js'
+    des_kobars = os.path.join(static_dir, 'umi_kobars.js')
+    shutil.copy(src_kobars, des_kobars)
     # shutil.copy(r'D:\pythonproject\KOBARSWeb\dist\umi.css', r'D:\pythonproject\TCMWeb\static\umi_kobars.css')
     # shutil.copytree(r'D:\pythonproject\KOBARSWeb\dist', r'D:\pythonproject\TCMWeb\templates\kobars')
     app.run(host=host_ip, port=port)
