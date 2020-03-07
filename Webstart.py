@@ -436,7 +436,7 @@ def get_file_content():
     data = my_file.read(path)
     import chardet
     try:
-        encoding = chardet.detect(data)['encoding']
+        encoding = chardet.detect(data[0])['encoding']
         data = data.decode(encoding, 'ignore').encode('utf-8')
     except:
         traceback.print_exc()
