@@ -509,7 +509,7 @@ def update_static(project_dir, postfix1=''):
 if __name__ == '__main__':
 
     from jy_word.web_tool import get_host, killport
-    port = 9004
+    port = 9003
     host_info = get_host(port)
     text = '/detection/admin/'
     '98a749a93a86d15af5b9634c2db53f71'
