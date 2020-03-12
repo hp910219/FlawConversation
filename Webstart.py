@@ -66,7 +66,6 @@ def upload_report():
         file_dir = conf.get('file_dir')
         if file_dir is None:
             return 'file_dir not in config.conf'
-        print request.files
         if len(request.files) == 0:
             return jsonify({"success": False, "message": 'select file'})
         for k in request.files:
@@ -76,10 +75,7 @@ def upload_report():
             if os.path.exists(dir_path) is False:
                 os.makedirs(dir_path)
             t = format_time(frm='%Y%m%d%H%M%S')
-            if len(name_array) == 1:
-                file_name = '%s%s' % (name_array[-1], t)
-            else:
-                file_name = '%s%s.%s' % (name_array[-2], t, name_array[-1])
+            file_name = '%s.%s' % (t, name_array[-1])
             path = os.path.join(dir_path, file_name)
             f.save(path)
             return jsonify({'path': path, "message": 'success'})
@@ -513,7 +509,7 @@ def update_static(project_dir, postfix1=''):
 if __name__ == '__main__':
 
     from jy_word.web_tool import get_host, killport
-    port = 9003
+    port = 9004
     host_info = get_host(port)
     text = '/detection/admin/'
     '98a749a93a86d15af5b9634c2db53f71'
@@ -522,6 +518,6 @@ if __name__ == '__main__':
     killport(port)    # host_ip = '192.168.105.66'
 
     update_static(os.path.join(project_dir, 'TCM'))
-    update_static(os.path.join(project_dir, 'KOBARSWeb', 'KOBARSWeb'), 'kobars')
+    update_static(os.path.join(project_dir, 'KOBARSWeb'), 'kobars')
     # shutil.copytree(r'D:\pythonproject\KOBARSWeb\dist', r'D:\pythonproject\TCMWeb\templates\kobars')
     app.run(host=host_ip, port=port)
