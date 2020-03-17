@@ -362,22 +362,22 @@ def merge_excel():
         dir1 = os.path.dirname(input_file1)
         dir2 = os.path.dirname(input_file2)
         lec1_merge = os.path.join(os.path.abspath(dir_name), 'lec1_merge')
-        cmd = 'docker run -u 3616:3610 --rm -v %s:%s -v %s:%s -v %s:%s -v %s:%s bio_r ' % (
-            dir1, dir1, dir2, dir2, path, path, lec1_merge, lec1_merge
-        )
+        cmd = 'docker run -u 3616:3610 --rm'
+        for i in list(set([dir1, dir2, path, lec1_merge])):
+            cmd += ' -v %s:%s' % (i, i)
+        cmd += ' bio_r '
         if env and env.startswith('Development'):
             cmd = ''
         print input_file1
         print input_file2
         print dir_name
-        print cmd
         # cmd = ''
         cmd += 'RScript %s/merge_demo.R %s %s %s %s %s AB' % (
             lec1_merge,
             input_file1, input_key1,
             input_file2, input_key2, output
         )
-
+        print cmd
         try:
             os.system(cmd)
         except:
