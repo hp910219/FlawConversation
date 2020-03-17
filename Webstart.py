@@ -365,9 +365,12 @@ def merge_excel():
         cmd = 'docker run -u 3616:3610 --rm -v %s:%s -v %s:%s -v %s:%s -v %s:%s bio_r ' % (
             dir1, dir1, dir2, dir2, path, path, lec1_merge, lec1_merge
         )
-        if env and env.startsWith('Development'):
+        if env and env.startswith('Development'):
             cmd = ''
-        # print cmd
+        print input_file1
+        print input_file2
+        print dir_name
+        print cmd
         # cmd = ''
         cmd += 'RScript %s/merge_demo.R %s %s %s %s %s AB' % (
             lec1_merge,
