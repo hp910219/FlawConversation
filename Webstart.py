@@ -372,7 +372,7 @@ def merge_excel():
         print input_file2
         print dir_name
         # cmd = ''
-        cmd += 'RScript %s/merge_demo.R %s %s %s %s %s AB' % (
+        cmd += 'Rscript %s/merge_demo.R %s %s %s %s %s AB' % (
             lec1_merge,
             input_file1, input_key1,
             input_file2, input_key2, output
@@ -396,7 +396,7 @@ def merge_excel():
         if os.path.exists(output):
             data = my_file.read(output)
             return jsonify({'data': {'items': data, 'file_path': output}, 'message': 'success', 'status': 100001})
-        return jsonify({'message': u'输出文件生成失败'})
+        return jsonify({'message': u'输出文件生成失败', 'cmd': cmd})
     return jsonify({'data': items, 'message': 'success'})
 
 
