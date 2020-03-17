@@ -332,6 +332,7 @@ def merge_excel():
     conf = read_conf()
     if isinstance(conf, str):
         return conf
+    env = conf.get('env')
     JINGD_DATA_ROOT = os.environ.get(env_key) or conf.get('jingd_data_root')
     path = os.path.join(JINGD_DATA_ROOT, 'excelApp')
     if os.path.exists(path) is False:
@@ -357,7 +358,19 @@ def merge_excel():
             input2 = rq.get('input2')
             my_file.write(input_file2, input2)
 
-        cmd = 'RScript lec1_merge/merge_demo.R %s %s %s %s %s AB' % (
+        # docker run -rm -v data_dir:/data -w /data bio_r
+        dir1 = os.path.dirname(input_file1)
+        dir2 = os.path.dirname(input_file2)
+        lec1_merge = os.path.join(os.path.abspath(dir_name), 'lec1_merge')
+        cmd = 'docker run -u 3616:3610 --rm -v %s:%s -v %s:%s -v %s:%s -v %s:%s bio_r ' % (
+            dir1, dir1, dir2, dir2, path, path, lec1_merge, lec1_merge
+        )
+        if env and env.startsWith('Development'):
+            cmd = ''
+        # print cmd
+        # cmd = ''
+        cmd += 'RScript %s/merge_demo.R %s %s %s %s %s AB' % (
+            lec1_merge,
             input_file1, input_key1,
             input_file2, input_key2, output
         )
