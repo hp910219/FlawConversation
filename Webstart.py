@@ -326,6 +326,64 @@ def download_file():
     return send_from_directory(dir_name, file_name, as_attachment=True, attachment_filename=attachment_filename)
 
 
+@app.route('/tumor/merge/excel/', methods=['GET', 'POST'])
+def merge_excel():
+    env_key = 'AY_USER_DATA_DIR'
+    conf = read_conf()
+    if isinstance(conf, str):
+        return conf
+    JINGD_DATA_ROOT = os.environ.get(env_key) or conf.get('jingd_data_root')
+    path = os.path.join(JINGD_DATA_ROOT, 'excelApp')
+    if os.path.exists(path) is False:
+        os.makedirs(path)
+        # return jsonify({'message': 'Path not exists, %s' % path})
+    excelApp = os.path.join(path, 'excel_app_info.json')
+    t = format_time(frm='%Y%m%d%H%M%S')
+    items = my_file.read(excelApp) or []
+    if request.method == 'POST':
+        rq = request.json
+        output = os.path.join(path, 'merge.output.%s.tsv' % t)
+        input_file1 = rq.get('input_file1')
+        input_file2 = rq.get('input_file2')
+        input_key1 = rq.get('input_key1')
+        input_key2 = rq.get('input_key2')
+        account = rq.get('account')
+        if input_file1 is None:
+            input_file1 = os.path.join(path, 'input_file1_%s.txt' % t)
+            input1 = rq.get('input1')
+            my_file.write(input_file1, input1)
+        if input_file2 is None:
+            input_file2 = os.path.join(path, 'input_file2_%s.txt' % t)
+            input2 = rq.get('input2')
+            my_file.write(input_file2, input2)
+
+        cmd = 'RScript lec1_merge/merge_demo.R %s %s %s %s %s AB' % (
+            input_file1, input_key1,
+            input_file2, input_key2, output
+        )
+
+        try:
+            os.system(cmd)
+        except:
+            return jsonify({'message': traceback.format_exc()})
+        new_item = {
+            'input_file1': input_file1,
+            'input_key1': input_key1,
+            'input_key2': input_key2,
+            'input_file2': input_file2,
+            'output': output,
+            'add_time': t,
+            'account': account
+        }
+        items.insert(0, new_item)
+        my_file.write(excelApp, items)
+        if os.path.exists(output):
+            data = my_file.read(output)
+            return jsonify({'data': {'items': data, 'file_path': output}, 'message': 'success', 'status': 100001})
+        return jsonify({'message': u'输出文件生成失败'})
+    return jsonify({'data': items, 'message': 'success'})
+
+
 @app.route("/tcm/auth/code/", methods=["GET", "POST", 'OPTIONS'])
 def auth_code():
     items = create_strs(1000)
