@@ -362,7 +362,7 @@ def merge_excel():
         dir1 = os.path.dirname(input_file1)
         dir2 = os.path.dirname(input_file2)
         lec1_merge = os.path.join(os.path.abspath(dir_name), 'lec1_merge')
-        cmd = 'docker run -u 3616:3610 --rm'
+        cmd = 'docker run --rm'
         for i in list(set([dir1, dir2, path, lec1_merge])):
             cmd += ' -v %s:%s' % (i, i)
         cmd += ' bio_r '
