@@ -330,7 +330,6 @@ def download_file():
 def merge_excel():
     env_key = 'AY_USER_DATA_DIR'
     conf = read_conf()
-    print conf
     if isinstance(conf, str):
         return conf
     env = conf.get('env')
@@ -363,7 +362,7 @@ def merge_excel():
         dir1 = os.path.dirname(input_file1)
         dir2 = os.path.dirname(input_file2)
         lec1_merge = os.path.join(os.path.abspath(dir_name), 'lec1_merge')
-        cmd = 'docker run --rm -v %s:%s -v %s:%s -v %s:%s -v %s:%s bio_r ' % (
+        cmd = 'docker run -u 3616:3610 --rm -v %s:%s -v %s:%s -v %s:%s -v %s:%s bio_r ' % (
             dir1, dir1, dir2, dir2, path, path, lec1_merge, lec1_merge
         )
         if env and env.startsWith('Development'):
