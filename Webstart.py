@@ -348,6 +348,7 @@ def merge_excel():
         input_file2 = rq.get('input_file2')
         input_key1 = rq.get('input_key1')
         input_key2 = rq.get('input_key2')
+        way = rq.get('way')
         account = rq.get('account')
         if input_file1 is None:
             input_file1 = os.path.join(path, 'input_file1_%s.txt' % t)
@@ -368,16 +369,13 @@ def merge_excel():
         cmd += ' bio_r '
         if env and env.startswith('Development'):
             cmd = ''
-        print input_file1
-        print input_file2
-        print dir_name
         # cmd = ''
-        cmd += 'Rscript %s/merge_demo.R %s %s %s %s %s AB' % (
+        cmd += 'Rscript %s/merge_demo.R %s %s %s %s %s %s' % (
             lec1_merge,
             input_file1, input_key1,
-            input_file2, input_key2, output
+            input_file2, input_key2,
+            output, way
         )
-        print cmd
         try:
             os.system(cmd)
         except:
