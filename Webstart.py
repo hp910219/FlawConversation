@@ -343,7 +343,7 @@ def merge_excel():
     items = my_file.read(excelApp) or []
     if request.method == 'POST':
         rq = request.json
-        output = os.path.join(path, 'merge.output.%s.tsv' % t)
+        output = os.path.join(path, 'merge.output.%s.txt' % t)
         input_file1 = rq.get('input_file1')
         input_file2 = rq.get('input_file2')
         input_key1 = rq.get('input_key1')
@@ -394,6 +394,65 @@ def merge_excel():
         if os.path.exists(output):
             data = my_file.read(output)
             return jsonify({'data': {'items': data, 'file_path': output}, 'message': 'success', 'status': 100001})
+        return jsonify({'message': u'输出文件生成失败', 'cmd': cmd})
+    return jsonify({'data': items, 'message': 'success'})
+
+
+@app.route('/tumor/tapply/', methods=['GET', 'POST'])
+def tapply():
+    env_key = 'AY_USER_DATA_DIR'
+    conf = read_conf()
+    if isinstance(conf, str):
+        return conf
+    env = conf.get('env')
+    JINGD_DATA_ROOT = os.environ.get(env_key) or conf.get('jingd_data_root')
+    path = os.path.join(JINGD_DATA_ROOT, 'tapply')
+    if os.path.exists(path) is False:
+        os.makedirs(path)
+        # return jsonify({'message': 'Path not exists, %s' % path})
+    tapply_info = os.path.join(path, 'tapply_app_info.json')
+    t = format_time(frm='%Y%m%d%H%M%S')
+    items = my_file.read(tapply_info) or []
+    if request.method == 'POST':
+        rq = request.json
+        output = os.path.join(path, 'tapply.output.%s.txt' % t)
+        input_file1 = rq.get('input_file1')
+        input_key1 = rq.get('input_key1')
+        if input_file1 is None:
+            input_file1 = os.path.join(path, 'input_file1_%s.txt' % t)
+            input1 = rq.get('input1')
+            my_file.write(input_file1, input1)
+
+        # docker run -rm -v data_dir:/data -w /data bio_r
+        dir1 = os.path.dirname(input_file1)
+        lec2_tapply = os.path.join(os.path.abspath(dir_name), 'lec2_tapply')
+        cmd = 'docker run --rm'
+        for i in list(set([dir1, path, lec2_tapply])):
+            cmd += ' -v %s:%s' % (i, i)
+        cmd += ' bio_r '
+        if env and env.startswith('Development'):
+            cmd = ''
+        # cmd = ''
+        cmd += 'Rscript %s/tapply_demo.R %s %s %s %s %s %s' % (
+            lec2_tapply,
+            input_file1, input_key1,
+            rq.get('start'), rq.get('end'),
+            output, rq.get('method')
+        )
+        print cmd
+        try:
+            os.system(cmd)
+        except:
+            return jsonify({'message': traceback.format_exc()})
+        rq.update({
+            'output': output,
+            'add_time': t,
+        })
+        items.insert(0, rq)
+        my_file.write(tapply_info, items)
+        if os.path.exists(output):
+            data = my_file.read(output)
+            return jsonify({'data': {'items': data, 'file_path': output, 'count': data.count('\n')}, 'message': 'success', 'status': 100001})
         return jsonify({'message': u'输出文件生成失败', 'cmd': cmd})
     return jsonify({'data': items, 'message': 'success'})
 
