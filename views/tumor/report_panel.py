@@ -1929,13 +1929,14 @@ def down_common(data, sort_func):
     img_info_path = os.path.join(dir_name, 'img_info_%s.json' % 'panel')
     gene_info_path = os.path.join(dir_name, 'OncoKB_gene_info.json')
 
-    patient_detail = data.get('sample_detail')
+    patient_detail = data.get('sample_detail') or {}
     patient_name = None
     if patient_detail:
         patient_name = patient_detail.get('patient_name')
     item_name = data.get('item_name')
     report_time = format_time(frm='%Y%m%d%H%M%S')
-    action_name = u'%s_%s_检测报告' % (patient_detail.get('sample_id'), patient_name)
+    sample_id = patient_detail.get('sample_id')
+    action_name = u'%s_%s_检测报告' % (sample_id, patient_name)
     conf = read_conf()
     if isinstance(conf, dict):
         file_dir = conf.get('file_dir') or '/tmp'
@@ -1951,6 +1952,7 @@ def down_common(data, sort_func):
         pkg = get_report_core(data)
     elif item_name == 'weizhi':
         from views.tumor.report_weizhi import get_report_core
+        file_name = os.path.join(report_dir, u'%s%s_实体瘤580检测报告_%s.doc' % (patient_name, sample_id, report_time))
         pkg = get_report_core(data)
     elif item_name == 'hereditary':
         from views.tumor.report_hereditary import get_report_core
