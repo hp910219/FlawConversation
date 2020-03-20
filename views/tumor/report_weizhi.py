@@ -369,7 +369,13 @@ def write_chapter0(title_cn, data):
     technology = '本检测基于第二代测序技术，捕获580个与癌症发生发展的生物学原理及个性化治疗方案高度相关的基因的重要外显子及部分内含子区域，以及其他50个基因在实体肿瘤中高发突变的热点区域，进行高深度测序，测量这些基因中出现的来自组织或循环肿瘤DNA的突变、重排、拷贝数增加等变异事件，从而对靶向、免疫、化学或其他可能的治疗方式根据证据等级进行提示。'
     overview = data.get('overview') or {}
     purity = float2percent(overview.get('purity'), 0)
-    tumor_mean_target_coverage = float2percent(overview.get('tumor_mean_target_coverage'), 1)
+    tumor_mean_target_coverage = overview.get('tumor_mean_target_coverage')
+    try:
+        tumor_mean_target_coverage = float(tumor_mean_target_coverage)
+        tumor_mean_target_coverage = round(tumor_mean_target_coverage, 1)
+    except:
+        tumor_mean_target_coverage
+
     tips = [
         {'title': '关于检测项目', 'text': technology + '\n相关局限性说明：由于肿瘤异质性等原因，本检测报告仅对本样本负责，患者诊疗决策需在临床医生指导下进行'},
         {
@@ -678,7 +684,7 @@ def write_chapter3(index, trs, chem_items):
         for rs_item0 in rs_list0:
             c2 += write_genotype(rs_item0, [1400, w_sum-1400])
     para = ''
-    para += h4_aiyi(cat=cats[1], spacing=[0, 0.5], outline=1, line=24, rule='auto', size=12, ind=['hanging', 1])
+    para += h4_aiyi(cat=cats[1], spacing=[0, 0.5], outline=1, line=24, rule='auto', size=11, ind=['hanging', 1])
     para += write_chemotherapy(trs)
     para += write_explain_new({'title': '结果说明', 'text': '该疗效预测汇总仅根据以下证据进行汇总。疗效预测证据主要来自CIVic数据库，并根据专家人工对相关证据进行梳理取舍。毒副作用证据及部分由基因多态性提供的疗效证据则来自于药物基因组数据库PharmGKB。采取该数据库二级以上的证据，并结合部分三级证据（不具备二级以上证据的情况下）。由于化学治疗的疗效影响因素较多，各个生物标志物的预测能力有限，且多个证据之间缺乏合理的证据平衡方式。目前初步采取多个证据之间目前采取均权投票的方式，即默认多个生物标志物的预测能力完全一致，仅根据各个证据的量进行评估,当相反证据量一致时，将证据级别纳入考量。'})
     para += h4_aiyi(cat=cats[2])
@@ -2454,7 +2460,7 @@ def write_immun_table(data, level='', color=''):
 
 def write_evidence_old(evidences):
     para = ''
-    para += p.write(p.set(spacing=[1.5, 0], ind=[0.5, 0]), r_aiyi.text('相关循证医学证据：', 12, weight=1, wingdings=True))
+    para += p.write(p.set(spacing=[1.5, 0], ind=[0.5, 0]), r_aiyi.text('相关循证医学证据：', '五号', weight=1, wingdings=True))
     for i in range(len(evidences)):
         text = evidences[i]
         p_set0 = p.set(spacing=[1, 0.5], shade=gray, ind=['hanging', 0.5], line=17, rule='exact')
@@ -2469,7 +2475,7 @@ def write_evidence_old(evidences):
 
 def write_evidence_new(evidences):
     para = ''
-    para += p.write(p.set(spacing=[0.5, 0.2]), r_aiyi.text('相关循证医学证据：', 12, weight=1, wingdings=True))
+    para += p.write(p.set(spacing=[0.5, 0.2]), r_aiyi.text('相关循证医学证据：', '五号', weight=1, wingdings=True))
     for i in range(len(evidences)):
         item = evidences[i]
         p_set = p.set(spacing=[0.2, 0.2])
@@ -2491,7 +2497,7 @@ def write_evidence_new(evidences):
 
 
 def write_evidence4(index):
-    para = p.write(p.set(spacing=[0.5, 1], ind=[0, 0]), r_aiyi.text('相关循证医学证据：', weight=1, wingdings=True))
+    para = p.write(p.set(spacing=[0.5, 1], ind=[0, 0]), r_aiyi.text('相关循证医学证据：', '五号', weight=1, wingdings=True))
     evidence_path = '4.%d.evidence.txt' % index
     evidence = []
     evidence = base_file.read(evidence_path, dict_name='').split('\n')
@@ -3113,7 +3119,7 @@ def get_catalog():
         [u"三、化学治疗提示", 0, 3, 10],
         [u"三、化学治疗提示", 2, 4, 23],
         [u"各化疗药循证医学证据", 2, 5, 23],
-        [u"四、最新研究进展治疗提示", 0, 5, 10],
+        [u"四、肿瘤遗传性检测结果", 0, 5, 10],
         [u"肿瘤突变模式检测结果", 2, 8, 23],
         [u"肿瘤遗传性检测结果", 2, 8, 23],
         [u"五、基因突变检测结果汇总", 0, 5, 10],
