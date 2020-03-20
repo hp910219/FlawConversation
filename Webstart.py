@@ -362,7 +362,7 @@ def merge_excel():
         # docker run -rm -v data_dir:/data -w /data bio_r
         dir1 = os.path.dirname(input_file1)
         dir2 = os.path.dirname(input_file2)
-        lec1_merge = os.path.join(os.path.abspath(dir_name), 'lec1_merge')
+        lec1_merge = '/public/jingdu/budechao/lecture/lec1_merge'
         cmd = 'docker run --rm'
         for i in list(set([dir1, dir2, path, lec1_merge])):
             cmd += ' -v %s:%s' % (i, i)
@@ -425,7 +425,7 @@ def tapply():
 
         # docker run -rm -v data_dir:/data -w /data bio_r
         dir1 = os.path.dirname(input_file1)
-        lec2_tapply = os.path.join(os.path.abspath(dir_name), 'lec2_tapply')
+        lec2_tapply = '/public/jingdu/budechao/lecture/lec2_tapply'
         cmd = 'docker run --rm'
         for i in list(set([dir1, path, lec2_tapply])):
             cmd += ' -v %s:%s' % (i, i)
