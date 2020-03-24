@@ -457,6 +457,132 @@ def tapply():
     return jsonify({'data': items, 'message': 'success'})
 
 
+@app.route('/tumor/reorder/', methods=['GET', 'POST'])
+def reorder_col():
+    env_key = 'AY_USER_DATA_DIR'
+    conf = read_conf()
+    if isinstance(conf, str):
+        return conf
+    env = conf.get('env')
+    JINGD_DATA_ROOT = os.environ.get(env_key) or conf.get('jingd_data_root')
+    app_name = 'reorder'
+    r_dir = '/public/jingdu/budechao/lecture/lec3_reorder'
+    r_path = os.path.join(r_dir, 'reorder_col.R')
+    path = os.path.join(JINGD_DATA_ROOT, app_name)
+    if os.path.exists(path) is False:
+        os.makedirs(path)
+        # return jsonify({'message': 'Path not exists, %s' % path})
+    tapply_info = os.path.join(path, '%s_app_info.json' % app_name)
+    t = format_time(frm='%Y%m%d%H%M%S')
+    items = my_file.read(tapply_info) or []
+    if request.method == 'POST':
+        rq = request.json
+        output = os.path.join(path, '%s.output.%s.txt' % (app_name, t))
+        input_file1 = rq.get('input_file1')
+        if input_file1 is None:
+            input_file1 = os.path.join(path, 'input_file1_%s.txt' % t)
+            input1 = rq.get('input1')
+            my_file.write(input_file1, input1)
+        order_file = rq.get('order_file')
+        if order_file is None:
+            order_file = os.path.join(path, 'order_file_%s.txt' % t)
+            my_file.write(order_file, rq.get('order'))
+
+        # docker run -rm -v data_dir:/data -w /data bio_r
+        dir1 = os.path.dirname(input_file1)
+
+        cmd = 'docker run --rm'
+        for i in list(set([dir1, path, order_file, r_dir])):
+            cmd += ' -v %s:%s' % (i, i)
+        cmd += ' bio_r '
+        if env and env.startswith('Development'):
+            cmd = ''
+        cmd += 'Rscript %s %s %s %s' % (
+            r_path,
+            input_file1, order_file,
+            output
+        )
+        try:
+            os.system(cmd)
+        except:
+            return jsonify({'message': traceback.format_exc()})
+        rq.update({
+            'output': output,
+            'add_time': t,
+        })
+        items.insert(0, rq)
+        my_file.write(tapply_info, items)
+        if os.path.exists(output):
+            data = my_file.read(output)
+            return jsonify({'data': {'items': data, 'file_path': output, 'count': data.count('\n')}, 'message': 'success', 'status': 100001})
+        return jsonify({'message': u'输出文件生成失败', 'cmd': cmd})
+    return jsonify({'data': items, 'message': 'success'})
+
+
+@app.route('/tumor/join/', methods=['GET', 'POST'])
+def join_table():
+    env_key = 'AY_USER_DATA_DIR'
+    conf = read_conf()
+    if isinstance(conf, str):
+        return conf
+    env = conf.get('env')
+    JINGD_DATA_ROOT = os.environ.get(env_key) or conf.get('jingd_data_root')
+    app_name = 'join'
+    r_dir = '/public/jingdu/budechao/lecture/lec4_join'
+    r_path = os.path.join(r_dir, 'join_demo.R')
+    result_dir = os.path.join(JINGD_DATA_ROOT, app_name)
+    if os.path.exists(result_dir) is False:
+        os.makedirs(result_dir)
+        # return jsonify({'message': 'Path not exists, %s' % path})
+    tapply_info = os.path.join(result_dir, '%s_app_info.json' % app_name)
+    t = format_time(frm='%Y%m%d%H%M%S')
+    items = my_file.read(tapply_info) or []
+    if request.method == 'POST':
+        rq = request.json
+        output = os.path.join(result_dir, '%s.output.%s.txt' % (app_name, t))
+        input_file1 = rq.get('input_file1')
+        if input_file1 is None:
+            input_file1 = os.path.join(result_dir, 'input_file1_%s.txt' % t)
+            input1 = rq.get('input1')
+            my_file.write(input_file1, input1)
+        input_file2 = rq.get('input_file2')
+        if input_file2 is None:
+            input_file2 = os.path.join(result_dir, 'input_file2_%s.txt' % t)
+            my_file.write(input_file2, rq.get('input2'))
+
+        # docker run -rm -v data_dir:/data -w /data bio_r
+        dir1 = os.path.dirname(input_file1)
+        dir2 = os.path.dirname(input_file2)
+
+        cmd = 'docker run --rm'
+        for i in list(set([dir1, dir2, result_dir, input_file2, r_dir])):
+            cmd += ' -v %s:%s' % (i, i)
+        cmd += ' bio_r '
+        if env and env.startswith('Development'):
+            cmd = ''
+        cmd += 'Rscript %s %s %s %s %s' % (
+            r_path,
+            input_file1, input_file2,
+            output, rq.get('id')
+        )
+        print cmd
+        try:
+            os.system(cmd)
+        except:
+            return jsonify({'message': traceback.format_exc()})
+        rq.update({
+            'output': output,
+            'add_time': t,
+        })
+        items.insert(0, rq)
+        my_file.write(tapply_info, items)
+        if os.path.exists(output):
+            data = my_file.read(output)
+            return jsonify({'data': {'items': data, 'file_path': output, 'count': data.count('\n')}, 'message': 'success', 'status': 100001})
+        return jsonify({'message': u'输出文件生成失败', 'cmd': cmd})
+    return jsonify({'data': items, 'message': 'success'})
+
+
 @app.route("/tcm/auth/code/", methods=["GET", "POST", 'OPTIONS'])
 def auth_code():
     items = create_strs(1000)
