@@ -327,245 +327,108 @@ def download_file():
 
 
 @app.route('/tumor/merge/excel/', methods=['GET', 'POST'])
-def merge_excel():
-    env_key = 'AY_USER_DATA_DIR'
-    conf = read_conf()
-    if isinstance(conf, str):
-        return conf
-    env = conf.get('env')
-    JINGD_DATA_ROOT = os.environ.get(env_key) or conf.get('jingd_data_root')
-    path = os.path.join(JINGD_DATA_ROOT, 'excelApp')
-    if os.path.exists(path) is False:
-        os.makedirs(path)
-        # return jsonify({'message': 'Path not exists, %s' % path})
-    excelApp = os.path.join(path, 'excel_app_info.json')
-    t = format_time(frm='%Y%m%d%H%M%S')
-    items = my_file.read(excelApp) or []
-    if request.method == 'POST':
-        rq = request.json
-        output = os.path.join(path, 'merge.output.%s.txt' % t)
-        input_file1 = rq.get('input_file1')
-        input_file2 = rq.get('input_file2')
+def tumor_merge():
+    def sort_merge(rq, r_path, output, result_dir, t):
+        input_file1 = sort_app_file('input1', 'input_file1', result_dir, t)
+        input_file2 = sort_app_file('input2', 'input_file2', result_dir, t)
         input_key1 = rq.get('input_key1')
         input_key2 = rq.get('input_key2')
         way = rq.get('way')
-        account = rq.get('account')
-        if input_file1 is None:
-            input_file1 = os.path.join(path, 'input_file1_%s.txt' % t)
-            input1 = rq.get('input1')
-            my_file.write(input_file1, input1)
-        if input_file2 is None:
-            input_file2 = os.path.join(path, 'input_file2_%s.txt' % t)
-            input2 = rq.get('input2')
-            my_file.write(input_file2, input2)
-
-        # docker run -rm -v data_dir:/data -w /data bio_r
-        dir1 = os.path.dirname(input_file1)
-        dir2 = os.path.dirname(input_file2)
-        lec1_merge = '/public/jingdu/budechao/lecture/lec1_merge'
-        cmd = 'docker run --rm'
-        for i in list(set([dir1, dir2, path, lec1_merge])):
-            cmd += ' -v %s:%s' % (i, i)
-        cmd += ' bio_r '
-        if env and env.startswith('Development'):
-            cmd = ''
-        # cmd = ''
-        cmd += 'Rscript %s/merge_demo.R %s %s %s %s %s %s' % (
-            lec1_merge,
+        print input_file1
+        print input_file2
+        cmd = 'Rscript %s %s %s %s %s %s %s' % (
+            r_path,
             input_file1, input_key1,
             input_file2, input_key2,
             output, way
         )
-        try:
-            os.system(cmd)
-        except:
-            return jsonify({'message': traceback.format_exc()})
-        new_item = {
-            'input_file1': input_file1,
-            'input_key1': input_key1,
-            'input_key2': input_key2,
-            'input_file2': input_file2,
-            'output': output,
-            'add_time': t,
-            'account': account
-        }
-        items.insert(0, new_item)
-        my_file.write(excelApp, items)
-        if os.path.exists(output):
-            data = my_file.read(output)
-            return jsonify({'data': {'items': data, 'file_path': output}, 'message': 'success', 'status': 100001})
-        return jsonify({'message': u'输出文件生成失败', 'cmd': cmd})
-    return jsonify({'data': items, 'message': 'success'})
+        return cmd, [os.path.dirname(input_file1), os.path.dirname(input_file2)]
+    return tumor_app('merge', '/public/jingdu/budechao/lecture/lec1_merge/merge_demo.R', sort_merge)
 
 
 @app.route('/tumor/tapply/', methods=['GET', 'POST'])
-def tapply():
-    env_key = 'AY_USER_DATA_DIR'
-    conf = read_conf()
-    if isinstance(conf, str):
-        return conf
-    env = conf.get('env')
-    JINGD_DATA_ROOT = os.environ.get(env_key) or conf.get('jingd_data_root')
-    path = os.path.join(JINGD_DATA_ROOT, 'tapply')
-    if os.path.exists(path) is False:
-        os.makedirs(path)
-        # return jsonify({'message': 'Path not exists, %s' % path})
-    tapply_info = os.path.join(path, 'tapply_app_info.json')
-    t = format_time(frm='%Y%m%d%H%M%S')
-    items = my_file.read(tapply_info) or []
-    if request.method == 'POST':
-        rq = request.json
-        output = os.path.join(path, 'tapply.output.%s.txt' % t)
-        input_file1 = rq.get('input_file1')
+def tumor_tapply():
+    def sort_tapply(rq, r_path, output, result_dir, t):
+        input_file1 = sort_app_file('input1', 'input_file1', result_dir, t)
         input_key1 = rq.get('input_key1')
-        if input_file1 is None:
-            input_file1 = os.path.join(path, 'input_file1_%s.txt' % t)
-            input1 = rq.get('input1')
-            my_file.write(input_file1, input1)
-
-        # docker run -rm -v data_dir:/data -w /data bio_r
-        dir1 = os.path.dirname(input_file1)
-        lec2_tapply = '/public/jingdu/budechao/lecture/lec2_tapply'
-        cmd = 'docker run --rm'
-        for i in list(set([dir1, path, lec2_tapply])):
-            cmd += ' -v %s:%s' % (i, i)
-        cmd += ' bio_r '
-        if env and env.startswith('Development'):
-            cmd = ''
-        # cmd = ''
-        cmd += 'Rscript %s/tapply_demo.R %s %s %s %s %s %s' % (
-            lec2_tapply,
+        cmd = 'Rscript %s %s %s %s %s %s %s' % (
+            r_path,
             input_file1, input_key1,
             rq.get('start'), rq.get('end'),
             output, rq.get('method')
         )
-        print cmd
-        try:
-            os.system(cmd)
-        except:
-            return jsonify({'message': traceback.format_exc()})
-        rq.update({
-            'output': output,
-            'add_time': t,
-        })
-        items.insert(0, rq)
-        my_file.write(tapply_info, items)
-        if os.path.exists(output):
-            data = my_file.read(output)
-            return jsonify({'data': {'items': data, 'file_path': output, 'count': data.count('\n')}, 'message': 'success', 'status': 100001})
-        return jsonify({'message': u'输出文件生成失败', 'cmd': cmd})
-    return jsonify({'data': items, 'message': 'success'})
+        return cmd, [os.path.dirname(input_file1)]
+    return tumor_app('tapply', '/public/jingdu/budechao/lecture/lec2_tapply/tapply_demo.R', sort_tapply)
 
 
 @app.route('/tumor/reorder/', methods=['GET', 'POST'])
 def reorder_col():
-    env_key = 'AY_USER_DATA_DIR'
-    conf = read_conf()
-    if isinstance(conf, str):
-        return conf
-    env = conf.get('env')
-    JINGD_DATA_ROOT = os.environ.get(env_key) or conf.get('jingd_data_root')
-    app_name = 'reorder'
-    r_dir = '/public/jingdu/budechao/lecture/lec3_reorder'
-    r_path = os.path.join(r_dir, 'reorder_col.R')
-    path = os.path.join(JINGD_DATA_ROOT, app_name)
-    if os.path.exists(path) is False:
-        os.makedirs(path)
-        # return jsonify({'message': 'Path not exists, %s' % path})
-    tapply_info = os.path.join(path, '%s_app_info.json' % app_name)
-    t = format_time(frm='%Y%m%d%H%M%S')
-    items = my_file.read(tapply_info) or []
-    if request.method == 'POST':
-        rq = request.json
-        output = os.path.join(path, '%s.output.%s.txt' % (app_name, t))
-        input_file1 = rq.get('input_file1')
-        if input_file1 is None:
-            input_file1 = os.path.join(path, 'input_file1_%s.txt' % t)
-            input1 = rq.get('input1')
-            my_file.write(input_file1, input1)
-        order_file = rq.get('order_file')
-        if order_file is None:
-            order_file = os.path.join(path, 'order_file_%s.txt' % t)
-            my_file.write(order_file, rq.get('order'))
-
-        # docker run -rm -v data_dir:/data -w /data bio_r
-        dir1 = os.path.dirname(input_file1)
-
-        cmd = 'docker run --rm'
-        for i in list(set([dir1, path, order_file, r_dir])):
-            cmd += ' -v %s:%s' % (i, i)
-        cmd += ' bio_r '
-        if env and env.startswith('Development'):
-            cmd = ''
-        cmd += 'Rscript %s %s %s %s' % (
+    def sort_reorder(rq, r_path, output, result_dir, t):
+        input_file1 = sort_app_file('input1', 'input_file1', result_dir, t)
+        order_file = sort_app_file('order', 'order_file', result_dir, t)
+        cmd = 'Rscript %s %s %s %s' % (
             r_path,
             input_file1, order_file,
             output
         )
-        try:
-            os.system(cmd)
-        except:
-            return jsonify({'message': traceback.format_exc()})
-        rq.update({
-            'output': output,
-            'add_time': t,
-        })
-        items.insert(0, rq)
-        my_file.write(tapply_info, items)
-        if os.path.exists(output):
-            data = my_file.read(output)
-            return jsonify({'data': {'items': data, 'file_path': output, 'count': data.count('\n')}, 'message': 'success', 'status': 100001})
-        return jsonify({'message': u'输出文件生成失败', 'cmd': cmd})
-    return jsonify({'data': items, 'message': 'success'})
+        return cmd, [os.path.dirname(input_file1), os.path.dirname(order_file)]
+    return tumor_app('reorder', '/public/jingdu/budechao/lecture/lec3_reorder/reorder_col.R', sort_reorder)
 
 
 @app.route('/tumor/join/', methods=['GET', 'POST'])
 def join_table():
+    def sort_join(rq, r_path, output, result_dir, t):
+        input_file1 = sort_app_file('input1', 'input_file1', result_dir, t)
+        input_file2 = sort_app_file('input2', 'input_file2', result_dir, t)
+        dir1 = os.path.dirname(input_file1)
+        dir2 = os.path.dirname(input_file2)
+        cmd = 'Rscript %s %s %s %s %s' % (
+            r_path,
+            input_file1, input_file2,
+            output, rq.get('id')
+        )
+        return cmd, [dir1, dir2]
+    return tumor_app('join', '/public/jingdu/budechao/lecture/lec4_join/join_demo.R', sort_join)
+
+
+def sort_app_file(key, file_key, result_dir, t):
+    rq = request.json
+    input_file1 = rq.get(file_key)
+    if input_file1 is None:
+        input_file1 = os.path.join(result_dir, '%s_%s.txt' % (file_key, t))
+        my_file.write(input_file1, rq.get(key))
+    return input_file1
+
+
+def tumor_app(app_name, r_path, sort_func):
     env_key = 'AY_USER_DATA_DIR'
     conf = read_conf()
     if isinstance(conf, str):
         return conf
     env = conf.get('env')
     JINGD_DATA_ROOT = os.environ.get(env_key) or conf.get('jingd_data_root')
-    app_name = 'join'
-    r_dir = '/public/jingdu/budechao/lecture/lec4_join'
-    r_path = os.path.join(r_dir, 'join_demo.R')
-    result_dir = os.path.join(JINGD_DATA_ROOT, app_name)
-    if os.path.exists(result_dir) is False:
-        os.makedirs(result_dir)
+    r_dir = os.path.dirname(r_path)
+    output_dir = os.path.join(JINGD_DATA_ROOT, app_name)
+    if os.path.exists(output_dir) is False:
+        os.makedirs(output_dir)
         # return jsonify({'message': 'Path not exists, %s' % path})
-    tapply_info = os.path.join(result_dir, '%s_app_info.json' % app_name)
+    tapply_info = os.path.join(output_dir, '%s_app_info.json' % app_name)
     t = format_time(frm='%Y%m%d%H%M%S')
     items = my_file.read(tapply_info) or []
     if request.method == 'POST':
         rq = request.json
-        output = os.path.join(result_dir, '%s.output.%s.txt' % (app_name, t))
-        input_file1 = rq.get('input_file1')
-        if input_file1 is None:
-            input_file1 = os.path.join(result_dir, 'input_file1_%s.txt' % t)
-            input1 = rq.get('input1')
-            my_file.write(input_file1, input1)
-        input_file2 = rq.get('input_file2')
-        if input_file2 is None:
-            input_file2 = os.path.join(result_dir, 'input_file2_%s.txt' % t)
-            my_file.write(input_file2, rq.get('input2'))
-
+        output = os.path.join(output_dir, '%s.output.%s.txt' % (app_name, t))
+        cmd_dev, dirs = sort_func(rq, r_path, output, output_dir, t)
+        dirs += [output_dir, r_dir]
         # docker run -rm -v data_dir:/data -w /data bio_r
-        dir1 = os.path.dirname(input_file1)
-        dir2 = os.path.dirname(input_file2)
-
         cmd = 'docker run --rm'
-        for i in list(set([dir1, dir2, result_dir, input_file2, r_dir])):
+        for i in list(set(dirs)):
             cmd += ' -v %s:%s' % (i, i)
         cmd += ' bio_r '
         if env and env.startswith('Development'):
             cmd = ''
-        cmd += 'Rscript %s %s %s %s %s' % (
-            r_path,
-            input_file1, input_file2,
-            output, rq.get('id')
-        )
-        print cmd
+        cmd += cmd_dev
+        print app_name, cmd
         try:
             os.system(cmd)
         except:
