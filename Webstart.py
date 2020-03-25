@@ -428,7 +428,6 @@ def tumor_app(app_name, r_path, sort_func):
         if env and env.startswith('Development'):
             cmd = ''
         cmd += cmd_dev
-        print app_name, cmd
         try:
             os.system(cmd)
         except:
