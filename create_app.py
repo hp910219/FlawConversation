@@ -46,6 +46,8 @@ def sort_request1(method, url, api_service='api', auth=None, data=None, remote_a
         port = ports[api_service]
         if conf.get('port'):
             port = conf.get('port')
+        if conf.get(api_service):
+            port = conf.get(api_service)
         # if
         api_url = endpoint + ':' + port + url
         data = data or {}
