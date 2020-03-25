@@ -417,7 +417,8 @@ def tumor_app(app_name, r_path, sort_func):
     items = my_file.read(tapply_info) or []
     if request.method == 'POST':
         rq = request.json
-        output = os.path.join(output_dir, '%s.output.%s.txt' % (app_name, t))
+        output_file = '%s.output.%s.txt' % (app_name, t)
+        output = os.path.join(output_dir, output_file)
         cmd_dev, dirs = sort_func(rq, r_path, output, output_dir, t)
         dirs += [output_dir, r_dir]
         # docker run -rm -v data_dir:/data -w /data bio_r
@@ -439,8 +440,8 @@ def tumor_app(app_name, r_path, sort_func):
         items.insert(0, rq)
         my_file.write(tapply_info, items)
         if os.path.exists(output):
-            data = my_file.read(output)
-            return jsonify({'data': {'items': data, 'file_path': output, 'count': data.count('\n')}, 'message': 'success', 'status': 100001})
+            # data = my_file.read(output)
+            return jsonify({'data': {'file_path': output, 'dir': output_dir, 'file_name': output_file}, 'message': 'success', 'status': 100001})
         return jsonify({'message': u'输出文件生成失败', 'cmd': cmd})
     return jsonify({'data': items, 'message': 'success'})
 
