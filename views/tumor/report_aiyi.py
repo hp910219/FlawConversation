@@ -1046,7 +1046,8 @@ def write_chapter21(ch):
         p.set(jc='center', spacing=[ch['before'], 0]),
         run=r_aiyi.picture(cy=ch['cy'], rId=ch['img_id'], posOffset=[0, 0.5], align=['center', ''])
     )
-    para += p.write(p.set(jc='center', spacing=[ch['note_before'], 0]), r_aiyi.text(ch['note'], size=8.5))
+    if ch['note']:
+        para += p.write(p.set(jc='center', spacing=[ch['note_before'], 0]), r_aiyi.text(ch['note'], size=8.5))
     for i in ch['infos']:
         para += write_explain(i)
     return para
