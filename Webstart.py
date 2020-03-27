@@ -256,7 +256,7 @@ def tumor_download_panel():
         'w': w_sum-300-3000,
         'result': 'TMB肿瘤突变负荷低 （%s个突变/Mb）' % (tmb),
         'level': '',
-        'tmb_tip': tmb_tip,
+        'tmb_tip': '',
         'effect': 'PD1等免疫检查点抗体治疗可能效果不显著'
     }
     tmb_percentage = overview.get('tmb_percentage')
