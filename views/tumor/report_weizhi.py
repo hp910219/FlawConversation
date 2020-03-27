@@ -273,8 +273,8 @@ def write_cover(data):
                     r_aiyi.text('Precision Oncology & Personalized Treatment', '小三', weight=1, color=RGB_to_Hex('75,172,198')))
     texts = [
         {'label': '项目名称', 'value': u'实体瘤580基因检测'},
-        {'label': '患者姓名', 'key': 'patient_name', 'value': u'中文'},
-        {'label': '样本编号', 'key': 'sample_id', 'value': 'TEDGDFGDRT30984'},
+        {'label': '患者姓名', 'key': 'patient_name'},
+        {'label': '样本编号', 'key': 'sample_id'},
         {'label': '送检医院', 'key': 'inspection_department'},
         {'label': '收样日期'},
         {'label': '报告日期', 'value': report_time},
