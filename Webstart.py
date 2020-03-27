@@ -391,6 +391,25 @@ def join_table():
     return tumor_app('join', '/public/jingdu/budechao/lecture/lec4_join/join_demo.R', sort_join)
 
 
+@app.route('/tumor/pheatmap/', methods=['GET', 'POST'])
+def pheatmap_colTree():
+    def sort_pheatmap(rq, r_path, output, result_dir, t):
+        input_file1 = sort_app_file('input1', 'input_file1', result_dir, t)
+        dir1 = os.path.dirname(input_file1)
+        ftsize_row = rq.get('ftsize_row')
+        ftsize_col = rq.get('ftsize_col')
+        cluster_method = rq.get('cluster_method')
+        output_file = '%spdf' % output[:-3]
+        cmd = 'Rscript %s %s %s %s %s %s %s' % (
+            r_path,
+            input_file1, output_file, ftsize_row, ftsize_col,
+            cluster_method, output
+        )
+        print cmd
+        return cmd, [dir1]
+    return tumor_app('pheatmap', '/public/jingdu/budechao/scripts/run_pheatmap_colTree.R', sort_pheatmap)
+
+
 def sort_app_file(key, file_key, result_dir, t):
     rq = request.json
     input_file1 = rq.get(file_key)
@@ -400,7 +419,7 @@ def sort_app_file(key, file_key, result_dir, t):
     return input_file1
 
 
-def tumor_app(app_name, r_path, sort_func):
+def tumor_app(app_name, r_path, sort_func, output_postfix='txt'):
     env_key = 'AY_USER_DATA_DIR'
     conf = read_conf()
     if isinstance(conf, str):
@@ -417,7 +436,7 @@ def tumor_app(app_name, r_path, sort_func):
     items = my_file.read(tapply_info) or []
     if request.method == 'POST':
         rq = request.json
-        output_file = '%s.output.%s.txt' % (app_name, t)
+        output_file = '%s.output.%s.%s' % (app_name, t, output_postfix)
         output = os.path.join(output_dir, output_file)
         cmd_dev, dirs = sort_func(rq, r_path, output, output_dir, t)
         dirs += [output_dir, r_dir]
