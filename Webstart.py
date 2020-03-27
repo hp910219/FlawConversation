@@ -501,11 +501,7 @@ def remark_crud():
     remark_dir = os.path.join(file_dir, 'remark')
     if os.path.exists(remark_dir) is False:
         os.makedirs(remark_dir)
-    items = []
-    for i in os.listdir(remark_dir):
-        path = os.path.join(remark_dir, i)
-        item = my_file.read(path)
-        items.append(item)
+
     method = request.headers.get('API-METHOD') or request.method
     t = format_time(frm='%Y%m%d%H%M%S')
     if method == 'POST':
@@ -513,7 +509,6 @@ def remark_crud():
         rq['add_time'] = t
         path_new = os.path.join(remark_dir, 'remark_%s.json' % t)
         my_file.write(path_new, rq)
-        items.append(rq)
     if method.lower() == 'delete':
         rq = request.json
         add_time = rq.get('add_time')
@@ -530,7 +525,12 @@ def remark_crud():
             item_put = my_file.read(path_put)
             item_put.update(rq)
             my_file.write(path_put, item_put)
-    account = request.args.get('account')
+    items = []
+    for i in os.listdir(remark_dir):
+        path = os.path.join(remark_dir, i)
+        item = my_file.read(path)
+        items.append(item)
+    account = request.args.get('account') if method == 'GET' else request.json.get('account')
     items = filter(lambda x: x.get('account') == account, items)
     items.reverse()
     return jsonify(items)
