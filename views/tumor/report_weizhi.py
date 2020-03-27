@@ -983,7 +983,7 @@ def write_common_diagnosis(data):
             {'db': 'variant_stars', 'gene': 'MGT', 'text': '甲基化'},
         ]
     else:
-        return ''
+        return '', ''
     d_items = []
     for d_item in d_genes:
         jihe = data[d_item.get('db')]
