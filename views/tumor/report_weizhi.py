@@ -272,7 +272,7 @@ def write_cover(data):
     para += p.write(p.set(jc='center', spacing=[0.5, 4]),
                     r_aiyi.text('Precision Oncology & Personalized Treatment', '小三', weight=1, color=RGB_to_Hex('75,172,198')))
     texts = [
-        {'label': '项目名称', 'value': u'实体瘤580基因检测'},
+        {'label': '项目名称', 'value': u'实体瘤680基因检测'},
         {'label': '患者姓名', 'key': 'patient_name'},
         {'label': '样本编号', 'key': 'sample_id'},
         {'label': '送检医院', 'key': 'inspection_department'},
@@ -366,7 +366,7 @@ def write_chapter0(title_cn, data):
     tcs_level1 += write_tc_weizhi({'text': '提示可能耐药', 'weight': 1, 'w': 1600, 'tcBorders': []})
     tcs_level1 += write_tc_weizhi({'text': ' ', 'weight': 1, 'w': w_sum-4500, 'tcBorders': [], 'gridSpan': 5})
     para += table.write(tr.write(tcs_level) + tr.write(tcs_level1), tblBorders=[]) + p.write()
-    technology = '本检测基于第二代测序技术，捕获580个与癌症发生发展的生物学原理及个性化治疗方案高度相关的基因的重要外显子及部分内含子区域，以及其他50个基因在实体肿瘤中高发突变的热点区域，进行高深度测序，测量这些基因中出现的来自组织或循环肿瘤DNA的突变、重排、拷贝数增加等变异事件，从而对靶向、免疫、化学或其他可能的治疗方式根据证据等级进行提示。'
+    technology = '本检测基于第二代测序技术，捕获680个与癌症发生发展的生物学原理及个性化治疗方案高度相关的基因的重要外显子及部分内含子区域，以及其他50个基因在实体肿瘤中高发突变的热点区域，进行高深度测序，测量这些基因中出现的来自组织或循环肿瘤DNA的突变、重排、拷贝数增加等变异事件，从而对靶向、免疫、化学或其他可能的治疗方式根据证据等级进行提示。'
     overview = data.get('overview') or {}
     purity = float2percent(overview.get('purity'), 0)
     tumor_mean_target_coverage = overview.get('tumor_mean_target_coverage')
@@ -592,7 +592,7 @@ def write_chapter2(index, data):
             'data': tmb_info,
             'w': 3200,
             'infos': [
-                {'title': '结果说明', 'text': '该结果通过580个基因的panel获得，该panel实际大小为2.4M，核算CDS区域为1.29M。TMB肿瘤突变负荷指平均每M（兆）区域，肿瘤细胞发生的非同义突变的个数。（证据级别说明：常规以10个突变/Mb标准时非小细胞肺癌证据级别为B级，结直肠癌和胰腺癌由于免疫治疗有效率低，常规阈值为20，其他所有癌种均为C级；当TMB大于20，高于绝大多数情况阈值时，非小细胞肺癌更新为A级，其他癌种（结直肠癌和胰腺癌除外）更新为B级。'},
+                {'title': '结果说明', 'text': '该结果通过680个基因的panel获得，该panel实际大小为2.4M，核算CDS区域为1.29M。TMB肿瘤突变负荷指平均每M（兆）区域，肿瘤细胞发生的非同义突变的个数。（证据级别说明：常规以10个突变/Mb标准时非小细胞肺癌证据级别为B级，结直肠癌和胰腺癌由于免疫治疗有效率低，常规阈值为20，其他所有癌种均为C级；当TMB大于20，高于绝大多数情况阈值时，非小细胞肺癌更新为A级，其他癌种（结直肠癌和胰腺癌除外）更新为B级。'},
                 {'title': '检测意义', 'text': 'TMB在多项临床研究中均被证明能够有效区分PD1抗体、CTLA4抗体等免疫检查位点抗体治疗是否有效的人群。综合型研究表明，在不同肿瘤中，不同患者的PD1抗体治疗有效性的差异55%可以由TMB的差异解释。TMB是不同肿瘤间体细胞突变量的评估。一般情况下，TMB越高，该肿瘤可能会拥有更多的肿瘤新生抗原，该肿瘤也越有可能在经过免疫检查位点抗体解除肿瘤免疫逃逸之后，被患者自身的免疫系统所识别，相关治疗在该患者身上也就越可能有效。'},
             ]
         }
