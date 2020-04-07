@@ -1952,7 +1952,7 @@ def down_common(data, sort_func):
         pkg = get_report_core(data)
     elif item_name == 'weizhi':
         from views.tumor.report_weizhi import get_report_core
-        file_name = os.path.join(report_dir, u'%s%s_实体瘤580检测报告_%s.doc' % (patient_name, sample_id, report_time))
+        file_name = os.path.join(report_dir, u'%s%s_实体瘤680检测报告_%s.doc' % (patient_name, sample_id, report_time))
         pkg = get_report_core(data)
     elif item_name == 'hereditary':
         from views.tumor.report_hereditary import get_report_core
