@@ -542,7 +542,7 @@ def write_result_dMMR(report_data):
     items = []
     sign = 'pMMR'
     for gene in genes:
-        item2 = filter(lambda x: x['gene'] == gene, report_data)
+        item2 = filter(lambda x: x.get('gene') == gene, report_data)
         col2 = '未检测到相关基因突变'
         col3 = '/'
         col4 = '/'
