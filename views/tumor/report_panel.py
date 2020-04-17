@@ -1571,7 +1571,7 @@ def write_patient_info(report_detail, cat):
 
 
 def write_abstract(data, cats):
-    stars = data.get('stars')
+    stars = data.get('variant_stars')
 
     paras = ''
     cat0 = cats[0]
@@ -1945,12 +1945,12 @@ def write_body(data):
 
 def sort_panel_data(data):
     # img_info_path = data['img_info']
-    # r_tcm.img_info_path = img_info_path
+    # r_tcm.img_info_path = img_info_pagth
     pkgs = ''
     rels = ''
     chapters = ''
     sample_detail = data.get('sample_detail') or {}
-    report_data = data.get('variant_stars') or []
+    report_data = data.get('stars') or []
     gene_info = data.get('gene_info') or []
 
     drug_path = os.path.join(dir_name, 'panel_demo', 'drugs.xlsx')
