@@ -213,6 +213,7 @@ def tumor_download_panel():
     svs_stars0 = filter(lambda x: x['add_star'] > 0, svs)
     svs_stars = filter(lambda x: filter_sv(x), svs)
     stars = sorted(variant_stars + cnvs_stars+svs_stars, key=lambda x: x['add_star'], reverse=True)
+    # stars = sorted(variant_stars, key=lambda x: x['add_star'], reverse=True)
     stars0 = sorted(variant_stars + cnvs_stars+svs_stars0, key=lambda x: x['add_star'], reverse=True)
 
     msi_sort_paired_total = overview.get('msi_sort_paired_total')
@@ -251,18 +252,24 @@ def tumor_download_panel():
     tmb_tip = '注：NSCLC未经选择人群PD抗体有效率，具吸烟史为22%，无吸烟史为10%'
     if diagnose in '结直肠癌':
         tmb_tip = '注：MSS微卫星稳定结直肠癌患者PD1抗体有效率为0%；MSI-H微卫星不稳定结直肠癌患者有效率为29.6%。'
+    tmb_percentage = overview.get('tmb_percentage')
+    # print tmb_percentage, type(tmb_percentage)
+    tmb_percentage = float2percent(tmb_percentage, 1)
+
     tmb_info = {
         'index': 'TMB',
         'w': w_sum-300-3000,
         'result': 'TMB肿瘤突变负荷低 （%s个突变/Mb）' % (tmb),
         'level': '',
         'tmb_tip': '',
-        'effect': 'PD1等免疫检查点抗体治疗可能效果不显著'
+        'effect': 'PD1等免疫检查点抗体治疗可能效果不显著',
+        'tmb_percentage': tmb_percentage,
+        'tmb': tmb
     }
-    tmb_percentage = overview.get('tmb_percentage')
+
     tmb_percentage_text = ''
     if tmb_percentage:
-        tmb_percentage_text = '，大于该癌种%s人群' % float2percent(tmb_percentage, 1)
+        tmb_percentage_text = '，大于该癌种%s人群' % tmb_percentage
     tmb_effect = '低'
     if tmb >= 10 and tmb < 20:
         if diagnose not in ['结直肠癌', '胰腺癌']:
@@ -334,8 +341,6 @@ def tumor_merge():
         input_key1 = rq.get('input_key1')
         input_key2 = rq.get('input_key2')
         way = rq.get('way')
-        print input_file1
-        print input_file2
         cmd = 'Rscript %s %s %s %s %s %s %s' % (
             r_path,
             input_file1, input_key1,

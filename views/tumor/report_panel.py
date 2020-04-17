@@ -54,7 +54,7 @@ normal_size = 10.5  # 五号
 none_text = 'NA'
 w_sum = 9620
 p_sect_normal = p.write(p.set(sect_pr=set_page(page_margin=[2.54, 1.9, 2.54, 1.9, 1.5, 1.75])))
-sect_pr_catalog = set_page('A4', footer='rIdFooter1', header='rIdHeader1')
+sect_pr_catalog = set_page('A4', footer='rIdFooter1')
 
 
 def get_dignosis():
@@ -189,9 +189,11 @@ def write_gray_tr(item):
     line = item.get('line') or 12
     color = item.get('color') or 'auto'
     tcBorders = item.get('border') or []
+    none = item.get('none')
+
     tcs = ''
     for i in range(len(texts)):
-        run = r_panel.text(texts[i], size, weight)
+        run = r_panel.text(texts[i] or none, size, weight)
         para = p.write(para_setting(line=line, rule='auto', jc=jc), run)
         tcs += tc.write(para, tc.set(ws[i], tcBorders=tcBorders, fill=fill, gridSpan=ws[i]/1200, color=color))
     return tr.write(tcs)
@@ -257,18 +259,20 @@ def write_abstract_drug(data, kind):
         [
             {'text': '基因', 'vMerge': '<w:vMerge w:val="restart"/>', 'w': 1200, 'key': 'gene'},
             {'text': '变异', 'vMerge': '<w:vMerge w:val="restart"/>', 'w': 1300, 'key': 'amino_acid_change'},
-            {'text': 'FDA/CFDA批准用于本癌种', 'vMerge': '', 'w': 3620, 'key': 'A', 'gridSpan': 2},
-            {'text': 'FDA/CFDA批准用于其他癌种', 'vMerge': '<w:vMerge w:val="restart"/>', 'w': 1900, 'key': 'B'},
-            {'text': '临床试验药物', 'vMerge': '<w:vMerge w:val="restart"/>', 'w': 1700, 'key': 'amino_acid_change'},
+            # {'text': 'FDA/CFDA批准用于本癌种', 'vMerge': '', 'w': 3620, 'key': 'A', 'gridSpan': 2},
+            {'text': 'FDA/NCCN推荐级别', 'vMerge': '', 'w': 1810, 'key': 'A'},
+            {'text': '专家共识级别', 'vMerge': '', 'w': 1810, 'key': 'B'},
+            {'text': '临床证据级别', 'vMerge': '<w:vMerge w:val="restart"/>', 'w': 1900, 'key': 'C'},
+            {'text': '临床前证据级别', 'vMerge': '<w:vMerge w:val="restart"/>', 'w': 1700, 'key': 'D'},
         ],
-        [
-            {'text': ' ', 'vMerge': '<w:vMerge/>', 'w': 1200, 'key': 'gene'},
-            {'text': ' ', 'vMerge': '<w:vMerge/>', 'w': 1300, 'key': 'amino_acid_change'},
-            {'text': '靶点获批药物', 'vMerge': '', 'w': 1810, 'key': 'A'},
-            {'text': '潜在靶点药物', 'vMerge': '', 'w': 1810, 'key': 'B'},
-            {'text': '', 'vMerge': '<w:vMerge/>', 'w': 1900, 'key': 'C'},
-            {'text': '', 'vMerge': '<w:vMerge/>', 'w': 1700, 'key': 'D'},
-        ]
+        # [
+        #     {'text': ' ', 'vMerge': '<w:vMerge/>', 'w': 1200, 'key': 'gene'},
+        #     {'text': ' ', 'vMerge': '<w:vMerge/>', 'w': 1300, 'key': 'amino_acid_change'},
+        #     {'text': 'FDA/NCCN推荐级别', 'vMerge': '', 'w': 1810, 'key': 'A'},
+        #     {'text': '专家共识级别', 'vMerge': '', 'w': 1810, 'key': 'B'},
+        #     {'text': '', 'vMerge': '<w:vMerge/>', 'w': 1900, 'key': 'C'},
+        #     {'text': '', 'vMerge': '<w:vMerge/>', 'w': 1700, 'key': 'D'},
+        # ]
     ]
     trs = ''
     for tr_item in items:
@@ -282,14 +286,14 @@ def write_abstract_drug(data, kind):
     for d_item in data:
         tcs = ''
         arr = d_item.get(kind) or []
-        for tc_item1 in items[1]:
+        for tc_item1 in items[-1]:
             key = tc_item1['key']
             if key in ['A', 'B', 'C', 'D']:
                 arr1 = []
                 for x in arr:
                     if x.get('aiyi_level') == key:
                         arr1.append(x.get('drugs'))
-                d_item[key] = '\n'.join(arr1)
+                d_item[key] = '\n'.join(list(set(arr1)))
             tcs += write_tc_panel({
                 'text': d_item.get(key) or '/',
                 'w': tc_item1.get('w'),
@@ -303,7 +307,7 @@ def write_result_drug(data1, data2):
     items = [
         {'text': '药物敏感性', 'w': 1500, 'key': 'gene'},
         {'text': '药物名称', 'w': 1300, 'key': 'drug_name'},
-        {'text': '用药解析', 'w': 6800, 'key': 'drug_description'},
+        {'text': '用药解析', 'w': 6800, 'key': 'introduction'},
     ]
     trs = ''
     tcs = ''
@@ -311,7 +315,8 @@ def write_result_drug(data1, data2):
         tc_item['fill'] = green_bg
         tcs += write_tc_panel(tc_item)
     trs += tr.write(tcs)
-    datas = [{'title': '潜在获益药物', 'data': data1}, {'title': '潜在耐药药物', 'data': data2}]
+    # datas = [{'title': '潜在获益药物', 'data': data1}, {'title': '潜在耐药药物', 'data': data2}]
+    datas = [{'title': '潜在获益药物', 'data': data1}]
     for data11 in datas:
         data = data11.get('data')
         mingan = data11.get('title')
@@ -415,7 +420,6 @@ def write_abstract_gene(data):
 def write_result1(data, cat):
     diagnosis = data.get('diagnosis')
     stars = data.get('stars')
-    print data.get('huoyi')
     paras = ''
     paras += h2_panel(cat.get('title'), cat.get('bm'))
     size = 10
@@ -447,7 +451,7 @@ def write_result1(data, cat):
         run1 = r_panel.text('变异解析：', size, 1)
         for k in ['drug', 'diagnosis']:
             if k not in report_item:
-                report_item[k] = '（？？？）'
+                report_item[k] = '/'
         jiexi = '患者样本中检出的%s %s为%s，' % (gene, amino_acid_change, effect)
         jiexi += '该突变位于%s基因的第%s号外显子，' % (gene, exon_number)
         if len(p1) > 2:
@@ -470,33 +474,34 @@ def write_result1(data, cat):
             p_set,
             r_panel.text('基因描述：', size, 1) + r_panel.text(report_item.get(u'cn_intro'))
         )
-    paras += write_result_drug(stars, [])
+    print 'huoyi'
+    huoyi = []
+    for item in data.get('huoyi'):
+        drug_name = item.get('A') or ''
+        if drug_name:
+            drug_names = drug_name.split('\n')
+            for d_name in drug_names:
+                # if len(filter(lambda x: x.get('drug_name') == d_name, huoyi)) == 0:
+                d_items2 = filter(lambda x: x.get('en') == d_name.split('(')[0].strip(), data.get('drug_infos'))
+                huoyi += d_items2
+    paras += write_result_drug(huoyi, [])
     paras += p.write(r_panel.text('说明：PMID为PubMed数据库中收录文献的编号，PubMed数据库由美国国家医学图书馆(NLM)所属的国家生物技术信息中心(NCBI)开发，是使用最为广泛的医学文献数据库之一。', '小五'))
-    paras += write_result_drug_description('潜在获益药物说明', data.get('huoyi'), [
+
+    paras += write_result_drug_description('潜在获益药物说明', huoyi, [
         {'text': '药物名称', 'w': 1300, 'key': 'drug_name'},
         {'text': '商品名', 'w': 1300, 'key': 'product_name'},
-        {'text': '药物类型', 'w': 1300, 'key': 'drug_name'},
-        {'text': '审批状态', 'w': 800, 'key': 'drug_name'},
-        {'text': '药物说明', 'w': 4900, 'key': 'drug_description'}
-    ])
-    paras += p.write()
-    paras += write_result_drug_description('相关临床研究', stars, [
-        {'text': '基因', 'w': 1300, 'key': 'drug_name'},
-        {'text': '入组标准', 'w': 1500, 'key': 'drug_name'},
-        {'text': '适应症', 'w': 1500, 'key': 'drug_name'},
-        {'text': '临床研究\n编号', 'w': 1600, 'key': 'drug_name'},
-        {'text': '临床研究\n分期', 'w': 1600, 'key': 'drug_description'},
-        {'text': '描述', 'w': 2100, 'key': 'drug_description'},
+        {'text': '药物类型', 'w': 1300, 'key': 'drug_type'},
+        {'text': '审批状态', 'w': 800, 'key': 'state'},
+        {'text': '药物说明', 'w': 4900, 'key': 'introduction'}
     ])
     paras += p.write()
     paras += write_result_drug_description('检出变异总表', stars, [
         {'text': '基因', 'w': 1300, 'key': 'gene'},
         {'text': '转录本编号', 'w': 1600, 'key': 'transcript_id'},
-        {'text': '核苷酸\n变化', 'w': 1300, 'key': 'nucleotide_change'},
-        {'text': '氨基酸\n变化', 'w': 1300, 'key': 'amino_acid_change'},
-        {'text': '外显子\n位置', 'w': 1000, 'key': 'exon_number'},
+        {'text': '核苷酸变化', 'w': 1500, 'key': 'nucleotide_change'},
+        {'text': '氨基酸变化', 'w': 1500, 'key': 'amino_acid_change'},
         {'text': '变异类型', 'w': 1500, 'key': 'effect'},
-        {'text': '突变比例/\n拷贝数', 'w': 1600, 'key': 'tcn_em'},
+        {'text': '突变比例/拷贝数', 'w': 2400, 'key': 'tcn_em1'},
     ])
     paras += p.write()
     return paras
@@ -509,14 +514,14 @@ def write_result_TMB(tmb_info):
     p_set = para_setting(line=12, rule='auto')
     items = [
         {'label': '突变负荷（TMB; Non-synonymous Mutations per Mb）：', 'result': tmb_info.get('tmb')},
-        {'label': '突变负荷在该癌种患者人群中的Percentile Rank：', 'result': '10.25%'},
+        {'label': '突变负荷在该癌种患者人群中的Percentile Rank：', 'result': tmb_info.get('tmb_percentage')},
         {'label': '免疫检查点抑制剂疗效评估：', 'result': '该患者的肿瘤突变负荷程度低于该癌种人群肿瘤突变负荷的平均水平，因此，该患者可能对免疫治疗的应答偏低。'}
     ]
     for item in items:
         run = r_panel.text(item.get('label'), normal_size)
         run += r_panel.text(item.get('result'), normal_size, 1, color=green)
         paras += p.write(p_set, run)
-    paras += p.write(para_setting(spacing=[0, 16]), r_panel.picture(12.73, rId='tmb', align=['center', '']))
+    paras += p.write(para_setting(spacing=[0, 16]), r_panel.picture(cy=9.5, rId='tmb', align=['center', '']))
     paras += p.write(para_setting(spacing=[1, 0.5], line=16, rule='exact'), r_panel.text('临床意义', '小四', 1))
     text = '''肿瘤突变负荷（Tumor Mutation Burden，TMB）通常定义为每个癌症病人全外显子测序或靶向测序每百万碱基（Mb）的非同义突变或所有体细胞突变数目。根据科研报道及本实验室数据统计，高TMB阈值为＞10.4Muts/Mb。
     既往研究表明肿瘤突变负荷TMB可用于定量估计肿瘤基因组编码区的突变总数，不同癌症类型具有不同的肿瘤突变负荷水平。研究表明具有较高水平TMB的肿瘤细胞更容易被免疫系统识别，同时在多项临床研究中已证实对免疫检查点抑制剂如纳武利尤单抗、帕博利珠单抗、Ipilimumab等有更强的免疫应答效果。
@@ -530,11 +535,12 @@ def write_result_TMB(tmb_info):
 
 
 def write_result_dMMR(report_data):
-    paras = ''
+    paras1 = ''
     p_set1 = para_setting(numId=11, pStyle='a5')
-    paras += p.write(p_set1, r_panel.text('错配修复基因缺陷(dMMR)检测', '小四', weight=1, color=green))
+
     genes = ['POLE', 'MLH1', 'MSH2', 'MSH6', 'PMS2']
     items = []
+    sign = 'pMMR'
     for gene in genes:
         item2 = filter(lambda x: x['gene'] == gene, report_data)
         col2 = '未检测到相关基因突变'
@@ -543,16 +549,17 @@ def write_result_dMMR(report_data):
         if len(item2) > 0:
             item = item2[0]
             col2 = '检测到突变'
+            sign = 'dMMR'
             col3 = item.get('dna_vaf') or '/'
             col4 = item.get('effect')
         items.append({'gene': gene, 'col2': col2, 'col3': col3, 'col4': col4})
-    paras += write_result_drug_description('', items, [
+    paras1 += write_result_drug_description('', items, [
         {'text': '基因', 'w': 2000, 'key': 'gene'},
         {'text': '突变', 'w': 2800, 'key': 'col2'},
         {'text': '突变频率', 'w': 2400, 'key': 'col3'},
         {'text': '突变类型', 'w': 2400, 'key': 'col4'},
     ])
-    paras += p.write(para_setting(spacing=[1, 0.5], line=16, rule='exact'), r_panel.text('临床意义', '小四', 1))
+    paras1 += p.write(para_setting(spacing=[1, 0.5], line=16, rule='exact'), r_panel.text('临床意义', '小四', 1))
     text = '''在一项对结直肠癌患者的研究中发现，POLE胚系突变可导致林奇综合征相关表型，且在MMR相关基因IHC阴性的肿瘤组织中检测到高微卫星不稳定性MSI-H[PubMed: 25370038]。而POLE体细胞突变在微卫星稳定和不稳定的肿瘤组织中均被发现过 [PMID: 21157497，PMID: 24209623] 。
     MLH1、MSH2、MSH6和PMS2等错配修复基因的失活突变可造成错配修复缺陷（dMMR），导致微卫星高度不稳定（MSI-H）。MLH1、MSH2、MSH6和PMS2胚系突变常导致林奇综合征，结直肠癌、胃癌、子宫内膜癌等多种癌症的风险增高。同时，多项回顾性研究表明，MMR基因的体细胞突变同样可以造成dMMR/MSI-H，与散发性结直肠癌和子宫内膜癌发生相关 [PMID: 24333619; 25194673]。
     一项2期临床试验表明，帕博利珠单抗用于携带dMMR的结直肠癌患者的客观缓解率（ORR）为40%，用于不携带dMMR的结直肠癌患者的ORR为0% [PMID: 26028255]。另一项2期临床试验表明，纳武利尤单抗用于携带dMMR的结直肠癌患者的中位无进展生存期优于不携带dMMR的患者（5.3月 vs 1.4月）[2016 ASCO: Abstract #3501]。基于上述研究，《NCCN临床实践指南：结肠癌》（2018. V2）推荐帕博利珠单抗和纳武利尤单抗用于携带dMMR/MSI-H的结直肠癌患者。
@@ -560,22 +567,36 @@ def write_result_dMMR(report_data):
     CheckMate 142的临床研究结果显示，纳武利尤单抗用于dMMR/MSI-H的结直肠癌患者的ORR为28%，包括1例完全缓解和14例部分缓解 [PMID: 28734759]。基于该研究，FDA已批准纳武利尤单抗用于dMMR/ MSI-H的氟尿嘧啶、奥沙利铂和伊立替康为基础治疗进展后的成人和儿童（12岁及以上）的晚期结直肠癌患者。
     '''
     for t in text.split('\n'):
-        paras += p.write(para_setting(spacing=[0, 0.3], line=16, rule='exact', ind=['firstLine', 2]), r_panel.text(t, 11))
-    return paras
+        paras1 += p.write(para_setting(spacing=[0, 0.3], line=16, rule='exact', ind=['firstLine', 2]), r_panel.text(t, 11))
+    paras = p.write(p_set1, r_panel.text('错配修复基因缺陷(%s)检测' % sign, '小四', weight=1, color=green))
+    paras += paras1
+    return paras1, sign
 
 
 def write_result_MSI(msi_info):
     paras = ''
     p_set1 = para_setting(numId=11, pStyle='a5')
     paras += p.write(p_set1, r_panel.text('微卫星不稳定(MSI)数目', '小四', weight=1, color=green))
-    items = [{'num': msi_info.get('somatic'), 'col2': msi_info.get('score'), 'col3': '0.4', 'col4': msi_info.get('sign')}]
-    paras += write_result_drug_description('', items, [
-        {'text': '检测微卫星数目', 'w': 2000, 'key': 'num'},
-        {'text': '微卫星不稳定分值', 'w': 2400, 'key': 'col2'},
-        {'text': '参考阈值', 'w': 2000, 'key': 'col3'},
-        {'text': '微卫星不稳定性评级', 'w': 2800, 'key': 'col4'},
-    ])
-    paras += p.write(para_setting(spacing=[0, 16]), r_panel.picture(12.73, rId='msi', align=['center', '']))
+    items = [
+        {'text': msi_info.get('text'), 'bdColor': green, 'fill': green_bg},
+        {'text': '微卫星不稳定分值%s， 参考阈值：10.' % msi_info.get('score')}
+    ]
+
+    trs = ''
+    for tc_index, tc_item1 in enumerate(items):
+        text = tc_item1.get('text') or '/'
+        trs += tr.write(write_tc_panel({
+            'text': text,
+            'w': w_sum,
+            'weight': 0,
+            'vMerge': '',
+            'bdColor': green,
+            'fill': tc_item1.get('fill'),
+            'border': ['top', 'bottom']
+        }))
+    paras += table.write(trs, tblBorders=[])
+
+    paras += p.write(para_setting(spacing=[0, 8]), r_panel.picture(12.73, rId='msi_score', align=['center', '']))
     paras += p.write(para_setting(spacing=[0, 0.5], line=16, rule='exact'), r_panel.text('临床意义', '小四', 1))
     text = '''微卫星是指分布在人类基因组里的简单重复序列，又被称作短串连重复 （Short Tandem Repeats， STRs） 或简单重复序列 （Simple Sequence Repeat， SSRs）， 是均匀分布于真核生物基因组中的简单重复序列，由2～6个核苷酸的串联重复片段构成，由于重复单位的重复次数在个体间呈高度变异性并且数量丰富，因此微卫星的应用非常广泛。
     MSI是指与正常组织相比，在肿瘤中某一微卫星由于重复单位的插入或缺失而造成的微卫星长度的任何改变，出现新的微卫星等位基因现象。其发生机制主要包括DNA多聚酶的滑动导致重复序列中1个或多个碱基的错配和微卫星重组导致碱基对的缺失或插入。
@@ -641,7 +662,11 @@ def write_result_risk(report_data):
         if len(item2) > 0:
             item = item2[0]
             col2 = '检测到突变'
-            col3 = item.get('tcn_em')
+            if 'wgd' in item:
+                col3 = '%s拷贝' % item.get('tcn_em')
+            else:
+                ccf_expected_copies_em = item.get('ccf_expected_copies_em') # 肿瘤细胞比例
+                col3 = float2percent(ccf_expected_copies_em)
             col4 = item.get('effect')
         items.append({'gene': gene, 'col2': col2, 'col3': col3, 'col4': col4})
     paras += write_result_drug_description('', items, [
@@ -694,14 +719,41 @@ def write_result_KANGYUAN_NEW(report_data):
     p_set1 = para_setting(numId=11, pStyle='a5')
     paras += p.write(p_set1, r_panel.text('肿瘤新生抗原', '小四', weight=1, color=green))
 
-    paras += write_result_drug_description('', report_data, [
-        {'text': '识别号', 'w': 1600, 'key': 'col1'},
-        {'text': '序列', 'w': 1600, 'key': 'col2'},
-        {'text': '亲和力', 'w': 1600, 'key': 'col3'},
-        {'text': '剪切效率', 'w': 1600, 'key': 'col4'},
-        {'text': '稳定性排名（%）', 'w': 1800, 'key': 'col4'},
-        {'text': '免疫原性', 'w': 1400, 'key': 'col4'},
-    ])
+    theads = [
+        {'fill': green_bg, 'w': 1600, 'text': '基因', 'key': 'gene'},
+        {'fill': green_bg, 'w': 1600, 'text': '多肽', 'key': 'mut_peptide'},
+        {'fill': green_bg, 'w': 2600, 'text': '亲和力（突变/正常）', 'key': 'qinheli'},
+        {'fill': green_bg, 'w': 2600, 'text': '突变点（克隆组成）', 'key': 'cut'},
+        {'fill': green_bg, 'w': 1600, 'text': 'HLA分子', 'key': 'hla'},
+    ]
+    neoantigens = report_data.get('neoantigens')
+    # neoantigen = get_neoantigen()[:15]
+    # neoantigen = neoantigens.sort(key=lambda x: x['MutRank'])[:15]
+    trs = write_tr_panel(theads)
+    for index, item in enumerate(neoantigens):
+        tcs = ''
+        for th in theads:
+            key = th.get('key')
+            t = item.get(key)
+            if key == 'qinheli':
+                t = '/'.join([item['mut_aff'], item['ref_aff']])
+            if key == 'cut':
+                q = float2percent(item.get('cellularity')) or ''
+                if q:
+                    q = '(%s)' % q
+                t = item['mut'] +q
+            tcs += write_tc_panel({'text': t, 'weight': 1 if th == '识别号' else 0, 'w': th['w'], 'line': 10, 'rule': 'auto'})
+        trs += tr.write(tcs)
+    paras += table.write(trs)
+
+    # paras += write_result_drug_description('', report_data, [
+    #     {'text': '识别号', 'w': 1600, 'key': 'col1'},
+    #     {'text': '序列', 'w': 1600, 'key': 'col2'},
+    #     {'text': '亲和力', 'w': 1600, 'key': 'col3'},
+    #     {'text': '剪切效率', 'w': 1600, 'key': 'col4'},
+    #     {'text': '稳定性排名（%）', 'w': 1800, 'key': 'col4'},
+    #     {'text': '免疫原性', 'w': 1400, 'key': 'col4'},
+    # ])
     paras += p.write(para_setting(spacing=[1, 0.5], line=16, rule='exact'), r_panel.text('临床意义', '小四', 1))
     text = '''癌症细胞在基因变异的基础上产生的带有特异性氨基酸序列变异的蛋白被称为“新生抗原”（neoantigen)。癌细胞在发生发展过程中，会产生很多基因突变，而部分基因突变也会产生正常组织、正常细胞所没有的蛋白质，这些蛋白质，很有可能也会激活免疫系统，并引来免疫系统对癌细胞的攻击。这些能激活免疫系统（能被免疫细胞所识别）的、由癌细胞基因突变所产生的异常蛋白质（异常抗原），就是Neoantigen（肿瘤新生抗原）。
 
@@ -720,6 +772,7 @@ def write_result_KANGYUAN_NEW(report_data):
 
 def write_result_drug_3(report_data):
     paras = ''
+
     p_set1 = para_setting(numId=11, pStyle='a5')
     paras += p.write(p_set1, r_panel.text('FDA/CFDA批准的免疫检查点抑制剂药物说明', '小四', weight=1, color=green))
     items = [
@@ -751,7 +804,7 @@ def write_result2(report_data, cat):
     msi_info = report_data.get('msi_info')
     paras += h2_panel(cat.get('title'), cat.get('bm'))
     paras += write_result_TMB(tmb_info) + p_sect_normal
-    paras += write_result_dMMR(stars) + p_sect_normal
+    paras += report_data.get('paras_dmmr') + p_sect_normal
     paras += write_result_MSI(msi_info) + p_sect_normal
     paras += write_result_risk(stars) + p_sect_normal
     paras += write_result_kangyuan(stars) + p_sect_normal
@@ -762,7 +815,7 @@ def write_result3(report_data, cat):
     paras = ''
     paras += h2_panel(cat.get('title'), cat.get('bm'))
     paras += write_result_HLA(report_data.get('hla_info')) + p_sect_normal
-    paras += write_result_KANGYUAN_NEW([]) + p_sect_normal
+    paras += write_result_KANGYUAN_NEW(report_data) + p_sect_normal
     paras += write_result_drug_3(report_data) + p_sect_normal
     return paras
 
@@ -1052,15 +1105,14 @@ def write_abstract1(data, cat):
     paras += h2_panel(cat.get('title'), cat.get('bm'))
     paras += h4_panel(u'具有临床意义的基因变异')
     trs = ''
-    w = 1200
+    w = 1400
     keys = [
-        {'w': w, 'title': '基因', 'key': 'gene'},
+        {'w': 1200, 'title': '基因', 'key': 'gene'},
         {'w': w+200, 'title': '转录本编号', 'key': 'transcript_id'},
         {'w': w+300, 'title': '核苷酸变化', 'key': 'nucleotide_change'},
         {'w': w+300, 'title': '氨基酸变化', 'key': 'amino_acid_change'},
-        {'w': w+300, 'title': '外显子位置', 'key': 'exon_number'},
         {'w': w+120, 'title': '变异类型', 'key': 'effect'},
-        {'w': w+60, 'title': '突变比例/拷贝数', 'key': 'tcn_em'}
+        {'w': w+500, 'title': '突变比例/拷贝数', 'key': 'tcn_em'}
     ]
     ws = []
     titles = []
@@ -1080,8 +1132,20 @@ def write_abstract1(data, cat):
         if len(naiyao1) > 0:
             naiyao.append(report_item)
         for key2 in keys:
-            text.append(report_item.get(key2.get('key')) or 'NA')
-        trs += write_gray_tr({'ws': ws, 'text': text, 'jc': jc})
+            k = key2.get('key')
+            t = report_item.get(k)
+            if k == 'gene' and 'gene1' in report_item:
+                t = report_item.get('gene1')
+            if k == 'tcn_em':
+                if 'nucleotide_change' in report_item:
+                    ccf_expected_copies_em = report_item.get('ccf_expected_copies_em') # 肿瘤细胞比例
+                    t = float2percent(ccf_expected_copies_em)
+                elif 'wgd' in report_item:
+                    if t:
+                        t = '%s拷贝' % t
+                report_item['tcn_em1'] = t
+            text.append(t)
+        trs += write_gray_tr({'ws': ws, 'text': text, 'jc': jc, 'none': '/', 'weight': 0})
     paras += table.write(trs, ws)
     paras += h4_panel(u'潜在获益药物')
     # vmerge1 = '<w:vMerge w:val="restart"/>' if i == 0 and d == 0 else '<w:vMerge/>'
@@ -1103,6 +1167,7 @@ def write_abstract2(data, cat):
     overview = data.get('overview')
     msi_info = data.get('msi_info')
     hla_info = data.get('hla_info')
+    neoantigens = data.get('neoantigens') or []
     paras = ''
     paras += h2_panel(cat.get('title'), cat.get('bm'))
     paras += h4_panel(u'免疫检查点抑制剂治疗适用性较差')
@@ -1114,13 +1179,13 @@ def write_abstract2(data, cat):
     ]
     result = {
         'TMB': '%s Muts/Mb' % overview.get('tmb'),
-        'MMR': 'pMMR',
+        'MMR': data.get('sign_dmmr'),
         'PDL1': '~10%阳性',
         'MSI': msi_info.get('sign'),
         'gene': '检测到有害突变',
         'loss': '未检测到有害突变',
         'HLA': hla_info.get('hla_type'),
-        'neoantigens': '66个',
+        'neoantigens': len(neoantigens),
     }
     items = [
         {'text': '肿瘤突变负荷\n（Tumor mutation Burden， TMB）', 'standard': '评判标准：详见表格下方备注。', 'key': 'TMB'},
@@ -1153,35 +1218,38 @@ def write_abstract2(data, cat):
     run_tip += r_panel.text('：肺癌高TMB阈值为＞13.91 Muts/Mb，乳腺癌高TMB阈值为＞6.36Muts/Mb，肝癌高TMB阈值为＞5.28 Muts/Mb，胃癌高TMB阈值为＞7.29 Muts/Mb，直肠癌高TMB阈值为＞6.27 Muts/Mb，胰腺癌高TMB阈值为＞3.97Muts/Mb，宫颈癌高TMB阈值为＞8.4Muts/Mb，头颈部鳞状细胞癌高TMB阈值为＞10.83Muts/Mb，黑色素瘤高TMB阈值为＞27.76Muts/Mb，默克尔细胞癌高TMB阈值为＞22.62Muts/Mb，肾癌高TMB阈值为＞3.9Muts/Mb，尿路上皮癌高TMB阈值为＞12.44Muts/Mb，皮肤鳞状细胞癌高TMB阈值为＞86.07Muts/Mb，泛癌种高TMB阈值为＞10.57Muts/Mb。', 8)
     paras += p.write(para_setting(line=12, rule='auto'), run_tip)
     return paras
+# write_kangyuan(data.get('neoantigens'))
 
 
 def write_abstract3(report_data, cat):
     paras = ''
+    neoantigens = report_data.get('neoantigens') or []
     paras += h2_panel(cat.get('title'), cat.get('bm'))
-    paras += h4_panel(u'鉴定出66个新免疫抗原，为细胞免疫治疗或肿瘤疫苗制备提供序列依据')
+    paras += h4_panel(u'鉴定出%s个新免疫抗原，为细胞免疫治疗或肿瘤疫苗制备提供序列依据' % len(neoantigens))
     trs = ''
     theads = [
-        {'fill': green_bg, 'w': 1400, 'text': '识别号', 'key': 'no'},
-        {'fill': green_bg, 'w': 1800, 'text': '序列', 'key': 'index'},
-        {'fill': green_bg, 'w': 1400, 'text': '亲和力', 'key': 'qinheli'},
-        {'fill': green_bg, 'w': 1400, 'text': '剪切效率', 'key': 'cut'},
-        {'fill': green_bg, 'w': 1800, 'text': '稳定性排名（%）', 'key': 'range'},
-        {'fill': green_bg, 'w': 1800, 'text': '免疫原性', 'key': 'mianyi'}
+        {'fill': green_bg, 'w': 1600, 'text': '基因', 'key': 'gene'},
+        {'fill': green_bg, 'w': 1600, 'text': '多肽', 'key': 'mut_peptide'},
+        {'fill': green_bg, 'w': 2600, 'text': '亲和力（突变/正常）', 'key': 'qinheli'},
+        {'fill': green_bg, 'w': 2600, 'text': '突变点（克隆组成）', 'key': 'cut'},
+        {'fill': green_bg, 'w': 1600, 'text': 'HLA分子', 'key': 'hla'},
     ]
 
-    items = [
-        {'no': 'CDx001', 'index': 'TDFGRAKLL', 'qinheli': '20.73', 'cut': '0.96', 'range': '47.0', 'mianyi': -0.02},
-        {'no': 'CDx002', 'index': 'RAKLLGAEE', 'qinheli': '38.25', 'cut': '0.93', 'range': '65.0', 'mianyi': 0.03},
-        {'no': 'CDx003', 'index': 'VKITDFGRA', 'qinheli': '61.89', 'cut': '0.89', 'range': '39.0', 'mianyi': 0.27},
-        {'no': 'CDx004', 'index': 'KITDFGRAK', 'qinheli': '73.05', 'cut': '0.93', 'range': '47.0', 'mianyi': 0.24},
-        {'no': 'CDx005', 'index': 'GRAKLLGAE', 'qinheli': '163.53', 'cut': '0.96', 'range': '65.0', 'mianyi': -0.17},
-    ]
+    neoantigen = neoantigens[:5]
     trs += write_tr_panel(theads)
-    for index, item in enumerate(items):
+    for index, item in enumerate(neoantigen):
         tcs = ''
         for th in theads:
             key = th.get('key')
-            tcs += write_tc_panel({'text': item.get(key), 'weight': 1 if th == '识别号' else 0, 'w': th['w'], 'line': 10, 'rule': 'auto'})
+            t = item.get(key)
+            if key == 'qinheli':
+                t = '/'.join([item['mut_aff'], item['ref_aff']])
+            if key == 'cut':
+                q = float2percent(item.get('cellularity')) or ''
+                if q:
+                    q = '(%s)' % q
+                t = item['mut'] +q
+            tcs += write_tc_panel({'text': t, 'weight': 1 if th == '识别号' else 0, 'w': th['w'], 'line': 10, 'rule': 'auto'})
         trs += tr.write(tcs)
     paras += table.write(trs)
     p_set = para_setting(line=12, rule='auto')
@@ -1238,7 +1306,6 @@ def write_abstract4(chems, cat):
         {'drug': '阿那曲唑（绝经前）', 'tip': 'primary'},
         {'drug': '阿那曲唑（绝经后）', 'tip': 'primary'}
     ]
-    print chems[0]
     for item in items:
         items2 = filter(lambda x: item.get('drug').split('（')[0] in x.get('drug_name'), chems)
         level_item = {'level': 'zzz'}
@@ -1383,13 +1450,10 @@ def write_cover(data):
     data = data or {}
     paras = ''
     paras += p.write(r_panel.picture(19.72, 28.69, rId='cover', relativeFrom=['page', 'page'], wrap='undertext', posOffset=[0,1]))
-
     paras += write_cover_line('姓    名', text=data.get('patient_name') or '', before=28)
     paras += write_cover_line('报告编号', text=data.get('case_no') or '')
     paras += write_cover_line('送检单位', text=data.get('contacts') or '')
     paras += write_cover_line('报告日期', text=data.get('contacts') or '')
-    # paras += p.write(para_setting(spacing=[20, 0], ind=[18, 0]), r_tcm.text('姓名： %s' % data.get('health_record').get('name'), 12))
-    # paras += p.write(para_setting(ind=[18, 0]), r_tcm.text('编号： %s' % data.get('sample_id'), 12))
     return paras
 
 
@@ -1446,6 +1510,7 @@ def write_introduce():
 def write_catalog(catalogue):
     # 目   录
     para = p.write(p.set(jc='center', outline=3, line=12, rule='auto'), r_panel.text("目  录", size='小一', weight=1))
+    # para += p.write(r_panel.fldChar('begin'))
     for cat in catalogue:
         para = write_cat(cat, para, spacing=[0, 0.1], pos=9600)
     para += p.write(r_panel.fldChar('end'))
@@ -1460,44 +1525,46 @@ def write_patient_info(report_detail, cat):
     trs = ''
     w = 3200
     w1 = [w] * 3
+    nont_text1 = ''
     items = [
         {'ws': w1, 'text': [
-            '姓  名： %s' % report_detail.get('patient_name') or none_text,
+            '姓  名： %s' % (report_detail.get('patient_name') or nont_text1),
             '性  别： %s' % sex2str(report_detail.get('sex')),
-            '年  龄： %s' % report_detail.get('age') or none_text
+            '年  龄： %s' % (report_detail.get('age') or nont_text1)
         ]},
         {'ws': w1, 'text': [
-            '联系人：%s' % report_detail.get('contacts') or none_text,
-            '联系方式：%s' % report_detail.get('contacts_tel'),
-            '检测项目：%s' % report_detail.get('detection_item') or none_text
+            '联系人：%s' % (report_detail.get('contacts') or nont_text1),
+            '联系方式：%s' % (report_detail.get('contacts_tel') or nont_text1),
+            '检测项目：%s' % (report_detail.get('detection_item') or nont_text1)
         ]},
         {'ws': w1, 'text': [
-            '送检单位：%s' % report_detail.get('contacts') or none_text,
-            '取样来源：%s' % report_detail.get('contacts_tel'),
+            '送检单位：%s' % (report_detail.get('contacts') or nont_text1),
+            '取样来源：%s' % (report_detail.get('contacts_tel') or nont_text1),
             ''
         ]},
         {'ws': w1, 'text': [
-            '样本编号：%s' % report_detail.get('sample_id') or none_text,
-            '样本类型：%s' % report_detail.get('sample_type') or none_text,
-            '样本数量：%s' % report_detail.get('sample_count') or none_text
+            '样本编号：%s' % (report_detail.get('sample_id') or nont_text1),
+            '样本类型：%s' % (report_detail.get('sample_type') or nont_text1),
+            '样本数量：%s' % (report_detail.get('sample_count') or nont_text1)
         ]},
         {'ws': w1, 'text': [
-            '癌症类型：%s' % report_detail.get('diagnosis_type') or none_text,
-            '病理诊断：%s' % report_detail.get('diagnosis') or none_text,
-            'TNM分期：%s' % report_detail.get('TNM') or none_text
+            '癌症类型：%s' % (report_detail.get('diagnosis_type') or nont_text1),
+            '病理诊断：%s' % (report_detail.get('diagnosis') or nont_text1),
+            'TNM分期：%s' % (report_detail.get('TNM') or nont_text1)
         ]},
         {'ws': w1, 'text': [
-            '治疗史：%s' % report_detail.get('diagnosis_history') or none_text, '', ''
+            '治疗史：%s' % (report_detail.get('diagnosis_history') or nont_text1), '', ''
         ]},
         {'ws': w1, 'text': [
-            '送检日期：%s' % report_detail.get('detection_date') or none_text,
-            '报告日期：%s' % report_detail.get('detection_finished') or none_text,
+            '送检日期：%s' % (report_detail.get('detection_date') or nont_text1),
+            '报告日期：%s' % (report_detail.get('detection_finished') or nont_text1),
             ''
         ]}
     ]
     for item in items:
         item['jc'] = 'left'
         item['fill'] = green_bg
+        item['none'] = ''
         trs += write_gray_tr(item)
     paras += table.write(trs, w1, tblBorders=['top', 'bottom'])
     return paras
@@ -1505,14 +1572,22 @@ def write_patient_info(report_detail, cat):
 
 def write_abstract(data, cats):
     stars = data.get('stars')
+
     paras = ''
     cat0 = cats[0]
     paras += h1_panel(cat0.get('title'), cat0.get('bm'))
     huoyi = []
     naiyaos = []
     for tip_item in stars:
-        for k in ['gene', 'amino_acid_change']:
-            tip_item[k] = tip_item.get(k) or '（？？？）'
+        # for k in ['gene', 'amino_acid_change']:
+        #     tip_item[k] = tip_item.get(k) or '（？？？）'
+        nucleotide_change = tip_item.get('nucleotide_change')  # 变异c.变化 核苷酸变化
+        amino_acid_change = tip_item.get('amino_acid_change')  # 变异P.变化 氨基酸变化
+        if amino_acid_change is None:
+            if nucleotide_change:
+                tip_item['amino_acid_change'] = nucleotide_change
+            else:
+                tip_item['amino_acid_change'] = '体细胞'
         known_db = tip_item.get('known_db') or []
         drug = []
         naiyao = []
@@ -1544,7 +1619,7 @@ def write_abstract(data, cats):
     data['naiyao'] = naiyaos
     paras += write_abstract1(data, cats[1]) + p_sect_normal
     paras += write_abstract2(data, cats[2]) + p_sect_normal
-    paras += write_abstract3(stars, cats[3]) + p_sect_normal
+    paras += write_abstract3(data, cats[3]) + p_sect_normal
     paras += write_abstract4(data.get('chems'), cats[4]) + p_sect_normal
     paras += write_abstract5(cats[5]) + p_sect_normal
     return paras, huoyi, naiyaos
@@ -1703,7 +1778,6 @@ def write_affix(report_data, gene_info, cats):
         tip = panel_genes[i_tip]
         if i_tip == i_rs:
             tip = ''
-        print i_gene_no, panel_genes[gene_no], panel_genes[i_rs], tip
         gene = panel_genes[gene_no]
         description = panel_genes[gene_no+1: i_tip]
         reference = panel_genes[i_rs+1: next_no]
@@ -1723,7 +1797,6 @@ def write_affix(report_data, gene_info, cats):
         for rr in reference:
             paras += p.write(p.set(line=18, rule='exact', ind=['hanging', 1]), r_panel.text(rr))
         paras += p_sect_normal
-    print gene_index
     my_file.write(file_path[:-3] + 'json', items2)
     # my_file.write(gene_no_path, items)
     my_file.write(rs_path, rs)
@@ -1879,17 +1952,39 @@ def sort_panel_data(data):
     sample_detail = data.get('sample_detail') or {}
     report_data = data.get('variant_stars') or []
     gene_info = data.get('gene_info') or []
+
+    drug_path = os.path.join(dir_name, 'panel_demo', 'drugs.xlsx')
+    drug_sheet = my_file.read(drug_path, sheet_name=u'药物简介')
+    drug_infos = []
+    for i in range(1, drug_sheet.nrows):
+        row_valus = drug_sheet.row_values(i)
+        drug_infos.append({
+            'en': row_valus[0].strip(),
+            'drug_name': row_valus[1].strip('\n').strip(),
+            'introduction': row_valus[2].strip('\n').strip(),
+            'product_name': row_valus[3].strip('\n').strip(),
+            'drug_type': row_valus[4].strip('\n').strip(),
+            'stage': row_valus[5].strip('\n').strip(),
+        })
+    data['drug_infos'] = drug_infos
+
     imgs, files = [], []
 
     catelogs = get_catalog()
     # , huoyi, naiyaos
+    paras_dmmr, sign_dmmr = write_result_dMMR(data.get('stars'))
+    data['paras_dmmr'] = paras_dmmr
+    data['sign_dmmr'] = sign_dmmr
+
     para_geno, chems = write_result4(data.get('rs_geno'), catelogs[11])
     data['chems'] = chems
+
     para_abstract, huoyi, naiyaos = write_abstract(data, catelogs[1: 7])
     data['huoyi'] = huoyi
     data['naiyao'] = naiyaos
     data['para_geno'] = para_geno
     para_result = write_result(data, gene_info, catelogs[7: 12])
+
     return {
         'other_page': (pkgs, rels),
         'cover': write_cover(sample_detail) + p_sect_normal,
@@ -1962,18 +2057,28 @@ def down_common(data, sort_func):
         if os.path.exists(img_info_path):
             os.remove(img_info_path)
         imgs = get_imgs(img_dir)
-        my_file.write(img_info_path, imgs)
+
+        overview = data.get('overview') or {}
+        other_pic = []
+        for pic_k in ['signature_pic', 'tmb_pic']:
+            pic_path = overview.get(pic_k)
+            if pic_path and os.path.exists(pic_path):
+                print pic_path
+                pic_info = get_img_info(pic_path)
+                other_pic.append(pic_info)
+        imgs += other_pic
+        imgs2 = []
+        for img in imgs:
+            if img not in imgs2:
+                imgs2.append(img)
+        my_file.write(img_info_path, imgs2)
         r_panel.img_info_path = img_info_path
         data['img_info'] = imgs
         data['pic'] = r_panel
         data['gene_info'] = my_file.read(gene_info_path) or []
         report_data = sort_func(data)
         body = write_body(report_data)
-        imgs = report_data.get('imgs') or imgs
-        imgs2 = []
-        for img in imgs:
-            if img not in imgs2:
-                imgs2.append(img)
+
         pkg = write_pkg_parts(imgs2, body, other=report_data.get('other_page'))
     status = False
     while status != 5:
