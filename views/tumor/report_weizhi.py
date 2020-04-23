@@ -389,10 +389,10 @@ def write_chapter0(title_cn, data):
     trs_qc = write_table_title('样本和数据质控信息', 4)
     qcs = [
         {'weight': 1, 'items': ['质量参数', '数值', '质控标准', '质控结果']},
-        {'weight': 0, 'items': ['DNA总量（ng）', '5280', '≥50', '合格']},
-        {'weight': 0, 'items': ['预文库总量（ng）', '1175', '≥300', '合格']},
+        {'weight': 0, 'items': ['DNA总量（ng）', ' ', '≥50', '合格']},
+        {'weight': 0, 'items': ['预文库总量（ng）', ' ', '≥300', '合格']},
         {'weight': 0, 'items': ['平均测序深度（X）', tumor_mean_target_coverage, '≥500', '合格' if tumor_mean_target_coverage >= 500 else '不合格']},
-        {'weight': 0, 'items': ['深度＞（0.1X目标测序深度）占比', '99%', '≥90%', '合格']},
+        {'weight': 0, 'items': ['深度＞（0.1X目标测序深度）占比', ' ', '≥90%', '合格']},
     ]
     for qc in qcs:
         tcs_qc = ''
@@ -559,7 +559,7 @@ def write_chapter2(index, data):
     cats = get_catalog()[start-1: start + n]
     para = ''
     immun_tip = data.get('immun_tip') or []
-    text = '、'.join([x.get('tip1') or x.get('text') for x in immun_tip])
+    text = '、'.join([(x.get('tip1') or x.get('text') or '' )for x in immun_tip])
 
     para += h4_aiyi(cat=cats[1], spacing=[0, 0.5], size=12, weight=1, outline=1)
     para += p.write(p.set(spacing=[0, 0.5]), r_aiyi.text('本次检测显示该患者%s。' % text, 10, weight=1))
@@ -733,6 +733,7 @@ def write_chapter5(index, data):
     para += write_chapter51(cats[1].get('title'), data) + p.write()
     para += write_chapter_cnvs(cats[2].get('title'), data)
     para += p.write(p.set(sect_pr=set_page('A4', header='rIdHeader%d' % index)))
+
     return para
 
 
@@ -858,6 +859,7 @@ TYMS	UGT1A1	UMPS	XPC	XRCC1				'''],
     para += p.write(p.set(sect_pr=set_page('A4', header='rIdHeader%d' % index)))
 
     para += write_chapter53(data)
+    para += write_references()
     return para
 
 
@@ -2293,6 +2295,182 @@ def write_chapter53(data):
     return para
 
 
+def write_references():
+    texts = '''1.	PMID: 21828076 A comprehensive functional analysis of PTEN mutations: implications in tumor- and autism-related syndromes.
+2.	PMID: 10866302 Functional evaluation of PTEN missense mutations using in vitro phosphoinositide phosphatase assay.
+3.	PMID: 11051241 Functional evaluation of p53 and PTEN gene mutations in gliomas.
+4.	PMID: 29533785 Systematic Functional Annotation of Somatic Mutations in Cancer.
+5.	PMID: 22949682 Oncogenic mutations mimic and enhance dynamic events in the natural activation of phosphoinositide 3-kinase p110α (PIK3CA).
+6.	PMID:23246288 Germline PIK3CA and AKT1 mutations in Cowden and Cowden-like syndromes.
+7.	PMID: 23455880 KRAS allel-specific activity of sunitinib in an isogenic disease model of colorectal cancer.
+8.	PMID: 26037647 Biochemical and Structural Analysis of Common Cancer-Associated KRAS Mutations.
+9.	PMID: 22662154 Genotype-dependent efficacy of a dual PI3K/mTOR inhibitor, NVP-BEZ235, and an mTOR inhibitor, RAD001, in endometrial carcinomas.
+10.	PMID: 23471917 An inducible knockout mouse to model the cell-autonomous role of PTEN in initiating endometrial, prostate and thyroid neoplasias.
+11.	PMID: 25692619 Therapeutic approach guided by genetic alteration: use of MTOR inhibitor in renal medullary carcinoma with loss of PTEN expression.
+12.	PMID: 25902899 Phase I combination of pazopanib and everolimus in PIK3CA mutation positive/PTEN loss patients with advanced solid tumors refractory to standard therapy.
+13.	PMID: 24366516 Sirolimus treatment of severe PTEN hamartoma tumor syndrome: case report and in vitro studies.
+14.	2018 ASCO Abstract e24283 Pan-cancer genomic features of PIK3CA/PTEN and clinical response to everolimus in Chinese population.
+15.	PMID: 28183140 Correlation between PIK3CA mutations in cell-free DNA and everolimus efficacy in HR+, HER2+ advanced breast cancer: results from BOLERO-2.
+16.	PMID: 28330462 Prospective phase II trial of everolimus in PIK3CA amplification/mutation and/or PTEN loss patients with advanced solid tumors refractory to standard therapy.
+17.	PMID: 27589687 Phase I dose-escalation study of the mTOR inhibitor sirolimus and the HDAC inhibitor vorinostat in patients with advanced malignancy.
+18.	PMID: 24166148 Molecular Determinants of Outcome With Mammalian Target of Rapamycin Inhibition in Endometrial Cancer.
+19.	PMID: 27016228 Tumor mutational analysis of GOG248, a phase II study of temsirolimus or temsirolimus and alternating megestrol acetate and tamoxifen for advanced endometrial cancer (EC): An NRG Oncology/Gynecologic Oncology Group study.
+20.	PMID: 23407561 Phase II study of docetaxel in combination with everolimus for second- or third-linetherapy of advanced non-small-cell lung cancer.
+21.	PMID: 25969130 Phase II trial of everolimus in patients with refractory metastatic adenocarcinoma of the esophagus, gastroesophageal junction and stomach: possible role for predictive biomarkers.
+22.	PMID: 18184959 Sirolimus for angiomyolipoma in tuberous sclerosis complex or lymphangioleiomyomatosis.
+23.	PMID: 27206639 A phase I study of mTOR inhibitor everolimus in association with cisplatin and radiotherapy for the treatment of locally advanced cervix cancer: PHOENIX I.
+24.	PMID: 21788564 Phase II study of temsirolimus in women with recurrent or metastatic endometrial cancer: a trial of the NCIC Clinical Trials Group.
+25.	PMID: 26294908 Beneficial Effects of the mTOR Inhibitor Everolimus in Patients with Advanced Medullary Thyroid Carcinoma: Subgroup Results of a Phase II Trial.
+26.	PMID: 21232120 Two-dose-level confirmatory study of the pharmacokinetics and tolerability of everolimus in Chinese patients with advanced solid tumors.
+27.	NCT02688881 Study to Evaluate the Safety and Efficacy of Sirolimus, in Subject With Refractory Solid Tumors.
+28.	NCT01430572 Pazopanib and Everolimus in PI3KCA Mutation Positive/PTEN Loss Patients.
+29.	PMID: 21325073 Antitumor efficacy of PKI-587, a highly potent dual PI3K/mTOR kinase inhibitor.
+30.	PMID: 25652454 First-in-Human Study of PF-05212384 (PKI-587), a Small-Molecule, Intravenous, Dual Inhibitor of PI3K and mTOR in Patients with Advanced Cancer.
+31.	PMID: 27103175 A randomized phase II non-comparative study of PF-04691502 and gedatolisib (PF-05212384) in patients with recurrent endometrial cancer.
+32.	NCT03065062 Study of the CDK4/6 Inhibitor Palbociclib (PD-0332991) in Combination With the PI3K/mTOR Inhibitor Gedatolisib (PF-05212384) for Patients With Advanced Squamous Cell Lung, Pancreatic, Head & Neck and Other Solid Tumors.
+33.	PMID: 23287563 Targeting Activated Akt with GDC-0068, a Novel Selective Akt Inhibitor That Is Efficacious in Multiple Tumor Models.
+34.	2018 ASCO Abstract 1008 2018 ASCO Abstract 1008 Overall survival (OS) update of the double-blind placebo (PBO)-controlled randomized phase 2 LOTUS trial of first-line ipatasertib (IPAT) + paclitaxel (PAC) for locally advanced/metastatic triple-negative breast cancer (mTNBC).
+35.	NCT02162719 A Study Assessing the Safety and Efficacy of Adding Ipatasertib to Paclitaxel Treatment in Participants With Breast Cancer That Has Spread Beyond the Initial Site, and the Cancer Does Not Have Certain Hormonal Receptors.
+36.	2018 ASCO Abstract CT041 Primary results from FAIRLANE (NCT02301988), a double-blind placebo (PBO)-controlled randomized phase II trial of neoadjuvant ipatasertib (IPAT) + paclitaxel (PAC) for early triple-negative breast cancer (eTNBC).
+37.	NCT03673787 A Trial of Ipatasertib in Combination With Atezolizumab
+38.	PMID: 24608574 Characterization of the novel and specific PI3Kα inhibitor NVP-BYL719 and development of the patient stratification strategy for clinical trials.
+39.	PMID: 31091374 Alpelisib for PIK3CA-Mutated, Hormone Receptor-Positive Advanced Breast Cancer.
+40.	PMID: 29401002 Phosphatidylinositol 3-Kinase a–Selective Inhibition With Alpelisib (BYL719) in PIK3CA-Altered Solid Tumors: Results From the First-in-Human Study.
+41.	NCT01219699 A Study of BYL719 in Adult Patients With Advanced Solid Malignancies, Whose Tumors Have an Alteration of the PIK3CA Gene.
+42.	PMID: 20453058 Predictive biomarkers of sensitivity to the phosphatidylinositol 3' kinase inhibitor GDC-0941 in breast cancer preclinical models.
+43.	PMID: 18725974 Breast tumor cells with PI3K mutation or HER2 amplification are selectively addicted to Akt signaling.
+44.	PMID: 20664172 Deregulation of the PI3K and KRAS signaling pathways in human cancer cells determines their response to everolimus.
+45.	PMID: 22271473 PI3K/AKT/mTOR inhibitors in patients with breast and gynecologic malignancies harboring PIK3CA mutations.
+46.	2016 AACR Abstract 2273 Targeting the PI3K/AKT/mTOR pathway for the treatment of metaplastic breast cancer: Does location of PIK3CA mutation or histology affect response.
+47.	2018 ASCO Abstract 1040 Phase Ib study of gedatolisib in combination with palbociclib and endocrine therapy (ET) in women with estrogen receptor (ER) positive (+) metastatic breast cancer (MBC) (B2151009).
+48.	PMID: 25167228 KRAS mutational subtype and copy number predict in vitro response of human pancreatic cancer cell lines to MEK inhibition.
+49.	2014 ASCO Abstract 9051 A phase 1b dose-escalation study of BYL719 plus binimetinib (MEK162) in patients with selected advanced solid tumors.
+50.	PMID: 29108355 A phase I clinical trial of binimetinib in combination with FOLFOX in patients with advanced metastatic colorectal cancer who failed prior standard therapy.
+51.	PMID: 28152546 A phase 1 dose-escalation and expansion study of binimetinib (MEK162), a potent and selective oral MEK1/2 inhibitor.
+52.	NCT01363232 Safety, Pharmacokinetics and Pharmacodynamics of BKM120 Plus MEK162 in Selected Advanced Solid Tumor Patients.
+53.	PMID: 19401449 PI3K pathway activation mediates resistance to MEK inhibitors in KRAS mutant cancers.
+54.	PMID: 21451123 A MEK inhibitor abrogates myeloproliferative disease in Kras mutant mice.
+55.	PMID: 24576621 Combination PI3K/MEK inhibition promotes tumor apoptosis and regression in PIK3CA wild-type, KRAS mutant colorectal cancer.
+56.	PMID: 20215549 Phase I pharmacokinetic and pharmacodynamic study of the oral MAPK/ERK kinase inhibitor PD-0325901 in patients with advanced cancers.
+57.	2017 AACR Abstract CT046 Phase I dose escalation study of the CDK4/6 inhibitor palbociclib in combination with the MEK inhibitor PD-0325901 in patients with RAS mutant solid tumors.
+58.	NCT02022982 PALBOCICLIB + PD-0325901 for NSCLC & Solid Tumors.
+59.	NCT02039336 Dacomitinib Plus PD-0325901 in Advanced KRAS Mutant Malignancies (M13DAP).
+60.	NCT02510001 MErCuRIC1: MEK and MET Inhibition in Colorectal Cancer.
+61.	PMID: 24170544 Modeling RAS phenotype in colorectal cancer uncovers novel molecular traits of RAS dependency and improves prediction of response to targeted agents in patients.
+62.	PMID: 25322874 Phase II study of selumetinib (AZD6244, ARRY-142886) plus irinotecan as second-line therapy in patients with K-RAS mutated colorectal cancer.
+63.	PMID: 27231576 A long-term surviving patient with recurrent low-grade serous ovarian carcinoma treated with the MEK1/2 inhibitor, selumetinib.
+64.	NCT02188264 Selumetinib and Cyclosporine in Treating Patients With Advanced Solid Tumors or Advanced or Metastatic Colorectal Cancer.
+65.	NCT01586624 A Phase I Trial of Vandetanib (ZD6474) and Selumetinib (AZD6244)for Solid Tumours Including Non Small Cell Lung Cancer (VanSel-1).
+66.	PMID: 18332469 Dose- and schedule-dependent inhibition of the mammalian target of rapamycin pathway with everolimus: a phase I tumor pharmacodynamic study in patients with advanced solid tumors.
+67.	PMID: 16494995 The TP53 mutation, R337H, is associated with Li-Fraumeni and Li-Fraumeni-like syndromes in Brazilian families.
+68.	PMID: 16861262 Inactive full-length p53 mutants lacking dominant wild-type p53 inhibition highlight loss of heterozygosity as an important aspect of p53 status in human cancers.
+69.	PMID: 21343334 Dominant-negative features of mutant TP53 in germline carriers have limited impact on cancer outcomes.
+70.	PMID: 22319594 Benzo[a]pyrene, aflatoxine B₁ and acetaldehyde mutational patterns in TP53 gene using a functional assay: relevance to human cancer aetiology.
+71.	PMID:29470806 Screening of over 1000 Indian patients with breast and/or ovarian cancer with a multi-gene panel: prevalence of BRCA1/2 and non-BRCA mutations.
+72.	PMID: 12661006 Fusion of FIG to the receptor tyrosine kinase ROS in a glioblastoma with an interstitial del(6)(q21q21).
+73.	PMID: 18083107 Global survey of phosphotyrosine signaling identifies oncogenic kinases in lung cancer.
+74.	PMID: 21253578 Survey of tyrosine kinase signaling reveals ROS kinase fusions in human cholangiocarcinoma.
+75.	PMID: 23174882 Role of early B-cell factor 1 (EBF1) in Hodgkin lymphoma.
+76.	PMID: 21606506 Ebf1 or Pax5 haploinsufficiency synergizes with STAT5 activation to initiate acute lymphoblastic leukemia.
+77.	PMID: 27993330 Standards and Guidelines for the Interpretation and Reporting of Sequence Variants in Cancer: A Joint Consensus Recommendation of the Association for Molecular Pathology, American Society of Clinical Oncology, and College of American Pathologists.
+78.	PMID: 24737648 The Bim deletion polymorphism clinical profile and its relation with tyrosine kinase inhibitor resistance in Chinese patients with non-small cell lung cancer.
+79.	PMID: 26510020 DNA-Repair Defects and Olaparib in Metastatic Prostate Cancer.
+80.	NCT02952534 A Study of Rucaparib in Patients With Metastatic Castration-resistant Prostate Cancer and Homologous Recombination Gene Deficiency (TRITON2).
+81.	2015 ASCO Abstract 5508 Results of ARIEL2: A Phase 2 trial to prospectively identify ovarian cancer patients likely to respond to rucaparib using tumor genetic analysis.
+82.	2015 EMSO-ECC Abstract 435 Candidate biomarkers of PARP inhibitor sensitivity in ovarian cancer beyond the BRCA genes.
+83.	PMID:28588062 Secondary Somatic Mutations Restoring RAD51C and RAD51D Associated with Acquired Resistance to the PARP Inhibitor Rucaparib in High-Grade Ovarian Carcinoma.
+84.	NCT03344965 Olaparib In Metastatic Breast Cancer.
+85.	2019 ASCO Abstract 3006 Talazoparib beyond BRCA: A phase II trial of talazoparib monotherapy in BRCA1 and BRCA2 wild-type patients with advanced HER2-negative breast cancer or other solid tumors with a mutation in homologous recombination (HR) pathway genes.
+86.	NCT02401347 Phase II Talazoparib in BRCA1 +BRCA2 Wild-Type &Triple-Neg /HER2-Negative Breast Cancer /SolidTumors
+87.	ESMO 2019 TRITON2 Updated Analyses Preliminary Results from the TRITON2 Study of Rucaparib in Patients with DNA Damage Repair-deficient mCRPC: Updated Analyses.
+88.	NCT03967938 Efficacy of Olaparib in Advanced Cancers Occurring in Patients With Germline Mutations or Somatic Tumor Mutations in Homologous Recombination Genes.
+89.	NCT03742895 Efficacy and Safety of Olaparib (MK-7339) in Participants With Previously Treated, Homologous Recombination Repair Mutation (HRRm) or Homologous Recombination Deficiency (HRD) Positive Advanced Cancer (MK-7339-002 / LYNK-002).
+90.	ESMO 2019: GALAHAD A Phase 2 Study of Niraparib in Patients with mCRPC and Biallelic DNA-Repair Gene Defects, A Pre-Specified Interim Analysis.
+91.	NCT02854436 An Efficacy and Safety Study of Niraparib in Men With Metastatic Castration-Resistant Prostate Cancer and DNA-Repair Anomalies.
+92.	NCT04171700 A Study to Evaluate Rucaparib in Patients With Solid Tumors and With Deleterious Mutations in HRR Genes (LODESTAR).
+93.	PMID: 24736070 Clinical significance of BIM deletion polymorphism in non-small-cell lung cancer with epidermal growth factor receptor mutation.
+94.	2016 ASCO Abstract 9017 Total mutation burden (TMB) in lung cancer (LC) and relationship with response to PD-1/PD-L1 targeted therapies.
+95.	PMID: 25765070 Cancer immunology.Mutational landscape determines sensitivity to PD-1 blockade in non-small cell lung cancer.
+96.	PMID: 26028255 PD-1 Blockade in Tumors with Mismatch-Repair Deficiency.
+97.	PMID: 27159395 Immune activation and response to pembrolizumab in POLE-mutant endometrial cancer.
+98.	PMID: 27486176 Regression of Chemotherapy-Resistant Polymerase ε (POLE) Ultra-Mutated and MSH6 Hyper-Mutated Endometrial Tumors with Nivolumab.
+99.	PMID: 27001570 Immune Checkpoint Inhibition for Hypermutant Glioblastoma Multiforme Resulting From Germline Biallelic Mismatch Repair Deficiency.
+100.	PMID: 27671167 Targeted Next Generation Sequencing Identifies Markers of Response to PD-1 Blockade.
+101.	PMID: 26952546 Atezolizumab in patients with locally advanced and metastatic urothelial carcinoma who have progressed following treatment with platinum-based chemotherapy: a single-arm, multicentre, phase 2 trial.
+102.	2017 ASCO abstract e14508 Comprehensive genomic profiling to identify tumor mutational burden (TMB) as an independent predictor of response to immunotherapy in diverse cancers.
+103.	PMID: 28972084 Hypermutated Circulating Tumor DNA: Correlation with Response to Checkpoint Inhibitor-Based Immunotherapy.
+104.	Onclive 2017 FDA Grants Pembrolizumab Priority Review in Second-Line Bladder Cancer.
+105.	2017 ASCO abstract 3071 Pembrolizumab therapy for microsatellite instability high (MSI-H) colorectal cancer (CRC) and non-CRC.
+106.	PMID: 28795418 CD274 (PDL1) and JAK2 genomic amplifications in pulmonary squamous-cell and adenocarcinoma patients.
+107.	2016 ASCO Abstract 3031 Occurrence of PDL1/2 copy number gains detected by FISH in adeno and squamous cell carcinomas of the lung and association with PDL1 overexpression in adenocarcinomas.
+108.	PMID: 29902298 Prevalence of PDL1 Amplification and Preliminary Response to Immune Checkpoint Blockade in Solid Tumors.
+109.	PMID: 25482239 PD-1 blockade with nivolumab in relapsed or refractory Hodgkin's lymphoma.
+110.	PMID: 27942391 Metastatic basal cell carcinoma with amplification of PD-L1: exceptional response to anti-PD1 therapy.
+111.	NCT02593786 A Study of Safety, Tolerability and Pharmacokinetics of Nivolumab in Chinese Subjects With Previously Treated Advanced or Recurrent Solid Tumors.
+112.	NCT02864316 Phase 2 Study of Nivolumab in Solid Tumors Induced by Prior Radiation Exposure.
+113.	PMID: 28329682 The SWI/SNF Protein PBRM1 Restrains VHL-Loss-Driven Clear Cell Renal Cell Carcinoma.
+114.	PMID: 29301960 Genomic correlates of response to immune checkpoint therapies in clear cell renal cell carcinoma.
+115.	PMID: 29301958 A major chromatin regulator determines resistance of tumor cells to T cell-mediated killing.
+116.	PMID: 29270615 Clinical and Molecular Characteristics Associated With Survival Among Patients Treated With Checkpoint Inhibitors for Advanced Non-Small Cell Lung Carcinoma: A Systematic Review and Meta-analysis.
+117.	2017 AACR Abstract CCR-16-2554 Potential Predictive Value of TP53 and KRAS Mutation Status for Response to PD-1 Blockade Immunotherapy in Lung Adenocarcinoma.
+118.	PMID: 29773717 STK11/LKB1 Mutations and PD-1 Inhibitor Resistance in KRAS-Mutant Lung Adenocarcinoma.
+119.	Adam Lauko et al.2019 Abstract THER-09 Impact of KRAS mutation status on the efficacy of immunotherapy in lung cancer brain metastases.
+120.	PMID: 28525386 Prognostic value of KRAS mutation in advanced non-small-cell lung cancer treated with immune checkpoint inhibitors: A meta-analysis and review.
+121.	2019 ASCO 9077 Abstract DNA damage response gene alterations are associated with high tumor mutational burden and clinical benefit from programmed death 1 axis inhibition in non-small cell lung cancer.
+122.	PMID: 29983880 Ipilimumab plus nivolumab and DNA-repair defects in AR-V7-expressing metastatic prostate cancer.
+123.	2019 ASCO Abstract 142 Initial results from a phase II study of nivolumab (NIVO) plus ipilimumab (IPI) for the treatment of metastatic castration-resistant prostate cancer (mCRPC; CheckMate 650).
+124.	PMID: 30171052 Comutations in DNA Damage Response Pathways Serve as Potential Biomarkers for Immune Checkpoint Blockade.
+125.	PMID: 29337640 Molecular Determinants of Response to Anti-Programmed Cell Death (PD)-1 and Anti-Programmed Death-Ligand 1 (PD-L1) Blockade in Patients With Non-Small-Cell Lung Cancer Profiled With Targeted Next-Generation Sequencing.
+126.	2019 ASCO Abstract 9082 Impact of KRAS allele subtypes and concurrent genomic alterations on clinical outcomes to programmed death 1 axis blockade in non-small cell lung cancer.
+127.	2018 IASLC Abstract MA19.09 Concurrent Mutations in STK11 and KEAP1 is Associated with Resistance to PD-(L)1 Blockade in Patients with NSCLC Despite High TMB.
+128.	2019 ASCO Abstract 4036 Association of frequent amplification of chromosome 11q13 in esophageal squamous cell cancer with clinical benefit to immune check point blockade.
+129.	2017 ESMO Abstract 1140PD Predictive biomarkers for Hyper-progression (HP) in response to Immune Checkpoint Inhibitors (ICI) – Analysis of Somatic Alterations (SAs).
+130.	PMID: 29056344 Comprehensive Analysis of Hypermutation in Human Cancer.
+131.	NCT03150706 Avelumab for MSI-H or POLE Mutated Metastatic Colorectal Cancer
+132.	NCT03461952 Nivolumab Ipilimumab in Patients With hyperMutated Cancers Detected in Blood (NIMBLe)
+133.	PMID: 28188185 Response to PD-1 Blockade in Microsatellite Stable Metastatic Colorectal Cancer Harboring a POLE Mutation.
+134.	NCT03491345 K-Basket, Avelumab, Biomarker-driven, Advanced Solid Tumor.
+135.	PMID: 26645196 Loss of PTEN Promotes Resistance to T Cell-Mediated Immunotherapy.
+136.	PMID: 28228279 Loss of PTEN Is Associated with Resistance to Anti-PD-1 Checkpoint Blockade Therapy in Metastatic Uterine Leiomyosarcoma.
+137.	PMID: 28167612 JAK Mutations as Escape Mechanisms to Anti-PD-1 Therapy.
+138.	PMID: 27433843 Mutations Associated with Acquired Resistance to PD-1 Blockade in Melanoma.
+139.	PMID: 27903500 Primary Resistance to PD-1 Blockade Mediated by JAK1/2 Mutations.
+140.	PMID: 22137796 Combined genetic inactivation of β2-Microglobulin and CD58 reveals frequent escape from immune recognition in diffuse large B cell lymphoma.
+141.	PMID: 29070816 Resistance to checkpoint blockade therapy through inactivation of antigen presentation.
+142.	PMID: 27225694 EGFR Mutations and ALK Rearrangements Are Associated with Low Response Rates to PD-1 Pathway Blockade in Non-Small Cell Lung Cancer: A Retrospective Analysis.
+143.	PMID: 26069186 Co-occurring genomic alterations define major subsets of KRAS-mutant lung adenocarcinoma with distinct biology, immune profiles, and therapeutic vulnerabilities.
+144.	PMID: 26833127 STK11/LKB1 Deficiency Promotes Neutrophil Recruitment and Proinflammatory Cytokine Production to Suppress T-cell Activity in the Lung Tumor Microenvironment.
+145.	PMID: 1614537 Amplification of a gene encoding a p53-associated protein in human sarcomas.
+146.	PMID: 16905769 Hdmx modulates the outcome of p53 activation in human tumor cells.
+147.	PMID: 27827313 Hyperprogressive Disease Is a New Pattern of Progression in Cancer Patients Treated by Anti-PD-1/PD-L1.
+148.	PMID: 28351930 Hyperprogressors after Immunotherapy: Analysis of Genomic Alterations Associated with Accelerated Growth Rate.
+149.	PMID: 26858935 Clinical Overview of MDM2/X-Targeted Therapies.
+150.	PMID: 16354690 Tissue-specific differences of p53 inhibition by Mdm2 and Mdm4.
+151.	PMID: 10555141 DNA methyltransferases Dnmt3a and Dnmt3b are essential for de novo methylation and mammalian development.
+152.	PMID: 29414941 Structural basis for DNMT3A-mediated de novo DNA methylation.
+153.	PMID: 28976787 Negative predictive biomarkers of checkpoint inhibitors in hyper-progressive tumors.
+154.	PMID: 29217585 Patient HLA class I genotype influences cancer response to checkpoint blockade immunotherapy.'''
+    para = ''
+    para += p.write(
+        p.set(spacing=[0, 0.5], line=12),
+        r_aiyi.text(' 参考文献', '小四', 1, wingdings=True, color='3EA6C2', space=True)
+    )
+    for index, text in enumerate(texts.split('\n')):
+        ind = 1
+        if index < 9:
+            ind = 1
+        elif index < 99:
+            ind = 1.5
+        else:
+            ind = 2
+        para += p.write(
+            p.set(line=18, ind=['hanging', ind, 0]),
+            r_aiyi.text(text, 10)
+        )
+
+    para += set_page()
+    return para
+
 # Part5 . 3 通路涉及重点基因变异情况
 def write_chapter5311(ch, index, stars):
     p_set = p.set(spacing=[0.2, 0.2])
@@ -2317,10 +2495,7 @@ def write_chapter5311(ch, index, stars):
     trs2 += write_genes((ch['genes']), n, w_sum, 'right', stars, title=ch['title'])
     para += table_weizhi(trs2)
     para += p.write()
-    if index < 10:
-        para += p.write(p.set(sect_pr=set_page()))
-    else:
-        para += set_page()
+    para += p.write(p.set(sect_pr=set_page()))
     return para
 
 
@@ -3025,6 +3200,7 @@ def write_tr51(item, ws, row=0, count=0):
 def write_tr1(text, fill='', wingdings=True, jc='center', weight=0, size=9, before=0.2, tcBorders=['top', 'bottom'], color=gray):
     pPr = p.set(jc=jc, spacing=[before, 0.2])
     para = ''
+    text = text or ''
     for t in text.split('\n'):
         run = r_aiyi.text(
             ' ' + t,
