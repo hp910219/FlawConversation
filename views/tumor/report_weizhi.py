@@ -253,6 +253,7 @@ def write_body(title_cn, title_en, data):
     body += write_chapter3(5, trs3, chem_items)
     body += write_chapter4(6, data)
     body += write_chapter5(7, data)
+    body += write_chapter_affix(8, data)
     return body
 
 
@@ -322,7 +323,7 @@ def write_catalog():
     para = p.write(
         p.set(spacing=[0, 0], jc='center', outline=3, line=24, rule='auto'),
         r_aiyi.text("目录", size=18, color=white) +
-        r_aiyi.picture(15, rId='content_weizhi', relativeFrom=['page', 'page'], align=['center', 'center'])
+        r_aiyi.picture(17.42, rId='content_weizhi', relativeFrom=['page', 'page'], align=['center', 'center'])
     )
     para += p.write(p.set(sect_pr=sect_pr_catalog1))
     return para
@@ -377,12 +378,7 @@ def write_chapter0(title_cn, data):
         tumor_mean_target_coverage
 
     tips = [
-        {'title': '关于检测项目', 'text': technology + '\n相关局限性说明：由于肿瘤异质性等原因，本检测报告仅对本样本负责，患者诊疗决策需在临床医生指导下进行'},
-        {
-            'title': '样本和数据质控信息',
-            'text': '样本中肿瘤细胞比例约为%s，DNA总量为2388ng，符合检测标准。' % purity
-                    + '\n本次检测的平均有效测序深度为%sX，符合检测标准。' % tumor_mean_target_coverage
-        }
+        {'title': '关于检测项目', 'text': technology + '\n相关局限性说明：由于肿瘤异质性等原因，本检测报告仅对本样本负责，患者诊疗决策需在临床医生指导下进行'}
     ]
     for tip_item in tips:
         trs_tip = write_table_title(tip_item.get('title'))
@@ -390,6 +386,23 @@ def write_chapter0(title_cn, data):
         for text in texts:
             trs_tip += write_tr_weizhi([{'text': text, 'tcBorders': ['bottom'], 'pPr': p.set(spacing=[0.2, 0.2])}])
         para += table_weizhi(trs_tip) + p.write()
+    trs_qc = write_table_title('样本和数据质控信息', 4)
+    qcs = [
+        {'weight': 1, 'items': ['质量参数', '数值', '质控标准', '质控结果']},
+        {'weight': 0, 'items': ['DNA总量（ng）', '5280', '≥50', '合格']},
+        {'weight': 0, 'items': ['预文库总量（ng）', '1175', '≥300', '合格']},
+        {'weight': 0, 'items': ['平均测序深度（X）', tumor_mean_target_coverage, '≥500', '合格' if tumor_mean_target_coverage >= 500 else '不合格']},
+        {'weight': 0, 'items': ['深度＞（0.1X目标测序深度）占比', '99%', '≥90%', '合格']},
+    ]
+    for qc in qcs:
+        tcs_qc = ''
+        for qc_index,t in enumerate(qc.get('items')):
+            w_qc = 6.75 if qc_index == 0 else 3.75
+            tcs_qc += write_tc_weizhi({
+                'text': t, 'size': 10, 'w': int(w_qc * 567), 'tcBorders': [], 'weight': qc.get('weight')
+            })
+        trs_qc += tr.write(tcs_qc)
+    para += table_weizhi(trs_qc) + p.write()
     admins = ['测序操作人', '', '数据分析人', '', '报告审核人', '']
     tcs_admins = ''
     for admin_index, admin in enumerate(admins):
@@ -405,14 +418,12 @@ def write_chapter0(title_cn, data):
 def write_chapter1(data):
     cats = get_catalog()[0: 4]
     para = ''
-    para += p.write(
-        p.set(spacing=[0.2, 0.2], jc='center', line=1.45*12), r_aiyi.text('附  录', 12, weight=1))
 
     trs1 = tr.write(
         tc.write(
             p.write(
                 p.set(spacing=[1, 0]),
-                r_aiyi.text('说明：附录中采用统一颜色标识对基因突变信息进行标注，其中：', 10)
+                r_aiyi.text('说明：报告中采用统一颜色标识对基因突变信息进行标注，其中：', 10)
             ),
             tc.set(w_sum, tcBorders=[], gridSpan=5)
         ),
@@ -722,9 +733,130 @@ def write_chapter5(index, data):
     para += write_chapter51(cats[1].get('title'), data) + p.write()
     para += write_chapter_cnvs(cats[2].get('title'), data)
     para += p.write(p.set(sect_pr=set_page('A4', header='rIdHeader%d' % index)))
-    # para += p.write(p.set(sect_pr=set_page()))
-    tr53 = write_table_title(cats[3].get('title').split('、')[-1])
-    para += table_weizhi(tr53)
+    return para
+
+
+# '3EA6C2'
+def write_chapter_affix(index, data):
+    s, n = 21, 6
+    cats = get_catalog()[s: s+n]
+    para = ''
+    para += p.write(
+        p.set(spacing=[0.2, 0.2], jc='center', line=1.45*12), r_aiyi.text('附  录', 12, weight=1))
+    genes1 = '''ABL1	ACVR1	ACVR1B	ACVR2A	AGO2	AKT1	AKT2	AKT3	ALK
+    ALOX12B	AMER1	ANKRD11	APC	AR	ARAF	ARFRP1	ARID1A	ARID1B
+    ARID2	ARID5B	ASXL1	ASXL2	ATM	ATR	ATRX	AURKA	AURKB
+    AXIN1	AXIN2	AXL	B2M	BABAM1	BAP1	BARD1	BBC3	BCL10
+    BCL2	BCL2L1	BCL2L11	BCL2L2	BCL6	BCOR	BCORL1	BCR	BIRC3
+    BIRC5	BLK	BLM	BMPR1A	BRAF	BRCA1	BRCA2	BRD4	BRIP1
+    BTG1	BTK	C11orf30	CALR	CARD11	CARM1	CASP8	CBFB	CBL
+    CCND1	CCND2	CCND3	CCNE1	CD19	CD22	CD274	CD276	CD38
+    CD3D	CD3E	CD3G	CD52	CD74	CD79A	CD79B	CDC42	CDC73
+    CDH1	CDK12	CDK2	CDK4	CDK6	CDK8	CDK9	CDKN1A	CDKN1B
+    CDKN2A	CDKN2B	CDKN2C	CEBPA	CENPA	CHD4	CHEK1	CHEK2	CIC
+    CREBBP	CRKL	CRLF2	CSDE1	CSF1R	CSF3R	CSK	CTCF	CTLA4
+    CTNNA1	CTNNB1	CUL3	CUL4A	CXCR4	CYLD	CYP2C8	CYP2E1	CYSLTR2
+    DAXX	DCUN1D1	DDR1	DDR2	DICER1	DIS3	DNAJB1	DNMT1	DNMT3A
+    DNMT3B	DOT1L	DROSHA	DUSP4	E2F3	EED	EGF	EGFL7	EGFR
+    EIF1AX	EIF4A2	EIF4E	ELF3	EML4	EP300	EPAS1	EPCAM	EPHA2
+    EPHA3	EPHA5	EPHA7	EPHB1	ERBB2	ERBB3	ERBB4	ERCC1	ERCC2
+    ERCC3	ERCC4	ERCC5	ERF	ERG	ERRFI1	ESR1	ETV1	ETV4
+    ETV6	EWSR1	EZH1	EZH2	EZR	FAM175A	FAM46C	FAM58A	FANCA
+    FANCC	FANCD2	FANCE	FANCF	FANCG	FANCI	FANCL	FAS	FAT1
+    FBXW7	FGF1	FGF10	FGF12	FGF14	FGF19	FGF2	FGF23	FGF3
+    FGF4	FGF5	FGF6	FGF7	FGF8	FGF9	FGFR1	FGFR2	FGFR3
+    FGFR4	FGR	FH	FLCN	FLT1	FLT3	FLT4	FOXA1	FOXL2
+    FOXO1	FOXP1	FUBP1	FYN	GABRA6	GATA1	GATA2	GATA3	GATA4
+    GATA6	GID4	GLI1	GNA11	GNA13	GNAQ	GNAS	GPS2	GREM1
+    GRIN2A	GRM3	GSK3B	H3F3A	H3F3B	H3F3C	HCK	HGF	HIST1H1C
+    HIST1H2BD	HIST1H3A	HIST1H3B	HIST1H3C	HIST1H3D	HIST1H3E	HIST1H3F	HIST1H3G	HIST1H3H
+    HIST1H3I	HIST1H3J	HIST2H3C	HIST2H3D	HIST3H3	HLA-A	HLA-B	HNF1A	HOXB13
+    HRAS	HSD3B1	HSP90AA1	ICOSLG	ID3	IDH1	IDH2	IFNGR1	IGF1
+    IGF1R	IGF2	IKBKE	IKZF1	IL10	IL2RA	IL2RB	IL2RG	IL6
+    IL7R	INHA	INHBA	INPP4A	INPP4B	INPPL1	INSR	IRF2	IRF4
+    IRS1	IRS2	ITK	JAK1	JAK2	JAK3	JUN	KCNJ5	KDM5A
+    KDM5C	KDM6A	KDR	KEAP1	KEL	KIT	KLF4	KLHL6	KMT2A
+    KMT2B	KMT2C	KMT2D	KNSTRN	KRAS	LATS1	LATS2	LCK	LIMK1
+    LMO1	LRP1B	LTK	LYN	MALT1	MAP2K1	MAP2K2	MAP2K4	MAP2K7
+    MAP3K1	MAP3K13	MAP3K14	MAPK1	MAPK3	MAPKAP1	MAX	MCL1	MDC1
+    MDM2	MDM4	MED12	MEF2B	MEN1	MERTK	MET	MGA	MITF
+    MLH1	MPL	MRE11A	MS4A1	MSH2	MSH3	MSH6	MST1R	MTOR
+    MUTYH	MYC	MYCL	MYCN	MYD88	MYOD1	NBN	NCOA3	NCOR1
+    NEGR1	NF1	NF2	NFE2L2	NFKBIA	NKX2-1	NKX3-1	NOTCH1	NOTCH2
+    NOTCH3	NOTCH4	NPM1	NRAS	NSD1	NT5C2	NTHL1	NTRK1	NTRK2
+    NTRK3	NUF2	NUP93	PAK1	PAK3	PAK7	PALB2	PARK2	PARP1
+    PARP2	PAX5	PBRM1	PCBP1	PDCD1	PDCD1LG2	PDGFRA	PDGFRB	PDK1
+    PDPK1	PGR	PHOX2B	PIK3C2B	PIK3C2G	PIK3C3	PIK3CA	PIK3CB	PIK3CD
+    PIK3CG	PIK3R1	PIK3R2	PIK3R3	PIM1	PLCG2	PLK2	PMAIP1	PMS1
+    PMS2	PNRC1	POLD1	POLE	PPARG	PPM1D	PPP2R1A	PPP2R2A	PPP4R2
+    PPP6C	PRDM1	PRDM14	PREX2	PRKAR1A	PRKCI	PRKD1	PTCH1	PTEN
+    PTK6	PTP4A1	PTPN11	PTPRD	PTPRS	PTPRT	QKI	RAB35	RAC1
+    RAC2	RAD21	RAD50	RAD51	RAD51B	RAD51C	RAD51D	RAD52	RAD54L
+    RAF1	RARA	RASA1	RB1	RBM10	RECQL	RECQL4	REL	RET
+    RFWD2	RHEB	RHOA	RICTOR	RIT1	RNF43	ROCK1	ROS1	RPS6KA4
+    RPS6KB2	RPTOR	RRAGC	RRAS	RRAS2	RTEL1	RUNX1	RXRA	RYBP
+    SBDS	SDC4	SDHA	SDHAF2	SDHB	SDHC	SDHD	SESN1	SESN2
+    SESN3	SETD2	SETD8	SF3B1	SGK1	SH2B3	SH2D1A	SHOC2	SHQ1
+    SLAMF7	SLC34A2	SLX4	SMAD2	SMAD3	SMAD4	SMARCA4	SMARCB1	SMARCD1
+    SMO	SMYD3	SNCAIP	SOCS1	SOS1	SOX10	SOX17	SOX2	SOX9
+    SPEN	SPOP	SPRED1	SPRY2	SRC	SRD5A2	SRMS	SRSF2	STAG2
+    STAT3	STAT5A	STAT5B	STK11	STK19	STK40	SUFU	SUZ12	SYK
+    TAP1	TAP2	TBX3	TCEB1	TCF3	TCF7L2	TEK	TERT	TET1
+    TET2	TGFBR1	TGFBR2	TIPARP	TMEM127	TMPRSS2	TNFAIP3	TNFRSF14	TNFRSF8
+    TNFSF11	TOP1	TP53	TP53BP1	TP63	TRAF2	TRAF7	TSC1	TSC2
+    TSHR	TYRO3	U2AF1	UGT1A1	UPF1	VEGFA	VHL	VTCN1	WAS
+    WHSC1	WHSC1L1	WISP3	WT1	WWTR1	XIAP	XPC	XPO1	XRCC1
+    XRCC2	YAP1	YES1	ZFHX3	ZNF217	ZNF703			'''
+    title1 = '573个基因全外显子（点突变、短片段拆入/缺失、拷贝数变异）'
+
+    gene_infos = [
+        [title1, genes1],
+        ['45个基因部分外显子（点突变、短片段拆入/缺失、拷贝数变异）', '''ABCB1	ABCC2	ABCC4	ABCG2	ADGRA2	CHST3	CSNK1A1	CYP17A1	CYP1A1
+CYP1B1	CYP2C19	DPYD	DSCAM	DYNC2H1	ELOC	EMSY	FANCB	FCGR3A
+FRK	GALNT14	HDAC1	KAT6A	KMT5A	LRIG3	LRP2	MAP4K5	MRE11
+MSI1	MTHFR	NOS3	NRG1	NSD2	PAK5	PRKDC	PRKN	PTK2
+RANBP2	RPL13	RRM1	SIK1	SLC22A2	SLCO1B1	SLCO1B3	STAT4	TYK2'''],
+        ['37个基因部分内含子（融合/重排）', '''ALK	BCL2	BCR	BRAF	BRCA1	BRCA2	CD74	ERC	ETV1
+ETV4	ETV5	ETV6	EWSR1	EZR	FGFR1	FGFR2	FGFR3	KIT
+KMT2A	MET	MSH2	MYB	MYC	NOTCH2	NTRK1	NTRK2	NUTM1
+PDGFRA	RAF1	RARA	RET	ROS1	RSPO2	SDC4	SLC34A2	TERT
+TMPRSS2	 	 	 	 	 	 	 	 '''],
+        ['37个MSI基因', '''ACTC	ATM	ATM-15	BAT-25	BAT-26	BAT-34c4	BAT-40	BRCA2	CBL-17
+CUL-22	D10S197	D17S250	D17S261	D17S799	D18S35	D18S55	D18S58	D1S2883
+D2S123	D5S346	MET	MITF-14	MONO-27	MSH2	MSH6	NF1-26	NR-21
+NR-22	NR-24	NR-27	PMS2	POLE	PTK-16	PTPN-17	RET-14	SDHC
+TGF-βRII								'''],
+        ['41个化疗基因', '''ABCB1	ABCG2	C8orf34	CBR3	CDA	COMT	CYP19A1	CYP1B1	CYP2B6
+CYP2C19	CYP2C8	CYP2D6	CYP3A4	CYP3A5	CYP4B1	CYP4F2	DPYD	DYNC2H1
+EGFR	ERCC1	ERCC2	FASTKD3	GSTM1	GSTP1	GSTT1	MTHFR	NQO1
+NT5C2	NUDT15	RRM1	SEMA3C	SLC28A3	SLCO1B1	SOD2	TP53	TPMT
+TYMS	UGT1A1	UMPS	XPC	XRCC1				'''],
+    ]
+    para += p.write(
+        p.set(spacing=[0, 0.2], line=12),
+        r_aiyi.text(' 基因检测列表', '小四', 1, wingdings=True, color='3EA6C2', space=True)
+    )
+    for gene_info in gene_infos:
+        para += p.write(
+            p.set(spacing=[0.2, 0.2], line=12),
+            r_aiyi.text(gene_info[0], 10, weight=1)
+        )
+        trs1 = ''
+        for items in gene_info[1].split('\n'):
+            tcs1 = ''
+            for t_index, t in enumerate(items.lstrip('\t').split('\t')):
+                tcs1 += write_tc_weizhi({
+                    'text': t.strip('\n').strip(),
+                    'italic': True,
+                    'size': '小五',
+                    'w': (2.1 if t_index == 0 else 2) * 567,
+                    'tcBorders': [],
+                    'pPr': p.set(spacing=[0, 0])
+                })
+            trs1 += tr.write(tcs1)
+        para += table_weizhi(trs1, ['top', 'bottom'], bdColor='3EA6C2')
+    para += p.write(p.set(sect_pr=set_page('A4', header='rIdHeader%d' % index)))
+
     para += write_chapter53(data)
     return para
 
@@ -2121,7 +2253,9 @@ def write_chapter_cnvs(title, data):
 
 
 def write_chapter53(data):
-    para = p.write(
+    tr53 = write_table_title('肿瘤重要信号通路变异信息汇总')
+    para = table_weizhi(tr53)
+    para += p.write(
         p.set(spacing=[0.5, 1]),
         r_aiyi.text('评估肿瘤重点信号通路的状态是从全局对癌症进行理解的重要方式。肿瘤相关驱动基因一般都处在肿瘤的重点信号通路上。该样本相关的肿瘤驱动基因变异和非驱动基因变异究竟累及哪些信号通路，信号通路之间各个基因的关系如何，针对相关信号通路的治疗方式以及各个信号通路上下游的信号通路的分布，都能够协助医生和患者理解肿瘤所处状态。', 10, weight=1))
     for i in range(1, gene_list53.nrows):
@@ -2923,6 +3057,7 @@ def write_tc_weizhi(item):
     size = item.get('size') or '小五'
     weight = item.get('weight') or 0
     wingdings = item.get('wingdings') or False
+    italic = item.get('italic') or False
     para = ''
     tcFill = item.get('tcFill') or ''
     tcColor = item.get('tcColor') or gray
@@ -2941,7 +3076,7 @@ def write_tc_weizhi(item):
     for t in text.split('\n'):
         if wingdings is True:
             t = ' ' + t
-        run = r_aiyi.text(t, size=size, weight=weight, wingdings=wingdings, space=True, color=color, underline=underline)
+        run = r_aiyi.text(t, size=size, weight=weight, italic=italic, wingdings=wingdings, space=True, color=color, underline=underline)
         para += p.write(pPr, run)
     return tc.write(para, tc.set(w=w, fill=tcFill, tcBorders=tcBorders, gridSpan=gridSpan, color=tcColor, lineSize=lineSize))
 
@@ -3093,8 +3228,8 @@ def h4_aiyi(text='',
     return p.write(p.set(spacing=spacing, line=line, rule=rule, outline=outline, ind=ind, jc=jc), run, bm_name)
 
 
-def table_weizhi(trs2, tblBorders=['bottom'], line=1, jc='center'):
-    para = table.write(trs2, tblBorders=tblBorders,  bdColor=gray, jc=jc)
+def table_weizhi(trs2, tblBorders=['bottom'], line=1, jc='center', bdColor=gray):
+    para = table.write(trs2, tblBorders=tblBorders,  bdColor=bdColor, jc=jc)
     if line > 0:
         para += p.write(p.set(line=line, rule='exact'))
     return para
@@ -3157,6 +3292,7 @@ def get_page_titles():
         if test_chinese(cats[i]['title']) == 11:
             n -= 8
         titles.append('%s%s%s' % (cats[i]['title'], ' ' * n,  title_en))
+    titles.append('附录')
     return titles
 
 
