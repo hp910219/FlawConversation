@@ -319,14 +319,21 @@ def tumor_download_panel():
 def download_file():
     rq = request.args.to_dict()
     file_path = rq.get('file_path')
+    if file_path is None:
+        return 'Sorry, no path.'
     dir_name = os.path.dirname(file_path)
     file_name = os.path.relpath(file_path, dir_name)
     # file_name = rq.get('file_name')
     attachment_filename = rq.get('attachment_filename')
     t = format_time(frm='%Y%m%d%H%M%S')
+    if '..' in dir_name or 'password' in file_path:
+        return 'Sorry, unavailable path.'
     if attachment_filename is None:
         file_names = file_name.split('.')
         attachment_filename = '%s_%s.%s' % ('.'.join(file_names[:-1]), t, file_names[-1])
+    if os.path.exists(file_path) is False:
+        return 'Sorry, file_path dose not exists.'
+
     # print dir_name
     # print file_name
     # print attachment_filename
