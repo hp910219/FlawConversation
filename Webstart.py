@@ -327,6 +327,8 @@ def download_file():
     if attachment_filename is None:
         file_names = file_name.split('.')
         attachment_filename = '%s_%s.%s' % ('.'.join(file_names[:-1]), t, file_names[-1])
+    if '..' in dir_name or 'password' in file_path:
+        return 'Sorry, unavailable path.'
     # print dir_name
     # print file_name
     # print attachment_filename
