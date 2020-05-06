@@ -2,6 +2,7 @@
 # coding: utf-8
 import os
 import sys
+import subprocess
 import traceback
 
 from flask import jsonify, request, render_template, send_from_directory, redirect
@@ -446,6 +447,7 @@ def tumor_app(app_name, r_path, sort_func, output_postfix='txt'):
     tapply_info = os.path.join(output_dir, '%s_app_info.json' % app_name)
     t = format_time(frm='%Y%m%d%H%M%S')
     items = my_file.read(tapply_info) or []
+    msg = ''
     if request.method == 'POST':
         rq = request.json
         output_file = '%s.output.%s.%s' % (app_name, t, output_postfix)
@@ -460,20 +462,35 @@ def tumor_app(app_name, r_path, sort_func, output_postfix='txt'):
         if env and env.startswith('Development'):
             cmd = ''
         cmd += cmd_dev
+
         try:
-            os.system(cmd)
-        except:
-            return jsonify({'message': traceback.format_exc()})
+            # scheduler_order = "top -u ybtao"
+            return_info = subprocess.Popen(cmd, shell=True, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
+            while True:
+                next_line = return_info.stdout.readline()
+                return_line = next_line.decode("utf-8", "ignore")
+                if return_line == '' and return_info.poll() != None:
+                    break
+                if return_line:
+                    msg = return_line
+                    break
+            returncode = return_info.wait()
+            if returncode:
+                raise subprocess.CalledProcessError(returncode, return_info)
+        except Exception, e:
+            print e
+            # msg = traceback.format_exc()
         rq.update({
             'output': output,
             'add_time': t,
         })
         items.insert(0, rq)
         my_file.write(tapply_info, items)
+
         if os.path.exists(output):
             # data = my_file.read(output)
             return jsonify({'data': {'file_path': output, 'dir': output_dir, 'file_name': output_file}, 'message': 'success', 'status': 100001})
-        return jsonify({'message': u'输出文件生成失败', 'cmd': cmd})
+        return jsonify({'message': u'输出文件生成失败: %s' % msg, 'cmd': cmd})
     return jsonify({'data': items, 'message': 'success'})
 
 
