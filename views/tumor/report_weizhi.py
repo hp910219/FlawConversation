@@ -136,6 +136,7 @@ def get_report_core(data):
             other_pic.append(pic_info)
     img_info = get_imgs_weizhi(img_dir, is_refresh=True, others=other_pic)
     body = write_body(title_cn, title_en, data)
+    body = body.replace('免疫检查点抗体', '免疫检查点抑制剂')
     pages = write_pages(data.get('report_time'), sample_detail.get('sample_id'))
     pkgs1 = write_pkg_parts(img_info, body, other=pages)
     return pkgs1
