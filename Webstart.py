@@ -418,7 +418,6 @@ def pheatmap_colTree():
             input_file1, output_file, ftsize_row, ftsize_col,
             cluster_method, output
         )
-        print cmd
         return cmd, [dir1]
     return tumor_app('pheatmap', '/public/jingdu/budechao/scripts/run_pheatmap_colTree.R', sort_pheatmap)
 
@@ -446,7 +445,7 @@ def tumor_app(app_name, r_path, sort_func, output_postfix='txt'):
         # return jsonify({'message': 'Path not exists, %s' % path})
     tapply_info = os.path.join(output_dir, '%s_app_info.json' % app_name)
     t = format_time(frm='%Y%m%d%H%M%S')
-    items = my_file.read(tapply_info) or []
+    items = []
     msg = ''
     if request.method == 'POST':
         rq = request.json
@@ -462,30 +461,36 @@ def tumor_app(app_name, r_path, sort_func, output_postfix='txt'):
         if env and env.startswith('Development'):
             cmd = ''
         cmd += cmd_dev
-
         try:
-            # scheduler_order = "top -u ybtao"
-            return_info = subprocess.Popen(cmd, shell=True, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
-            while True:
-                next_line = return_info.stdout.readline()
-                return_line = next_line.decode("utf-8", "ignore")
-                if return_line == '' and return_info.poll() != None:
-                    break
-                if return_line:
-                    msg = return_line
-                    break
-            returncode = return_info.wait()
-            if returncode:
-                raise subprocess.CalledProcessError(returncode, return_info)
-        except Exception, e:
-            print e
-            # msg = traceback.format_exc()
+            code = os.system(cmd)
+            if code:
+                # 获取错误日志
+                try:
+                    # scheduler_order = "top -u ybtao"
+                    # os.system(cmd)
+                    return_info = subprocess.Popen(cmd, shell=True, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
+                    # next_line = return_info.stdout.readline()
+                    # msg = next_line.decode("utf-8", "ignore")
+                    while True:
+                        next_line = return_info.stdout.readline()
+                        return_line = next_line.decode("utf-8", "ignore")
+                        if return_line == '' and return_info.poll() != None:
+                            break
+                        if return_line:
+                            msg = return_line
+                            break
+                    # returncode = return_info.wait()
+                    # if returncode:
+                    #     raise subprocess.CalledProcessError(returncode, return_info)
+                except Exception, e:
+                    print e
+                    # msg = traceback.format_exc()
+        except:
+            traceback.print_exc()
         rq.update({
             'output': output,
             'add_time': t,
         })
-        items.insert(0, rq)
-        my_file.write(tapply_info, items)
 
         if os.path.exists(output):
             # data = my_file.read(output)
