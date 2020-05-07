@@ -443,10 +443,10 @@ def tumor_app(app_name, r_path, sort_func, output_postfix='txt'):
     if os.path.exists(output_dir) is False:
         os.makedirs(output_dir)
         # return jsonify({'message': 'Path not exists, %s' % path})
-    tapply_info = os.path.join(output_dir, '%s_app_info.json' % app_name)
     t = format_time(frm='%Y%m%d%H%M%S')
     items = []
     msg = ''
+    # a + 5
     if request.method == 'POST':
         rq = request.json
         output_file = '%s.output.%s.%s' % (app_name, t, output_postfix)
@@ -463,6 +463,7 @@ def tumor_app(app_name, r_path, sort_func, output_postfix='txt'):
         cmd += cmd_dev
         try:
             code = os.system(cmd)
+            # print code, t
             if code:
                 # 获取错误日志
                 try:
@@ -471,26 +472,33 @@ def tumor_app(app_name, r_path, sort_func, output_postfix='txt'):
                     return_info = subprocess.Popen(cmd, shell=True, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
                     # next_line = return_info.stdout.readline()
                     # msg = next_line.decode("utf-8", "ignore")
-                    while True:
-                        next_line = return_info.stdout.readline()
-                        return_line = next_line.decode("utf-8", "ignore")
-                        if return_line == '' and return_info.poll() != None:
-                            break
-                        if return_line:
-                            msg = return_line
-                            break
+                    # while True:
+                    #     next_line = return_info.stdout.readline()
+                    #     return_line = next_line.decode("utf-8", "ignore")
+                    #     if return_line == '' and return_info.poll() is not None:
+                    #         break
+                    #     if return_line:
+                    #         msg = return_line
+                    #         print 'ssdfdf', msg
+                    #         # break
                     # returncode = return_info.wait()
                     # if returncode:
+                    #     print 'read', return_info.stdout.read()
                     #     raise subprocess.CalledProcessError(returncode, return_info)
+                    msg = return_info.communicate()[0].decode('utf-8', 'ignore')
                 except Exception, e:
-                    print e
+                    print 'Exception', e
+                    msg = traceback.format_exc()
                     # msg = traceback.format_exc()
-        except:
-            traceback.print_exc()
+        except Exception, e:
+            # traceback.print_exc()
+            msg = traceback.format_exc()
         rq.update({
             'output': output,
             'add_time': t,
         })
+
+        # print app.logger.error()
 
         if os.path.exists(output):
             # data = my_file.read(output)
