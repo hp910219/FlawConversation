@@ -693,15 +693,16 @@ def write_chapter3(index, chem_items):
         {'text': u'谨慎使用', 'color': ''},
     ]
     # chem_items = []
-    if len(chem_items) == 0:
-        chem_items = [
-            {'drug': '无', 'sensibility': '无', 'side_reaction': '无', 'result': '无', 'detail': []}
-        ]
+
     chem_drugs = []
     trs2 = ''
     ws2 = [2*567, 1.9 * 567, 2.1 * 567, 4 *567, 2* 567, 4 * 567, 2* 567]
     trs2 += write_thead51(['化疗药物', '基因名称', '检测位点', '疾病', '检测结果', '判断结果', '等级'],
                           ws=ws2, tcFill=gray, pPr=pPr, size='小五', inline=['left', 'top', 'bottom'], weight=1)
+    if len(chem_items) == 0:
+        trs1 += write_tr51(['无'] * len(ws1), ws1)
+        trs2 += write_tr51(['无'] * len(ws2), ws2)
+
     for i in range(len(chem_items)):
         item = chem_items[i]
         result = item.get('result')
