@@ -692,6 +692,11 @@ def write_chapter3(index, chem_items):
         {'text': u'常规使用', 'color': RGB_to_Hex('54,95,245')},
         {'text': u'谨慎使用', 'color': ''},
     ]
+    # chem_items = []
+    if len(chem_items) == 0:
+        chem_items = [
+            {'drug': '无', 'sensibility': '无', 'side_reaction': '无', 'result': '无', 'detail': []}
+        ]
     chem_drugs = []
     trs2 = ''
     ws2 = [2*567, 1.9 * 567, 2.1 * 567, 4 *567, 2* 567, 4 * 567, 2* 567]
