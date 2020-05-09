@@ -155,6 +155,7 @@ def tumor_download_panel():
     svs = []
     rs_geno = []
     neoantigens = []
+    chemotherapy = []
     if rq is not None:
         sample_no = rq.get('sample_no')
         item_name = rq.get('item_name')
@@ -186,6 +187,10 @@ def tumor_download_panel():
         # neoantigens = get_api('/api/v2/tumor/neoantigens/', {'sample_no': sample_no}) or []
         if res_neoantigens is not None:
             neoantigens = res_neoantigens.get('data') or []
+        if item_name == 'weizhi':
+            res_chemotherapy = sort_request1('GET', '/api/v2/tumor/chemotherapy/', data={'sample_no': sample_no})
+            if res_chemotherapy is not None:
+                chemotherapy = res_chemotherapy.get('data') or []
 
     w_sum = 10200
     diagnose = sample_detail.get('diagnosis') or ''
@@ -303,6 +308,7 @@ def tumor_download_panel():
             'cnv_stars': cnvs_stars,
             'sv_stars': svs_stars,
             'rs_geno': rs_geno or [],
+            'chemotherapy': chemotherapy,
             'neoantigens': neoantigens or [],
             'msi_info': msi_info,
             'tmb_info': tmb_info,

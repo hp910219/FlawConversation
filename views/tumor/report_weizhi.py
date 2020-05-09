@@ -12,9 +12,9 @@ from jy_word.web_tool import test_chinese
 from jy_word.Word import bm_index0, get_imgs, uniq_list, get_img, get_img_info
 from jy_word.File import File
 from jy_word.Word import Paragraph, Run, Set_page, Table, Tc, Tr, HyperLink, Relationship, SDT
-from jy_word.Word import write_cat, write_pkg_parts
-from jy_word.web_tool import sex2str, format_time
-from config import dir_name, static_dir
+from jy_word.Word import write_pkg_parts
+from jy_word.web_tool import sex2str
+from config import static_dir
 
 gray = 'E9E9E9'
 gray_lighter = 'EEEEEE'
@@ -33,14 +33,11 @@ title_cn, title_en = u'多组学临床检测报告', 'AIomics1'
 aiyi_dir = os.path.join(static_dir, 'aiyi')
 weizhi_dir = os.path.join(static_dir, 'weizhi')
 base_dir = os.path.join(aiyi_dir, 'base_data')
-chemotherapy_dir = os.path.join(aiyi_dir, 'chemotherapy')
 img_dir = os.path.join(aiyi_dir, 'images')
 my_file = File()
 base_file = File(base_dir)
 gene_list12 = base_file.read('1.2gene_list.json')
 gene_list53 = base_file.read('5.3gene_list.xlsx', sheet_name='Sheet2')
-company = base_file.read('5.company.txt', sheet_name='Sheet2')
-gene_MoA = base_file.read('gene_MoA.tsv')
 signature_cn = base_file.read('signature_cn.txt')
 img_info_path = os.path.join(img_dir, 'img_info.json')
 
@@ -214,8 +211,7 @@ def write_body(title_cn, title_en, data):
         ploidy = ploidy
     data['ploidy'] = ploidy
     data['target_tips'] = stars0, False, []
-    chem_items, trs3 = get_data3(data.get('rs_geno'), diagnose)
-
+    paras3, chem_drugs = write_chapter3(5, data.get('chemotherapy'))
     para_ddr, tip_ddr, tip_ddr1, level_ddr = write_chapter_ddr(stars if diagnose == '泌尿上皮癌' else variant_list, diagnose)
     para_mingan, tip_mingan, tip_mingan1, level_mingan = write_chapter_mingan(stars, diagnose, ploidy)
     para_naiyao, tip_naiyao, tip_naiyao1, level_naiyao = write_chapter_naiyao(data, ploidy)
@@ -233,7 +229,7 @@ def write_body(title_cn, title_en, data):
         {'index': '免疫超进展', 'tip1': tip_chaojinzhan1, 'text': tip_chaojinzhan, 'level': level_chaojinzhan, 'w': (w_sum-300) / 2},
         {'index': 'HLA分型', 'tip1': tip_hla1, 'text': tip_hla, 'level': level_hla, 'w': w_sum}
     ]
-    data['chem_tip'] =  '可能有效且毒副作用低的药物：%s' % ('无' if len(trs3[1][1]) == 0 else ', '.join(trs3[1][1]))
+    data['chem_tip'] =  '可能有效且毒副作用低的药物：%s' % ('无' if len(chem_drugs) == 0 else ', '.join(chem_drugs))
     data['yichuan'] = {
         'text': tip_yichuan, 'level': level_yichuan, 'title': '肿瘤遗传性检测结果', 'line': 0
     }
@@ -251,7 +247,7 @@ def write_body(title_cn, title_en, data):
     body += write_catalog()
     body += write_chapter1(data)
     body += write_chapter2(4, data)
-    body += write_chapter3(5, trs3, chem_items)
+    body += paras3
     body += write_chapter4(6, data)
     body += write_chapter5(7, data)
     body += write_chapter_affix(8, data)
@@ -684,35 +680,126 @@ def write_chapter2(index, data):
     return para
 
 
-def write_chapter3(index, trs, chem_items):
+def write_chapter3(index, chem_items):
     n, start = 2, 10+6
     cats = get_catalog()[start-1: start + n]
-    c2 = ''
+    trs1 = ''
+    ws1 = [8*567, 3 * 567, 3.5*567, 3.5 * 567]
+    pPr = p.set(spacing=[0.1, 0.05], jc='center')
+    trs1 += write_thead51(['化疗药物', '敏感性', '毒副作用', '检测结果'], ws=ws1, tcFill=gray, pPr=pPr, size='小五', weight=1)
+    chem_tips = [
+        {'text': u'推荐使用', 'color': RGB_to_Hex('255,0,0')},
+        {'text': u'常规使用', 'color': RGB_to_Hex('54,95,245')},
+        {'text': u'谨慎使用', 'color': ''},
+    ]
+    chem_drugs = []
+    trs2 = ''
+    ws2 = [2*567, 1.9 * 567, 2.1 * 567, 4 *567, 2* 567, 4 * 567, 2* 567]
+    trs2 += write_thead51(['化疗药物', '基因名称', '检测位点', '疾病', '检测结果', '判断结果', '等级'],
+                          ws=ws2, tcFill=gray, pPr=pPr, size='小五', inline=['left', 'top', 'bottom'], weight=1)
     for i in range(len(chem_items)):
         item = chem_items[i]
-        cell = item['cell']
-        row, col = cell[0], cell[1]
-        c2 += h4_aiyi('%d.%s%s' % (i+1, item['category'], item['drug']), **outline3)
-        data = [item['tr1'], '%s%s，%s' % (item['category'], trs[0][col], trs[row][0])]
-        c2 += write_immun_table(data)
-        text = 'PharmGKB'
-        c2 += p.write(
-            p.set(spacing=[1, 1], line=15, rule='exact'),
-            r_heiti.text('（%d）%s药物基因组数据库（基因多态性相关证据）' % (0 + 1, text), '五号', 1)
-        )
-        rs_list0 = item['genes']
-        c2 += write_gene_list3(rs_list0)
-        c2 += p.write()
-        for rs_item0 in rs_list0:
-            c2 += write_genotype(rs_item0, [1400, w_sum-1400])
+        result = item.get('result')
+        result_colors = filter(lambda x: x.get('text') == result, chem_tips)
+        result_color = '' if len(result_colors) == 0 else result_colors[0].get('color')
+        tcs1 = ''
+        items1 = [
+            {'text': item.get('drug')},
+            {'text': item.get('sensibility')},
+            {'text': item.get('side_reaction')},
+            {'text': item.get('result'), 'color': result_color},
+        ]
+        if result == '推荐使用':
+            chem_drugs.append(item.get('drug'))
+        for i1_index, item1 in enumerate(items1):
+            item1.update({'w': ws1[i1_index], 'pPr': pPr})
+            tcs1 += write_tc_weizhi(item1)
+        trs1 += tr.write(tcs1)
+        rs_list0 = item['detail']
+        for rs_index, rs_item0 in enumerate(rs_list0):
+            # print rs_item0
+            vMergeStart = '<w:vMerge w:val="restart"/>'
+            vMerge = '<w:vMerge/>'
+            items = [
+                {'text': item.get('drug') if rs_index == 0 else '', 'vMerge': vMergeStart if rs_index == 0 else vMerge},
+                {'text': rs_item0.get('gene')},
+                {'text': rs_item0.get('rs_no')},
+                {'text': rs_item0.get('disease')},
+                {'text': rs_item0.get('genotype')},
+                {'text': rs_item0.get('result')},
+                {'text': rs_item0.get('level')},
+            ]
+            tcs2 = ''
+            for i_index, item in enumerate(items):
+                item['w'] = ws2[i_index]
+                item['pPr'] = p.set(jc='center')
+                if i_index > 0:
+                    item['tcBorders'] = ['left', 'top', 'bottom']
+                # item['jc'] = 'center'
+                tcs2 += write_tc_weizhi(item)
+            trs2 += tr.write(tcs2)
     para = ''
     para += h4_aiyi(cat=cats[1], spacing=[0, 0.5], outline=1, line=24, rule='auto', size=11, ind=['hanging', 1])
-    para += write_chemotherapy(trs)
-    para += write_explain_new({'title': '结果说明', 'text': '该疗效预测汇总仅根据以下证据进行汇总。疗效预测证据主要来自CIVic数据库，并根据专家人工对相关证据进行梳理取舍。毒副作用证据及部分由基因多态性提供的疗效证据则来自于药物基因组数据库PharmGKB。采取该数据库二级以上的证据，并结合部分三级证据（不具备二级以上证据的情况下）。由于化学治疗的疗效影响因素较多，各个生物标志物的预测能力有限，且多个证据之间缺乏合理的证据平衡方式。目前初步采取多个证据之间目前采取均权投票的方式，即默认多个生物标志物的预测能力完全一致，仅根据各个证据的量进行评估,当相反证据量一致时，将证据级别纳入考量。'})
-    para += h4_aiyi(cat=cats[2])
-    para += c2
+    para += p.write(
+        p.set(spacing=[0.5, 0.2]),
+        r_aiyi.text(' 化疗药物检测结果', '五号', 1, wingdings=True, space=True)
+    )
+    tr_shuoming = tr.write(
+        tc.write(
+            p.write(pPr, r_aiyi.text('说明', 10, 1)),
+            tc.set(gridSpan=len(ws1), fill=gray, tcBorders=[], color=gray)
+        )
+    )
+    trs1 += tr_shuoming
+    text1 = '''1. 疗效预测（药物敏感性较高/低和毒副作用风险较高/低）根据证据等级综合判断获得。
+    2. 此处检测结果不具有临床医嘱性质，仅供临床医师参考，不作为直接用药依据，具体用药方案请遵医嘱。
+    3. “-”表示没有药物敏感性位点或毒副作用位点等的相关资料，不进行临床指导。'''
+    paras1 = ''
+    for t in text1.split('\n'):
+        paras1 += p.write(p.set(spacing=[0.2, 0]), r_aiyi.text(t, '小五'))
+    trs1 += tr.write(
+        tc.write(paras1, tc.set(18 * 567, gridSpan=4, color=gray, tcBorders=[]))
+    )
+    para += table_weizhi(trs1)
+    para += p.write(
+        p.set(spacing=[0.5, 0.2]),
+        r_aiyi.text(' 化疗药物检测详细结果', '五号', 1, wingdings=True, space=True)
+    )
+    trs2 += tr.write(
+        tc.write(
+            p.write(pPr, r_aiyi.text('说明', 10, 1)),
+            tc.set(gridSpan=len(ws2), fill=gray, tcBorders=[], color=gray)
+        )
+    )
+    texts21 = '''1. 基因名称：均采用 HGNC 里的官方命名。
+    2. rs 号：NCBI 里对所提交的 snp 给予的编号。
+    3. 对应疾病：为 PharmGKB 数据库中相关药物的对应疾病研究。
+    4. 等级划分：参考https://www.pharmgkb.org/page/clinAnnLevels。'''
+    texts22 = '''1A：注释基于被医学会认可的指南或经某些重大卫生系统的认可；
+    1B：注释基于多项有统计显著的研究；
+    2A：注释基于多项重复研究，故药效关系很有可能是有意义的；
+    3：注释仅基于 1 项有显著差异的研究（未重复）或多项研究但缺乏明显药效关联性；
+    4：注释仅基于少量病例、非权威研究或体外的分子功能研究。'''
+    texts23 = '''5. 检测结果只对本次送检样品负责，样品只进行 DNA 水平检测，不涉及 RNA 和蛋白质水平。
+    6. 检测结果不具有临床医嘱性质，仅供临床医师参考。
+    7. 如对报告有疑义，请在收到报告后 7 个工作日内与我们联系。'''
+    paras2 = ''
+    paras2 += p.write(
+        p.set(line=1, rule='exact'),
+        r_aiyi.picture(2.23, rId='level3', align=['right', ''], wrap='undertext'))
+    for t in texts21.split('\n'):
+        paras2 += p.write(p.set(spacing=[0.2, 0]), r_aiyi.text(t, '小五'))
+    for t in texts22.split('\n'):
+        paras2 += p.write(p.set(spacing=[0.2, 0], ind=[3, 0]), r_aiyi.text(t, '小五'))
+    for t in texts23.split('\n'):
+        paras2 += p.write(p.set(spacing=[0.2, 0], ind=[0, 0]), r_aiyi.text(t, '小五'))
+
+    trs2 += tr.write(
+        tc.write(paras2, tc.set(18 * 567, gridSpan=len(ws2), color=gray, tcBorders=[]))
+    )
+    para += table_weizhi(trs2)
     para += p.write(p.set(sect_pr=set_page('A4', header='rIdHeader%d' % index, page_margin=[4, 1.5, 2.54, 1.5, 1.5, 1.75])))
-    return para
+    return para, chem_drugs
 
 
 def write_chapter4(index, data):
@@ -2912,75 +2999,6 @@ def write_explain(i, ind=[0, 0], p_set=None):
     # return para
 
 
-def write_chemotherapy(trs):
-    trs2 = ''
-    ws = [(3.3*567)] + [(4.5*567)] * 3
-    for k in range(len(trs)):
-        size = 10
-        items = trs[k]
-        tcs = ''
-        for j in range(len(items)):
-            item = items[j]
-            if isinstance(item, list):
-                item = ';'.join(uniq_list(item))
-                if item == '':
-                    item = '无'
-            fill, weight, jc, color = 'auto', 0, 'left', gray
-            if (k == 0 or j == 0) and ((k + j) > 0):
-                fill, weight, jc, color = gray, 1, 'center', 'auto'
-            pPr = p.set(jc=jc, spacing=[0.2, 0.2])
-            run = r_aiyi.text(item, size=size, weight=weight)
-            tcs += tc.write(p.write(pPr, run), tc.set(w=ws[k], fill=fill, tcBorders=[]))
-        trs2 += tr.write(tcs)
-    return table_weizhi(trs2)
-
-
-def write_gene_list3(genes, width=w_sum):
-    trs2 = ''
-    fill, weight, jc = gray, 0, 'center'
-    pPr = p.set(jc=jc, line=12, rule='auto', spacing=[0.5, 0.5])
-    col = 5
-    if len(genes) < col:
-        col = len(genes)
-    ws = [width / col] * col
-    row = int(math.ceil(float(len(genes)) / col))
-    for k in range(row):
-        tcs = ''
-        size = 9
-        for j in range(col):
-            this_index = k * col + j
-            if this_index < len(genes):
-                item = genes[this_index]
-                gene = item['gene']
-                para = p.write(pPr, r_aiyi.text('%s(%s) %s(%s)' % (gene, item['level'], item['rs'], item['genotype']), size))
-                para += p.write(pPr, r_aiyi.text(item['summary'], size))
-                tcs += tc.write(para, tc.set(w=ws[k], fill=fill, color=white, tcBorders=borders))
-        trs2 += tr.write(tcs)
-    return table_weizhi(trs2)
-
-
-def write_genotype(gt, ws):
-    size = 9
-    tcs = ''
-    fill, weight, jc = 'auto', 0, 'left'
-    gridSpan = 2
-    text = '%s %s (%s)' % (gt['gene'], gt['rs'], '证据级别%s' % gt['level'])
-    trs2 = tr.write(tc.write(
-        p.write(p.set(jc='center', spacing=[0.5, 0.5]), r_aiyi.text(text, size=size, weight=1)),
-        tc.set(w=sum(ws), fill=gray, color=white, tcBorders=borders, gridSpan=gridSpan)))
-    for k in range(2):
-        key = 'introduction'
-        fill = 'auto'
-        jc = 'left'
-        if k == 0:
-            fill, jc, key = gray, 'center', 'genotype'
-        pPr = p.set(jc=jc, spacing=[0.5, 0.5])
-        run = r_aiyi.text(gt[key], size=size, weight=weight)
-        tcs += tc.write(p.write(pPr, run), tc.set(w=ws[k], fill=fill, color=gray, tcBorders=borders))
-    trs2 += tr.write(tcs)
-    return table_weizhi(trs2) + p.write()
-
-
 def write_mingan(items, ncol):
     nrow = len(items)
     ws = [w_sum/ncol] * ncol
@@ -3168,12 +3186,22 @@ def write_thead51(titles, **kwargs):
         pPr = kwargs['pPr']
     if 'ws' in kwargs:
         ws = kwargs['ws']
+    tcFill = kwargs.get('tcFill') or ''
+    gridSpan = kwargs.get('gridSpan') or 0
     tcs = ''
-    size = 10
+    size = kwargs.get('size') or 10
+    weight = kwargs.get('weight') or 0
+    inline = kwargs.get('inline') or ['top', 'bottom']
     for i in range(len(titles)):
         t = titles[i]
-        run = r_aiyi.text(t, size=size, weight=0)
-        tcs += tc.write(p.write(pPr, run), tc.set(w=ws[i], fill='', tcBorders=['top', 'bottom'], color=gray))
+        run = r_aiyi.text(t, size=size, weight=weight)
+        borders = ['top', 'bottom']
+        color = gray
+        if i > 0:
+            borders = inline
+            if 'inline' in kwargs:
+                color = white
+        tcs += tc.write(p.write(pPr, run), tc.set(w=ws[i], fill=tcFill, tcBorders=borders, color=color, gridSpan=gridSpan))
     return tr.write(tcs)
 
 
@@ -3249,13 +3277,14 @@ def write_tc_weizhi(item):
     gridSpan = item.get('gridSpan') or 0
     lineSize = item.get('lineSize') or 8
     color = item.get('color') or 'auto'
+    vMerge = item.get('vMerge') or ''
     text = str(text)
     for t in text.split('\n'):
         if wingdings is True:
             t = ' ' + t
         run = r_aiyi.text(t, size=size, weight=weight, italic=italic, wingdings=wingdings, space=True, color=color, underline=underline)
         para += p.write(pPr, run)
-    return tc.write(para, tc.set(w=w, fill=tcFill, tcBorders=tcBorders, gridSpan=gridSpan, color=tcColor, lineSize=lineSize))
+    return tc.write(para, tc.set(w=w, fill=tcFill, tcBorders=tcBorders, gridSpan=gridSpan, color=tcColor, lineSize=lineSize, vMerge=vMerge))
 
 
 def write_pages(t, sample_id):
@@ -3412,7 +3441,6 @@ def table_weizhi(trs2, tblBorders=['bottom'], line=1, jc='center', bdColor=gray)
     return para
 
 
-
 def float2percent(p, n=2):
     try:
         p = float(p)
@@ -3515,133 +3543,6 @@ def get_var_new(gene, items1):
             if tcn_em > 0 and tcn_em <= 3 and lcn_em == 0:
                 return blue, '杂合缺失'
     return '', ''
-
-
-def get_data3(rs_geno, diagnose):
-    new_items = []
-    trs = [
-        ['', '疗效可能好', '疗效可能差', '疗效未知'],
-        ['毒副作用低', [], [], []],
-        ['毒副作用高', [], [], []],
-        ['毒副作用未知', [], [], []]
-    ]
-    drugs = get_variant_knowledges(rs_geno, diagnose)
-    for item in drugs:
-        new_item = {}
-        category = item['category']
-        new_item['category'] = category
-        new_item['drug'] = item['drug']
-        new_item['genes'] = item['genes']
-        new_item = get_data31(new_item)
-        cell = new_item['cell']
-        cell_value = '%s%s' % (item['category'], new_item['drug'])
-        row, col = cell[0], cell[1]
-        if row * col > 0:
-            trs[row][col].append(cell_value)
-        new_items.append(new_item)
-    return new_items, trs
-
-
-def get_data31(item):
-    venoms = [[], [], [], []]
-    curative_effects = [[], [], [], []]
-    liaoxiao = 0
-    duxing = 0
-    for item1 in item['genes']:
-        summary = item1['summary'].split('、')
-        venom = summary[0]  # 毒副作用
-        curative_effect = '疗效未知'
-        if len(summary) > 1:
-            curative_effect = summary[1]
-        else:
-            if summary[0].startswith(u'疗效'):
-                curative_effect = summary[0]
-                venom = '毒副作用未知'
-        if '好' in curative_effect:
-            curative_effects[1].append(item1)
-        elif '差' in curative_effect:
-            curative_effects[2].append(item1)
-        # else:
-        #     curative_effects[3].append(item1)
-        if '疗效' in item1['summary']:
-            liaoxiao += 1
-        if '毒' in item1['summary']:
-            duxing += 1
-        if '低' in venom:
-            venoms[1].append(item1)
-        elif '高' in venom:
-            venoms[2].append(item1)
-        # else:
-        #     venoms[3].append(item1)
-
-    venoms_num = [len(x) for x in venoms]
-    curative_effects_num = [len(x) for x in curative_effects]
-    good = len(curative_effects[1])
-    bad = len(curative_effects[2])
-    low = len(venoms[1])
-    high = len(venoms[2])
-    row, col = venoms_num.index(max(venoms_num)), curative_effects_num.index(max(curative_effects_num))
-
-    # 判断逻辑问题：
-    # 根据证据的数量确定推荐的方向，这种情况下，证据的权重一致；
-    # 当相反证据量数量一致时，根据证据级别确定（证据级别的等级 1A＞1B＞2A＞2B＞3）
-    if good == bad:
-        col = compare_level3(curative_effects[1], curative_effects[2])
-    if low == high > 0:
-        row = compare_level3(venoms[1], venoms[2])
-    item['cell'] = row, col
-    item['venoms'] = venoms
-    item['curative_effects'] = curative_effects
-    tr1 = '疗效预测方面共纳入%d个证据，其中%d个预测疗效好，%d个预测疗效差；' % (liaoxiao, good, bad)
-    tr1 += '毒副作用预测共纳入%d个证据，其中%d个预测毒副作用低，%d个预测毒副作用高' % (duxing, low, high)
-    item['tr1'] = tr1
-    return item
-
-
-def get_variant_knowledges(rs_geno, diagnose):
-    variant_knowledge_names = []
-    variant_knowledge_index = 2 #默认为肉瘤
-    for indexx, v in enumerate(os.listdir(unicode(chemotherapy_dir, 'utf-8'))):
-        if diagnose in v:
-            variant_knowledge_index = indexx
-        variant_knowledge_names.append(u'%s: %s' % (indexx, v.split('.')[0].encode('utf-8')))
-
-    var_know_name = variant_knowledge_names[variant_knowledge_index]
-    variant_knowledge_name = var_know_name.split(':')[1].strip()
-    # 静态的数据：
-    variant_knowledge = my_file.read('%s/%s.xlsx' % (chemotherapy_dir, variant_knowledge_name), sheet_name='Sheet1')
-    categories = []
-    for i in range(variant_knowledge.nrows):
-        j = 1
-        cell_value = variant_knowledge.cell_value(i, j)
-        if cell_value.startswith('rs') is False and i > 0:
-            drug = '' if cell_value != '铂类药物' else '(顺铂、卡铂、奥沙利铂)'
-            category = {'category': cell_value, 'drug': drug, 'genes': []}
-            for k in range(i + 1, variant_knowledge.nrows):
-                row_value = variant_knowledge.row_values(k)
-                cell_value1 = row_value[j]
-                if not cell_value1.startswith('rs'):
-                    break
-                gene = variant_knowledge.cell_value(k, j-1)
-                if gene == '':
-                    print variant_knowledge_name
-                #     gene = variant_knowledge.cell_value(k-1, j-1)
-                item = {
-                    'gene': gene,
-                    'rs': cell_value1,
-                    'genotype': row_value[j+1],
-                    'summary': row_value[j+2],
-                    'introduction': row_value[j+3],
-                    'level': row_value[j+4],
-                    'category': category,
-                }
-                for x in rs_geno:
-                    if x[0] == item['rs']:
-                        if x[1] == item['genotype'] and item not in category['genes']:
-                            category['genes'].append(item)
-            if len(category['genes']) > 0:
-                categories.append(category)
-    return categories
 
 
 def get_line(rId):
