@@ -428,6 +428,23 @@ def pheatmap_colTree():
     return tumor_app('pheatmap', '/public/jingdu/budechao/scripts/run_pheatmap_colTree.R', sort_pheatmap)
 
 
+@app.route('/tumor/table2matrix/', methods=['GET', 'POST'])
+def table2matrix():
+    def sort_pheatmap(rq, r_path, output, result_dir, t):
+        input_file1 = sort_app_file('input1', 'input_file1', result_dir, t)
+        dir1 = os.path.dirname(input_file1)
+        cmd = 'Rscript %s %s %s %s %s %s' % (
+            r_path,
+            input_file1,
+            output,
+            rq.get('source_node'),
+            rq.get('target_node'),
+            rq.get('relationship'),
+        )
+        return cmd, [dir1]
+    return tumor_app('table2matrix', '/public/jingdu/budechao/lecture/lec5_table2matrix/table2matrix.R', sort_pheatmap)
+
+
 def sort_app_file(key, file_key, result_dir, t):
     rq = request.json
     input_file1 = rq.get(file_key)
@@ -498,7 +515,7 @@ def tumor_app(app_name, r_path, sort_func, output_postfix='txt'):
                     # msg = traceback.format_exc()
         except Exception, e:
             # traceback.print_exc()
-            msg = traceback.format_exc()
+            msg = cmd + traceback.format_exc()
         rq.update({
             'output': output,
             'add_time': t,
