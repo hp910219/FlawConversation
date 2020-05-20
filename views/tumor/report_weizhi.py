@@ -15,6 +15,7 @@ from jy_word.Word import Paragraph, Run, Set_page, Table, Tc, Tr, HyperLink, Rel
 from jy_word.Word import write_pkg_parts
 from jy_word.web_tool import sex2str
 from config import static_dir
+from views.tumor.report_aiyi import get_knowndb
 
 gray = 'E9E9E9'
 gray_lighter = 'EEEEEE'
@@ -487,7 +488,7 @@ def write_chapter1(data):
         oncogenicity_variant_summary = item.get('oncogenicity_variant_summary')
         if oncogenicity_variant_summary:
             para_eve += p.write(pPr, r_aiyi.text(oncogenicity_variant_summary, 9))
-        aiyi_db = item.get('known_db')
+        aiyi_db = get_knowndb(item)
         para_eve += write_evidence1(gene, aiyi_db)
         if para_eve:
             para1 += h4_aiyi(' 该驱动变异关键循证医学证据', wingdings=True) + para_eve
@@ -2795,7 +2796,7 @@ def write_target_tip(data):
             p.write(p_set_tr_center, r_aiyi.text(col2, '小五')),
             tc.set(ws[1], fill=fill, color=bdColor)
         )
-        known_db = item1.get('known_db') or []
+        known_db = get_knowndb(item1)
         para = ''
         run = ''
         evidence_directions = ['Responsive (Support)', 'Resistant (Support)']
