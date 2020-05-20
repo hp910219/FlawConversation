@@ -317,6 +317,16 @@ def write_chapter0(title_cn, data):
     return para
 
 
+def get_knowndb(item):
+    evidence_groups = item.get('evidence_groups') or []
+    votes = filter(lambda x: x.get('vote') in [1, 2], evidence_groups)
+    if len(votes) > 0:
+        aiyi_db = votes[0].get('evidence_items')
+    else:
+        aiyi_db = item.get('known_db')
+    return aiyi_db or []
+
+
 def write_chapter1(data):
     cats = get_catalog()[0: 4]
     para = ''
@@ -370,7 +380,8 @@ def write_chapter1(data):
         oncogenicity_variant_summary = item.get('oncogenicity_variant_summary')
         if oncogenicity_variant_summary:
             para_eve += p.write(pPr, r_aiyi.text(oncogenicity_variant_summary, 9))
-        aiyi_db = item.get('known_db')
+
+        aiyi_db = get_knowndb(item)
         para_eve += write_evidence1(gene, aiyi_db)
         if para_eve:
             para1 += h4_aiyi('（1）该驱动变异关键循证医学证据') + para_eve
@@ -2277,7 +2288,7 @@ def write_target_tip(data):
             p.write(p_set_tr, r_aiyi.text(col2, '小五')),
             tc.set(ws[1], fill=fill, color=bdColor, tcBorders=['bottom'])
         )
-        known_db = item1.get('known_db') or []
+        known_db = get_knowndb(item1)
         para = ''
         run = ''
         evidence_directions = ['Responsive (Support)', 'Resistant (Support)']
