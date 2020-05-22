@@ -166,6 +166,9 @@ def tumor_download_panel():
         res2 = sort_request1('GET', '/api/v2/tumor/variants/?sample_no=%s' % sample_no)
         if res2 is not None:
             variant_list = res2.get('data') or []
+        res2hotspot = sort_request1('GET', '/api/v2/tumor/hotspot/variants/?sample_no=%s' % sample_no)
+        if res2hotspot is not None:
+            variant_list += res2hotspot.get('data') or []
         res3 = sort_request1('GET', '/api/v2/tumor/overview/?sample_no=%s' % sample_no)
         if res3 is not None:
             overview = res3.get('data') or {}

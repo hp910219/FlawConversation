@@ -473,7 +473,8 @@ def write_chapter2(index, data):
             'cy': 4.19,
             'w': 3600,
             'infos': [
-                {'title': '结果说明：', 'text':
+                {
+                    'title': '结果说明：', 'text':
                     'MSI是指与正常组织相比，在肿瘤中某一微卫星由于重复单位的插入或缺失而造成的微卫星长度的任何改变，出现新的微卫星等位基因现象。' +
                     '其发生机制主要包括DNA多聚酶的滑动导致重复序列中1个或多个碱基的错配和微卫星重组导致碱基对的缺失或插入。' +
                     '该结果采用经FDA批准的MSIsensor算法获得。本次检测采用肿瘤组织-正常样本配对分析的模式，' +
@@ -481,11 +482,13 @@ def write_chapter2(index, data):
                     '其中%s个微卫星位点为具有显著差异的体细胞变异点，' % msi_sort_paired_somatic +
                     '比例为%s%%，' % msi_score +
                     '即MSIsensor评分为%s。' % msi_score +
-                    '研究表明，MSIsensor评分免疫治疗疗效正相关，也与错义突变和插入缺失突变总量显著正相关（PMID:31048490）。'},
+                    '研究表明，MSIsensor评分免疫治疗疗效正相关，也与错义突变和插入缺失突变总量显著正相关（PMID:31048490）。'
+                },
                 {'title': '检测意义：', 'text': '目前FDA批准Pembrolizumab用于dMMR/MSI-H型的转移性实体瘤，Nivolumab用于dMMR/MSI-H的转移性结直肠癌。Science发表了NCT01876511的临床研究结果显示，Pembrolizumab用于治疗MSI-H的晚期肿瘤患者，MSI-H型肿瘤患者ORR高达54%。MSI-H在结直肠癌、胃癌、子宫内膜癌中较多，其他多种癌种都有一定量的分布。MSI是MMR（错配修复系统）的一个反映标志，MMR是人体细胞DNA修复的一种方式之一，MMR缺陷导致DNA出错的概率大规模提升，进而导致该类型肿瘤细胞具有非常高的突变量，而高的突变负荷进一步导致肿瘤细胞高概率采用PD1等通路的免疫逃逸机制。因此，PD1抗体对MSI-H/dMMR肿瘤更可能有效。'},
-            ] },
+            ]
+        },
         {
-            'title': h4_aiyi(cat=cats[3]), 'before': 0, 'note_before': 13,
+            'title': h4_aiyi(cat=cats[3]), 'before': 13, 'note_before': 13,
             'img_id': 'tmb',
             'cy': 7,
             'note': tmb_info.get('tmb_tip'),
@@ -644,10 +647,13 @@ def write_chapter5(index, data):
         p_set1,
         r_aiyi.text('AIomics1癌症多组学临床检测标准化检测环节，由皑医委托北京贝瑞和康生物技术有限公司（贝瑞）进行检测。贝瑞拥有CFDA批准的第三方检验所资质（医疗机构执业许可证，诊疗科目：临床细胞分子遗传学专业），具备完善的实验质控流程。相关资质和质控流程是数据获取可靠性的核心保证。结合贝瑞的标准化检测和皑医的个性化化深度解读，AIomics1癌症多组学临床检测能够为您提供国际标准质量控制、紧扣癌症最新研究进展的系统性精准诊疗提示。', '小五')
     )
-    para += p.write(r_aiyi.picture(8, rId='protocol', posOffset=[0, 2]))
-    para += p.write(p.set(ind=[38.5, 0], spacing=[3, 0]), r_aiyi.text('北京皑医科技有限公司'))
-    para += p.write(p.set(ind=[38.5, 0], spacing=[1, 0]), r_aiyi.text('盖章：'))
-    para += p.write(p.set(ind=[38.5, 0], spacing=[1, 0]), r_aiyi.text(data['report_time']))
+    para += p.write(
+        r_aiyi.picture(6.1, rId='protocol_beirui', posOffset=[0, 2], align=['left', ''], wrap='undertext') +
+        r_aiyi.picture(6.01, rId='protocol_aiyi', posOffset=[0, 1.7], align=['right', ''], wrap='undertext')
+    )
+    # para += p.write(p.set(ind=[38.5, 0], spacing=[1, 0]), r_aiyi.text('北京皑医科技有限公司'))
+    # para += p.write(p.set(ind=[38.5, 0], spacing=[1, 0]), r_aiyi.text('盖章：'))
+    # para += p.write(p.set(ind=[38.5, 0], spacing=[1, 0]), r_aiyi.text(data['report_time']))
     para += p.write(p.set(sect_pr=set_page(header='rIdHeader8', footer='rIdFooter1')))
     return para
 
