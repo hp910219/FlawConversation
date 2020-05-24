@@ -156,6 +156,7 @@ def tumor_download_panel():
     rs_geno = []
     neoantigens = []
     chemotherapy = []
+    hotspots = []
     if rq is not None:
         sample_no = rq.get('sample_no')
         item_name = rq.get('item_name')
@@ -168,7 +169,7 @@ def tumor_download_panel():
             variant_list = res2.get('data') or []
         res2hotspot = sort_request1('GET', '/api/v2/tumor/hotspot/variants/?sample_no=%s' % sample_no)
         if res2hotspot is not None:
-            variant_list += res2hotspot.get('data') or []
+            hotspots = res2hotspot.get('data') or []
         res3 = sort_request1('GET', '/api/v2/tumor/overview/?sample_no=%s' % sample_no)
         if res3 is not None:
             overview = res3.get('data') or {}
@@ -218,6 +219,8 @@ def tumor_download_panel():
     }
 
     variant_stars = filter(lambda x: x['add_star'] > 0, variant_list)
+    variant_stars += filter(lambda x: x['add_star'] > 1, hotspots)
+
     cnvs_stars = filter(lambda x: x['add_star'] > 0, cnvs)
     svs_stars0 = filter(lambda x: x['add_star'] > 0, svs)
     svs_stars = filter(lambda x: filter_sv(x), svs)
@@ -302,7 +305,7 @@ def tumor_download_panel():
             'overview': overview or {},
             'diagnosis': diagnose,
             'sample_detail': sample_detail,
-            'variant_list': variant_list,
+            'variant_list': variant_list + hotspots,
             'cnvs': cnvs,
             'svs': svs,
             'stars': stars,
