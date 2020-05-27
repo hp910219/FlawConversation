@@ -256,6 +256,7 @@ def write_versions(items):
 
 def write_version_aiyi():
     para = write_versions([
+        {'text': '证据描述显示中文版', 'time': '2020年5月27日'},
         {'text': '热点突变仅显示加星≥2的突变', 'time': '2020年5月27日'},
         {'text': 'MSS,MSI-L,MSI-H', 'time': '2020年3月6日'},
     ])
@@ -298,7 +299,7 @@ def write_chapter0(title_cn, data):
         technology = '本检测基于第二代测序技术，本次检测使用IDT 39M全外显子探针联合35个融合基因内含子区域，以及其他50个基因在实体肿瘤中高发突变的热点区域。测序深度如下：肿瘤组织1000×，ctDNA 10000×，胚系对照100×。'
     purity = data.get('overview').get('purity')
     try:
-        purity= float(purity)
+        purity = float(purity)
     except:
         purity = purity
     tips = [
@@ -2501,7 +2502,7 @@ def write_evidence_tc(d, t_item):
 
 
 def write_evidence1(gene, data, **kwargs):
-    data = filter(lambda x: x.get('evidence_statement'), data or [])
+    data = filter(lambda x: x.get('evidence_statement_cn') or x.get('evidence_statement'), data or [])
     if len(data) == 0:
         return ''
     trs = ''
@@ -2528,7 +2529,7 @@ def write_evidence1(gene, data, **kwargs):
         d['col1'] = '%s %s' % (gene, d.get('alteration_in_house'))
         d['col2'] = '%s ( %s )' % (d.get('drugs'), d.get('known_db_level'))
         d['col3'] = '%s;%s' % (d.get('disease'), d.get('evidence_direction'))
-        d['col4'] = '%s (PMID: %s )' % (d.get('evidence_statement'), d.get('reference'))
+        d['col4'] = '%s (PMID: %s )' % (d.get('evidence_statement_cn') or d.get('evidence_statement'), d.get('reference'))
         trs += tr_h1
         tcs = ''
         for (t_index, t_item) in enumerate(titles[:-1]):
