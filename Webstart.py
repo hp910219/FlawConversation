@@ -219,8 +219,8 @@ def tumor_download_panel():
     }
 
     variant_stars = filter(lambda x: x['add_star'] > 0, variant_list)
-    variant_stars += filter(lambda x: x['add_star'] > 1, hotspots)
-
+    hotspots_stars = filter(lambda x: x['add_star'] > 1, hotspots)
+    variant_stars += hotspots_stars
     cnvs_stars = filter(lambda x: x['add_star'] > 0, cnvs)
     svs_stars0 = filter(lambda x: x['add_star'] > 0, svs)
     svs_stars = filter(lambda x: filter_sv(x), svs)
@@ -305,7 +305,7 @@ def tumor_download_panel():
             'overview': overview or {},
             'diagnosis': diagnose,
             'sample_detail': sample_detail,
-            'variant_list': variant_list + hotspots,
+            'variant_list': variant_list,
             'cnvs': cnvs,
             'svs': svs,
             'stars': stars,

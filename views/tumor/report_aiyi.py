@@ -226,6 +226,7 @@ def write_body(title_cn, title_en, data):
     data['para_signature'] = para_signature
     data['para_yichuan'] = para_yichuan
     body = ''
+    body += write_version_aiyi()
     body += write_cover(title_cn, title_en)
     body += write_catalog()
     body += write_chapter0(title_cn, data)
@@ -237,6 +238,28 @@ def write_body(title_cn, title_en, data):
     body += write_backcover()
     # body = write_read_guide()
     return body
+
+
+def write_versions(items):
+    para = ''
+    para += h4_aiyi('报告更新issues', spacing=[0.5, 0.5])
+    for index, item in enumerate(items):
+        size = 10
+        weight = 0
+        if index == 0:
+            size = 11
+            weight = 1
+        para += p.write(r_aiyi.text('%s, %s' % (item.get('time'), item.get('text')), size, weight))
+    para += p.write(p.set(sect_pr=set_page('A4')))
+    return para
+
+
+def write_version_aiyi():
+    para = write_versions([
+        {'text': '热点突变仅显示加星≥2的突变', 'time': '2020年5月27日'},
+        {'text': 'MSS,MSI-L,MSI-H', 'time': '2020年3月6日'},
+    ])
+    return para
 
 
 def write_cover(cn, en):
@@ -571,7 +594,8 @@ def write_chapter3(index, trs, chem_items):
         c2 += write_immun_table(data)
         c2 += p.write()
         text = 'PharmGKB'
-        c2 += h4_aiyi('（%d）                   %s药物基因组数据库（基因多态性相关证据）' % (0 + 1, text), runs=r_aiyi.picture(cy=0.6, rId=text, posOffset=[1.3, 0.53]))
+        c2 += h4_aiyi('（%d）                   %s药物基因组数据库（基因多态性相关证据）' % (0 + 1, text),
+                      runs=r_aiyi.picture(cy=0.6, rId=text, posOffset=[1.3, 0.53]))
         c2 += p.write()
         rs_list0 = item['genes']
         c2 += write_gene_list3(rs_list0)

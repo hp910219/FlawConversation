@@ -15,7 +15,7 @@ from jy_word.Word import Paragraph, Run, Set_page, Table, Tc, Tr, HyperLink, Rel
 from jy_word.Word import write_pkg_parts
 from jy_word.web_tool import sex2str
 from config import static_dir
-from views.tumor.report_aiyi import get_knowndb
+from views.tumor.report_aiyi import get_knowndb, write_versions
 
 gray = 'E9E9E9'
 gray_lighter = 'EEEEEE'
@@ -243,6 +243,7 @@ def write_body(title_cn, title_en, data):
     data['para_signature'] = para_signature
     data['para_yichuan'] = para_yichuan
     body = ''
+    body += write_version_weizhi()
     body += write_cover(data)
     body += write_chapter0(title_cn, data)
     body += write_catalog()
@@ -253,6 +254,17 @@ def write_body(title_cn, title_en, data):
     body += write_chapter5(7, data)
     body += write_chapter_affix(8, data)
     return body
+
+
+def write_version_weizhi():
+    para = write_versions([
+        {'text': '热点突变仅显示加星≥2的突变', 'time': '2020年5月27日'},
+        {'text': '化疗微至版本', 'time': '2020年5月9日'},
+        {'text': '免疫检查点', 'time': '2020年5月6日'},
+        {'text': '参考文献', 'time': '2020年4月23日'},
+        {'text': 'MSS,MSI-L,MSI-H', 'time': '2020年3月6日'},
+    ])
+    return para
 
 
 def write_cover(data):
