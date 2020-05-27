@@ -258,6 +258,7 @@ def write_body(title_cn, title_en, data):
 
 def write_version_weizhi():
     para = write_versions([
+        {'text': '证据描述显示中文版', 'time': '2020年5月27日'},
         {'text': '热点突变仅显示加星≥2的突变', 'time': '2020年5月27日'},
         {'text': '化疗微至版本', 'time': '2020年5月9日'},
         {'text': '免疫检查点', 'time': '2020年5月6日'},
@@ -2954,7 +2955,7 @@ def write_evidence_tc(d, t_item):
 
 
 def write_evidence1(gene, data, **kwargs):
-    data = filter(lambda x: x.get('evidence_statement'), data or [])
+    data = filter(lambda x: x.get('evidence_statement_cn') or x.get('evidence_statement'), data or [])
     if len(data) == 0:
         return ''
     trs = ''
@@ -2982,7 +2983,8 @@ def write_evidence1(gene, data, **kwargs):
         d['col1'] = '%s %s' % (gene, d.get('alteration_in_house'))
         d['col2'] = '%s ( %s )' % (d.get('drugs'), d.get('known_db_level'))
         d['col3'] = '%s;%s' % (d.get('disease'), d.get('evidence_direction'))
-        d['col4'] = '%s (PMID: %s )' % (d.get('evidence_statement'), d.get('reference'))
+        d['col4'] = '%s (PMID: %s )' % (
+            d.get('evidence_statement_cn') or d.get('evidence_statement'), d.get('reference'))
         trs = tr_h1
         tcs = ''
         for (t_index, t_item) in enumerate(titles[:-1]):
