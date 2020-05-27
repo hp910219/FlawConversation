@@ -258,6 +258,7 @@ def write_body(title_cn, title_en, data):
 
 def write_version_weizhi():
     para = write_versions([
+        {'text': 'HLA耐药时标为“D”', 'time': '2020年5月27日'},
         {'text': '证据描述显示中文版', 'time': '2020年5月27日'},
         {'text': '热点突变仅显示加星≥2的突变', 'time': '2020年5月27日'},
         {'text': '化疗微至版本', 'time': '2020年5月9日'},
@@ -2091,6 +2092,7 @@ def write_chapter_hla(overview, diagnosis):
     # print 'hla', data
     if len(hla1) == 0:
         return '', '', '', ''
+    # 免疫治疗HLA分型纯合现象的证据级别需要标注上“D”，以100646为例
     # HLA分型结果中，A、B、C三个等位基因均为杂合状态（合并）具有免疫治疗疗效较好的HLA-B44超型，提示PD1等免疫检查点抑制剂可能有效
     # HLA分型结果中，具有免疫治疗较差的HLA-B66超型，提示PD1等免疫检查点抑制剂可能效果不显著
     # HLA分型结果中，具有免疫治疗较差的HLA-B15:01，提示PD1等免疫检查点抑制剂可能效果不显著
@@ -2156,6 +2158,7 @@ def write_chapter_hla(overview, diagnosis):
         # HLA分型结果中发现A、B、C三个等位基因均为杂合状态、免疫治疗耐药超型HLA-B66、免疫治疗耐药分型HLA-B15:01
         tip1 = 'PD1等免疫检查点抑制剂治疗可能具有耐药风险'
         fill = gray
+        level = 'D'
     else:
         tip1 = 'PD1等免疫检查点抑制剂可能效果不显著'
         fill = ''
