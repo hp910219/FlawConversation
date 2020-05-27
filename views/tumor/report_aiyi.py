@@ -256,6 +256,7 @@ def write_versions(items):
 
 def write_version_aiyi():
     para = write_versions([
+        {'text': 'HLA耐药时标为“D”', 'time': '2020年5月27日'},
         {'text': '证据描述显示中文版', 'time': '2020年5月27日'},
         {'text': '热点突变仅显示加星≥2的突变', 'time': '2020年5月27日'},
         {'text': 'MSS,MSI-L,MSI-H', 'time': '2020年3月6日'},
@@ -1885,6 +1886,7 @@ def write_chapter_hla(overview, diagnosis):
         tip2s[0] = tip2s[0].replace('发现等位基因纯合现象', '发现免疫治疗耐药相关等位基因纯合现象')
         tip1 = 'PD1等免疫检查点抗体治疗可能具有耐药风险'
         fill = gray
+        level = 'D'
     else:
         tip1 = 'PD1等免疫检查位点抗体可能效果不显著'
         fill = ''
