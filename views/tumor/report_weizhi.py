@@ -548,7 +548,7 @@ def write_chapter1(data):
     if len(action) == 0:
         run_tip = r_aiyi.text('本次检测未找到驱动基因变异事件', 10, 1)
     else:
-        run_tip = r_aiyi.text('本次检测%s共找到%d个驱动基因的变异事件：' % (yesheng_text, len(genes.keys())), 10, 1)
+        run_tip = r_aiyi.text('本次检测%s共找到%d个驱动基因的变异事件：' % (yesheng_text, len(action)), 10, 1)
         run_tip += r_aiyi.text('、'.join(action[:-1]), 10.5)
         if len(action) > 1:
             run_tip += r_aiyi.text('和', 10, 1)
@@ -2042,7 +2042,11 @@ def write_chapter_chaojinzhan(data, ploidy):
     tip = tr1
     if len(genes_red) > 0:
         tr1 = '免疫治疗超进展相关%s' % concat_str(genes_red)
-        tip = '免疫治疗超进展相关%s%s' % (genes_red[0].split('(')[0], '' if len(genes_red) == 1 else '等事件')
+        if '11q13' in genes_red[0]:
+            text_red0 = '11q13扩增'
+        else:
+            text_red0 = genes_red[0]
+        tip = '免疫治疗超进展相关%s%s' % (text_red0, '' if len(genes_red) == 1 else '等事件')
         level = 'C'
         if items2[1] or items2[2] or items2[3]:
             level = 'D'
