@@ -173,14 +173,14 @@ def write_body(title_cn, title_en, data):
             col2 = '高（%s, > 42, %s）' % (hrd, hrd_score)
             hrd_index = 0
             action1 = 'HRD高'
-        elif diagnose in ['卵巢癌', '乳腺癌', '前列腺癌']:
+        elif diagnose in ['卵巢癌', '乳腺癌', '前列腺癌', '卵巢癌/输卵管癌']:
             col2 = '低（%s, < 42, %s）' % (hrd, hrd_score)
             hrd_index = len(stars)
             action1 = 'HRD低'
         else:
             hrd_index = -1
         if hrd_index >= 0:
-            if diagnose not in ['卵巢癌', '乳腺癌', '前列腺癌']:
+            if diagnose not in ['卵巢癌', '乳腺癌', '前列腺癌', '卵巢癌/输卵管癌']:
                 hrd_index = len(stars)
             data['paras_hr'] = paras_hr
             data['hrd_tip'] = action1.replace('HRD', 'HRD评分')
@@ -450,9 +450,12 @@ def write_chapter1(data):
         if yesheng_text == '':
             yesheng_text += '发现'
         yesheng_text = '%s，' % hrd_tip
-    tip = '本次检测%s共找到%d个驱动基因的变异事件' % (yesheng_text, len(genes.keys()))
+
     if len(action) > 0:
+        tip = '本次检测%s共找到%d个驱动基因的变异事件' % (yesheng_text, len(action))
         tip += '：'
+    else:
+        tip = '本次检测未找到驱动基因变异事件'
     if len(action) < 2:
         tip += '%s' % ''.join(action)
     else:
@@ -1769,7 +1772,11 @@ def write_chapter_chaojinzhan(data, ploidy):
     tip = tr1
     if len(genes_red) > 0:
         tr1 = '免疫治疗超进展相关%s' % concat_str(genes_red)
-        tip = '免疫治疗超进展相关%s%s' % (genes_red[0].split('(')[0], '' if len(genes_red) == 1 else '等事件')
+        if '11q13' in genes_red[0]:
+            text_red0 = '11q13扩增'
+        else:
+            text_red0 = genes_red[0]
+        tip = '免疫治疗超进展相关%s%s' % (text_red0, '' if len(genes_red) == 1 else '等事件')
         level = 'C'
         if items2[1] or items2[2] or items2[3]:
             level = 'D'
