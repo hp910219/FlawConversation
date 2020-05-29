@@ -2161,6 +2161,7 @@ def write_chapter_hla(overview, diagnosis):
         # HLA分型结果中发现A、B、C三个等位基因均为杂合状态、免疫治疗耐药超型HLA-B66
         # HLA分型结果中发现A、B、C三个等位基因均为杂合状态、免疫治疗耐药分型HLA-B15:01
         # HLA分型结果中发现A、B、C三个等位基因均为杂合状态、免疫治疗耐药超型HLA-B66、免疫治疗耐药分型HLA-B15:01
+        tip2s[0] = tip2s[0].replace('发现等位基因纯合现象', '发现免疫治疗耐药相关等位基因纯合现象')
         tip1 = 'PD1等免疫检查点抑制剂治疗可能具有耐药风险'
         fill = gray
         level = 'D'
