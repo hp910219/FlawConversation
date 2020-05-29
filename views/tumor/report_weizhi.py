@@ -258,6 +258,7 @@ def write_body(title_cn, title_en, data):
 
 def write_version_weizhi():
     para = write_versions([
+        {'text': 'HLA耐药时背景色为灰色', 'time': '2020年5月29日'},
         {'text': 'HLA耐药时标为“D”', 'time': '2020年5月27日'},
         {'text': '证据描述显示中文版', 'time': '2020年5月27日'},
         {'text': '热点突变仅显示加星≥2的突变', 'time': '2020年5月27日'},
@@ -2872,8 +2873,8 @@ def write_immun_tip_weizhi(immun_tip):
             text += '(%s级)' % level
             if '耐药' in text or '超进展' in text:
                 fill = gray
-        elif 'HLA' in text and '耐药' in text and '纯合' in text:
-            fill = gray
+            if 'HLA' in text and '纯合' in text:
+                fill = gray
         trs += write_tr_weizhi([
             {'text': immun_item.get('index'), 'weight': 1, 'w': 2000, 'tcFill': fill, 'jc': 'center'},
             {'text': text, 'weight': 0, 'w': w_sum-2000, 'tcFill': fill, 'jc': 'center'},

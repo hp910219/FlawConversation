@@ -2427,7 +2427,7 @@ def write_immun_tip(immun_tip):
                 fill = level1[0].get('color')
                 if '超进展' in text or '耐药' in text:
                     fill = gray
-            elif 'HLA' in text and '耐药' in text and '纯合' in text:
+            if 'HLA' in text and ('耐药' in text or '纯合' in text):
                 fill = gray
             if fill not in ['', gray]:
                 color = white
