@@ -13,6 +13,7 @@
         sessionStorage.setItem('hostname', location.hostname +location.pathname);
         var system_name = '{{ system_name }}';
         var system_conf = {{ conf|tojson }};
+        var restart_time = '{{ restart_time }}';
         console.log('system_conf', system_conf);
     </script>
 </head>
