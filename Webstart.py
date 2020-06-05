@@ -21,10 +21,11 @@ reload(sys)
 sys.setdefaultencoding('utf-8')
 
 app = create_app()
-restart_time = format_time(frm='%Y%m%d%H%M%S')
+restart_time = format_time(frm='%Y-%m%d-%H:%M:%S')
 dir_name = os.path.dirname(__file__)
 static_dir = os.path.join(dir_name, 'static')
 project_dir = os.path.dirname(dir_name)
+
 
 @app.route('/kobas3/')
 @app.route('/kobas3')
