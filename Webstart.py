@@ -562,6 +562,51 @@ def auth_code_crud():
     return jsonify(f_item)
 
 
+@app.route("/jyweb/<action_name>/crud/", methods=["GET", "POST", "PUT", "DELETE"])
+def upgrade_crud(action_name):
+    conf = read_conf()
+    if isinstance(conf, str):
+        return conf
+    file_dir = conf.get('file_dir')
+    if file_dir is None:
+        return 'file_dir not in config.conf'
+    dir_name = os.path.join(file_dir, action_name)
+    if os.path.exists(dir_name) is False:
+        os.makedirs(dir_name)
+    method = request.headers.get('API-METHOD') or request.method
+    t = format_time(frm='%Y%m%d%H%M%S')
+    if method == 'POST':
+        rq = request.json
+        rq['add_time'] = t
+        path_new = os.path.join(dir_name, '%s_%s.json' % (action_name, t))
+        my_file.write(path_new, rq)
+    if method.lower() == 'delete':
+        rq = request.json
+        add_time = rq.get('add_time')
+        path_delete = os.path.join(dir_name, '%s_%s.json' % (action_name, add_time))
+        if os.path.exists(path_delete):
+            item_delete = my_file.read(path_delete)
+            if item_delete.get('account') == rq.get('account'):
+                os.remove(path_delete)
+    if method.lower() == 'put':
+        rq = request.json
+        add_time = rq.get('add_time')
+        path_put = os.path.join(dir_name, '%s_%s.json' % (action_name, add_time))
+        if os.path.exists(path_put):
+            item_put = my_file.read(path_put)
+            item_put.update(rq)
+            my_file.write(path_put, item_put)
+    items = []
+    for i in os.listdir(dir_name):
+        path = os.path.join(dir_name, i)
+        item = my_file.read(path)
+        items.append(item)
+    account = request.args.get('account') if method == 'GET' else request.json.get('account')
+    items = filter(lambda x: x.get('account') == account, items)
+    items.reverse()
+    return jsonify(items)
+
+
 @app.route("/tcm/remark/crud/", methods=["GET", "POST", "PUT", "DELETE"])
 def remark_crud():
     conf = read_conf()
@@ -573,7 +618,6 @@ def remark_crud():
     remark_dir = os.path.join(file_dir, 'remark')
     if os.path.exists(remark_dir) is False:
         os.makedirs(remark_dir)
-
     method = request.headers.get('API-METHOD') or request.method
     t = format_time(frm='%Y%m%d%H%M%S')
     if method == 'POST':

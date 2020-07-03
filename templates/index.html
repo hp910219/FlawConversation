@@ -8,7 +8,9 @@
         <link rel="stylesheet" href="/kobas3/static/{{ conf.umi_name or 'umi' }}.css?t={{ restart_time }}">
     {% endif %}
     <meta charset="utf-8">
-    <meta http-equiv="expires" content="0">
+    <meta HTTP-EQUIV="Pragma" CONTENT="no-cache">
+    <meta HTTP-EQUIV="Cache-Control" CONTENT="no-cache">
+    <meta HTTP-EQUIV="Expires" CONTENT="-1">
     <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,minimum-scale=1,user-scalable=no">
     <title>{{  conf.page_title or '名老中医传承平台'}}</title>
     <script>
