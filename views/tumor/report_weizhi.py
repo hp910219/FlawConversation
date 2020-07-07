@@ -258,6 +258,7 @@ def write_body(title_cn, title_en, data):
 
 def write_version_weizhi():
     para = write_versions([
+        {'text': '药物名称汉化', 'time': '2020年7月7日'},
         {'text': 'HLA耐药时背景色为灰色', 'time': '2020年5月29日'},
         {'text': 'HLA耐药时标为“D”', 'time': '2020年5月27日'},
         {'text': '证据描述显示中文版', 'time': '2020年5月27日'},
@@ -2284,7 +2285,8 @@ def write_chapter51(title, data):
     para = ''
 
     # para += h4_aiyi('体细胞突变')
-    stars = data.get('variant_list')
+    stars = data.get('variant_list') or []
+    stars += data.get('hotspots_stars') or []
     stars = sorted(stars, cmp=cmp_var)
     stars = stars[:200]
     para += write_table_var(stars, title)
@@ -2746,8 +2748,8 @@ def write_target_tip(data):
         items.insert(0, {
             'col1': '、'.join(yesheng), 'col2': '野生型', 'yesheng': True, 'action1': '野生型',
             'known_db': [
-                {'evidence_direction': 'Responsive (Support)', 'aiyi_level': 'A', 'drugs': '西妥昔单抗'},
-                {'evidence_direction': 'Responsive (Support)', 'aiyi_level': 'A', 'drugs': '帕尼单抗'}
+                {'evidence_direction': 'Responsive (Support)', 'aiyi_level': 'A', 'drugs_cn': '西妥昔单抗'},
+                {'evidence_direction': 'Responsive (Support)', 'aiyi_level': 'A', 'drugs_cn': '帕尼单抗'}
             ]
         })
     if len(target_tips) == 0:
@@ -2831,7 +2833,7 @@ def write_target_tip(data):
                 level = tip_item.get('text')
                 ds = filter(lambda x: x.get('aiyi_level') == level, ds1)
                 for d_item in ds:
-                    d = d_item.get('drugs')
+                    d = d_item.get('drugs_cn')
                     color = ''
                     # '耐药Resistant (Support)', '敏感Responsive (Support)'
                     if evidence_direction == 'Resistant (Support)':
@@ -2990,7 +2992,7 @@ def write_evidence1(gene, data, **kwargs):
     para_ev = ''
     for d in data:
         d['col1'] = '%s %s' % (gene, d.get('alteration_in_house'))
-        d['col2'] = '%s ( %s )' % (d.get('drugs'), d.get('known_db_level'))
+        d['col2'] = '%s ( %s )' % (d.get('drugs_cn'), d.get('known_db_level'))
         d['col3'] = '%s;%s' % (d.get('disease'), d.get('evidence_direction'))
         d['col4'] = '%s (PMID: %s )' % (
             d.get('evidence_statement_cn') or d.get('evidence_statement'), d.get('reference'))

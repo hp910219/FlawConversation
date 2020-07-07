@@ -169,23 +169,21 @@ def write_body(title_cn, title_en, data):
         col2 = ''
         hrd_score = 'LOH=%s、TAI=%s、LST=%s' % (hrd_hisens_loh, hrd_hisens_tai, hrd_hisens_lst)
         action1 = ''
+        special_diagnoses = ['卵巢癌', '乳腺癌', '前列腺癌', '卵巢癌/输卵管癌', '胰腺癌']
         if hrd > 42:
             col2 = '高（%s, > 42, %s）' % (hrd, hrd_score)
             hrd_index = 0
             action1 = 'HRD高'
-        elif diagnose in ['卵巢癌', '乳腺癌', '前列腺癌', '卵巢癌/输卵管癌']:
+        else:
             col2 = '低（%s, < 42, %s）' % (hrd, hrd_score)
             hrd_index = len(stars)
             action1 = 'HRD低'
-        else:
-            hrd_index = -1
-        if hrd_index >= 0:
-            if diagnose not in ['卵巢癌', '乳腺癌', '前列腺癌', '卵巢癌/输卵管癌']:
-                hrd_index = len(stars)
-            data['paras_hr'] = paras_hr
-            data['hrd_tip'] = action1.replace('HRD', 'HRD评分')
-            data['hrd_index'] = hrd_index
-            stars0.insert(hrd_index, {'col1': col1, 'col2': col2, 'hrd': hrd, 'action1': action1})
+        if diagnose not in special_diagnoses:
+            hrd_index = len(stars)
+        data['paras_hr'] = paras_hr
+        data['hrd_tip'] = action1.replace('HRD', 'HRD评分')
+        data['hrd_index'] = hrd_index
+        stars0.insert(hrd_index, {'col1': col1, 'col2': col2, 'hrd': hrd, 'action1': action1})
     msi_info = data.get('msi_info')
     tmb_info = data.get('tmb_info')
     ploidy = overview.get('ploidy')
@@ -256,6 +254,9 @@ def write_versions(items):
 
 def write_version_aiyi():
     para = write_versions([
+        {'text': '皑医报告中的HRD统一显示出来，卵巢癌、乳腺癌、前列腺癌和胰腺癌如阳性放在靶向治疗汇总的第一位，如阴性放在最后一位，其他所有癌种无论阳性阴性均放在最后一', 'time': '2020年7月7日'},
+        {'text': '热点突变加星大于1的要在第五章汇总中显示', 'time': '2020年7月7日'},
+        {'text': '药物名称汉化', 'time': '2020年7月7日'},
         {'text': 'HLA耐药时标为“D”', 'time': '2020年5月27日'},
         {'text': '证据描述显示中文版', 'time': '2020年5月27日'},
         {'text': '热点突变仅显示加星≥2的突变', 'time': '2020年5月27日'},
@@ -1010,8 +1011,6 @@ def write_hrd(sequencing_type, data, ind):
         index += 1
         paras += p.write(p_set, r_aiyi.text('奥拉帕尼等PARP抑制剂主要通过协同致死的方式对肿瘤细胞起到杀伤作用，同源重组修复缺陷HRD是PARP抑制剂发挥作用的生物学基础。由于HRD涉及到多个基因的突变、甲基化等多种状态，目前无法直接检测，HRD评分通过检测肿瘤基因组的三个特征杂合性缺失（LOH）、端粒等位基因不平衡（TAI），和大规模的状态转换（LST）作为HRD的标志物。HRD评分为LOH、TAI和LST三个评分的总和，既往回顾性研究将HRD评分＞42作为HRD状态的阈值。（注：本检测采用WES数据评估HRD评分，与通过SNP芯片或者专门设计的捕获芯片检测的结果有少量差异。', 9))
         text += 'HR通路相关基因变异与肿瘤的HRD状态密切相关。'
-    else:
-        tip = ''
     paras += h4_aiyi('（%s）HR通路基因检测结果' % index, ind=ind)
     paras += paras_hr
     paras += h4_aiyi('（%s）检测意义' % (index +1), ind=ind)
@@ -2010,9 +2009,9 @@ def cmp_var(x, y):
 def write_chapter51(data):
     para = ''
     para += h4_aiyi('（1）体细胞突变汇总')
-    ws = [1000, 1700, 1700, 1000, 1400, 1200, 1000, 1000]
-    titles = ['基因', '核苷酸变化', '氨基酸变化', '外显子', '变异类型', '突变丰度', '覆盖度',  'Cosmic计数']
-    stars = data.get('variant_list')
+
+    stars = data.get('variant_list') or []
+    stars += data.get('hotspots_stars') or []
     stars = sorted(stars, cmp=cmp_var)
     stars = stars[:200]
     para += write_table_var(stars)
@@ -2257,8 +2256,8 @@ def write_target_tip(data):
         items.insert(0, {
             'col1': '、'.join(yesheng), 'col2': '野生型', 'yesheng': True, 'action1': '野生型',
             'known_db': [
-                {'evidence_direction': 'Responsive (Support)', 'aiyi_level': 'A', 'drugs': '西妥昔单抗'},
-                {'evidence_direction': 'Responsive (Support)', 'aiyi_level': 'A', 'drugs': '帕尼单抗'}
+                {'evidence_direction': 'Responsive (Support)', 'aiyi_level': 'A', 'drugs_cn': '西妥昔单抗'},
+                {'evidence_direction': 'Responsive (Support)', 'aiyi_level': 'A', 'drugs_cn': '帕尼单抗'}
             ]
         })
     if len(target_tips) == 0:
@@ -2341,7 +2340,7 @@ def write_target_tip(data):
                 level = tip_item.get('text')
                 ds = filter(lambda x: x.get('aiyi_level') == level, ds1)
                 for d_item in ds:
-                    d = d_item.get('drugs')
+                    d = d_item.get('drugs_cn')
                     color = white
                     # '耐药Resistant (Support)', '敏感Responsive (Support)'
                     if evidence_direction == 'Resistant (Support)':
@@ -2536,7 +2535,7 @@ def write_evidence1(gene, data, **kwargs):
     )
     for d in data:
         d['col1'] = '%s %s' % (gene, d.get('alteration_in_house'))
-        d['col2'] = '%s ( %s )' % (d.get('drugs'), d.get('known_db_level'))
+        d['col2'] = '%s ( %s )' % (d.get('drugs_cn'), d.get('known_db_level'))
         d['col3'] = '%s;%s' % (d.get('disease'), d.get('evidence_direction'))
         d['col4'] = '%s (PMID: %s )' % (d.get('evidence_statement_cn') or d.get('evidence_statement'), d.get('reference'))
         trs += tr_h1

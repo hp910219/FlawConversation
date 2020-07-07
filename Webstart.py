@@ -310,6 +310,7 @@ def tumor_download_panel():
             'cnvs': cnvs,
             'svs': svs,
             'stars': stars,
+            'hotspots_stars': hotspots_stars,
             'variant_stars': variant_stars,
             'stars0': stars0,
             'cnv_stars': cnvs_stars,
