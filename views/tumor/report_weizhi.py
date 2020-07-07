@@ -2833,7 +2833,7 @@ def write_target_tip(data):
                 level = tip_item.get('text')
                 ds = filter(lambda x: x.get('aiyi_level') == level, ds1)
                 for d_item in ds:
-                    d = d_item.get('drugs_cn')
+                    d = d_item.get('drugs_cn') or ''
                     color = ''
                     # '耐药Resistant (Support)', '敏感Responsive (Support)'
                     if evidence_direction == 'Resistant (Support)':
