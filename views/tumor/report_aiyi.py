@@ -254,6 +254,7 @@ def write_versions(items):
 
 def write_version_aiyi():
     para = write_versions([
+        {'text': '报告中突变详细列表按照目前的规则，从“全部”里面选择突变进行呈现（按照目前规则，加星突变放在最前面，随后按照cosmic排序，最后按照突变丰度排序，截取最前面的200个突变）', 'time': '2020年7月13日'},
         {'text': '皑医报告中的HRD统一显示出来，卵巢癌、乳腺癌、前列腺癌和胰腺癌如阳性放在靶向治疗汇总的第一位，如阴性放在最后一位，其他所有癌种无论阳性阴性均放在最后一', 'time': '2020年7月7日'},
         {'text': '热点突变加星大于1的要在第五章汇总中显示', 'time': '2020年7月7日'},
         {'text': '药物名称汉化', 'time': '2020年7月7日'},
@@ -2010,7 +2011,7 @@ def write_chapter51(data):
     para = ''
     para += h4_aiyi('（1）体细胞突变汇总')
 
-    stars = data.get('variant_list') or []
+    stars = data.get('variant_list_all') or []
     stars += data.get('hotspots_stars') or []
     stars = sorted(stars, cmp=cmp_var)
     stars = stars[:200]
@@ -2428,6 +2429,7 @@ def write_immun_tip(immun_tip):
                     fill = gray
                 if 'HLA' in text and ('耐药' in text or '纯合' in text):
                     fill = gray
+
             if fill not in ['', gray]:
                 color = white
             run1 = r_aiyi.text(text.split('(')[0], '小五', color=color)
