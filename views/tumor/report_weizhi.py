@@ -258,6 +258,7 @@ def write_body(title_cn, title_en, data):
 
 def write_version_weizhi():
     para = write_versions([
+        {'text': '报告中突变详细列表按照目前的规则，从“全部”里面选择突变进行呈现（按照目前规则，加星突变放在最前面，随后按照cosmic排序，最后按照突变丰度排序，截取最前面的200个突变）', 'time': '2020年7月13日'},
         {'text': '药物名称汉化', 'time': '2020年7月7日'},
         {'text': 'HLA耐药时背景色为灰色', 'time': '2020年5月29日'},
         {'text': 'HLA耐药时标为“D”', 'time': '2020年5月27日'},
@@ -2285,7 +2286,7 @@ def write_chapter51(title, data):
     para = ''
 
     # para += h4_aiyi('体细胞突变')
-    stars = data.get('variant_list') or []
+    stars = data.get('variant_list_all') or []
     stars += data.get('hotspots_stars') or []
     stars = sorted(stars, cmp=cmp_var)
     stars = stars[:200]
