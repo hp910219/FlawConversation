@@ -158,6 +158,8 @@ def tumor_download_panel():
     neoantigens = []
     chemotherapy = []
     hotspots = []
+    variant_list_all = []
+    hotspots_all = []
     if rq is not None:
         sample_no = rq.get('sample_no')
         item_name = rq.get('item_name')
@@ -165,12 +167,14 @@ def tumor_download_panel():
         if res is not None:
             sample_detail = res.get('data') or {}
 
-        res2 = sort_request1('GET', '/api/v2/tumor/variants/?sample_no=%s' % sample_no)
+        res2 = sort_request1('GET', '/api/v2/tumor/variants/?sample_no=%s&fil_status=1' % sample_no)
         if res2 is not None:
-            variant_list = res2.get('data') or []
-        res2hotspot = sort_request1('GET', '/api/v2/tumor/hotspot/variants/?sample_no=%s' % sample_no)
+            variant_list_all = res2.get('data') or []
+            variant_list = filter(lambda x: x.get('fil_status') == 0, variant_list_all)
+        res2hotspot = sort_request1('GET', '/api/v2/tumor/hotspot/variants/?sample_no=%s&fil_status=1' % sample_no)
         if res2hotspot is not None:
-            hotspots = res2hotspot.get('data') or []
+            hotspots_all = res2hotspot.get('data') or []
+            hotspots = filter(lambda x: x.get('fil_status') == 0, hotspots_all)
         res3 = sort_request1('GET', '/api/v2/tumor/overview/?sample_no=%s' % sample_no)
         if res3 is not None:
             overview = res3.get('data') or {}
@@ -307,6 +311,7 @@ def tumor_download_panel():
             'diagnosis': diagnose,
             'sample_detail': sample_detail,
             'variant_list': variant_list,
+            'variant_list_all': variant_list_all,
             'cnvs': cnvs,
             'svs': svs,
             'stars': stars,
