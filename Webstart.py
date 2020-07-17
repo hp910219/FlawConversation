@@ -653,7 +653,8 @@ def remark_crud():
         item = my_file.read(path)
         items.append(item)
     account = request.args.get('account') if method == 'GET' else request.json.get('account')
-    items = filter(lambda x: x.get('account') == account, items)
+    if account:
+        items = filter(lambda x: x.get('account') == account, items)
     items.reverse()
     return jsonify(items)
 
