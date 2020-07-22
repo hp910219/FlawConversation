@@ -348,15 +348,13 @@ def download_file():
     t = format_time(frm='%Y%m%d%H%M%S')
     if '..' in dir_name or 'password' in file_path:
         return 'Sorry, unavailable path.'
+    if 'passwd' in file_path:
+        return 'Sorry, unavailable path.'
     if attachment_filename is None:
         file_names = file_name.split('.')
         attachment_filename = '%s_%s.%s' % ('.'.join(file_names[:-1]), t, file_names[-1])
     if os.path.exists(file_path) is False:
         return 'Sorry, file_path dose not exists.'
-
-    # print dir_name
-    # print file_name
-    # print attachment_filename
     return send_from_directory(dir_name, file_name, as_attachment=True, attachment_filename=attachment_filename)
 
 
