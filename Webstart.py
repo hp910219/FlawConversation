@@ -356,7 +356,8 @@ def download_file():
     env = conf.get('env')
     if env and env == 'KOBARS':
         if dir_name.startswith('/gpfs/user/budc/kobas_2019/data/example') is False \
-                and dir_name.startswith('/gpfs/user/budc/kobas_2019/data/online') is False:
+                and dir_name.startswith('/gpfs/user/budc/kobas_2019/data/online') is False \
+                and dir_name.startswith('/gpfs/user/budc/app/app_data/output/') is False:
             return 'Sorry, unavailable path.'
     if attachment_filename is None:
         file_names = file_name.split('.')
