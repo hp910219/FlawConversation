@@ -350,6 +350,14 @@ def download_file():
         return 'Sorry, unavailable path.'
     if 'passwd' in file_path:
         return 'Sorry, unavailable path.'
+    conf = read_conf()
+    if isinstance(conf, str):
+        return conf
+    env = conf.get('env')
+    if env and env == 'KOBARS':
+        if dir_name.startswith('/gpfs/user/budc/kobas_2019/data/example') is False \
+                and dir_name.startswith('/gpfs/user/budc/kobas_2019/data/online') is False:
+            return 'Sorry, unavailable path.'
     if attachment_filename is None:
         file_names = file_name.split('.')
         attachment_filename = '%s_%s.%s' % ('.'.join(file_names[:-1]), t, file_names[-1])
