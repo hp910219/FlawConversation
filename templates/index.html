@@ -12,7 +12,7 @@
     <meta HTTP-EQUIV="Cache-Control" CONTENT="no-cache">
     <meta HTTP-EQUIV="Expires" CONTENT="-1">
     <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,minimum-scale=1,user-scalable=no">
-    <title>{{  conf.page_title or '名老中医传承平台'}}</title>
+    <title>{{ 'HerbNet' if '/en/' in request.path else conf.page_title}} </title>
     <script>
         sessionStorage.setItem('hostname', location.hostname +location.pathname);
         var system_name = '{{ system_name }}';
