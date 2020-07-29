@@ -355,7 +355,8 @@ def download_file():
         return conf
     env = conf.get('env')
     if env and env == 'KOBARS':
-        if file_path not in ['/gpfs/www/kobas3/site/kobas-2.1.1/kobas-2.1.1.tar.gz', '/gpfs/www/kobas3/site/kobas-2.1.1/kobas-3.0.3.tar.gz']:
+        if file_path not in ['/gpfs/www/kobas3/site/kobas-2.1.1/kobas-2.1.1.tar.gz',
+                             '/gpfs/www/kobas3/site/kobas-2.1.1/kobas-3.0.3.tar.gz']:
             if dir_name.startswith('/gpfs/user/budc/kobas_2019/data/example') is False \
                     and dir_name.startswith('/gpfs/user/budc/kobas_2019/data/online') is False \
                     and dir_name.startswith('/gpfs/user/budc/app/app_data/output/') is False:
