@@ -258,6 +258,7 @@ def write_body(title_cn, title_en, data):
 
 def write_version_weizhi():
     para = write_versions([
+        {'text': '免疫治疗敏感驱动突变检测结果：TP53、KRAS、ATM，这三个基因比较特殊，只要是出现加星的驱动突变，就算满足条件', 'time': '2020年7月30日'},
         {'text': '报告中突变详细列表按照目前的规则，从“全部”里面选择突变进行呈现（按照目前规则，加星突变放在最前面，随后按照cosmic排序，最后按照突变丰度排序，截取最前面的200个突变）', 'time': '2020年7月13日'},
         {'text': '药物名称汉化', 'time': '2020年7月7日'},
         {'text': 'HLA耐药时背景色为灰色', 'time': '2020年5月29日'},
@@ -1664,7 +1665,11 @@ def write_chapter_mingan(stars, diagnose, ploidy):
     if len(items04) < 2:
         for v_index, v in enumerate(var_items[::-1]):
             if v.get('gene') in ['TP53', 'ATM']:
-                del var_items[v_index]
+                if v.get('gene') == 'TP53':
+                    if len(items03) < 2:
+                        del var_items[v_index]
+                else:
+                    del var_items[v_index]
         items204 = {'text': 'TP53合并ATM突变未发生', 'color': gray}
     else:
         if diagnose == '非小细胞肺癌':
