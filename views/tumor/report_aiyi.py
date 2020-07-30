@@ -254,6 +254,7 @@ def write_versions(items):
 
 def write_version_aiyi():
     para = write_versions([
+        {'text': '免疫治疗敏感驱动突变检测结果：TP53、KRAS、ATM，这三个基因比较特殊，只要是出现加星的驱动突变，就算满足条件', 'time': '2020年7月30日'},
         {'text': '报告中突变详细列表按照目前的规则，从“全部”里面选择突变进行呈现（按照目前规则，加星突变放在最前面，随后按照cosmic排序，最后按照突变丰度排序，截取最前面的200个突变）', 'time': '2020年7月13日'},
         {'text': '皑医报告中的HRD统一显示出来，卵巢癌、乳腺癌、前列腺癌和胰腺癌如阳性放在靶向治疗汇总的第一位，如阴性放在最后一位，其他所有癌种无论阳性阴性均放在最后一', 'time': '2020年7月7日'},
         {'text': '热点突变加星大于1的要在第五章汇总中显示', 'time': '2020年7月7日'},
@@ -1291,6 +1292,7 @@ def write_chapter_mingan(stars, diagnose, ploidy):
     var_items = []
     cnv_items = []
     # sv_items = [] 敏感未涉及到融合基因
+    stars = filter(lambda x: x.get('gene') is not None, stars)
     items00 = []
     items01 = []
     items02 = []
@@ -1325,11 +1327,12 @@ def write_chapter_mingan(stars, diagnose, ploidy):
         if gene in ['CDK12']:
             if is_match3:
                 items02.append(gene)
+        # if gene in ['TP53', 'EGFR']:
         if gene in ['TP53', 'KRAS']:
             if gene not in items03:
+                items03.append(gene)
                 if star not in var_items:
                     var_items.append(star)
-                items03.append(gene)
         if gene in ['TP53', 'ATM']:
             if gene not in items04:
                 if star not in var_items:
@@ -1396,7 +1399,11 @@ def write_chapter_mingan(stars, diagnose, ploidy):
     if len(items04) < 2:
         for v_index, v in enumerate(var_items[::-1]):
             if v.get('gene') in ['TP53', 'ATM']:
-                del var_items[v_index]
+                if v.get('gene') == 'TP53':
+                    if len(items03) < 2:
+                        del var_items[v_index]
+                else:
+                    del var_items[v_index]
         items204 = {'text': 'TP53合并ATM突变未发生', 'color': gray}
     else:
         if diagnose == '非小细胞肺癌':
@@ -1439,6 +1446,7 @@ def write_chapter_mingan(stars, diagnose, ploidy):
     para = write_immun_table(data, level)
     para += p.write()
     para += write_mingan(items2, 5)
+    print len(var_items)
     para += write_detail_table(var_items, cnv_items, [], ploidy)
     para += write_explain({
         'title': '结果说明：',
