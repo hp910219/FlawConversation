@@ -1541,7 +1541,8 @@ def write_chapter_mingan(stars, diagnose, ploidy):
     # 匹配规则：
     # 1、注意基因同名现象：PDL1基因在列表中应为CD274，PDL2基因应为PDCD1LG2，由驱动性加星过来；
     # 2、POLE和POLD1虽然均为抑癌基因，但是这两个基因为热点突变驱动，仅与数据库匹配的突变才是驱动突变，由驱动性加星过来；
-    # 3、CDK12、TP53、KRAS、ATM、PBRM1、SMARCA4和ARID1A均为常规的驱动基因规则，由加星过来；  且满足二者之一
+    # 2.1、TP53、KRAS、ATM，这三个基因比较特殊，只要是出现加星的驱动突变，就算满足条件
+    # 3、CDK12、PBRM1、SMARCA4和ARID1A均为常规的驱动基因规则，由加星过来；  且满足二者之一
     #   ①，拷贝数为0，纯合缺失且肿瘤细胞比例大于80%以上时；
     #   ②、>90%、lcn_em = 0
     # 4、SERPINB3、SERPINB4和TET1这三个基因均为任意突变即可，但是对突变比例有限制：肿瘤细胞比例≥50%，肿瘤细胞比例不可获得时，突变丰度vaf≥0.1
@@ -1594,16 +1595,14 @@ def write_chapter_mingan(stars, diagnose, ploidy):
                 items02.append(gene)
         if gene in ['TP53', 'KRAS']:
             if gene not in items03:
-                if is_match3:
-                    if star not in var_items:
-                        var_items.append(star)
-                    items03.append(gene)
+                if star not in var_items:
+                    var_items.append(star)
+                items03.append(gene)
         if gene in ['TP53', 'ATM']:
             if gene not in items04:
-                if is_match3:
-                    if star not in var_items:
-                        var_items.append(star)
-                    items04.append(gene)
+                if star not in var_items:
+                    var_items.append(star)
+                items04.append(gene)
         if gene in ['PBRM1'] and gene not in items10:
             if is_match3:
                 var_items.append(star)
