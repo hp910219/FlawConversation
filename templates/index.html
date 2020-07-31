@@ -3,6 +3,8 @@
 <head>
     <link rel="stylesheet" href="/static/{{ conf.umi_name or 'umi' }}.css?t={{ restart_time }}">
     <link rel="stylesheet" href="./static/{{ conf.umi_name or 'umi' }}.css?t={{ restart_time }}">
+    <link rel="stylesheet" href="/en/static/{{ conf.umi_name or 'umi' }}.css?t={{ restart_time }}">
+    <link rel="stylesheet" href="./en/static/{{ conf.umi_name or 'umi' }}.css?t={{ restart_time }}">
     {% if conf.umi_name == 'umi_kobars' %}
         <link rel="stylesheet" href="./static/{{ conf.umi_name or 'umi' }}.css?t={{ restart_time }}">
         <link rel="stylesheet" href="./kobas3/static/{{ conf.umi_name or 'umi' }}.css?t={{ restart_time }}">
@@ -26,6 +28,8 @@
 <div id="root"></div>
 <script src="/static/{{ conf.umi_name or 'umi' }}.js?t={{ restart_time }}"></script>
 <script src="./static/{{ conf.umi_name or 'umi' }}.js?t={{ restart_time }}"></script>
+<script src="/en/static/{{ conf.umi_name or 'umi' }}.js?t={{ restart_time }}"></script>
+<script src="./en/static/{{ conf.umi_name or 'umi' }}.js?t={{ restart_time }}"></script>
 {% if conf.umi_name == 'umi_kobars' %}
     <script src="./static/{{ conf.umi_name or 'umi' }}.js?t={{ restart_time }}"></script>
     <script src="./kobas3/static/{{ conf.umi_name or 'umi' }}.js?t={{ restart_time }}"></script>
