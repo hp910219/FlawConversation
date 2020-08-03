@@ -48,7 +48,6 @@ def page_not_found(e):
 @app.route("/en/tcm/api/", methods=["GET", "POST", "PUT", "DELETE"])
 @app.route("/tcm/api/", methods=["GET", "POST", "PUT", "DELETE"])
 def tcm_api():
-    print request.path
     method = request.method
     data = request.args if method == 'GET' else request.json
     url = request.headers.get('API-URL')
