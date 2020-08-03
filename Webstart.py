@@ -45,6 +45,7 @@ def page_not_found(e):
     return render_template('index.html', restart_time=restart_time, system_name=system_name, conf=conf)
 
 
+@app.route("/en/tcm/api/", methods=["GET", "POST", "PUT", "DELETE"])
 @app.route("/tcm/api/", methods=["GET", "POST", "PUT", "DELETE"])
 def tcm_api():
     method = request.method
