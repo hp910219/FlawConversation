@@ -717,7 +717,6 @@ def transfer_img():
     rq = request.json
     if rq is None:
         return jsonify({'message': '请求错误'})
-
     file_path = rq.get('file_path')
     if file_path is None:
         return jsonify({'message': 'file_path: %s' % file_path})
