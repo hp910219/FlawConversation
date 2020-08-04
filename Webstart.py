@@ -1,5 +1,6 @@
 #! /usr/bin/env python
 # coding: utf-8
+import base64
 import os
 import sys
 import subprocess
@@ -722,7 +723,13 @@ def transfer_img():
         return jsonify({'message': 'file_path: %s' % file_path})
     if os.path.exists(file_path) is False:
         return jsonify({'message': 'file not exists: %s' % file_path})
-    data = {'img': pic_b64encode(file_path), 'file_path': file_path}
+    if file_path.endswith('.pdf'):
+        f = open(file_path, 'rb')
+        str64 = base64.b64decode(f.read())
+        f.close()
+    else:
+        str64 = pic_b64encode(file_path)
+    data = {'img': str64, 'file_path': file_path}
     return jsonify(data)
 
 
