@@ -1,6 +1,6 @@
 #! /usr/bin/env python
 # coding: utf-8
-import base64
+import chardet
 import os
 import sys
 import subprocess
@@ -703,7 +703,6 @@ def get_file_content():
     if os.path.exists(path) is False:
         return 'Path not exists, %s' % path
     data = my_file.read(path)
-    import chardet
     try:
         encoding = chardet.detect(data[0])['encoding']
         data = data.decode(encoding, 'ignore').encode('utf-8')
@@ -722,14 +721,19 @@ def transfer_img():
         return jsonify({'message': 'file_path: %s' % file_path})
     if os.path.exists(file_path) is False:
         return jsonify({'message': 'file not exists: %s' % file_path})
-    if file_path.endswith('.pdf'):
-        f = open(file_path, 'rb')
-        str64 = base64.b64decode(f.read())
-        f.close()
-    else:
-        str64 = pic_b64encode(file_path)
+    # if file_path.endswith('.pdf'):
+    #     with open(file_path, 'rb') as f:
+    #         str64 = base64.b64decode(f.read())
+    #         encoding = chardet.detect(str64[0])['encoding']
+    #         print encoding
+    #         str64 = str64.decode(encoding, 'ignore').encode('utf-8')
+    #         print str64
+    # else:
+    #     str64 = pic_b64encode(file_path)
+    str64 = pic_b64encode(file_path)
     data = {'img': str64, 'file_path': file_path}
-    return jsonify(data)
+    import json
+    return json.dumps(data)
 
 
 @app.route('/kobas3/avai/taxonomy/', methods=['GET'])
@@ -773,12 +777,23 @@ def update_static(project_dir, postfix1=''):
     import shutil
     dist_dir = os.path.join(project_dir, 'dist')
     for postfix in ['js', 'css']:
-        src_file_name = 'umi.%s' % postfix
+
+        src = os.path.join(dist_dir, 'umi.%s' % postfix)
+        src_file_name = 'umi'
         file_name = src_file_name
+
         if postfix1:
-            file_name = 'umi_%s.%s' % (postfix1, postfix)
-        src = os.path.join(dist_dir, src_file_name)
-        des = os.path.join(static_dir, file_name)
+            file_name = 'umi_%s' % (postfix1)
+        des = os.path.join(static_dir, '%s.%s' % (file_name, postfix))
+        if os.path.exists(src):
+            # print src, des
+            shutil.copy(src, des)
+    for i in os.listdir(os.path.join(dist_dir, 'static')):
+        names = i.split('.')
+        postfix = names[-1]
+        src = os.path.join(dist_dir, i)
+        file_name = '.'.join(names[:-1])
+        des = os.path.join(static_dir, '%s.%s' % (file_name, postfix))
         if os.path.exists(src):
             # print src, des
             shutil.copy(src, des)
