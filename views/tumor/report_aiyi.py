@@ -254,6 +254,7 @@ def write_versions(items):
 
 def write_version_aiyi():
     para = write_versions([
+        {'text': '突变详细显示五百条数据，按加星、知识库、cosmic_var_sum、突变丰度排序，仅提供前500个突变', 'time': '2020年8月6日'},
         {'text': '免疫治疗敏感驱动突变检测结果：TP53、KRAS、ATM，这三个基因比较特殊，只要是出现加星的驱动突变，就算满足条件', 'time': '2020年7月30日'},
         {'text': '报告中突变详细列表按照目前的规则，从“全部”里面选择突变进行呈现（按照目前规则，加星突变放在最前面，随后按照cosmic排序，最后按照突变丰度排序，截取最前面的200个突变）', 'time': '2020年7月13日'},
         {'text': '皑医报告中的HRD统一显示出来，卵巢癌、乳腺癌、前列腺癌和胰腺癌如阳性放在靶向治疗汇总的第一位，如阴性放在最后一位，其他所有癌种无论阳性阴性均放在最后一', 'time': '2020年7月7日'},
@@ -2006,10 +2007,12 @@ def write_chapter_yichuan():
 
 
 def cmp_var(x, y):
-    keys = ['add_star', 'cosmic_var_sum', 'dna_vaf']
+    keys = ['add_star', 'fil_status', 'cosmic_var_sum', 'dna_vaf']
     for k in keys:
         v = cmp(y.get(k), x.get(k))
         if v != 0:
+            if k == 'fil_status':
+                return -v
             return v
     return 0
 
@@ -2021,8 +2024,9 @@ def write_chapter51(data):
     stars = data.get('variant_list_all') or []
     stars += data.get('hotspots_stars') or []
     stars = sorted(stars, cmp=cmp_var)
-    stars = stars[:200]
+    stars = stars[:500]
     para += write_table_var(stars)
+    para += p.write(r_aiyi.text(' 仅提供前500个突变', '小五', space=True))
     para += p.write()
     para += h4_aiyi('（2）遗传性肿瘤、HRD、DDR相关基因胚系突变汇总')
     para += p.write('呈现基因list上出现的所有突变，把明确治病给突变排在前面，并作标记')
