@@ -35,7 +35,9 @@ project_dir = os.path.dirname(dir_name)
 def hello_world():
     conf = read_conf()
     system_name = conf.get('system_name')
-    return render_template('index.html', restart_time=restart_time, system_name=system_name, conf=conf)
+    return render_template('index.html',
+                           static_dir=static_dir.rstrip('/'),
+                           restart_time=restart_time, system_name=system_name, conf=conf)
 
 
 @app.errorhandler(404)
@@ -43,7 +45,7 @@ def page_not_found(e):
     conf = read_conf()
     system_name = conf.get('system_name')
     # print 'system_name', system_name
-    return render_template('index.html', restart_time=restart_time, system_name=system_name, conf=conf)
+    return render_template('index.html', static_dir=static_dir.rstrip('/'), restart_time=restart_time, system_name=system_name, conf=conf)
 
 
 @app.route("/en/tcm/api/", methods=["GET", "POST", "PUT", "DELETE"])
@@ -789,13 +791,9 @@ def update_static(project_dir, postfix1=''):
             # print src, des
             shutil.copy(src, des)
     for i in os.listdir(os.path.join(dist_dir, 'static')):
-        names = i.split('.')
-        postfix = names[-1]
-        src = os.path.join(dist_dir, i)
-        file_name = '.'.join(names[:-1])
-        des = os.path.join(static_dir, '%s.%s' % (file_name, postfix))
+        src = os.path.join(dist_dir, 'static', i)
+        des = os.path.join(static_dir, i)
         if os.path.exists(src):
-            # print src, des
             shutil.copy(src, des)
 
 
