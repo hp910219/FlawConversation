@@ -2293,12 +2293,33 @@ def write_chapter51(title, data):
     para = ''
 
     # para += h4_aiyi('体细胞突变')
-    stars = data.get('variant_list_all') or []
-    stars += data.get('hotspots_stars') or []
-    stars = sorted(stars, cmp=cmp_var)
-    stars = stars[:500]
-    para += write_table_var(stars, title)
-    para += p.write(r_aiyi.text(' 仅提供前500个突变', '小五', space=True))
+    variant_list_all = data.get('variant_list_all') or []
+    variant_stars = data.get('variant_stars') #这里包含热点加星
+
+    items1 = []
+    items2 = []
+    for var in variant_list_all[:500]:
+        if var not in variant_stars:
+            if var.get('fil_status') == 0:
+                if var not in items1:
+                    items1.append(var)
+            else:
+                if var not in items2:
+                    items2.append(var)
+    items = [
+        {'title': '驱动突变', 'items': variant_stars},
+        {'title': '驱动基因相关突变', 'items': items1},
+        {'title': '其他基因相关突变', 'items': items2},
+    ]
+    for item in items:
+        var_items = sorted(item.get('items'), cmp=cmp_var)
+        para += p.write(
+            p.set(ind=[0.5, 0], spacing=[0.5, 0.2]),
+            r_aiyi.text('%s' % (item.get('title') ), '五号', weight=1)+
+            r_aiyi.text('(共%s条)' % (len(var_items) ), '小五'))
+
+        para += write_table_var(var_items)
+    para += p.write(r_aiyi.text(' 注：仅提供前500个突变。', '小五', space=True))
     return para
 
 
