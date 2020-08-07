@@ -2022,11 +2022,12 @@ def write_chapter51(data):
     para += h4_aiyi('（1）体细胞突变汇总')
 
     variant_list_all = data.get('variant_list_all') or []
-    variant_stars = data.get('variant_stars') #这里包含热点加星
+    variant_stars = data.get('variant_stars') or []#这里包含热点加星
+    variant_others = filter(lambda x:x.get('add_star') == 0, variant_list_all)[:500-len(variant_stars)]
 
     items1 = []
     items2 = []
-    for var in variant_list_all[:500]:
+    for var in variant_others:
         if var not in variant_stars:
             if var.get('fil_status') == 0:
                 if var not in items1:

@@ -229,6 +229,8 @@ def tumor_download_panel():
 
     variant_stars = filter(lambda x: x['add_star'] > 0, variant_list)
     hotspots_stars = filter(lambda x: x['add_star'] > 1, hotspots)
+    for h in hotspots_stars:
+        h['add_star'] -= 1
     variant_stars += hotspots_stars
     cnvs_stars = filter(lambda x: x['add_star'] > 0, cnvs)
     svs_stars0 = filter(lambda x: x['add_star'] > 0, svs)
