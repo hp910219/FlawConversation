@@ -2007,12 +2007,10 @@ def write_chapter_yichuan():
 
 
 def cmp_var(x, y):
-    keys = ['add_star', 'fil_status', 'cosmic_var_sum', 'dna_vaf']
+    keys = ['add_star', 'dna_vaf', 'cosmic_var_sum']
     for k in keys:
         v = cmp(y.get(k), x.get(k))
         if v != 0:
-            if k == 'fil_status':
-                return -v
             return v
     return 0
 
@@ -2020,7 +2018,7 @@ def cmp_var(x, y):
 def write_chapter51(data):
     para = ''
     para += h4_aiyi('（1）体细胞突变汇总')
-
+    #先按照突变丰度，再按照cosmic计数
     variant_list_all = data.get('variant_list_all') or []
     variant_stars = data.get('variant_stars') or []#这里包含热点加星
     variant_others = filter(lambda x:x.get('add_star') == 0, variant_list_all)[:500-len(variant_stars)]
