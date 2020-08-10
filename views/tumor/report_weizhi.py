@@ -258,7 +258,6 @@ def write_body(title_cn, title_en, data):
 
 def write_version_weizhi():
     para = write_versions([
-        {'text': '突变详细显示五百条数据，按加星、知识库、cosmic_var_sum、突变丰度排序，仅提供前500个突变', 'time': '2020年8月6日'},
         {'text': '免疫治疗敏感驱动突变检测结果：TP53、KRAS、ATM，这三个基因比较特殊，只要是出现加星的驱动突变，就算满足条件', 'time': '2020年7月30日'},
         {'text': '报告中突变详细列表按照目前的规则，从“全部”里面选择突变进行呈现（按照目前规则，加星突变放在最前面，随后按照cosmic排序，最后按照突变丰度排序，截取最前面的200个突变）', 'time': '2020年7月13日'},
         {'text': '药物名称汉化', 'time': '2020年7月7日'},
@@ -2279,12 +2278,10 @@ def write_chapter_yichuan():
 
 
 def cmp_var(x, y):
-    keys = ['add_star', 'fil_status', 'cosmic_var_sum', 'dna_vaf']
+    keys = ['add_star', 'cosmic_var_sum', 'dna_vaf']
     for k in keys:
         v = cmp(y.get(k), x.get(k))
         if v != 0:
-            if k == 'fil_status':
-                return -v
             return v
     return 0
 
@@ -2293,34 +2290,11 @@ def write_chapter51(title, data):
     para = ''
 
     # para += h4_aiyi('体细胞突变')
-    variant_list_all = data.get('variant_list_all') or []
-    variant_stars = data.get('variant_stars') or []#这里包含热点加星
-    variant_others = filter(lambda x:x.get('add_star') == 0, variant_list_all)[:500-len(variant_stars)]
-
-    items1 = []
-    items2 = []
-    for var in variant_others:
-        if var not in variant_stars:
-            if var.get('fil_status') == 0:
-                if var not in items1:
-                    items1.append(var)
-            else:
-                if var not in items2:
-                    items2.append(var)
-    items = [
-        {'title': '驱动突变', 'items': variant_stars},
-        {'title': '驱动基因相关突变', 'items': items1},
-        {'title': '其他基因相关突变', 'items': items2},
-    ]
-    for item in items:
-        var_items = sorted(item.get('items'), cmp=cmp_var)
-        para += p.write(
-            p.set(ind=[0.5, 0], spacing=[0.5, 0.2]),
-            r_aiyi.text('%s' % (item.get('title') ), '五号', weight=1)+
-            r_aiyi.text('(共%s条)' % (len(var_items) ), '小五'))
-
-        para += write_table_var(var_items)
-    para += p.write(r_aiyi.text(' 注：仅提供前500个突变。', '小五', space=True))
+    stars = data.get('variant_list_all') or []
+    stars += data.get('hotspots_stars') or []
+    stars = sorted(stars, cmp=cmp_var)
+    stars = stars[:200]
+    para += write_table_var(stars, title)
     return para
 
 
