@@ -332,7 +332,7 @@ times = [
     {'cn': '首诊'},
     {'cn': '次诊'},
     {'cn': '三诊'},
-    {'cn': '更多'}
+    {'cn': '四诊'}
 ]
 
 
@@ -340,9 +340,8 @@ def write_dignosis(diagnosis):
     # [u'index_no', u'template', u'treatment_time', u'sample_no', u'template_info', u'insert_time', u'diagnosis_no']
     paras = ''
     index_no = diagnosis.get('index_no')
-    time_info = times[index_no]
+    time_info = {'cn': '%s诊' % index_no} if index_no >= len(times) else times[index_no]
     cn = time_info.get('cn')
-    print cn
     paras += write_title('中医信息采集（%s）' % cn )
     template_info = diagnosis.get('template_info')
     treatment_time = diagnosis.get('treatment_time')
@@ -588,9 +587,12 @@ def generate_word(data):
         os.makedirs(dir_name)
     for ff in files:
         if os.path.isfile(ff):
+            print type(ff), ff
+            print type(dir_name), dir_name
             shutil.copy(ff, dir_name)
         else:
             del ff
+    print type(zip_name)
     zip_status = zip_dir('', dir_name, zip_name)
     if zip_status == 5:
         del_file(dir_name)
