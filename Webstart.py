@@ -680,6 +680,7 @@ def get_file():
     pre = rq.get('query_path') or ''
     postfix = rq.get('postfix') or []
     root_path = rq.get('root_path') or ''
+    root_dir = rq.get('root_dir') or ''
     env_key = rq.get('env_key') or 'AY_USER_DATA_DIR'
     conf = read_conf()
     if isinstance(conf, str):
@@ -687,6 +688,8 @@ def get_file():
     # print conf
     # JINGD_DATA_ROOT = os.environ.get('JINGD_DATA_ROOT') or conf.get('jingd_data_root')
     JINGD_DATA_ROOT = os.environ.get(env_key) or conf.get('jingd_data_root')
+    if root_dir:
+        JINGD_DATA_ROOT = ''
     path = os.path.join(JINGD_DATA_ROOT, root_path, pre)
     if os.path.exists(path) is False:
         os.makedirs(path)
