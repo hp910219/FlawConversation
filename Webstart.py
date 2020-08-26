@@ -677,7 +677,7 @@ def remark_crud():
 @app.route('/tcm/file/', methods=['POST'])
 def get_file():
     rq = request.json
-    pre = rq.get('query_path') or ''
+    query_path = rq.get('query_path') or ''
     postfix = rq.get('postfix') or []
     root_path = rq.get('root_path') or ''
     root_dir = rq.get('root_dir') or ''
@@ -690,7 +690,9 @@ def get_file():
     JINGD_DATA_ROOT = os.environ.get(env_key) or conf.get('jingd_data_root')
     if root_dir:
         JINGD_DATA_ROOT = root_dir
-    path = os.path.join(JINGD_DATA_ROOT, root_path, pre)
+        if root_path and root_path.startswith(root_dir):
+            root_path = root_dir[len(root_dir):]
+    path = os.path.join(JINGD_DATA_ROOT, root_path, query_path)
     if os.path.exists(path) is False:
         os.makedirs(path)
         return jsonify({'message': 'Path not exists, %s' % path})
