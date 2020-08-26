@@ -689,7 +689,7 @@ def get_file():
     # JINGD_DATA_ROOT = os.environ.get('JINGD_DATA_ROOT') or conf.get('jingd_data_root')
     JINGD_DATA_ROOT = os.environ.get(env_key) or conf.get('jingd_data_root')
     if root_dir:
-        JINGD_DATA_ROOT = ''
+        JINGD_DATA_ROOT = root_dir
     path = os.path.join(JINGD_DATA_ROOT, root_path, pre)
     if os.path.exists(path) is False:
         os.makedirs(path)
