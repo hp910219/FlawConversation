@@ -254,6 +254,7 @@ def write_versions(items):
 
 def write_version_aiyi():
     para = write_versions([
+        {'text': '“HLA Ⅰ类三个基因均纯合，免疫检查点抗体治疗反应更好”改为“HLA Ⅰ类三个基因均杂合，免疫检查点抗体治疗反应更好”', 'time': '2020年9月8日'},
         {'text': '突变详细显示五百条数据，按加星、知识库、cosmic_var_sum、突变丰度排序，仅提供前500个突变', 'time': '2020年8月6日'},
         {'text': '免疫治疗敏感驱动突变检测结果：TP53、KRAS、ATM，这三个基因比较特殊，只要是出现加星的驱动突变，就算满足条件', 'time': '2020年7月30日'},
         {'text': '报告中突变详细列表按照目前的规则，从“全部”里面选择突变进行呈现（按照目前规则，加星突变放在最前面，随后按照cosmic排序，最后按照突变丰度排序，截取最前面的200个突变）', 'time': '2020年7月13日'},
@@ -1920,7 +1921,7 @@ def write_chapter_hla(overview, diagnosis):
     trs2 += write_tr2(tip1, fill, color)
     para = table_aiyi(trs2)
     para += p.write()
-    para += write_explain({'title': '结果说明：', 'text': 'HLA分型与免疫治疗疗效高度相关。HLA(human lymphocyte antigen ，人类淋巴细胞抗原)，是编码人类的主要组织相容性复合体（MHC）的基因。HLA是免疫系统区分自身和异体物质的基础。HLA主要包括HLA Ⅰ类分子和Ⅱ分子。HLAⅠ类分子又进一步细化分成A、B、C三个基因。特定的超型，如HLA-B44，与免疫检查点抗体治疗疗效好相关；HLA-B66（包括HLA-B*15：01），与免疫检查点抗体治疗疗效差相关。HLA Ⅰ类三个基因均纯合，免疫检查点抗体治疗反应更好。HLA杂合缺失的基因相关的新抗原可能在个性化治疗疫苗或者特异性细胞治疗中无效。'})
+    para += write_explain({'title': '结果说明：', 'text': 'HLA分型与免疫治疗疗效高度相关。HLA(human lymphocyte antigen ，人类淋巴细胞抗原)，是编码人类的主要组织相容性复合体（MHC）的基因。HLA是免疫系统区分自身和异体物质的基础。HLA主要包括HLA Ⅰ类分子和Ⅱ分子。HLAⅠ类分子又进一步细化分成A、B、C三个基因。特定的超型，如HLA-B44，与免疫检查点抗体治疗疗效好相关；HLA-B66（包括HLA-B*15：01），与免疫检查点抗体治疗疗效差相关。HLA Ⅰ类三个基因均杂合，免疫检查点抗体治疗反应更好。HLA杂合缺失的基因相关的新抗原可能在个性化治疗疫苗或者特异性细胞治疗中无效。'})
     para += write_evidence4(2)
     return para, tip0, tip01, level
 
