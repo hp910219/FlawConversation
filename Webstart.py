@@ -473,6 +473,38 @@ def table2matrix():
     return tumor_app('table2matrix', '/public/jingdu/budechao/lecture/lec5_table2matrix/table2matrix.R', sort_pheatmap)
 
 
+@app.route('/tumor/herbScore/', methods=['GET', 'POST'])
+def herbScore():
+    shPath = '/program/run_herb_interaction.sh'
+    def sort_pheatmap(rq, r_path, output, result_dir, t):
+        input_file1 = sort_app_file('input1', 'input_file1', result_dir, t)
+        dir1 = os.path.dirname(input_file1)
+        cmd = 'sh %s %s %s %s %s' % (
+            r_path,
+            '/program/',
+            '/program',
+            input_file1,
+            output
+        )
+        return cmd, [dir1]
+    return tumor_app('table2matrix', shPath, sort_pheatmap)
+
+
+@app.route('/tumor/herbVisualization/', methods=['GET', 'POST'])
+def herbVisualization():
+    rPath = '/public/jingdu/zss/Rscript-zss/app/herb/run3_herbHeatmap.R'
+    def sort_pheatmap(rq, r_path, output, result_dir, t):
+        input_file1 = sort_app_file('input1', 'input_file1', result_dir, t)
+        dir1 = os.path.dirname(input_file1)
+        cmd = 'Rscript %s %s %s' % (
+            r_path,
+            input_file1,
+            output
+        )
+        return cmd, [dir1]
+    return tumor_app('table2matrix', rPath, sort_pheatmap, output_postfix='png')
+
+
 def sort_app_file(key, file_key, result_dir, t):
     rq = request.json
     input_file1 = rq.get(file_key)
