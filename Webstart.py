@@ -475,14 +475,14 @@ def table2matrix():
 
 @app.route('/tumor/herbScore/', methods=['GET', 'POST'])
 def herbScore():
-    shPath = '/program/run_herb_interaction.sh'
+    shPath = '/public/jingdu/zss/Rscript-zss/app/herb/run_herb_interaction.sh'
     def sort_pheatmap(rq, r_path, output, result_dir, t):
         input_file1 = sort_app_file('input1', 'input_file1', result_dir, t)
         dir1 = os.path.dirname(input_file1)
         cmd = 'sh %s %s %s %s %s' % (
             r_path,
-            '/program/',
-            '/program',
+            '/public/jingdu/zss/Rscript-zss/app/herb/',
+            '/public/jingdu/zss/Rscript-zss/app/herb',
             input_file1,
             output
         )
