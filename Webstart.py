@@ -505,6 +505,21 @@ def herbVisualization():
     return tumor_app('table2matrix', rPath, sort_pheatmap, output_postfix='png')
 
 
+@app.route('/tumor/siRNA/', methods=['GET', 'POST'])
+def tumor_siRNA():
+    rPath = '/data/siRNA/run_siRNA_auto.sh'
+    def sort_pheatmap(rq, r_path, output, result_dir, t):
+        input_file1 = sort_app_file('input1', 'input_file1', result_dir, t)
+        dir1 = os.path.dirname(input_file1)
+        cmd = 'sh %s %s %s /data/siRNA' % (
+            r_path,
+            input_file1,
+            result_dir
+        )
+        return cmd, [dir1]
+    return tumor_app_siRNA('siRNA', rPath, sort_pheatmap, output_postfix='png')
+
+
 def sort_app_file(key, file_key, result_dir, t):
     rq = request.json
     input_file1 = rq.get(file_key)
@@ -586,6 +601,82 @@ def tumor_app(app_name, r_path, sort_func, output_postfix='txt'):
         if os.path.exists(output):
             # data = my_file.read(output)
             return jsonify({'data': {'file_path': output, 'dir': output_dir, 'file_name': output_file}, 'message': 'success', 'status': 100001})
+        return jsonify({'message': u'输出文件生成失败: %s' % msg, 'cmd': cmd})
+    return jsonify({'data': items, 'message': 'success'})
+
+
+def tumor_app_siRNA(app_name, r_path, sort_func, output_postfix='txt'):
+    env_key = 'AY_USER_DATA_DIR'
+    conf = read_conf()
+    if isinstance(conf, str):
+        return conf
+    env = conf.get('env')
+    r_dir = os.path.dirname(r_path)
+    output_dir = '/data/output'
+    t = format_time(frm='%Y%m%d%H%M%S')
+    items = []
+    msg = ''
+
+    # a + 5
+    if request.method == 'POST':
+        rq = request.json
+        dirname = rq.get('taskid')
+        output_dir = os.path.join(output_dir, dir_name)
+        output_file = '%s.output.%s.%s' % (app_name, t, output_postfix)
+
+        output = ''
+        cmd_dev, dirs = sort_func(rq, r_path, output, output_dir, t)
+        dirs += [output_dir, r_dir]
+        # docker run -rm -v data_dir:/data -w /data bio_r
+        cmd = 'docker run -d --rm --name %s' % dirname
+        for i in list(set(dirs)):
+            cmd += ' -v %s:%s' % (i, i)
+        cmd += ' bc_biosoft '
+        if env and env.startswith('Development'):
+            cmd = ''
+        cmd += cmd_dev
+        try:
+            code = os.system(cmd)
+            # print code, t
+            if code:
+                # 获取错误日志
+                try:
+                    # scheduler_order = "top -u ybtao"
+                    # os.system(cmd)
+                    return_info = subprocess.Popen(cmd, shell=True, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
+                    # next_line = return_info.stdout.readline()
+                    # msg = next_line.decode("utf-8", "ignore")
+                    # while True:
+                    #     next_line = return_info.stdout.readline()
+                    #     return_line = next_line.decode("utf-8", "ignore")
+                    #     if return_line == '' and return_info.poll() is not None:
+                    #         break
+                    #     if return_line:
+                    #         msg = return_line
+                    #         print 'ssdfdf', msg
+                    #         # break
+                    # returncode = return_info.wait()
+                    # if returncode:
+                    #     print 'read', return_info.stdout.read()
+                    #     raise subprocess.CalledProcessError(returncode, return_info)
+                    msg = return_info.communicate()[0].decode('utf-8', 'ignore')
+                except Exception, e:
+                    print 'Exception', e
+                    msg = traceback.format_exc()
+                    # msg = traceback.format_exc()
+        except Exception, e:
+            # traceback.print_exc()
+            msg = cmd + traceback.format_exc()
+        rq.update({
+            'output': output,
+            'add_time': t,
+        })
+
+        # print app.logger.error()
+
+        if os.path.exists(output):
+            # data = my_file.read(output)
+            return jsonify({'data': {'file_path': output, 'dir': output_dir, 'file_name': output_file, 'task_id': dirname}, 'message': 'success', 'status': 100001})
         return jsonify({'message': u'输出文件生成失败: %s' % msg, 'cmd': cmd})
     return jsonify({'data': items, 'message': 'success'})
 
