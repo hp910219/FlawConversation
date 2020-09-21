@@ -613,7 +613,7 @@ def tumor_app_siRNA(app_name, r_path, sort_func, output_postfix='txt'):
         return conf
     env = conf.get('env')
     r_dir = os.path.dirname(r_path)
-    output_dir = '/data/output'
+
     t = format_time(frm='%Y%m%d%H%M%S')
     items = []
     msg = ''
@@ -622,21 +622,16 @@ def tumor_app_siRNA(app_name, r_path, sort_func, output_postfix='txt'):
     if request.method == 'POST':
         rq = request.json
         dirname = rq.get('taskid')
-        output_dir = os.path.join(output_dir, dir_name)
-        output_file = '%s.output.%s.%s' % (app_name, t, output_postfix)
+        output_dir = os.path.join('/data/output', dir_name)
 
         output = ''
         cmd_dev, dirs = sort_func(rq, r_path, output, output_dir, t)
-        dirs += [output_dir, r_dir]
         # docker run -rm -v data_dir:/data -w /data bio_r
-        cmd = 'docker run -d --rm --name %s' % dirname
-        dirs = ['/data']
-        for i in list(set(dirs)):
-            cmd += ' -v %s:%s' % (i, i)
-        cmd += ' bc_biosoft '
+        cmd = 'docker run -d --rm --name %s -v /data:/data bc_biosoft ' % dirname
         if env and env.startswith('Development'):
             cmd = ''
         cmd += cmd_dev
+        print cmd
         try:
             code = os.system(cmd)
             # print code, t
@@ -676,9 +671,9 @@ def tumor_app_siRNA(app_name, r_path, sort_func, output_postfix='txt'):
 
         # print app.logger.error()
 
-        if os.path.exists(output):
+        if os.path.exists(output_dir):
             # data = my_file.read(output)
-            return jsonify({'data': {'file_path': output, 'dir': output_dir, 'file_name': output_file, 'task_id': dirname}, 'message': 'success', 'status': 100001})
+            return jsonify({'data': {'file_path': output, 'dir': output_dir, 'task_id': dirname}, 'message': 'success', 'status': 100001})
         return jsonify({'message': u'输出文件生成失败: %s' % msg, 'cmd': cmd})
     return jsonify({'data': items, 'message': 'success'})
 
