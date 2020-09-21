@@ -112,6 +112,7 @@ def save_file():
         if file_name is None:
             file_name = '%s.txt' % format_time(frm='%Y%m%d%H%M%S')
         path = os.path.join(dir_path, file_name)
+        print path
         my_file.write(path, content)
         return jsonify({'path': path, "message": 'success'})
     except Exception, e:
@@ -509,7 +510,7 @@ def herbVisualization():
 def tumor_siRNA():
     rPath = '/data/siRNA/run_siRNA_auto.sh'
     def sort_pheatmap(rq, r_path, output, result_dir, t):
-        input_file1 = sort_app_file('input1', 'input_file1', result_dir, t)
+        input_file1 = sort_app_file('input1', 'input_file1', '/data/userdata', t)
         dir1 = os.path.dirname(input_file1)
         cmd = 'sh %s %s %s %s /data/siRNA' % (
             r_path,
@@ -622,8 +623,8 @@ def tumor_app_siRNA(app_name, r_path, sort_func, output_postfix='txt'):
     if request.method == 'POST':
         rq = request.json
         dirname = rq.get('taskid')
-        output_dir = os.path.join('/data/output', dir_name)
-
+        # output_dir = os.path.join('/data/output', dir_name)
+        output_dir = '/data/output/%s' % dirname
         output = ''
         cmd_dev, dirs = sort_func(rq, r_path, output, output_dir, t)
         # docker run -rm -v data_dir:/data -w /data bio_r
