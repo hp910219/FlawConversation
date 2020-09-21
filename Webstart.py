@@ -511,8 +511,9 @@ def tumor_siRNA():
     def sort_pheatmap(rq, r_path, output, result_dir, t):
         input_file1 = sort_app_file('input1', 'input_file1', result_dir, t)
         dir1 = os.path.dirname(input_file1)
-        cmd = 'sh %s %s %s /data/siRNA' % (
+        cmd = 'sh %s %s %s %s /data/siRNA' % (
             r_path,
+            rq.get('filter_freq'),
             input_file1,
             result_dir
         )
@@ -629,6 +630,7 @@ def tumor_app_siRNA(app_name, r_path, sort_func, output_postfix='txt'):
         dirs += [output_dir, r_dir]
         # docker run -rm -v data_dir:/data -w /data bio_r
         cmd = 'docker run -d --rm --name %s' % dirname
+        dirs = ['/data']
         for i in list(set(dirs)):
             cmd += ' -v %s:%s' % (i, i)
         cmd += ' bc_biosoft '
