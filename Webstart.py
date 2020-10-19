@@ -916,7 +916,7 @@ def update_static(project_dir, postfix1=''):
             file_name = 'umi_%s' % (postfix1)
         des = os.path.join(static_dir, '%s.%s' % (file_name, postfix))
         if os.path.exists(src):
-            # print src, des
+            print src, des
             shutil.copy(src, des)
     for i in os.listdir(os.path.join(dist_dir, 'static')):
         src = os.path.join(dist_dir, 'static', i)
@@ -937,6 +937,6 @@ if __name__ == '__main__':
     killport(port)    # host_ip = '192.168.105.66'
 
     update_static(os.path.join(project_dir, 'TCM'))
-    update_static(os.path.join(project_dir, 'KOBARSWeb'), 'kobars')
+    update_static(os.path.join(project_dir, 'KOBASWeb'), 'kobars')
     # shutil.copytree(r'D:\pythonproject\KOBARSWeb\dist', r'D:\pythonproject\TCMWeb\templates\kobars')
     app.run(host=host_ip, port=port)
