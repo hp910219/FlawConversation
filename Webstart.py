@@ -506,6 +506,21 @@ def herbVisualization():
     return tumor_app('table2matrix', rPath, sort_pheatmap, output_postfix='png')
 
 
+@app.route('/tumor/ternaryPlot/', methods=['GET', 'POST'])
+def tumor_ternaryPlot():
+    rPath = '/public/jingdu/zss/Rscript-zss/app/run_ternaryPlot.R'
+    def sort_pheatmap(rq, r_path, output, result_dir, t):
+        input_file1 = sort_app_file('input1', 'input_file1', result_dir, t)
+        dir1 = os.path.dirname(input_file1)
+        cmd = 'Rscript %s %s %s' % (
+            r_path,
+            input_file1,
+            output
+        )
+        return cmd, [dir1]
+    return tumor_app('ternaryPlot', rPath, sort_pheatmap, output_postfix='png')
+
+
 @app.route('/tumor/siRNA/', methods=['GET', 'POST'])
 def tumor_siRNA():
     rPath = '/data/siRNA/run_siRNA_auto.sh'
