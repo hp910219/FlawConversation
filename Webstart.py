@@ -508,7 +508,7 @@ def herbVisualization():
 
 @app.route('/tumor/ternaryPlot/', methods=['GET', 'POST'])
 def tumor_ternaryPlot():
-    rPath = '/public/jingdu/zss/Rscript-zss/app/run_ternaryPlot.R'
+    rPath = '/public/jingdu/zss/Rscript-zss/app/ternaryplot/run_ternaryPlot.R'
     def sort_pheatmap(rq, r_path, output, result_dir, t):
         input_file1 = sort_app_file('input1', 'input_file1', result_dir, t)
         dir1 = os.path.dirname(input_file1)
