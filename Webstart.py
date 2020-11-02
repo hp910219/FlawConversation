@@ -521,6 +521,27 @@ def tumor_ternaryPlot():
     return tumor_app('ternaryPlot', rPath, sort_pheatmap, output_postfix='png')
 
 
+@app.route('/tumor/signature/', methods=['GET', 'POST'])
+def tumor_signature():
+    rPath = '/public/jingdu/zss/Rscript-zss/app/signature/deconstructSig_new.R'
+    def sort_pheatmap(rq, r_path, output, result_dir, t):
+        input_file1 = sort_app_file('input1', 'input_file1', result_dir, t)
+        dir1 = os.path.dirname(input_file1)
+        BSg_type = rq.get('BSg_type')
+        cmd = 'Rscript %s %s %s %s' % (
+            r_path,
+            input_file1,
+            result_dir,
+            BSg_type
+        )
+        return cmd, [dir1]
+    return tumor_app(
+        'signature', rPath, sort_pheatmap, output_postfix='pdf',
+        order1='-it',
+        bio='bc_deconstructsigs /bin/bash'
+    )
+
+
 @app.route('/tumor/siRNA/', methods=['GET', 'POST'])
 def tumor_siRNA():
     rPath = '/data/siRNA/run_siRNA_auto.sh'
@@ -546,7 +567,7 @@ def sort_app_file(key, file_key, result_dir, t):
     return input_file1
 
 
-def tumor_app(app_name, r_path, sort_func, output_postfix='txt'):
+def tumor_app(app_name, r_path, sort_func, output_postfix='txt', order1='--rm', bio='bio_r'):
     env_key = 'AY_USER_DATA_DIR'
     conf = read_conf()
     if isinstance(conf, str):
@@ -569,10 +590,10 @@ def tumor_app(app_name, r_path, sort_func, output_postfix='txt'):
         cmd_dev, dirs = sort_func(rq, r_path, output, output_dir, t)
         dirs += [output_dir, r_dir]
         # docker run -rm -v data_dir:/data -w /data bio_r
-        cmd = 'docker run --rm'
+        cmd = 'docker run %s' % order1
         for i in list(set(dirs)):
             cmd += ' -v %s:%s' % (i, i)
-        cmd += ' bio_r '
+        cmd += ' %s ' % bio
         if env and env.startswith('Development'):
             cmd = ''
         cmd += cmd_dev
