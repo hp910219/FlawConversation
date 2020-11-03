@@ -533,7 +533,7 @@ def tumor_signature():
             r_path,
             input_file1,
             sample_ids,
-            result_dir,
+            os.path.dirname(output),
             BSg_type
         )
         return cmd, [dir1]
