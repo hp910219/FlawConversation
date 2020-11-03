@@ -538,7 +538,10 @@ def tumor_signature():
         )
         return cmd, [dir1]
     return tumor_app(
-        'signature', rPath, sort_pheatmap, output_postfix='pdf',
+        'signature',
+        rPath,
+        sort_pheatmap,
+        output_postfix='pdf',
         order1='-it',
         bio='bc_deconstructsigs /bin/bash'
     )
