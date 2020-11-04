@@ -8,7 +8,7 @@ import traceback
 
 from flask import jsonify, request, render_template, send_from_directory, redirect
 from config import read_conf
-from jy_word.web_tool import send_msg_by_dd, format_time
+from jy_word.web_tool import send_msg_by_dd, format_time, zip_dir
 from jy_word.File import File
 from jy_word.Word import pic_b64encode
 
@@ -533,7 +533,7 @@ def tumor_signature():
             r_path,
             input_file1,
             sample_ids,
-            os.path.dirname(output),
+            output[:-4],
             BSg_type
         )
         return cmd, [dir1]
@@ -541,8 +541,7 @@ def tumor_signature():
         'signature',
         rPath,
         sort_pheatmap,
-        output_postfix='pdf',
-        # order1='-it',
+        output_postfix='zip',
         bio='bc_deconstructsigs'
     )
 
@@ -639,7 +638,20 @@ def tumor_app(app_name, r_path, sort_func, output_postfix='txt', order1='--rm', 
             'add_time': t,
         })
 
+        fileDir = output[:-4]
         # print app.logger.error()
+        # # demo signature zip start
+        # os.makedirs(fileDir)
+        # for i in range(3):
+        #     fp = open(os.path.join(fileDir, '%s.txt' % i), 'w+')
+        #     fp.write('sdfdgkdfjgk%s' % i)
+        #     fp.close()
+        # # demo signature zip end
+
+        while True:
+            zipStatus = zip_dir('', fileDir, output)
+            if zipStatus == 5:
+                break
 
         if os.path.exists(output):
             # data = my_file.read(output)
