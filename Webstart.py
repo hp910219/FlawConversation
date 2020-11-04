@@ -601,6 +601,11 @@ def tumor_app(app_name, r_path, sort_func, output_postfix='txt', order1='--rm', 
         if env and env.startswith('Development'):
             cmd = ''
         cmd += cmd_dev
+        fileDir = output[:-4]
+        isZip = output_postfix == 'zip'
+        if isZip:
+            if os.path.exists(fileDir) is False:
+                os.makedirs(fileDir)
         try:
             code = os.system(cmd)
             # print code, t
@@ -638,7 +643,7 @@ def tumor_app(app_name, r_path, sort_func, output_postfix='txt', order1='--rm', 
             'add_time': t,
         })
 
-        fileDir = output[:-4]
+
         # print app.logger.error()
         # # demo signature zip start
         # os.makedirs(fileDir)
@@ -647,11 +652,11 @@ def tumor_app(app_name, r_path, sort_func, output_postfix='txt', order1='--rm', 
         #     fp.write('sdfdgkdfjgk%s' % i)
         #     fp.close()
         # # demo signature zip end
-
-        while True:
-            zipStatus = zip_dir('', fileDir, output)
-            if zipStatus == 5:
-                break
+        if isZip:
+            while True:
+                zipStatus = zip_dir('', fileDir, output)
+                if zipStatus == 5:
+                    break
 
         if os.path.exists(output):
             # data = my_file.read(output)
