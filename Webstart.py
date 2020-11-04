@@ -542,7 +542,7 @@ def tumor_signature():
         rPath,
         sort_pheatmap,
         output_postfix='pdf',
-        order1='-it',
+        # order1='-it',
         bio='bc_deconstructsigs /bin/bash'
     )
 
