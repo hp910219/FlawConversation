@@ -590,7 +590,7 @@ def tumor_app(app_name, r_path, sort_func, output_postfix='txt', order1='--rm', 
     if request.method == 'POST':
         rq = request.json
         output_file = '%s.output.%s.%s' % (app_name, t, output_postfix)
-        output = os.path.join(output_dir, output_file)
+        output = output_dir.rstrip('/') + '/' + output_file
         cmd_dev, dirs = sort_func(rq, r_path, output, output_dir, t)
         dirs += [output_dir, r_dir]
         # docker run -rm -v data_dir:/data -w /data bio_r
