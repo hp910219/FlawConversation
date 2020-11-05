@@ -1,0 +1,89 @@
+node1	node2	value
+Slippery pulse	Mangxiao	1
+Fever	Mangxiao	1
+Red Tongue	Mangxiao	1
+Less defecation	Dangshen	0.693877551020408
+Elongation of defecation time	Dangshen	0.637931034482759
+Dry Mouth	Mangxiao	1
+Rapid pulse	Mangxiao	0.909090909090909
+Halitosis	Mangxiao	1
+Halitosis	Muxiang	0.684210526315789
+Slight yellow fur	Mangxiao	0.903225806451613
+Slight yellow fur	Dangshen	0.612903225806452
+Red Complexion	Mangxiao	1
+Red Complexion	Muxiang	0.678571428571429
+Dry coating	Mangxiao	1
+Dry coating	Muxiang	0.727272727272727
+Insomnia	Mangxiao	0.818181818181818
+Insomnia	Shengdi	0.727272727272727
+Insomnia	Xuanshen	0.727272727272727
+Insomnia	Baizhu	0.818181818181818
+Thready pulse	Mangxiao	0.75
+Thready pulse	Shengdi	0.75
+Thready pulse	Xuanshen	0.75
+Thready pulse	Baizhu	0.75
+Vexation	Mangxiao	0.666666666666667
+Vexation	Dangshen	0.666666666666667
+Vexation	Muxiang	0.666666666666667
+Vexation	Baizhu	0.666666666666667
+Clearing damp	Dangshen	0.666666666666667
+Borborygmus	Muxiang	0.8
+Borborygmus	Laifuzi	0.8
+FOBT positive	Mangxiao	0.720930232558139
+White and greasy fur	Chaihu	1
+White and greasy fur	Muxiang	0.8
+White and greasy fur	Laifuzi	1
+Abdominal pain	Mangxiao	0.612903225806452
+Abdominal pain	Muxiang	0.806451612903226
+Chordal pulse	Chaihu	0.8
+Chordal pulse	Muxiang	1
+Chordal pulse	Laifuzi	1
+Lumbar Debility	Dangshen	0.777777777777778
+Urine yellow	Mangxiao	1
+Urine yellow	Dangshen	0.8
+Urine yellow	Diyu	0.8
+Sweat	Dangshen	1
+Sweat	Huangqi	0.8
+Urodynia	Mangxiao	1
+Urodynia	Dangshen	0.8
+Urodynia	Diyu	0.8
+Thin tongue	Chaihu	1
+Thin tongue	Muxiang	1
+Thin tongue	Laifuzi	1
+Fatigue	Dangshen	0.892857142857143
+Fatigue	Muxiang	0.678571428571429
+Urgent Micturition	Mangxiao	1
+Frequent Micturition	Mangxiao	1
+Frequent Micturition	Dangshen	0.666666666666667
+Oliguria	Mangxiao	1
+Oliguria	Shengdi	1
+Oliguria	Xuanshen	1
+Tinnitus	Mangxiao	0.666666666666667
+Tinnitus	Dangshen	1
+Tinnitus	Muxiang	0.666666666666667
+Tinnitus	Huangqi	0.666666666666667
+Tinnitus	Baizhu	0.666666666666667
+Dark red tongue	Dangshen	1
+Vexation，Insomnia	Shengdi	1
+Vexation，Insomnia	Xuanshen	1
+Vexation，Insomnia	Chaihu	1
+Fissured tongue	Mangxiao	1
+Fissured tongue	Muxiang	1
+Plump and Tooth-marked tongue	Mangxiao	1
+Plump and Tooth-marked tongue	Chaihu	1
+Plump and Tooth-marked tongue	Sharen	1
+Plump and Tooth-marked tongue	Laifuzi	1
+bdominal distension	Mangxiao	1
+bdominal distension	Shengdi	1
+bdominal distension	Xuanshen	1
+bdominal distension	Dangshen	1
+bdominal distension	Muxiang	1
+bdominal distension	Huangqi	1
+bdominal distension	Baizhu	1
+rapid pulse	Mangxiao	1
+rapid pulse	Shengdi	1
+rapid pulse	Xuanshen	1
+rapid pulse	Dangshen	1
+rapid pulse	Muxiang	1
+rapid pulse	Huangqi	1
+rapid pulse	Baizhu	1
