@@ -1,0 +1,373 @@
+node1	node2	value
+Human cytomegalovirus infection	Pathways in cancer	0.454545455
+Human immunodeficiency virus 1 infection	Human cytomegalovirus infection	0.538461538
+Chemokine signaling pathway	Human cytomegalovirus infection	0.485714286
+Glutamatergic synapse	Circadian entrainment	0.592592593
+Cholinergic synapse	Circadian entrainment	0.615384615
+Oxytocin signaling pathway	Circadian entrainment	0.482758621
+Adrenergic signaling in cardiomyocytes	Circadian entrainment	0.464285714
+Melanogenesis	Circadian entrainment	0.5
+Long-term potentiation	Circadian entrainment	0.48
+Glutamatergic synapse	Retrograde endocannabinoid signaling	0.517241379
+"Parathyroid hormone synthesis, secretion and action"	Gap junction	0.458333333
+Phospholipase D signaling pathway	Gap junction	0.526315789
+Cholinergic synapse	Glutamatergic synapse	0.5
+Long-term potentiation	Glutamatergic synapse	0.47826087
+Cholinergic synapse	Relaxin signaling pathway	0.5
+Chemokine signaling pathway	Relaxin signaling pathway	0.461538462
+Oxytocin signaling pathway	Cholinergic synapse	0.56
+Cushing syndrome	Cholinergic synapse	0.461538462
+Melanogenesis	Cholinergic synapse	0.590909091
+"Parathyroid hormone synthesis, secretion and action"	Cholinergic synapse	0.590909091
+Long-term depression	Cholinergic synapse	0.454545455
+GnRH signaling pathway	Oxytocin signaling pathway	0.48
+Adrenergic signaling in cardiomyocytes	Oxytocin signaling pathway	0.461538462
+Melanogenesis	Oxytocin signaling pathway	0.565217391
+"Parathyroid hormone synthesis, secretion and action"	Oxytocin signaling pathway	0.565217391
+Morphine addiction	GABAergic synapse	0.666666667
+Vascular smooth muscle contraction	GnRH signaling pathway	0.47826087
+Inflammatory mediator regulation of TRP channels	GnRH signaling pathway	0.45
+Melanogenesis	Cushing syndrome	0.52173913
+"Parathyroid hormone synthesis, secretion and action"	Cushing syndrome	0.458333333
+"Parathyroid hormone synthesis, secretion and action"	cGMP-PKG signaling pathway	0.458333333
+Vascular smooth muscle contraction	cGMP-PKG signaling pathway	0.565217391
+Glioma	Hepatocellular carcinoma	0.523809524
+Breast cancer	Hepatocellular carcinoma	0.545454545
+Prostate cancer	Hepatocellular carcinoma	0.454545455
+Non-small cell lung cancer	Hepatocellular carcinoma	0.5
+Chronic myeloid leukemia	Hepatocellular carcinoma	0.45
+Gastric cancer	Hepatocellular carcinoma	0.55
+ErbB signaling pathway	Endocrine resistance	0.5
+Colorectal cancer	Endocrine resistance	0.578947368
+Breast cancer	Endocrine resistance	0.55
+Choline metabolism in cancer	Endocrine resistance	0.45
+Pancreatic cancer	Endocrine resistance	0.5
+Focal adhesion	Endocrine resistance	0.476190476
+Prolactin signaling pathway	Endocrine resistance	0.470588235
+Progesterone-mediated oocyte maturation	Endocrine resistance	0.470588235
+Melanogenesis	Adrenergic signaling in cardiomyocytes	0.47826087
+Aldosterone synthesis and secretion	Adrenergic signaling in cardiomyocytes	0.454545455
+Rap1 signaling pathway	Melanogenesis	0.565217391
+"Parathyroid hormone synthesis, secretion and action"	Melanogenesis	0.523809524
+Long-term potentiation	Melanogenesis	0.5
+Long-term depression	Melanogenesis	0.45
+Gastric acid secretion	Melanogenesis	0.473684211
+Viral carcinogenesis	Hepatitis C	0.5
+Long-term depression	"Parathyroid hormone synthesis, secretion and action"	0.45
+Aldosterone synthesis and secretion	Vascular smooth muscle contraction	0.476190476
+Calcium signaling pathway	Long-term potentiation	0.454545455
+ErbB signaling pathway	Hepatitis B	0.454545455
+Colorectal cancer	Hepatitis B	0.454545455
+Choline metabolism in cancer	Hepatitis B	0.476190476
+Osteoclast differentiation	Hepatitis B	0.523809524
+TNF signaling pathway	Hepatitis B	0.55
+Yersinia infection	Hepatitis B	0.45
+IL-17 signaling pathway	Hepatitis B	0.473684211
+T cell receptor signaling pathway	Hepatitis B	0.555555556
+Toll-like receptor signaling pathway	Hepatitis B	0.5
+Colorectal cancer	ErbB signaling pathway	0.473684211
+Choline metabolism in cancer	ErbB signaling pathway	0.588235294
+Focal adhesion	ErbB signaling pathway	0.526315789
+Fc epsilon RI signaling pathway	ErbB signaling pathway	0.466666667
+Breast cancer	Colorectal cancer	0.611111111
+Choline metabolism in cancer	Colorectal cancer	0.5
+FoxO signaling pathway	Colorectal cancer	0.473684211
+Pancreatic cancer	Colorectal cancer	0.5625
+Focal adhesion	Colorectal cancer	0.45
+Gastric cancer	Colorectal cancer	0.529411765
+Prolactin signaling pathway	Colorectal cancer	0.533333333
+T cell receptor signaling pathway	Colorectal cancer	0.5
+Endometrial cancer	Colorectal cancer	0.571428571
+Thyroid cancer	Colorectal cancer	0.5
+Aldosterone synthesis and secretion	Insulin secretion	0.647058824
+Thyroid hormone synthesis	Insulin secretion	0.5
+Salivary secretion	Insulin secretion	0.5
+Pancreatic secretion	Insulin secretion	0.5
+Cortisol synthesis and secretion	Insulin secretion	0.466666667
+TNF signaling pathway	Apoptosis	0.526315789
+Yersinia infection	Apoptosis	0.5
+IL-17 signaling pathway	Apoptosis	0.529411765
+T cell receptor signaling pathway	Apoptosis	0.529411765
+Toll-like receptor signaling pathway	Apoptosis	0.5625
+Breast cancer	Glioma	0.473684211
+Non-small cell lung cancer	Glioma	0.714285714
+Chronic myeloid leukemia	Glioma	0.533333333
+Gastric cancer	Glioma	0.470588235
+Melanoma	Glioma	0.571428571
+Endometrial cancer	Glioma	0.5
+Cellular senescence	Glioma	0.5
+Gastric acid secretion	Aldosterone synthesis and secretion	0.529411765
+Inflammatory mediator regulation of TRP channels	Aldosterone synthesis and secretion	0.529411765
+Thyroid hormone synthesis	Aldosterone synthesis and secretion	0.5
+Salivary secretion	Aldosterone synthesis and secretion	0.5
+Cortisol synthesis and secretion	Aldosterone synthesis and secretion	0.571428571
+Pertussis	Chagas disease (American trypanosomiasis)	0.470588235
+Yersinia infection	Chagas disease (American trypanosomiasis)	0.470588235
+IL-17 signaling pathway	Chagas disease (American trypanosomiasis)	0.5
+T cell receptor signaling pathway	Chagas disease (American trypanosomiasis)	0.5
+Toll-like receptor signaling pathway	Chagas disease (American trypanosomiasis)	0.533333333
+Natural killer cell mediated cytotoxicity	@@VEGF signaling pathway	0.454545455
+Fc gamma R-mediated phagocytosis	@@VEGF signaling pathway	0.555555556
+Prostate cancer	Breast cancer	0.473684211
+Chronic myeloid leukemia	Breast cancer	0.470588235
+Gastric cancer	Breast cancer	0.8
+Melanoma	Breast cancer	0.6
+Endometrial cancer	Breast cancer	0.533333333
+Thyroid cancer	Breast cancer	0.466666667
+Signaling pathways regulating pluripotency of stem cells	Breast cancer	0.5
+T cell receptor signaling pathway	Neurotrophin signaling pathway	0.5
+Chronic myeloid leukemia	Prostate cancer	0.533333333
+Gastric cancer	Prostate cancer	0.470588235
+Melanoma	Prostate cancer	0.466666667
+Endometrial cancer	Prostate cancer	0.5
+Inflammatory mediator regulation of TRP channels	Gastric acid secretion	0.5
+Thyroid hormone synthesis	Gastric acid secretion	0.466666667
+Salivary secretion	Gastric acid secretion	0.571428571
+Pancreatic secretion	Gastric acid secretion	0.571428571
+Endocrine and other factor-regulated calcium reabsorption	Gastric acid secretion	0.461538462
+Focal adhesion	Choline metabolism in cancer	0.473684211
+Prolactin signaling pathway	Choline metabolism in cancer	0.466666667
+T cell receptor signaling pathway	Choline metabolism in cancer	0.533333333
+Fc epsilon RI signaling pathway	Choline metabolism in cancer	0.5
+Toll-like receptor signaling pathway	Choline metabolism in cancer	0.466666667
+PD-L1 expression and PD-1 checkpoint pathway in cancer	Choline metabolism in cancer	0.5
+Salmonella infection	Choline metabolism in cancer	0.461538462
+TNF signaling pathway	Osteoclast differentiation	0.588235294
+Yersinia infection	Osteoclast differentiation	0.5625
+IL-17 signaling pathway	Osteoclast differentiation	0.6
+T cell receptor signaling pathway	Osteoclast differentiation	0.714285714
+C-type lectin receptor signaling pathway	Osteoclast differentiation	0.5
+Fc epsilon RI signaling pathway	Osteoclast differentiation	0.466666667
+Toll-like receptor signaling pathway	Osteoclast differentiation	0.642857143
+B cell receptor signaling pathway	Osteoclast differentiation	0.571428571
+Fc gamma R-mediated phagocytosis	EGFR tyrosine kinase inhibitor resistance	0.461538462
+Non-small cell lung cancer	FoxO signaling pathway	0.470588235
+Pancreatic cancer	FoxO signaling pathway	0.470588235
+Endometrial cancer	FoxO signaling pathway	0.466666667
+Pertussis	TNF signaling pathway	0.5
+Yersinia infection	TNF signaling pathway	0.6
+IL-17 signaling pathway	TNF signaling pathway	0.642857143
+T cell receptor signaling pathway	TNF signaling pathway	0.642857143
+Th1 and Th2 cell differentiation	TNF signaling pathway	0.466666667
+Toll-like receptor signaling pathway	TNF signaling pathway	0.692307692
+Salmonella infection	TNF signaling pathway	0.461538462
+Pancreatic cancer	Non-small cell lung cancer	0.466666667
+Chronic myeloid leukemia	Non-small cell lung cancer	0.615384615
+Gastric cancer	Non-small cell lung cancer	0.533333333
+Melanoma	Non-small cell lung cancer	0.538461538
+Endometrial cancer	Non-small cell lung cancer	0.583333333
+Thyroid cancer	Non-small cell lung cancer	0.5
+Cellular senescence	Non-small cell lung cancer	0.466666667
+Bladder cancer	Non-small cell lung cancer	0.5
+Chronic myeloid leukemia	Pancreatic cancer	0.615384615
+Gastric cancer	Pancreatic cancer	0.533333333
+Melanoma	Pancreatic cancer	0.538461538
+Endometrial cancer	Pancreatic cancer	0.461538462
+Thyroid cancer	Pancreatic cancer	0.5
+Cellular senescence	Pancreatic cancer	0.466666667
+Bladder cancer	Pancreatic cancer	0.5
+Salivary secretion	Inflammatory mediator regulation of TRP channels	0.466666667
+Yersinia infection	Pertussis	0.466666667
+IL-17 signaling pathway	Pertussis	0.615384615
+T cell receptor signaling pathway	Pertussis	0.5
+C-type lectin receptor signaling pathway	Pertussis	0.5
+Toll-like receptor signaling pathway	Pertussis	0.538461538
+Salmonella infection	Pertussis	0.545454545
+African trypanosomiasis	Amoebiasis	0.454545455
+Oxidative phosphorylation	Thermogenesis	0.470588235
+Salivary secretion	Thyroid hormone synthesis	0.538461538
+Pancreatic secretion	Thyroid hormone synthesis	0.538461538
+Endocrine and other factor-regulated calcium reabsorption	Thyroid hormone synthesis	0.545454545
+Gastric cancer	Chronic myeloid leukemia	0.571428571
+Melanoma	Chronic myeloid leukemia	0.583333333
+Endometrial cancer	Chronic myeloid leukemia	0.636363636
+Thyroid cancer	Chronic myeloid leukemia	0.545454545
+Cellular senescence	Chronic myeloid leukemia	0.5
+Bladder cancer	Chronic myeloid leukemia	0.545454545
+Small cell lung cancer	Chronic myeloid leukemia	0.461538462
+C-type lectin receptor signaling pathway	NOD-like receptor signaling pathway	0.533333333
+Toll-like receptor signaling pathway	NOD-like receptor signaling pathway	0.466666667
+Shigellosis	NOD-like receptor signaling pathway	0.461538462
+Oxidative phosphorylation	Non-alcoholic fatty liver disease (NAFLD)	0.466666667
+Melanoma	Gastric cancer	0.615384615
+Endometrial cancer	Gastric cancer	0.666666667
+Thyroid cancer	Gastric cancer	0.583333333
+Bladder cancer	Gastric cancer	0.461538462
+Signaling pathways regulating pluripotency of stem cells	Gastric cancer	0.5
+Pancreatic secretion	Salivary secretion	0.666666667
+Endocrine and other factor-regulated calcium reabsorption	Salivary secretion	0.545454545
+IL-17 signaling pathway	Yersinia infection	0.615384615
+T cell receptor signaling pathway	Yersinia infection	0.75
+C-type lectin receptor signaling pathway	Yersinia infection	0.5
+Th17 cell differentiation	Yersinia infection	0.5
+Th1 and Th2 cell differentiation	Yersinia infection	0.538461538
+Fc epsilon RI signaling pathway	Yersinia infection	0.461538462
+Toll-like receptor signaling pathway	Yersinia infection	0.818181818
+Leishmaniasis	Yersinia infection	0.461538462
+B cell receptor signaling pathway	Yersinia infection	0.461538462
+PD-L1 expression and PD-1 checkpoint pathway in cancer	Yersinia infection	0.461538462
+Salmonella infection	Yersinia infection	0.545454545
+T cell receptor signaling pathway	IL-17 signaling pathway	0.666666667
+C-type lectin receptor signaling pathway	IL-17 signaling pathway	0.538461538
+Th17 cell differentiation	IL-17 signaling pathway	0.538461538
+Th1 and Th2 cell differentiation	IL-17 signaling pathway	0.583333333
+Toll-like receptor signaling pathway	IL-17 signaling pathway	0.727272727
+Leishmaniasis	IL-17 signaling pathway	0.5
+Shigellosis	IL-17 signaling pathway	0.454545455
+Salmonella infection	IL-17 signaling pathway	0.6
+T cell receptor signaling pathway	Prolactin signaling pathway	0.583333333
+Fc epsilon RI signaling pathway	Prolactin signaling pathway	0.545454545
+Toll-like receptor signaling pathway	Prolactin signaling pathway	0.5
+Salmonella infection	Prolactin signaling pathway	0.5
+Endocrine and other factor-regulated calcium reabsorption	Pancreatic secretion	0.545454545
+Endometrial cancer	Melanoma	0.545454545
+Thyroid cancer	Melanoma	0.6
+Cellular senescence	Melanoma	0.538461538
+Bladder cancer	Melanoma	0.6
+C-type lectin receptor signaling pathway	T cell receptor signaling pathway	0.538461538
+Th17 cell differentiation	T cell receptor signaling pathway	0.538461538
+Th1 and Th2 cell differentiation	T cell receptor signaling pathway	0.583333333
+Fc epsilon RI signaling pathway	T cell receptor signaling pathway	0.636363636
+Toll-like receptor signaling pathway	T cell receptor signaling pathway	0.9
+Leishmaniasis	T cell receptor signaling pathway	0.5
+B cell receptor signaling pathway	T cell receptor signaling pathway	0.636363636
+PD-L1 expression and PD-1 checkpoint pathway in cancer	T cell receptor signaling pathway	0.5
+Shigellosis	T cell receptor signaling pathway	0.454545455
+Salmonella infection	T cell receptor signaling pathway	0.6
+Th1 and Th2 cell differentiation	C-type lectin receptor signaling pathway	0.461538462
+Toll-like receptor signaling pathway	C-type lectin receptor signaling pathway	0.583333333
+Shigellosis	C-type lectin receptor signaling pathway	0.454545455
+Salmonella infection	C-type lectin receptor signaling pathway	0.454545455
+Th1 and Th2 cell differentiation	Th17 cell differentiation	0.9
+Toll-like receptor signaling pathway	Th17 cell differentiation	0.583333333
+Leishmaniasis	Th17 cell differentiation	0.636363636
+PD-L1 expression and PD-1 checkpoint pathway in cancer	Th17 cell differentiation	0.5
+Shigellosis	Th17 cell differentiation	0.454545455
+Salmonella infection	Th17 cell differentiation	0.6
+Thyroid cancer	Endometrial cancer	0.875
+Cellular senescence	Endometrial cancer	0.461538462
+Bladder cancer	Endometrial cancer	0.5
+Renal cell carcinoma	Endometrial cancer	0.454545455
+Cellular senescence	Thyroid cancer	0.5
+Bladder cancer	Thyroid cancer	0.555555556
+Bladder cancer	Cellular senescence	0.5
+Toll-like receptor signaling pathway	Th1 and Th2 cell differentiation	0.636363636
+Leishmaniasis	Th1 and Th2 cell differentiation	0.7
+Shigellosis	Th1 and Th2 cell differentiation	0.5
+Salmonella infection	Th1 and Th2 cell differentiation	0.666666667
+p53 signaling pathway	Small cell lung cancer	0.5
+Renin secretion	Cortisol synthesis and secretion	0.454545455
+Toll-like receptor signaling pathway	Fc epsilon RI signaling pathway	0.545454545
+Natural killer cell mediated cytotoxicity	Fc epsilon RI signaling pathway	0.545454545
+B cell receptor signaling pathway	Renal cell carcinoma	0.454545455
+PD-L1 expression and PD-1 checkpoint pathway in cancer	Renal cell carcinoma	0.454545455
+Central carbon metabolism in cancer	Renal cell carcinoma	0.555555556
+Leishmaniasis	Toll-like receptor signaling pathway	0.545454545
+B cell receptor signaling pathway	Toll-like receptor signaling pathway	0.545454545
+PD-L1 expression and PD-1 checkpoint pathway in cancer	Toll-like receptor signaling pathway	0.545454545
+Shigellosis	Toll-like receptor signaling pathway	0.5
+Salmonella infection	Toll-like receptor signaling pathway	0.666666667
+B cell receptor signaling pathway	Leishmaniasis	0.454545455
+PD-L1 expression and PD-1 checkpoint pathway in cancer	Leishmaniasis	0.454545455
+Rheumatoid arthritis	Leishmaniasis	0.454545455
+Inflammatory bowel disease (IBD)	Leishmaniasis	0.5
+Carbon metabolism	Biosynthesis of amino acids	0.888888889
+Glycolysis / Gluconeogenesis	Biosynthesis of amino acids	0.875
+Adipocytokine signaling pathway	Insulin resistance	0.5
+African trypanosomiasis	Endocrine and other factor-regulated calcium reabsorption	0.5
+PD-L1 expression and PD-1 checkpoint pathway in cancer	B cell receptor signaling pathway	0.6
+Glycolysis / Gluconeogenesis	Carbon metabolism	0.777777778
+Inflammatory bowel disease (IBD)	Rheumatoid arthritis	0.5
+Fc gamma R-mediated phagocytosis	Natural killer cell mediated cytotoxicity	0.454545455
+Allograft rejection	Type I diabetes mellitus	0.666666667
+Graft-versus-host disease	Type I diabetes mellitus	0.666666667
+Autoimmune thyroid disease	Type I diabetes mellitus	0.5
+Systemic lupus erythematosus	Type I diabetes mellitus	0.5
+Allograft rejection	Asthma	0.5
+Graft-versus-host disease	Asthma	0.5
+Inflammatory bowel disease (IBD)	Asthma	0.5
+Systemic lupus erythematosus	Asthma	0.6
+Cytokine-cytokine receptor interaction	Viral protein interaction with cytokine and cytokine receptor	0.7
+Salmonella infection	Shigellosis	0.5
+RIG-I-like receptor signaling pathway	Adipocytokine signaling pathway	0.571428571
+Ovarian steroidogenesis	Longevity regulating pathway	0.5
+Allograft rejection	Viral myocarditis	0.5
+Graft-versus-host disease	Viral myocarditis	0.5
+Autoimmune thyroid disease	Viral myocarditis	0.6
+Graft-versus-host disease	Allograft rejection	1
+Hematopoietic cell lineage	Allograft rejection	0.5
+Inflammatory bowel disease (IBD)	Allograft rejection	0.6
+Autoimmune thyroid disease	Allograft rejection	0.75
+Systemic lupus erythematosus	Allograft rejection	0.75
+Hematopoietic cell lineage	Graft-versus-host disease	0.5
+Inflammatory bowel disease (IBD)	Graft-versus-host disease	0.6
+Autoimmune thyroid disease	Graft-versus-host disease	0.75
+Systemic lupus erythematosus	Graft-versus-host disease	0.75
+Hypertrophic cardiomyopathy (HCM)	Dilated cardiomyopathy (DCM)	0.6
+Inflammatory bowel disease (IBD)	Hematopoietic cell lineage	0.5
+Systemic lupus erythematosus	Hematopoietic cell lineage	0.6
+Vibrio cholerae infection	Collecting duct acid secretion	0.5
+Olfactory transduction	Phototransduction	0.5
+Systemic lupus erythematosus	Inflammatory bowel disease (IBD)	0.75
+Staphylococcus aureus infection	Autoimmune thyroid disease	0.5
+Systemic lupus erythematosus	Autoimmune thyroid disease	0.5
+Nitrogen metabolism	Proximal tubule bicarbonate reclamation	0.5
+Systemic lupus erythematosus	Staphylococcus aureus infection	0.5
+Drug metabolism - other enzymes	Drug metabolism - cytochrome P450	0.5
+Metabolism of xenobiotics by cytochrome P450	Drug metabolism - cytochrome P450	0.666666667
+Chemical carcinogenesis	Drug metabolism - cytochrome P450	0.666666667
+beta-Alanine metabolism	Butanoate metabolism	1
+"Alanine, aspartate and glutamate metabolism"	Butanoate metabolism	1
+Taurine and hypotaurine metabolism	Butanoate metabolism	0.5
+Propanoate metabolism	Butanoate metabolism	0.5
+"Valine, leucine and isoleucine degradation"	Butanoate metabolism	0.5
+Metabolism of xenobiotics by cytochrome P450	Drug metabolism - other enzymes	0.666666667
+Chemical carcinogenesis	Drug metabolism - other enzymes	0.666666667
+Glyoxylate and dicarboxylate metabolism	@@Pyruvate metabolism	0.5
+Citrate cycle (TCA cycle)	@@Pyruvate metabolism	0.5
+Pentose and glucuronate interconversions	Galactose metabolism	0.5
+Starch and sucrose metabolism	Galactose metabolism	0.5
+Glycerolipid metabolism	Galactose metabolism	0.5
+One carbon pool by folate	Antifolate resistance	0.5
+"Alanine, aspartate and glutamate metabolism"	beta-Alanine metabolism	1
+Taurine and hypotaurine metabolism	beta-Alanine metabolism	0.5
+Propanoate metabolism	beta-Alanine metabolism	0.5
+"Valine, leucine and isoleucine degradation"	beta-Alanine metabolism	0.5
+Taurine and hypotaurine metabolism	"Alanine, aspartate and glutamate metabolism"	0.5
+Propanoate metabolism	"Alanine, aspartate and glutamate metabolism"	0.5
+"Valine, leucine and isoleucine degradation"	"Alanine, aspartate and glutamate metabolism"	0.5
+Metabolism of xenobiotics by cytochrome P450	Caffeine metabolism	0.5
+Chemical carcinogenesis	Caffeine metabolism	0.5
+Retinol metabolism	Caffeine metabolism	1
+alpha-Linolenic acid metabolism	Ether lipid metabolism	0.5
+Linoleic acid metabolism	Ether lipid metabolism	0.5
+Fat digestion and absorption	Ether lipid metabolism	0.5
+Histidine metabolism	@@Phenylalanine metabolism	1
+"Glycine, serine and threonine metabolism"	@@Phenylalanine metabolism	1
+Tryptophan metabolism	@@Phenylalanine metabolism	1
+Arginine and proline metabolism	@@Phenylalanine metabolism	1
+Glyoxylate and dicarboxylate metabolism	Cysteine and methionine metabolism	0.5
+Citrate cycle (TCA cycle)	Cysteine and methionine metabolism	0.5
+alpha-Linolenic acid metabolism	@@Arachidonic acid metabolism	0.5
+Linoleic acid metabolism	@@Arachidonic acid metabolism	0.5
+Fat digestion and absorption	@@Arachidonic acid metabolism	0.5
+Chemical carcinogenesis	Metabolism of xenobiotics by cytochrome P450	1
+Retinol metabolism	Metabolism of xenobiotics by cytochrome P450	0.5
+Ribosome biogenesis in eukaryotes	RNA transport	0.666666667
+Retinol metabolism	Chemical carcinogenesis	0.5
+Autophagy - other	mRNA surveillance pathway	0.5
+alpha-Linolenic acid metabolism	Glycerophospholipid metabolism	0.5
+Linoleic acid metabolism	Glycerophospholipid metabolism	0.5
+Fat digestion and absorption	Glycerophospholipid metabolism	0.5
+"Glycine, serine and threonine metabolism"	Histidine metabolism	1
+Tryptophan metabolism	Histidine metabolism	1
+Arginine and proline metabolism	Histidine metabolism	1
+Linoleic acid metabolism	alpha-Linolenic acid metabolism	1
+Fat digestion and absorption	alpha-Linolenic acid metabolism	1
+Fat digestion and absorption	Linoleic acid metabolism	1
+Citrate cycle (TCA cycle)	Glyoxylate and dicarboxylate metabolism	1
+Glycerolipid metabolism	Pentose and glucuronate interconversions	1
+"Valine, leucine and isoleucine degradation"	Propanoate metabolism	1
+Tryptophan metabolism	"Glycine, serine and threonine metabolism"	1
+Arginine and proline metabolism	"Glycine, serine and threonine metabolism"	1
+Arginine and proline metabolism	Tryptophan metabolism	1

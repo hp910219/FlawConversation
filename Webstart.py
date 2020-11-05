@@ -646,8 +646,8 @@ def tumor_app(app_name, r_path, sort_func, output_postfix='txt', order1='--rm', 
 
         # print app.logger.error()
         # # demo signature zip start
-        # os.makedirs(fileDir)
         # for i in range(3):
+        #     os.makedirs(os.path.join(fileDir, 's%s' % i))
         #     fp = open(os.path.join(fileDir, '%s.txt' % i), 'w+')
         #     fp.write('sdfdgkdfjgk%s' % i)
         #     fp.close()
