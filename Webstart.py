@@ -529,12 +529,13 @@ def tumor_signature():
         dir1 = os.path.dirname(input_file1)
         BSg_type = rq.get('BSg_type')
         sample_ids = rq.get('sample_ids')
-        cmd = 'Rscript %s %s %s %s %s' % (
+        cmd = 'Rscript %s %s %s %s %s %s' % (
             r_path,
             input_file1,
+            os.path.join(result_dir, 'freq96.tsv'),
             sample_ids,
+            BSg_type,
             output[:-4],
-            BSg_type
         )
         return cmd, [dir1]
     return tumor_app(
@@ -893,9 +894,12 @@ def get_file_content():
     data = my_file.read(path)
     try:
         encoding = chardet.detect(data[0])['encoding']
+        # print encoding
         data = data.decode(encoding, 'ignore').encode('utf-8')
     except:
         traceback.print_exc()
+    # print data
+
     return jsonify({'message': 'success', 'data': data, 'file_path': path})
 
 
