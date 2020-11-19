@@ -1000,5 +1000,6 @@ if __name__ == '__main__':
 
     update_static(os.path.join(project_dir, 'TCM'))
     update_static(os.path.join(project_dir, 'KOBASWeb'), 'kobars')
+    update_static(os.path.join(project_dir, 'ncFANs'), 'ncFANs')
     # shutil.copytree(r'D:\pythonproject\KOBARSWeb\dist', r'D:\pythonproject\TCMWeb\templates\kobars')
     app.run(host=host_ip, port=port)
