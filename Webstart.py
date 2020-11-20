@@ -528,12 +528,11 @@ def tumor_signature():
         input_file1 = sort_app_file('input1', 'input_file1', result_dir, t)
         dir1 = os.path.dirname(input_file1)
         BSg_type = rq.get('BSg_type')
-        sample_ids = rq.get('sample_ids')
+        # sample_ids = rq.get('sample_ids')
         cmd = 'Rscript %s %s %s %s %s %s' % (
             r_path,
             input_file1,
-            os.path.join(result_dir, 'freq96.tsv'),
-            sample_ids,
+            'freq96.tsv',
             BSg_type,
             output[:-4],
         )
