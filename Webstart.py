@@ -606,6 +606,7 @@ def tumor_app(app_name, r_path, sort_func, output_postfix='txt', order1='--rm', 
         if isZip:
             if os.path.exists(fileDir) is False:
                 os.makedirs(fileDir)
+        print cmd
         try:
             code = os.system(cmd)
             # print code, t
