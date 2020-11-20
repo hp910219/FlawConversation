@@ -529,14 +529,15 @@ def tumor_signature():
         dir1 = os.path.dirname(input_file1)
         BSg_type = rq.get('BSg_type')
         # sample_ids = rq.get('sample_ids')
-        cmd = 'sh %s %s %s %s %s' % (
+        cmd = 'sh %s %s %s %s %s %s' % (
             r_path,
             input_file1,
             'freq96.tsv',
             BSg_type,
             output[:-4],
+            rPath
         )
-        return cmd, [dir1]
+        return cmd, [dir1, os.path.dirname(rPath)]
     return tumor_app(
         'signature',
         rPath,
