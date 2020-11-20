@@ -524,6 +524,7 @@ def tumor_ternaryPlot():
 @app.route('/tumor/signature/', methods=['GET', 'POST'])
 def tumor_signature():
     rPath = '/public/jingdu/zss/Rscript-zss/app/signature/new/run_signature96_auto.sh'
+    rPathDir = os.path.dirname(rPath)
     def sort_pheatmap(rq, r_path, output, result_dir, t):
         input_file1 = sort_app_file('input1', 'input_file1', result_dir, t)
         dir1 = os.path.dirname(input_file1)
@@ -535,9 +536,9 @@ def tumor_signature():
             'freq96.tsv',
             BSg_type,
             output[:-4],
-            rPath
+            rPathDir
         )
-        return cmd, [dir1, os.path.dirname(rPath)]
+        return cmd, [dir1, rPathDir]
     return tumor_app(
         'signature',
         rPath,
@@ -665,7 +666,11 @@ def tumor_app(app_name, r_path, sort_func, output_postfix='txt', order1='--rm', 
 
         if os.path.exists(output):
             # data = my_file.read(output)
-            return jsonify({'data': {'file_path': output, 'dir': output_dir, 'file_name': output_file}, 'message': 'success', 'status': 100001})
+            return jsonify({'data': {
+                'file_path': output, 'dir': output_dir, 'file_name': output_file,
+                'cmd': cmd,
+                'msg': msg
+            }, 'message': 'success', 'status': 100001})
         return jsonify({'message': u'输出文件生成失败: %s' % msg, 'cmd': cmd})
     return jsonify({'data': items, 'message': 'success'})
 
