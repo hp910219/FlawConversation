@@ -523,13 +523,13 @@ def tumor_ternaryPlot():
 
 @app.route('/tumor/signature/', methods=['GET', 'POST'])
 def tumor_signature():
-    rPath = '/public/jingdu/zss/Rscript-zss/app/signature/deconstructSig_new.R'
+    rPath = '/public/jingdu/zss/Rscript-zss/app/signature/new/run_signature96_auto.sh'
     def sort_pheatmap(rq, r_path, output, result_dir, t):
         input_file1 = sort_app_file('input1', 'input_file1', result_dir, t)
         dir1 = os.path.dirname(input_file1)
         BSg_type = rq.get('BSg_type')
         # sample_ids = rq.get('sample_ids')
-        cmd = 'Rscript %s %s %s %s %s' % (
+        cmd = 'sh %s %s %s %s %s' % (
             r_path,
             input_file1,
             'freq96.tsv',
