@@ -529,7 +529,7 @@ def tumor_signature():
         dir1 = os.path.dirname(input_file1)
         BSg_type = rq.get('BSg_type')
         # sample_ids = rq.get('sample_ids')
-        cmd = 'Rscript %s %s %s %s %s %s' % (
+        cmd = 'Rscript %s %s %s %s %s' % (
             r_path,
             input_file1,
             'freq96.tsv',
@@ -638,6 +638,8 @@ def tumor_app(app_name, r_path, sort_func, output_postfix='txt', order1='--rm', 
         except Exception, e:
             # traceback.print_exc()
             msg = cmd + traceback.format_exc()
+            if isZip:
+                os.removedirs(fileDir)
         rq.update({
             'output': output,
             'add_time': t,
@@ -652,7 +654,7 @@ def tumor_app(app_name, r_path, sort_func, output_postfix='txt', order1='--rm', 
         #     fp.write('sdfdgkdfjgk%s' % i)
         #     fp.close()
         # # demo signature zip end
-        if isZip:
+        if isZip and os.path.exists(fileDir):
             while True:
                 zipStatus = zip_dir('', fileDir, output)
                 if zipStatus == 5:
