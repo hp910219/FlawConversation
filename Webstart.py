@@ -634,12 +634,13 @@ def tumor_app(app_name, r_path, sort_func, output_postfix='txt', order1='--rm', 
                 except Exception, e:
                     print 'Exception', e
                     msg = traceback.format_exc()
+                    send_msg_by_dd('app\n\n%s' % msg)
+                    if isZip:
+                        os.removedirs(fileDir)
                     # msg = traceback.format_exc()
         except Exception, e:
             # traceback.print_exc()
             msg = cmd + traceback.format_exc()
-            if isZip:
-                os.removedirs(fileDir)
         rq.update({
             'output': output,
             'add_time': t,
