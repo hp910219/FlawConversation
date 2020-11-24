@@ -447,6 +447,7 @@ def write_item(item):
             paras += item2.get('para')
             imgs += item2.get('imgs')
             files += item2.get('files')
+
         return {
             'para': paras,
             'imgs': imgs,
@@ -510,7 +511,7 @@ def sort_jingan_data(data):
     chapters = ''
     diagnosis = data.get('diagnosis')
     patient_detail = data.get('patient_detail')
-    sample_detail = data.get('sample_detail')
+    sample_detail = data.get('sample_detail') or {}
     diagnosis0 = None if len(diagnosis) == 0 else diagnosis[0]
     history_info = None
     if diagnosis0:
@@ -528,12 +529,12 @@ def sort_jingan_data(data):
         imgs += sort_diag.get('imgs')
         files += sort_diag.get('files')
     p_sect = para_sect(page_margin=[2.4, 1.67, 0.49, 1.67, 2, 0])
-
+    case_no = sample_detail.get('case_no')
     patient_name = None
     if patient_detail:
         patient_name = patient_detail.get('patient_name')
 
-    action_name = u'%s_CRF报告' % (patient_name)
+    action_name = u'%s_%s_CRF报告' % (case_no, patient_name)
     conf = read_conf()
     if isinstance(conf, str):
         return conf
@@ -587,13 +588,15 @@ def generate_word(data):
         os.makedirs(dir_name)
     for ff in files:
         if os.path.isfile(ff):
-            print type(ff), ff
-            print type(dir_name), dir_name
+            # print type(ff), ff
+            # print type(dir_name), dir_name
+            print ff, dir_name
             shutil.copy(ff, dir_name)
         else:
+            print 'not file ', ff
             del ff
-    print type(zip_name)
     zip_status = zip_dir('', dir_name, zip_name)
+    print 'zip_name', zip_name
     if zip_status == 5:
         del_file(dir_name)
         return os.path.abspath(zip_name)
