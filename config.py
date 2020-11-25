@@ -25,6 +25,18 @@ def read_conf():
     return 'No such env %s' % env
 
 
+def getFileDir(filename):
+    conf = read_conf()
+    if isinstance(conf, str):
+        return conf
+    file_dir = conf.get('file_dir')
+    if file_dir is None:
+        return 'file_dir not in config.conf'
+    name_array = filename.split('.')
+    dir_path = os.path.join(file_dir, name_array[-1])
+    return dir_path
+
+
 def write_conf(env):
     config = ConfigParser.ConfigParser()
     # [Env]
