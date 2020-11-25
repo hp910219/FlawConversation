@@ -594,11 +594,11 @@ def generate_word(data):
             shutil.copy(ff, dir_name)
         else:
             print 'not file ', ff
-            del ff
+            # del ff
     zip_status = zip_dir('', dir_name, zip_name)
     print 'zip_name', zip_name
     if zip_status == 5:
-        del_file(dir_name)
+        # del_file(dir_name)
         return os.path.abspath(zip_name)
     return zip_status
 
