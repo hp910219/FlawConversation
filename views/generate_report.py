@@ -12,7 +12,7 @@ from jy_word.Word import Run, HyperLink, Paragraph, Set_page, Table, Tc, Tr
 from jy_word.Word import write_pkg_parts, get_img_info
 from jy_word.web_tool import test_chinese, format_time, sex2str, zip_dir, del_file
 
-from config import read_conf
+from config import read_conf, getFileDir
 my_file = File()
 
 r_tcm = Run(family='微软雅黑')
@@ -415,7 +415,14 @@ def write_item(item):
                     imgs.append(info)
             elif tag == 'upload':
                 if value and value not in ['NA']:
-                    files.append(value)
+                    # print value
+                    if os.path.exists(value) is False:
+                        # value =
+                        dir_name = getFileDir(value)
+                        if os.path.exists(dir_name):
+                            value = os.path.join(dir_name, value)
+                    if os.path.exists(value):
+                        files.append(value)
             else:
                 for v in values:
                     paras += p.write(para_setting(line=12, rule='auto', ind=ind), r_tcm.text(v, 10))
