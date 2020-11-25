@@ -405,6 +405,20 @@ def write_item(item):
         paras += p.write(para_setting(line=12, rule='auto', ind=ind), run0)
         if isinstance(value, list):
             value = '见附件'
+            if tag == 'upload':
+                if len(value) > 0:
+                    value = value[0]
+                    if isinstance(value, dict):
+                        value = value.get('name')
+                        if os.path.exists(value) is False:
+                            dir_name = getFileDir(value)
+                            if os.path.exists(dir_name):
+                                value = os.path.join(dir_name, value)
+                        if os.path.exists(value):
+                            files.append(value)
+                        else:
+                            print value
+
         else:
             values = value.strip('\n').split('\n')
             if value.endswith('.png') or value.endswith('.jpg'):
