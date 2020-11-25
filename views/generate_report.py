@@ -421,8 +421,11 @@ def write_item(item):
                         dir_name = getFileDir(value)
                         if os.path.exists(dir_name):
                             value = os.path.join(dir_name, value)
+
                     if os.path.exists(value):
                         files.append(value)
+                    else:
+                        print value
             else:
                 for v in values:
                     paras += p.write(para_setting(line=12, rule='auto', ind=ind), r_tcm.text(v, 10))
