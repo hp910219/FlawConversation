@@ -895,7 +895,8 @@ def get_file():
 
 @app.route('/file/content/', methods=['POST'])
 def get_file_content():
-    rq = request.json
+    rq = request.json or {}
+    print rq
     dir_name = rq.get('dir') or ''
     file_name = rq.get('file_name') or ''
     path = os.path.join(dir_name, file_name)
@@ -908,7 +909,7 @@ def get_file_content():
         data = data.decode(encoding, 'ignore').encode('utf-8')
     except:
         traceback.print_exc()
-    # print data
+    print data
 
     return json.dumps({'message': 'success', 'data': data, 'file_path': path})
 
