@@ -5,6 +5,7 @@ import os
 import sys
 import subprocess
 import traceback
+import json
 
 from flask import jsonify, request, render_template, send_from_directory, redirect
 from config import read_conf
@@ -909,7 +910,7 @@ def get_file_content():
         traceback.print_exc()
     # print data
 
-    return jsonify({'message': 'success', 'data': data, 'file_path': path})
+    return json.dumps({'message': 'success', 'data': data, 'file_path': path})
 
 
 @app.route('/transfer/img/', methods=['POST'])
