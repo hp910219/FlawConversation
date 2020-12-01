@@ -11,7 +11,7 @@ import shutil
 from jy_word.File import File
 from jy_word.Word import Run, HyperLink, Paragraph, Set_page, Table, Tc, Tr
 from jy_word.Word import write_pkg_parts, get_img_info
-from jy_word.web_tool import test_chinese, format_time, sex2str, zip_dir, del_file
+from jy_word.web_tool import test_chinese, format_time, sex2str, zip_dir, send_msg_by_dd
 
 from config import read_conf, getFileDir
 my_file = File()
@@ -362,7 +362,10 @@ def write_dignosis(diagnosis):
                     display_control1 = block.get('display_control') or {}
                     item.update(display_control1)
                     item2 = write_item(item)
-                    paras += item2.get('para')
+                    try:
+                        paras += item2.get('para')
+                    except:
+                        send_msg_by_dd(json.dumps({'item': item}))
                     imgs += item2.get('imgs')
                     files += item2.get('files')
                 paras += para_sect(page_margin=[2.4, 1.67, 0.49, 1.67, 2, 0])
