@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+# coding:unicode_escape
 # !/usr/bin/python
 # Create Date 2019/8/1 0001
 __author__ = 'huohuo'
