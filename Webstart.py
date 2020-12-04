@@ -877,7 +877,7 @@ def get_file():
         return conf
     # print conf
     # JINGD_DATA_ROOT = os.environ.get('JINGD_DATA_ROOT') or conf.get('jingd_data_root')
-    JINGD_DATA_ROOT = os.environ.get(env_key) or conf.get('jingd_data_root')
+    JINGD_DATA_ROOT = os.environ.get(env_key) or conf.get('jingd_data_root') or ''
     if root_dir:
         JINGD_DATA_ROOT = root_dir
         if root_path and root_path.startswith(root_dir):
