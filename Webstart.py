@@ -974,6 +974,35 @@ def get_avi_taxonomy():
     return jsonify({'data': items3, 'message': 'success'})
 
 
+@app.route('/kobas3/annotate/visualization/', methods=['POST'])
+def post_annotate_visualization():
+    rq = request.json or {}
+    dataSource = rq.get('dataSource') or []
+    out_dir = rq.get('out_dir') or ''
+    fileKey = rq.get('fileKey') or 'output_identify_clu'
+    conf = read_conf()
+    if isinstance(conf, str):
+        return conf
+    output_identify_clu = conf.get(fileKey)
+    if output_identify_clu is None:
+        return '%s not in config.conf' % fileKey
+    path = os.path.join(out_dir, output_identify_clu)
+    print path
+    import csv
+    with open(path, 'w') as f:
+        tsv_test = csv.writer(f, delimiter='\t', lineterminator='\n')
+        # tsv_test.writerow(dataSource)
+        if len(dataSource) > 0:
+            th = dataSource[0].keys()
+            # tsv_test.writerow('\t'.join(th))
+            tsv_test.writerow(th)
+            for item in dataSource:
+                # tsv_test.writerow('\t'.join(item.values()))
+                tsv_test.writerow(item.values())
+    # my_file.write('sss.json', items3)
+    return jsonify({'data': path, 'message': 'success'})
+
+
 def update_static(project_dir, postfix1=''):
     import shutil
     dist_dir = os.path.join(project_dir, 'dist')
