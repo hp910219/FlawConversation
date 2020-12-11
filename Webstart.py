@@ -994,10 +994,14 @@ def post_annotate_visualization():
         # tsv_test.writerow(dataSource)
         if len(dataSource) > 0:
             th = dataSource[0].keys()
+            th = 'Term	Database	ID	Input number	Background number	P-Value	Corrected P-Value	Input	Hyperlink'.split('\t')
+            if fileKey != 'output_indentify_clu':
+                th = 'pathway1	pathway2	cor	pathway1_ID	input1_number	background1_number	pvalue1	qvalue1	pathway2_ID	input2_number	background2_number	pvalue2	qvalue2'.split('\t')
             # tsv_test.writerow('\t'.join(th))
             tsv_test.writerow(th)
             for item in dataSource:
                 # tsv_test.writerow('\t'.join(item.values()))
+                tr = [item[k.replace(' ', '')] for k in th]
                 tsv_test.writerow(item.values())
     # my_file.write('sss.json', items3)
     return jsonify({'data': path, 'message': 'success'})
