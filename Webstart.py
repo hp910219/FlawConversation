@@ -1002,7 +1002,7 @@ def post_annotate_visualization():
             for item in dataSource:
                 # tsv_test.writerow('\t'.join(item.values()))
                 tr = [item[k.replace(' ', '')] for k in th]
-                tsv_test.writerow(item.values())
+                tsv_test.writerow(tr)
     # my_file.write('sss.json', items3)
     return jsonify({'data': path, 'message': 'success'})
 
