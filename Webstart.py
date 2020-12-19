@@ -109,9 +109,9 @@ def save_file():
         dir_path = os.path.join(file_dir, 'annotate', 'input')
         if os.path.exists(dir_path) is False:
             os.makedirs(dir_path)
-        file_name = rq.get('file_name')
-        if file_name is None:
-            file_name = '%s.txt' % format_time(frm='%Y%m%d%H%M%S')
+        file_name = rq.get('file_name') or ''
+
+        file_name = '%s%s.txt' % (file_name, format_time(frm='%Y%m%d%H%M%S'))
         path = os.path.join(dir_path, file_name)
         print path
         my_file.write(path, content)
