@@ -991,31 +991,38 @@ def post_annotate_visualization():
         return '%s not in config.conf' % fileKey
     path = os.path.join(out_dir, output_identify_clu)
     print path
-    import csv
-    with open(path, 'w') as f:
-        tsv_test = csv.writer(f, delimiter='\t', lineterminator='\n')
-        # tsv_test.writerow(dataSource)
-        if len(dataSource) > 0:
-            th = dataSource[0].keys()
-            th = 'Term	Database	ID	Input number	Background number	P-Value	Corrected P-Value	Input	Hyperlink'.split('\t')
-            if fileKey == 'output_identify_edge':
-                th = 'pathway1	pathway2	cor	pathway1_ID	input1_number	background1_number	pvalue1	qvalue1	pathway2_ID	input2_number	background2_number	pvalue2	qvalue2'.split('\t')
-            # tsv_test.writerow('\t'.join(th))
-            tsv_test.writerow(th)
-            for item in dataSource:
-                # tsv_test.writerow('\t'.join(item.values()))
-                tr = [item[k.replace(' ', '')] for k in th]
-                tsv_test.writerow(tr)
-    # my_file.write('sss.json', items3)
-    return jsonify({'data': path, 'message': 'success'})
+    try:
+
+        import csv
+        with open(path, 'w') as f:
+            tsv_test = csv.writer(f, delimiter='\t', lineterminator='\n')
+            # tsv_test.writerow(dataSource)
+            if len(dataSource) > 0:
+                th = dataSource[0].keys()
+                th = 'Term	Database	ID	Input number	Background number	P-Value	Corrected P-Value	Input	Hyperlink'.split('\t')
+                if fileKey == 'output_identify_edge':
+                    th = 'pathway1	pathway2	cor	pathway1_ID	input1_number	background1_number	pvalue1	qvalue1	pathway2_ID	input2_number	background2_number	pvalue2	qvalue2'.split('\t')
+                # tsv_test.writerow('\t'.join(th))
+                tsv_test.writerow(th)
+                for item in dataSource:
+                    # tsv_test.writerow('\t'.join(item.values()))
+                    tr = [item[k.replace(' ', '')] for k in th]
+                    tsv_test.writerow(tr)
+        # my_file.write('sss.json', items3)
+        return jsonify({'data': path, 'message': 'success'})
+    except:
+        msg = traceback.format_exc()
+        send_msg_by_dd(msg)
+        return jsonify({'message': msg})
 
 
-def update_static(project_dir, postfix1=''):
+def update_static(src_dir, postfix1=''):
     import shutil
-    dist_dir = os.path.join(project_dir, 'dist')
+    src_dist_dir = os.path.join(src_dir, 'dist')
+    src_static_dir = os.path.join(src_dist_dir, 'static')
     for postfix in ['js', 'css']:
 
-        src = os.path.join(dist_dir, 'umi.%s' % postfix)
+        src = os.path.join(src_dist_dir, 'umi.%s' % postfix)
         src_file_name = 'umi'
         file_name = src_file_name
 
@@ -1025,11 +1032,12 @@ def update_static(project_dir, postfix1=''):
         if os.path.exists(src):
             print src, des
             shutil.copy(src, des)
-    for i in os.listdir(os.path.join(dist_dir, 'static')):
-        src = os.path.join(dist_dir, 'static', i)
-        des = os.path.join(static_dir, i)
-        if os.path.exists(src):
-            shutil.copy(src, des)
+    if os.path.exists(src_static_dir):
+        for i in os.listdir(src_static_dir):
+            src = os.path.join(src_static_dir, i)
+            des = os.path.join(static_dir, i)
+            if os.path.exists(src):
+                shutil.copy(src, des)
 
 
 if __name__ == '__main__':
