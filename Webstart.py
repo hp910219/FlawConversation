@@ -549,7 +549,7 @@ def tumor_signature():
     )
 
 
-@app.route('/tumor/randomforest/', methods=['GET', 'POST'])
+@app.route('/tumor/randomForest/', methods=['GET', 'POST'])
 def tumor_randomforest():
     rPath = '/public/jingdu/zss/Rscript-zss/app/randomForest/randomForest.R'
     rPathDir = os.path.dirname(rPath)
