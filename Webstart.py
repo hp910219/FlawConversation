@@ -549,6 +549,70 @@ def tumor_signature():
     )
 
 
+@app.route('/tumor/randomforest/', methods=['GET', 'POST'])
+def tumor_randomforest():
+    rPath = '/public/jingdu/zss/Rscript-zss/app/randomForest/randomForest.R'
+    rPathDir = os.path.dirname(rPath)
+    def sort_pheatmap(rq, r_path, output, result_dir, t):
+        input_file1 = sort_app_file('input1', 'input_file1', result_dir, t)
+        input_file2 = sort_app_file('input2', 'input_file2', result_dir, t)
+        dir1 = os.path.dirname(input_file1)
+        output_dir = os.path.dirname(output)
+        # sample_ids = rq.get('sample_ids')
+        # train_pd.txt test_pd.txt weights.txt output.pdf
+        cmd = 'Rscript %s %s %s %s %s %s %s' % (
+            r_path,
+            input_file1,
+            input_file2,
+            os.path.join(output_dir, 'train_pd.txt'),
+            os.path.join(output_dir, 'test_pd.txt'),
+            os.path.join(output_dir, 'weights.txt'),
+            os.path.join(output_dir, 'output.pdf'),
+        )
+        return cmd, [dir1, rPathDir]
+    return tumor_app(
+        'randomforest',
+        rPath,
+        sort_pheatmap,
+        output_postfix='zip',
+    )
+
+
+@app.route('/tumor/dcTree/', methods=['GET', 'POST'])
+def tumor_dcTree():
+    rPath = '/public/jingdu/zss/Rscript-zss/app/dctree/dcTree.R'
+    rPathDir = os.path.dirname(rPath)
+    def sort_pheatmap(rq, r_path, output, result_dir, t):
+        input_file1 = sort_app_file('input1', 'input_file1', result_dir, t)
+        input_file2 = sort_app_file('input2', 'input_file2', result_dir, t)
+        dir1 = os.path.dirname(input_file1)
+        output_dir = os.path.dirname(output)
+        # sample_ids = rq.get('sample_ids')
+
+        cmd = 'Rscript %s %s %s %s %s %s %s %s %s %s %s %s %s' % (
+            r_path,
+            input_file1,
+            input_file2,
+            os.path.join(output_dir, 'train.pd.prune.txt'),
+            os.path.join(output_dir, 'train.pd.nopr.txt'),
+            os.path.join(output_dir, 'test.pd.prune.txt'),
+            os.path.join(output_dir, 'test.pd.nopr.txt'),
+            os.path.join(output_dir, 'tree_nopr.png'),
+            os.path.join(output_dir, 'tree_prune2.png'),
+            os.path.join(output_dir, 'roc_nopr.png'),
+            os.path.join(output_dir, 'roc_prune.png'),
+            os.path.join(output_dir, 'test_roc_nopr.png'),
+            os.path.join(output_dir, 'test_roc_prune.png'),
+        )
+        return cmd, [dir1, rPathDir]
+    return tumor_app(
+        'dcTree',
+        rPath,
+        sort_pheatmap,
+        output_postfix='zip',
+    )
+
+
 @app.route('/tumor/siRNA/', methods=['GET', 'POST'])
 def tumor_siRNA():
     rPath = '/data/siRNA/run_siRNA_auto.sh'
@@ -1021,11 +1085,9 @@ def update_static(src_dir, postfix1=''):
     src_dist_dir = os.path.join(src_dir, 'dist')
     src_static_dir = os.path.join(src_dist_dir, 'static')
     for postfix in ['js', 'css']:
-
         src = os.path.join(src_dist_dir, 'umi.%s' % postfix)
         src_file_name = 'umi'
         file_name = src_file_name
-
         if postfix1:
             file_name = 'umi_%s' % (postfix1)
         des = os.path.join(static_dir, '%s.%s' % (file_name, postfix))
