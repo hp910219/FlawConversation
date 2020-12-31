@@ -530,6 +530,7 @@ def tumor_signature():
         input_file1 = sort_app_file('input1', 'input_file1', result_dir, t)
         dir1 = os.path.dirname(input_file1)
         BSg_type = rq.get('BSg_type')
+
         # sample_ids = rq.get('sample_ids')
         cmd = 'sh %s %s %s %s %s %s' % (
             r_path,
@@ -557,9 +558,10 @@ def tumor_randomforest():
         input_file1 = sort_app_file('input1', 'input_file1', result_dir, t)
         input_file2 = sort_app_file('input2', 'input_file2', result_dir, t)
         dir1 = os.path.dirname(input_file1)
-        output_dir = os.path.dirname(output)
+        output_dir = output[:-4]
         # sample_ids = rq.get('sample_ids')
         # train_pd.txt test_pd.txt weights.txt output.pdf
+        # print result_dir
         cmd = 'Rscript %s %s %s %s %s %s %s' % (
             r_path,
             input_file1,
@@ -673,6 +675,7 @@ def tumor_app(app_name, r_path, sort_func, output_postfix='txt', order1='--rm', 
         if isZip:
             if os.path.exists(fileDir) is False:
                 os.makedirs(fileDir)
+            # print fileDir
         print cmd
         try:
             code = os.system(cmd)
