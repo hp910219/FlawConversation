@@ -378,19 +378,17 @@ def write_dignosis(diagnosis):
 
 def write_item(item):
     display_control = item.get('display_control') or {}
-    tag = display_control.get('tag')
+    tag = display_control.get('tag') or item.get('tag')
     value = item.get('value')
     ind = item.get('ind') or [0, 0]
     imgs = []
     files = []
-    item_name = item.get('item_name')
+    item_name = display_control.get('header') or item.get('item_name') or item.get('label')
+    is_list = item.get('is_list') or display_control.get('is_list')
     paras = ''
-    h1 = item.get('h1')
+    h1 = item.get('h1') or display_control.get('h1')
     if h1:
         paras += p.h4(h1)
-    header = item.get('header')
-    if header:
-        paras += p.h5(header)
     if value is not None:
         try:
             value = json.loads(value)
@@ -405,73 +403,82 @@ def write_item(item):
     run0 = ''
     if item_name:
         run0 += r_tcm.text('%s: ' % item_name, 11.5, space=True, weight=1)
-    if tag in ['textarea',  'upload']:
-        paras += p.write(para_setting(line=12, rule='auto', ind=ind), run0)
-        if isinstance(value, list):
-            value = '见附件'
-            if tag == 'upload':
-                if len(value) > 0:
-                    value = value[0]
-                    if isinstance(value, dict):
-                        value = value.get('name')
-                        if os.path.exists(value) is False:
-                            dir_name = getFileDir(value)
-                            if os.path.exists(dir_name):
-                                value = os.path.join(dir_name, value)
-                        if os.path.exists(value):
-                            files.append(value)
-                        else:
-                            print value
-
-        else:
-            values = value.strip('\n').split('\n')
+    paras += p.write(para_setting(line=12, rule='auto', ind=ind), run0)
+    if tag == 'upload':
+        uploadText = '未上传'
+        if value and value not in ['NA']:
             if value.endswith('.png') or value.endswith('.jpg'):
                 info = get_img_info(value)
                 r_pic = r_tcm.picture(cy=8, rId=info.get('rId'), img_info=info)
                 paras += p.write(para_setting(line=24, spacing=[0, 12]), r_pic)
+                uploadText = ''
                 if info not in imgs:
                     imgs.append(info)
-            elif tag == 'upload':
-                if value and value not in ['NA']:
-                    # print value
-                    if os.path.exists(value) is False:
-                        # value =
-                        dir_name = getFileDir(value)
-                        if os.path.exists(dir_name):
-                            value = os.path.join(dir_name, value)
-
-                    if os.path.exists(value):
-                        files.append(value)
-                    else:
-                        print value
             else:
-                for v in values:
-                    paras += p.write(para_setting(line=12, rule='auto', ind=ind), r_tcm.text(v, 10))
-            return {
-                'para': paras,
-                'imgs': imgs,
-                'files': files
-            }
-
-    if isinstance(value, list):
-        item_items = item.get('items') or []
-        if item.get('is_list'):
-            data = item.get('data') or []
-            for d_index, d in enumerate(data):
-                item2 = write_item({
-                    'ind': [2, 0],
-                    'item_name': d,
-                    'value': value[d_index]
-                })
-                paras += item2.get('para')
-                imgs += item2.get('imgs')
-                files += item2.get('files')
+                if os.path.exists(value) is False:
+                    dir_name = getFileDir(value)
+                    if os.path.exists(dir_name):
+                        value = os.path.join(dir_name, value)
+                elif isinstance(value, list):
+                    if len(value) > 0:
+                        value = value[0]
+                        if isinstance(value, dict):
+                            value = value.get('name')
+                            if os.path.exists(value) is False:
+                                dir_name = getFileDir(value)
+                                if os.path.exists(dir_name):
+                                    value = os.path.join(dir_name, value)
+                if os.path.exists(value):
+                    uploadText = '见附件'
+                    files.append(value)
+                else:
+                    print value, item_name, '========'
+        if uploadText:
+            paras += p.write(para_setting(line=12, rule='auto', ind=ind), r_tcm.text(uploadText, 10))
+        return {
+            'para': paras,
+            'imgs': imgs,
+            'files': files
+        }
+    elif tag in ['textarea']:
+        value = str(value)
+        values = value.strip('\n').split('\n')
+        for v in values:
+            paras += p.write(para_setting(line=12, rule='auto', ind=ind), r_tcm.text(v, 10))
+        return {
+            'para': paras,
+            'imgs': imgs,
+            'files': files
+        }
+    elif is_list:
+        data = display_control.get('data') or []
+        for d_index, d in enumerate(data):
+            vd = 'NA'
+            if isinstance(value, list):
+                if len(value) > d_index:
+                    vd = value[d_index]
+            item2 = write_item({
+                'ind': [2, 0],
+                'item_name': '(%s)%s' % (d_index + 1, d),
+                'value': vd
+            })
+            paras += item2.get('para')
+            imgs += item2.get('imgs')
+            files += item2.get('files')
+        return {
+            'para': paras,
+            'imgs': imgs,
+            'files': files
+        }
+    elif isinstance(value, list):
+        item_items = display_control.get('items') or item.get('items') or []
         for item_index, item_item in enumerate(item_items):
             # print type(value[item_index])
             item_item['ind'] = [2, 0]
             item_item['item_name'] = item_item.get('label')
-            item_item['value'] = value[item_index]
+            item_item['value'] = value[item_index] or 'NA'
             item2 = write_item(item_item)
+            # print item_item.get('label'), value[item_index], item2
             paras += item2.get('para')
             imgs += item2.get('imgs')
             files += item2.get('files')
@@ -481,14 +488,7 @@ def write_item(item):
             'imgs': imgs,
             'files': files
         }
-
-    run = run0 + r_tcm.text(value, 10)
-    # if item.get('is_list'):
-    #     print item_name, value
-    #     for d in item.get('data'):
-    #         print d
-
-    # print tag, item.keys()
+    run = r_tcm.text(value, 10)
     return {
         'para': paras + p.write(para_setting(line=12, rule='auto', ind=ind), run),
         'imgs': imgs,
@@ -552,6 +552,7 @@ def sort_jingan_data(data):
                         history_info = tem
     imgs, files = [], []
     for diag in diagnosis:
+        # print diag
         sort_diag = write_dignosis(diag)
         chapters += sort_diag.get('para')
         imgs += sort_diag.get('imgs')
@@ -562,7 +563,7 @@ def sort_jingan_data(data):
     if patient_detail:
         patient_name = patient_detail.get('patient_name')
 
-    action_name = u'%s_%s_CRF报告' % (case_no, patient_name)
+    action_name = u'%s_%s_CRF' % (case_no, patient_name)
     conf = read_conf()
     if isinstance(conf, str):
         return conf
