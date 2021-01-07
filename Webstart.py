@@ -591,7 +591,7 @@ def tumor_dcTree():
         output_dir = output[:-4]
         # sample_ids = rq.get('sample_ids')
 
-        cmd = 'Rscript %s %s %s %s %s %s %s %s %s %s %s %s %s' % (
+        cmd = 'Rscript %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s' % (
             r_path,
             input_file1,
             input_file2,
@@ -605,6 +605,8 @@ def tumor_dcTree():
             os.path.join(output_dir, 'roc_prune.png'),
             os.path.join(output_dir, 'test_roc_nopr.png'),
             os.path.join(output_dir, 'test_roc_prune.png'),
+            os.path.join(output_dir, 'out_cp.table'),
+            (rq.get('cp_value') or '0.015'),
         )
         return cmd, [dir1, rPathDir]
     return tumor_app(
