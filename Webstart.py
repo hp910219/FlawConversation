@@ -481,12 +481,13 @@ def herbScore():
     def sort_pheatmap(rq, r_path, output, result_dir, t):
         input_file1 = sort_app_file('input1', 'input_file1', result_dir, t)
         dir1 = os.path.dirname(input_file1)
-        cmd = 'sh %s %s %s %s %s' % (
+        cmd = 'sh %s %s %s %s %s %s' % (
             r_path,
             '/public/jingdu/zss/Rscript-zss/app/herb/',
             '/public/jingdu/zss/Rscript-zss/app/herb',
             input_file1,
-            output
+            output,
+            rq.get('top_value')
         )
         return cmd, [dir1]
     return tumor_app('table2matrix', shPath, sort_pheatmap)
