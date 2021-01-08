@@ -490,7 +490,7 @@ def herbScore():
             rq.get('top_value')
         )
         return cmd, [dir1]
-    return tumor_app('table2matrix', shPath, sort_pheatmap)
+    return tumor_app('herbScore', shPath, sort_pheatmap)
 
 
 @app.route('/tumor/herbVisualization/', methods=['GET', 'POST'])
@@ -505,7 +505,7 @@ def herbVisualization():
             output
         )
         return cmd, [dir1]
-    return tumor_app('table2matrix', rPath, sort_pheatmap, output_postfix='png')
+    return tumor_app('herbVisualization', rPath, sort_pheatmap, output_postfix='png')
 
 
 @app.route('/tumor/ternaryPlot/', methods=['GET', 'POST'])
