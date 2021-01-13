@@ -18,6 +18,7 @@ from create_auth_code import create_strs, my_file, auth_code_path
 from views.generate_report import generate_word
 from views.tumor.report_panel import down_panel
 from views.tumor.report_aiyi import filter_sv, float2percent
+from views.tumor.apps.app import *
 
 reload(sys)
 sys.setdefaultencoding('utf-8')
@@ -377,37 +378,21 @@ def download_file():
     return send_from_directory(dir_name, file_name, as_attachment=True, attachment_filename=attachment_filename)
 
 
-@app.route('/tumor/merge/excel/', methods=['GET', 'POST'])
-def tumor_merge():
-    def sort_merge(rq, r_path, output, result_dir, t):
-        input_file1 = sort_app_file('input1', 'input_file1', result_dir, t)
-        input_file2 = sort_app_file('input2', 'input_file2', result_dir, t)
-        input_key1 = rq.get('input_key1')
-        input_key2 = rq.get('input_key2')
-        way = rq.get('way')
-        cmd = 'Rscript %s %s %s %s %s %s %s' % (
-            r_path,
-            input_file1, input_key1,
-            input_file2, input_key2,
-            output, way
-        )
-        return cmd, [os.path.dirname(input_file1), os.path.dirname(input_file2)]
-    return tumor_app('merge', '/public/jingdu/budechao/lecture/lec1_merge/merge_demo.R', sort_merge)
-
-
 @app.route('/tumor/tapply/', methods=['GET', 'POST'])
 def tumor_tapply():
-    def sort_tapply(rq, r_path, output, result_dir, t):
+    order = 'tapply'
+    rPath = '/public/jingdu/budechao/lecture/lec2_tapply/tapply_demo.R'
+    def sort_tapply(rq, output, result_dir, t):
         input_file1 = sort_app_file('input1', 'input_file1', result_dir, t)
         input_key1 = rq.get('input_key1')
         cmd = 'Rscript %s %s %s %s %s %s %s' % (
-            r_path,
+            rPath,
             input_file1, input_key1,
             rq.get('start'), rq.get('end'),
             output, rq.get('method')
         )
         return cmd, [os.path.dirname(input_file1)]
-    return tumor_app('tapply', '/public/jingdu/budechao/lecture/lec2_tapply/tapply_demo.R', sort_tapply)
+    return tumor_new_app(order, rPath, sort_tapply)
 
 
 @app.route('/tumor/reorder/', methods=['GET', 'POST'])
@@ -482,7 +467,7 @@ def herbScore():
         input_file1 = sort_app_file('input1', 'input_file1', result_dir, t)
         dir1 = os.path.dirname(input_file1)
         cmd = 'sh %s %s %s %s %s %s' % (
-            r_path,
+            shPath,
             '/public/jingdu/zss/Rscript-zss/app/herb/',
             '/public/jingdu/zss/Rscript-zss/app/herb',
             input_file1,
@@ -551,25 +536,32 @@ def tumor_signature():
     )
 
 
-@app.route('/tumor/fisherTest/', methods=['GET', 'POST'])
-def tumor_fisherTest():
-    rPath = '/public/jingdu/zss/Rscript-zss/app/fisher_chisqTest/fisherTest/fisherTest.R'
-    rPathDir = os.path.dirname(rPath)
-    def sort_pheatmap(rq, r_path, output, result_dir, t):
-        input_file1 = sort_app_file('input1', 'input_file1', result_dir, t)
-        dir1 = os.path.dirname(input_file1)
-        cmd = 'Rscript %s %s %s' % (
-            r_path,
-            input_file1,
-            output
-        )
-        return cmd, [dir1, rPathDir]
-    return tumor_app(
-        'fisherTest',
-        rPath,
-        sort_pheatmap,
-        output_postfix='out',
-    )
+@app.route('/tumor/app/<order>/', methods=['GET', 'POST'])
+def tumor_app_order(order):
+    app_items = {
+        'merge': {
+            'rPath': '/public/jingdu/budechao/lecture/lec1_merge/merge_demo.R',
+            'sortFunc': sort_merge,
+        },
+        'tapply': {
+            'rPath': '/public/jingdu/budechao/lecture/lec2_tapply/tapply_demo.R',
+            'sortFunc': sort_tapply
+        },
+        'fisherTest': {
+            'rPath': '/public/jingdu/zss/Rscript-zss/app/fisher_chisqTest/fisherTest/fisherTest.R',
+            'sortFunc': sort_test_app,
+            'output_postfix': 'out'
+        },
+        'chisqTest': {
+            'rPath': '/public/jingdu/zss/Rscript-zss/app/fisher_chisqTest/chisqTest/chisqTest.R',
+            'sortFunc': sort_test_app,
+            'output_postfix': 'out'
+        }
+    }
+    if order in app_items:
+        app_item = app_items[order]
+        return tumor_app(order, **app_item)
+    return '该app待开发'
 
 
 @app.route('/tumor/randomForest/', methods=['GET', 'POST'])
@@ -627,7 +619,7 @@ def tumor_dcTree():
             os.path.join(output_dir, 'roc_prune.png'),
             os.path.join(output_dir, 'test_roc_nopr.png'),
             os.path.join(output_dir, 'test_roc_prune.png'),
-            os.path.join(output_dir, 'out_cp.table'),
+            os.path.join(output_dir, 'out_cp.txt'),
             (rq.get('cp_value') or '0.015'),
         )
         return cmd, [dir1, rPathDir]
@@ -653,190 +645,6 @@ def tumor_siRNA():
         )
         return cmd, [dir1]
     return tumor_app_siRNA('siRNA', rPath, sort_pheatmap, output_postfix='png')
-
-
-def sort_app_file(key, file_key, result_dir, t):
-    rq = request.json
-    input_file1 = rq.get(file_key)
-    if input_file1 is None:
-        input_file1 = os.path.join(result_dir, '%s_%s.txt' % (file_key, t))
-        my_file.write(input_file1, rq.get(key))
-    return input_file1
-
-
-def tumor_app(app_name, r_path, sort_func, output_postfix='txt', order1='--rm', bio='bio_r'):
-    env_key = 'AY_USER_DATA_DIR'
-    conf = read_conf()
-    if isinstance(conf, str):
-        return conf
-    env = conf.get('env')
-    JINGD_DATA_ROOT = os.environ.get(env_key) or conf.get('jingd_data_root')
-    r_dir = os.path.dirname(r_path)
-    output_dir = os.path.join(JINGD_DATA_ROOT, app_name)
-    if os.path.exists(output_dir) is False:
-        os.makedirs(output_dir)
-        # return jsonify({'message': 'Path not exists, %s' % path})
-    t = format_time(frm='%Y%m%d%H%M%S')
-    items = []
-    msg = ''
-    # a + 5
-    if request.method == 'POST':
-        rq = request.json
-        output_file = '%s.output.%s.%s' % (app_name, t, output_postfix)
-        output = output_dir.rstrip('/') + '/' + output_file
-        cmd_dev, dirs = sort_func(rq, r_path, output, output_dir, t)
-        dirs += [output_dir, r_dir]
-        # docker run -rm -v data_dir:/data -w /data bio_r
-        cmd = 'docker run %s' % order1
-        for i in list(set(dirs)):
-            cmd += ' -v %s:%s' % (i, i)
-        cmd += ' %s ' % bio
-        if env and env.startswith('Development'):
-            cmd = ''
-        cmd += cmd_dev
-        fileDir = output[:-4]
-        isZip = output_postfix == 'zip'
-        if isZip:
-            if os.path.exists(fileDir) is False:
-                os.makedirs(fileDir)
-            # print fileDir
-        print cmd
-        try:
-            code = os.system(cmd)
-            # print code, t
-            if code:
-                # 获取错误日志
-                try:
-                    # scheduler_order = "top -u ybtao"
-                    # os.system(cmd)
-                    return_info = subprocess.Popen(cmd, shell=True, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
-                    # next_line = return_info.stdout.readline()
-                    # msg = next_line.decode("utf-8", "ignore")
-                    # while True:
-                    #     next_line = return_info.stdout.readline()
-                    #     return_line = next_line.decode("utf-8", "ignore")
-                    #     if return_line == '' and return_info.poll() is not None:
-                    #         break
-                    #     if return_line:
-                    #         msg = return_line
-                    #         print 'ssdfdf', msg
-                    #         # break
-                    # returncode = return_info.wait()
-                    # if returncode:
-                    #     print 'read', return_info.stdout.read()
-                    #     raise subprocess.CalledProcessError(returncode, return_info)
-                    msg = return_info.communicate()[0].decode('utf-8', 'ignore')
-                except Exception, e:
-                    print 'Exception', e
-                    msg = traceback.format_exc()
-                    send_msg_by_dd('app\n\n%s' % msg)
-                    if isZip:
-                        os.removedirs(fileDir)
-                    # msg = traceback.format_exc()
-        except Exception, e:
-            # traceback.print_exc()
-            msg = cmd + traceback.format_exc()
-        rq.update({
-            'output': output,
-            'add_time': t,
-        })
-
-
-        # print app.logger.error()
-        # # demo signature zip start
-        # for i in range(3):
-        #     os.makedirs(os.path.join(fileDir, 's%s' % i))
-        #     fp = open(os.path.join(fileDir, '%s.txt' % i), 'w+')
-        #     fp.write('sdfdgkdfjgk%s' % i)
-        #     fp.close()
-        # # demo signature zip end
-        if isZip and os.path.exists(fileDir):
-            while True:
-                zipStatus = zip_dir('', fileDir, output)
-                if zipStatus == 5:
-                    break
-
-        if os.path.exists(output):
-            # data = my_file.read(output)
-            return jsonify({'data': {
-                'file_path': output, 'dir': output_dir, 'file_name': output_file,
-                'cmd': cmd,
-                'msg': msg
-            }, 'message': 'success', 'status': 100001})
-        return jsonify({'message': u'输出文件生成失败: %s' % msg, 'cmd': cmd})
-    return jsonify({'data': items, 'message': 'success'})
-
-
-def tumor_app_siRNA(app_name, r_path, sort_func, output_postfix='txt'):
-    env_key = 'AY_USER_DATA_DIR'
-    conf = read_conf()
-    if isinstance(conf, str):
-        return conf
-    env = conf.get('env')
-    r_dir = os.path.dirname(r_path)
-
-    t = format_time(frm='%Y%m%d%H%M%S')
-    items = []
-    msg = ''
-
-    # a + 5
-    if request.method == 'POST':
-        rq = request.json
-        dirname = rq.get('taskid')
-        # output_dir = os.path.join('/data/output', dir_name)
-        output_dir = '/data/output/%s' % dirname
-        output = ''
-        cmd_dev, dirs = sort_func(rq, r_path, output, output_dir, t)
-        # docker run -rm -v data_dir:/data -w /data bio_r
-        cmd = 'docker run -d --rm --name %s -v /data:/data bc_biosoft ' % dirname
-        if env and env.startswith('Development'):
-            cmd = ''
-        cmd += cmd_dev
-        print cmd
-        try:
-            code = os.system(cmd)
-            # print code, t
-            if code:
-                # 获取错误日志
-                try:
-                    # scheduler_order = "top -u ybtao"
-                    # os.system(cmd)
-                    return_info = subprocess.Popen(cmd, shell=True, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
-                    # next_line = return_info.stdout.readline()
-                    # msg = next_line.decode("utf-8", "ignore")
-                    # while True:
-                    #     next_line = return_info.stdout.readline()
-                    #     return_line = next_line.decode("utf-8", "ignore")
-                    #     if return_line == '' and return_info.poll() is not None:
-                    #         break
-                    #     if return_line:
-                    #         msg = return_line
-                    #         print 'ssdfdf', msg
-                    #         # break
-                    # returncode = return_info.wait()
-                    # if returncode:
-                    #     print 'read', return_info.stdout.read()
-                    #     raise subprocess.CalledProcessError(returncode, return_info)
-                    msg = return_info.communicate()[0].decode('utf-8', 'ignore')
-                except Exception, e:
-                    print 'Exception', e
-                    msg = traceback.format_exc()
-                    # msg = traceback.format_exc()
-        except Exception, e:
-            # traceback.print_exc()
-            msg = cmd + traceback.format_exc()
-        rq.update({
-            'output': output,
-            'add_time': t,
-        })
-
-        # print app.logger.error()
-
-        if os.path.exists(output_dir):
-            # data = my_file.read(output)
-            return jsonify({'data': {'file_path': output, 'dir': output_dir, 'task_id': dirname}, 'message': 'success', 'status': 100001})
-        return jsonify({'message': u'输出文件生成失败: %s' % msg, 'cmd': cmd})
-    return jsonify({'data': items, 'message': 'success'})
 
 
 @app.route("/tcm/auth/code/", methods=["GET", "POST", 'OPTIONS'])
