@@ -551,6 +551,28 @@ def tumor_signature():
     )
 
 
+
+@app.route('/tumor/fisherTest/', methods=['GET', 'POST'])
+def tumor_fisherTest():
+    rPath = '/public/jingdu/zss/Rscript-zss/fisher_chisqTest/fisherTest/fisherTest.R'
+    rPathDir = os.path.dirname(rPath)
+    def sort_pheatmap(rq, r_path, output, result_dir, t):
+        input_file1 = sort_app_file('input1', 'input_file1', result_dir, t)
+        dir1 = os.path.dirname(input_file1)
+        cmd = 'Rscript %s %s %s' % (
+            r_path,
+            input_file1,
+            output
+        )
+        return cmd, [dir1, rPathDir]
+    return tumor_app(
+        'fisher',
+        rPath,
+        sort_pheatmap,
+        output_postfix='out',
+    )
+
+
 @app.route('/tumor/randomForest/', methods=['GET', 'POST'])
 def tumor_randomforest():
     rPath = '/public/jingdu/zss/Rscript-zss/app/randomForest/randomForest.R'
