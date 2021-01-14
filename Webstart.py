@@ -378,164 +378,6 @@ def download_file():
     return send_from_directory(dir_name, file_name, as_attachment=True, attachment_filename=attachment_filename)
 
 
-@app.route('/tumor/tapply/', methods=['GET', 'POST'])
-def tumor_tapply():
-    order = 'tapply'
-    rPath = '/public/jingdu/budechao/lecture/lec2_tapply/tapply_demo.R'
-    def sort_tapply(rq, output, result_dir, t):
-        input_file1 = sort_app_file('input1', 'input_file1', result_dir, t)
-        input_key1 = rq.get('input_key1')
-        cmd = 'Rscript %s %s %s %s %s %s %s' % (
-            rPath,
-            input_file1, input_key1,
-            rq.get('start'), rq.get('end'),
-            output, rq.get('method')
-        )
-        return cmd, [os.path.dirname(input_file1)]
-    return tumor_new_app(order, rPath, sort_tapply)
-
-
-@app.route('/tumor/reorder/', methods=['GET', 'POST'])
-def reorder_col():
-    def sort_reorder(rq, r_path, output, result_dir, t):
-        input_file1 = sort_app_file('input1', 'input_file1', result_dir, t)
-        order_file = sort_app_file('order', 'order_file', result_dir, t)
-        cmd = 'Rscript %s %s %s %s' % (
-            r_path,
-            input_file1, order_file,
-            output
-        )
-        return cmd, [os.path.dirname(input_file1), os.path.dirname(order_file)]
-    return tumor_app('reorder', '/public/jingdu/budechao/lecture/lec3_reorder/reorder_col.R', sort_reorder)
-
-
-@app.route('/tumor/join/', methods=['GET', 'POST'])
-def join_table():
-    def sort_join(rq, r_path, output, result_dir, t):
-        input_file1 = sort_app_file('input1', 'input_file1', result_dir, t)
-        input_file2 = sort_app_file('input2', 'input_file2', result_dir, t)
-        dir1 = os.path.dirname(input_file1)
-        dir2 = os.path.dirname(input_file2)
-        cmd = 'Rscript %s %s %s %s %s' % (
-            r_path,
-            input_file1, input_file2,
-            output, rq.get('id')
-        )
-        return cmd, [dir1, dir2]
-    return tumor_app('join', '/public/jingdu/budechao/lecture/lec4_join/join_demo.R', sort_join)
-
-
-@app.route('/tumor/pheatmap/', methods=['GET', 'POST'])
-def pheatmap_colTree():
-    def sort_pheatmap(rq, r_path, output, result_dir, t):
-        input_file1 = sort_app_file('input1', 'input_file1', result_dir, t)
-        dir1 = os.path.dirname(input_file1)
-        ftsize_row = rq.get('ftsize_row')
-        ftsize_col = rq.get('ftsize_col')
-        cluster_method = rq.get('cluster_method')
-        output_file = '%spdf' % output[:-3]
-        cmd = 'Rscript %s %s %s %s %s %s %s' % (
-            r_path,
-            input_file1, output_file, ftsize_row, ftsize_col,
-            cluster_method, output
-        )
-        return cmd, [dir1]
-    return tumor_app('pheatmap', '/public/jingdu/budechao/scripts/run_pheatmap_colTree.R', sort_pheatmap)
-
-
-@app.route('/tumor/table2matrix/', methods=['GET', 'POST'])
-def table2matrix():
-    def sort_pheatmap(rq, r_path, output, result_dir, t):
-        input_file1 = sort_app_file('input1', 'input_file1', result_dir, t)
-        dir1 = os.path.dirname(input_file1)
-        cmd = 'Rscript %s %s %s %s %s %s' % (
-            r_path,
-            input_file1,
-            output,
-            rq.get('source_node'),
-            rq.get('target_node'),
-            rq.get('relationship'),
-        )
-        return cmd, [dir1]
-    return tumor_app('table2matrix', '/public/jingdu/budechao/lecture/lec5_table2matrix/table2matrix.R', sort_pheatmap)
-
-
-@app.route('/tumor/herbScore/', methods=['GET', 'POST'])
-def herbScore():
-    shPath = '/public/jingdu/zss/Rscript-zss/app/herb/run_herb_interaction.sh'
-    def sort_pheatmap(rq, r_path, output, result_dir, t):
-        input_file1 = sort_app_file('input1', 'input_file1', result_dir, t)
-        dir1 = os.path.dirname(input_file1)
-        cmd = 'sh %s %s %s %s %s %s' % (
-            shPath,
-            '/public/jingdu/zss/Rscript-zss/app/herb/',
-            '/public/jingdu/zss/Rscript-zss/app/herb',
-            input_file1,
-            output,
-            rq.get('top_value')
-        )
-        return cmd, [dir1]
-    return tumor_app('herbScore', shPath, sort_pheatmap)
-
-
-@app.route('/tumor/herbVisualization/', methods=['GET', 'POST'])
-def herbVisualization():
-    rPath = '/public/jingdu/zss/Rscript-zss/app/herb/run3_herbHeatmap.R'
-    def sort_pheatmap(rq, r_path, output, result_dir, t):
-        input_file1 = sort_app_file('input1', 'input_file1', result_dir, t)
-        dir1 = os.path.dirname(input_file1)
-        cmd = 'Rscript %s %s %s' % (
-            r_path,
-            input_file1,
-            output
-        )
-        return cmd, [dir1]
-    return tumor_app('herbVisualization', rPath, sort_pheatmap, output_postfix='png')
-
-
-@app.route('/tumor/ternaryPlot/', methods=['GET', 'POST'])
-def tumor_ternaryPlot():
-    rPath = '/public/jingdu/zss/Rscript-zss/app/ternaryplot/run_ternaryPlot.R'
-    def sort_pheatmap(rq, r_path, output, result_dir, t):
-        input_file1 = sort_app_file('input1', 'input_file1', result_dir, t)
-        dir1 = os.path.dirname(input_file1)
-        cmd = 'Rscript %s %s %s' % (
-            r_path,
-            input_file1,
-            output
-        )
-        return cmd, [dir1]
-    return tumor_app('ternaryPlot', rPath, sort_pheatmap, output_postfix='png')
-
-
-@app.route('/tumor/signature/', methods=['GET', 'POST'])
-def tumor_signature():
-    rPath = '/public/jingdu/zss/Rscript-zss/app/signature/new/run_signature96_auto.sh'
-    rPathDir = os.path.dirname(rPath)
-    def sort_pheatmap(rq, r_path, output, result_dir, t):
-        input_file1 = sort_app_file('input1', 'input_file1', result_dir, t)
-        dir1 = os.path.dirname(input_file1)
-        BSg_type = rq.get('BSg_type')
-
-        # sample_ids = rq.get('sample_ids')
-        cmd = 'sh %s %s %s %s %s %s' % (
-            r_path,
-            input_file1,
-            'freq96.tsv',
-            BSg_type,
-            output[:-4],
-            rPathDir
-        )
-        return cmd, [dir1, rPathDir]
-    return tumor_app(
-        'signature',
-        rPath,
-        sort_pheatmap,
-        output_postfix='zip',
-        bio='bc_deconstructsigs'
-    )
-
-
 @app.route('/tumor/app/<order>/', methods=['GET', 'POST'])
 def tumor_app_order(order):
     app_items = {
@@ -546,6 +388,52 @@ def tumor_app_order(order):
         'tapply': {
             'rPath': '/public/jingdu/budechao/lecture/lec2_tapply/tapply_demo.R',
             'sortFunc': sort_tapply
+        },
+        'reorder': {
+            'rPath': '/public/jingdu/budechao/lecture/lec3_reorder/reorder_col.R',
+            'sortFunc': sort_reorder
+        },
+        'join': {
+            'rPath': '/public/jingdu/budechao/lecture/lec4_join/join_demo.R',
+            'sortFunc': sort_join
+        },
+        'pheatmap': {
+            'rPath': '/public/jingdu/budechao/scripts/run_pheatmap_colTree.R',
+            'sortFunc': sort_pheatmap
+        },
+        'table2matrix': {
+            'rPath': '/public/jingdu/budechao/lecture/lec5_table2matrix/table2matrix.R',
+            'sortFunc': sort_table2matrix
+        },
+        'herbScore': {
+            'rPath': '/public/jingdu/zss/Rscript-zss/app/herb/run_herb_interaction.sh',
+            'sortFunc': sort_herbScore
+        },
+        'herbVisualization': {
+            'rPath': '/public/jingdu/zss/Rscript-zss/app/herb/run3_herbHeatmap.R',
+            'sortFunc': sort_herbVisualization,
+            'output_postfix': 'png'
+        },
+        'ternaryPlot': {
+            'rPath': '/public/jingdu/zss/Rscript-zss/app/ternaryplot/run_ternaryPlot.R',
+            'sortFunc': sort_test_app,
+            'output_postfix': 'png'
+        },
+        'signature': {
+            'rPath': '/public/jingdu/zss/Rscript-zss/app/signature/new/run_signature96_auto.sh',
+            'sortFunc': sort_signature,
+            'output_postfix': 'zip',
+            'bio': 'bc_deconstructsigs'
+        },
+        'randomForest': {
+            'rPath': '/public/jingdu/zss/Rscript-zss/app/randomForest/randomForest.R',
+            'sortFunc': sort_randomForest,
+            'output_postfix': 'zip',
+        },
+        'dcTree': {
+            'rPath': '/public/jingdu/zss/Rscript-zss/app/dctree/dcTree.R',
+            'sortFunc': sort_dcTree,
+            'output_postfix': 'zip',
         },
         'fisherTest': {
             'rPath': '/public/jingdu/zss/Rscript-zss/app/fisher_chisqTest/fisherTest/fisherTest.R',
@@ -562,73 +450,6 @@ def tumor_app_order(order):
         app_item = app_items[order]
         return tumor_app(order, **app_item)
     return '该app待开发'
-
-
-@app.route('/tumor/randomForest/', methods=['GET', 'POST'])
-def tumor_randomforest():
-    rPath = '/public/jingdu/zss/Rscript-zss/app/randomForest/randomForest.R'
-    rPathDir = os.path.dirname(rPath)
-    def sort_pheatmap(rq, r_path, output, result_dir, t):
-        input_file1 = sort_app_file('input1', 'input_file1', result_dir, t)
-        input_file2 = sort_app_file('input2', 'input_file2', result_dir, t)
-        dir1 = os.path.dirname(input_file1)
-        output_dir = output[:-4]
-        # sample_ids = rq.get('sample_ids')
-        # train_pd.txt test_pd.txt weights.txt output.pdf
-        # print result_dir
-        cmd = 'Rscript %s %s %s %s %s %s %s' % (
-            r_path,
-            input_file1,
-            input_file2,
-            os.path.join(output_dir, 'train_pd.txt'),
-            os.path.join(output_dir, 'test_pd.txt'),
-            os.path.join(output_dir, 'weights.txt'),
-            os.path.join(output_dir, 'output.pdf'),
-        )
-        return cmd, [dir1, rPathDir]
-    return tumor_app(
-        'randomforest',
-        rPath,
-        sort_pheatmap,
-        output_postfix='zip',
-    )
-
-
-@app.route('/tumor/dcTree/', methods=['GET', 'POST'])
-def tumor_dcTree():
-    rPath = '/public/jingdu/zss/Rscript-zss/app/dctree/dcTree.R'
-    rPathDir = os.path.dirname(rPath)
-    def sort_pheatmap(rq, r_path, output, result_dir, t):
-        input_file1 = sort_app_file('input1', 'input_file1', result_dir, t)
-        input_file2 = sort_app_file('input2', 'input_file2', result_dir, t)
-        dir1 = os.path.dirname(input_file1)
-        output_dir = output[:-4]
-        # sample_ids = rq.get('sample_ids')
-
-        cmd = 'Rscript %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s' % (
-            r_path,
-            input_file1,
-            input_file2,
-            os.path.join(output_dir, 'train.pd.prune.txt'),
-            os.path.join(output_dir, 'train.pd.nopr.txt'),
-            os.path.join(output_dir, 'test.pd.prune.txt'),
-            os.path.join(output_dir, 'test.pd.nopr.txt'),
-            os.path.join(output_dir, 'tree_nopr.png'),
-            os.path.join(output_dir, 'tree_prune2.png'),
-            os.path.join(output_dir, 'roc_nopr.png'),
-            os.path.join(output_dir, 'roc_prune.png'),
-            os.path.join(output_dir, 'test_roc_nopr.png'),
-            os.path.join(output_dir, 'test_roc_prune.png'),
-            os.path.join(output_dir, 'out_cp.txt'),
-            (rq.get('cp_value') or '0.015'),
-        )
-        return cmd, [dir1, rPathDir]
-    return tumor_app(
-        'dcTree',
-        rPath,
-        sort_pheatmap,
-        output_postfix='zip',
-    )
 
 
 @app.route('/tumor/siRNA/', methods=['GET', 'POST'])
@@ -802,7 +623,7 @@ def get_file_content():
         to_json = rq.get('to_json')
     path = os.path.join(dir_name, file_name)
     if os.path.exists(path) is False:
-        return 'Path not exists, %s' % path
+        return json.dumps({'message': 'Path not exists, %s' % path})
     data = my_file.read(path, to_json=to_json)
     try:
         encoding = chardet.detect(data[0])['encoding']
@@ -810,7 +631,6 @@ def get_file_content():
         data = data.decode(encoding, 'ignore').encode('utf-8')
     except:
         traceback.print_exc()
-
     return json.dumps({'message': 'success', 'data': data, 'file_path': path})
 
 

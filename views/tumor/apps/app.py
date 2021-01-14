@@ -9,15 +9,10 @@ from flask import jsonify, request
 from config import read_conf
 from jy_word.web_tool import send_msg_by_dd, format_time, zip_dir
 
-from create_auth_code import create_strs, my_file, auth_code_path
+from create_auth_code import my_file
 
 reload(sys)
 sys.setdefaultencoding('utf-8')
-
-restart_time = format_time(frm='%Y-%m%d-%H:%M:%S')
-dir_name = os.path.dirname(__file__)
-static_dir = os.path.join(dir_name, 'static')
-project_dir = os.path.dirname(dir_name)
 
 
 def sort_merge(rq, rPath, output, result_dir, t):
@@ -46,172 +41,101 @@ def sort_tapply(rq, rPath, output, result_dir, t):
     )
     return cmd, [os.path.dirname(input_file1)]
 
-def tumor_tapply():
-    order = 'tapply'
-    rPath = '/public/jingdu/budechao/lecture/lec2_tapply/tapply_demo.R'
-    def sort_tapply(rq, output, result_dir, t):
-        input_file1 = sort_app_file('input1', 'input_file1', result_dir, t)
-        input_key1 = rq.get('input_key1')
-        cmd = 'Rscript %s %s %s %s %s %s %s' % (
-            rPath,
-            input_file1, input_key1,
-            rq.get('start'), rq.get('end'),
-            output, rq.get('method')
-        )
-        return cmd, [os.path.dirname(input_file1)]
-    return tumor_new_app(order, rPath, sort_tapply)
 
-
-def reorder_col():
-    def sort_reorder(rq, r_path, output, result_dir, t):
-        input_file1 = sort_app_file('input1', 'input_file1', result_dir, t)
-        order_file = sort_app_file('order', 'order_file', result_dir, t)
-        cmd = 'Rscript %s %s %s %s' % (
-            r_path,
-            input_file1, order_file,
-            output
-        )
-        return cmd, [os.path.dirname(input_file1), os.path.dirname(order_file)]
-    return tumor_new_app('reorder', '/public/jingdu/budechao/lecture/lec3_reorder/reorder_col.R', sort_reorder)
-
-
-def join_table():
-    def sort_join(rq, r_path, output, result_dir, t):
-        input_file1 = sort_app_file('input1', 'input_file1', result_dir, t)
-        input_file2 = sort_app_file('input2', 'input_file2', result_dir, t)
-        dir1 = os.path.dirname(input_file1)
-        dir2 = os.path.dirname(input_file2)
-        cmd = 'Rscript %s %s %s %s %s' % (
-            r_path,
-            input_file1, input_file2,
-            output, rq.get('id')
-        )
-        return cmd, [dir1, dir2]
-    return tumor_app('join', '/public/jingdu/budechao/lecture/lec4_join/join_demo.R', sort_join)
-
-
-def pheatmap_colTree():
-    def sort_pheatmap(rq, r_path, output, result_dir, t):
-        input_file1 = sort_app_file('input1', 'input_file1', result_dir, t)
-        dir1 = os.path.dirname(input_file1)
-        ftsize_row = rq.get('ftsize_row')
-        ftsize_col = rq.get('ftsize_col')
-        cluster_method = rq.get('cluster_method')
-        output_file = '%spdf' % output[:-3]
-        cmd = 'Rscript %s %s %s %s %s %s %s' % (
-            r_path,
-            input_file1, output_file, ftsize_row, ftsize_col,
-            cluster_method, output
-        )
-        return cmd, [dir1]
-    return tumor_app('pheatmap', '/public/jingdu/budechao/scripts/run_pheatmap_colTree.R', sort_pheatmap)
-
-
-def table2matrix():
-    def sort_pheatmap(rq, r_path, output, result_dir, t):
-        input_file1 = sort_app_file('input1', 'input_file1', result_dir, t)
-        dir1 = os.path.dirname(input_file1)
-        cmd = 'Rscript %s %s %s %s %s %s' % (
-            r_path,
-            input_file1,
-            output,
-            rq.get('source_node'),
-            rq.get('target_node'),
-            rq.get('relationship'),
-        )
-        return cmd, [dir1]
-    return tumor_app('table2matrix', '/public/jingdu/budechao/lecture/lec5_table2matrix/table2matrix.R', sort_pheatmap)
-
-
-def herbScore():
-    shPath = '/public/jingdu/zss/Rscript-zss/app/herb/run_herb_interaction.sh'
-    def sort_pheatmap(rq, r_path, output, result_dir, t):
-        input_file1 = sort_app_file('input1', 'input_file1', result_dir, t)
-        dir1 = os.path.dirname(input_file1)
-        cmd = 'sh %s %s %s %s %s %s' % (
-            r_path,
-            '/public/jingdu/zss/Rscript-zss/app/herb/',
-            '/public/jingdu/zss/Rscript-zss/app/herb',
-            input_file1,
-            output,
-            rq.get('top_value')
-        )
-        return cmd, [dir1]
-    return tumor_app('herbScore', shPath, sort_pheatmap)
-
-
-def herbVisualization():
-    rPath = '/public/jingdu/zss/Rscript-zss/app/herb/run3_herbHeatmap.R'
-    def sort_pheatmap(rq, r_path, output, result_dir, t):
-        input_file1 = sort_app_file('input1', 'input_file1', result_dir, t)
-        dir1 = os.path.dirname(input_file1)
-        cmd = 'Rscript %s %s %s' % (
-            r_path,
-            input_file1,
-            output
-        )
-        return cmd, [dir1]
-    return tumor_app('herbVisualization', rPath, sort_pheatmap, output_postfix='png')
-
-
-def tumor_ternaryPlot():
-    rPath = '/public/jingdu/zss/Rscript-zss/app/ternaryplot/run_ternaryPlot.R'
-    def sort_pheatmap(rq, r_path, output, result_dir, t):
-        input_file1 = sort_app_file('input1', 'input_file1', result_dir, t)
-        dir1 = os.path.dirname(input_file1)
-        cmd = 'Rscript %s %s %s' % (
-            r_path,
-            input_file1,
-            output
-        )
-        return cmd, [dir1]
-    return tumor_app('ternaryPlot', rPath, sort_pheatmap, output_postfix='png')
-
-
-def tumor_signature():
-    rPath = '/public/jingdu/zss/Rscript-zss/app/signature/new/run_signature96_auto.sh'
-    rPathDir = os.path.dirname(rPath)
-    def sort_pheatmap(rq, r_path, output, result_dir, t):
-        input_file1 = sort_app_file('input1', 'input_file1', result_dir, t)
-        dir1 = os.path.dirname(input_file1)
-        BSg_type = rq.get('BSg_type')
-
-        # sample_ids = rq.get('sample_ids')
-        cmd = 'sh %s %s %s %s %s %s' % (
-            r_path,
-            input_file1,
-            'freq96.tsv',
-            BSg_type,
-            output[:-4],
-            rPathDir
-        )
-        return cmd, [dir1, rPathDir]
-    return tumor_app(
-        'signature',
-        rPath,
-        sort_pheatmap,
-        output_postfix='zip',
-        bio='bc_deconstructsigs'
+def sort_reorder(rq, r_path, output, result_dir, t):
+    input_file1 = sort_app_file('input1', 'input_file1', result_dir, t)
+    order_file = sort_app_file('order', 'order_file', result_dir, t)
+    cmd = 'Rscript %s %s %s %s' % (
+        r_path,
+        input_file1,
+        order_file,
+        output
     )
+    return cmd, [os.path.dirname(input_file1), os.path.dirname(order_file)]
 
 
-def tumor_test_app(order, rPath):
-    rPathDir = os.path.dirname(rPath)
-    def sort_test_app(rq, output, result_dir, t):
-        input_file1 = sort_app_file('input1', 'input_file1', result_dir, t)
-        dir1 = os.path.dirname(input_file1)
-        cmd = 'Rscript %s %s %s' % (
-            rPath,
-            input_file1,
-            output
-        )
-        return cmd, [dir1, rPathDir]
-    return tumor_new_app(
-        order,
-        rPath,
-        sort_test_app,
-        output_postfix='out',
+def sort_join(rq, r_path, output, result_dir, t):
+    input_file1 = sort_app_file('input1', 'input_file1', result_dir, t)
+    input_file2 = sort_app_file('input2', 'input_file2', result_dir, t)
+    dir1 = os.path.dirname(input_file1)
+    dir2 = os.path.dirname(input_file2)
+    cmd = 'Rscript %s %s %s %s %s' % (
+        r_path,
+        input_file1, input_file2,
+        output, rq.get('id')
     )
+    return cmd, [dir1, dir2]
+
+
+def sort_pheatmap(rq, r_path, output, result_dir, t):
+    input_file1 = sort_app_file('input1', 'input_file1', result_dir, t)
+    dir1 = os.path.dirname(input_file1)
+    ftsize_row = rq.get('ftsize_row')
+    ftsize_col = rq.get('ftsize_col')
+    cluster_method = rq.get('cluster_method')
+    output_file = '%spdf' % output[:-3]
+    cmd = 'Rscript %s %s %s %s %s %s %s' % (
+        r_path,
+        input_file1, output_file, ftsize_row, ftsize_col,
+        cluster_method, output
+    )
+    return cmd, [dir1]
+
+
+def sort_table2matrix(rq, r_path, output, result_dir, t):
+    input_file1 = sort_app_file('input1', 'input_file1', result_dir, t)
+    dir1 = os.path.dirname(input_file1)
+    cmd = 'Rscript %s %s %s %s %s %s' % (
+        r_path,
+        input_file1,
+        output,
+        rq.get('source_node'),
+        rq.get('target_node'),
+        rq.get('relationship'),
+    )
+    return cmd, [dir1]
+
+
+def sort_herbScore(rq, r_path, output, result_dir, t):
+    input_file1 = sort_app_file('input1', 'input_file1', result_dir, t)
+    dir1 = os.path.dirname(input_file1)
+    cmd = 'sh %s %s %s %s %s %s' % (
+        r_path,
+        '/public/jingdu/zss/Rscript-zss/app/herb/',
+        '/public/jingdu/zss/Rscript-zss/app/herb',
+        input_file1,
+        output,
+        rq.get('top_value')
+    )
+    return cmd, [dir1]
+
+
+def sort_herbVisualization(rq, r_path, output, result_dir, t):
+    input_file1 = sort_app_file('input1', 'input_file1', result_dir, t)
+    dir1 = os.path.dirname(input_file1)
+    cmd = 'Rscript %s %s %s' % (
+        r_path,
+        input_file1,
+        output,
+    )
+    return cmd, [dir1]
+
+
+def sort_signature(rq, r_path, output, result_dir, t):
+    input_file1 = sort_app_file('input1', 'input_file1', result_dir, t)
+    dir1 = os.path.dirname(input_file1)
+    BSg_type = rq.get('BSg_type')
+    rPathDir = os.path.dirname(r_path)
+    # sample_ids = rq.get('sample_ids')
+    cmd = 'sh %s %s %s %s %s %s' % (
+        r_path,
+        input_file1,
+        'freq96.tsv',
+        BSg_type,
+        output[:-4],
+        rPathDir
+    )
+    return cmd, [dir1]
 
 
 def sort_test_app(rq, rPath, output, result_dir, t):
@@ -225,94 +149,49 @@ def sort_test_app(rq, rPath, output, result_dir, t):
     return cmd, [dir1]
 
 
-def tumor_fisherTest(order):
-    rPath = '/public/jingdu/zss/Rscript-zss/app/fisher_chisqTest/fisherTest/fisherTest.R'
-    return tumor_test_app(order, rPath)
-
-
-def tumor_chisqTest(order):
-    rPath = '/public/jingdu/zss/Rscript-zss/app/fisher_chisqTest/chisqTest/chisqTest.R'
-    return tumor_test_app(order, rPath)
-
-
-def tumor_randomforest():
-    rPath = '/public/jingdu/zss/Rscript-zss/app/randomForest/randomForest.R'
-    rPathDir = os.path.dirname(rPath)
-    def sort_pheatmap(rq, r_path, output, result_dir, t):
-        input_file1 = sort_app_file('input1', 'input_file1', result_dir, t)
-        input_file2 = sort_app_file('input2', 'input_file2', result_dir, t)
-        dir1 = os.path.dirname(input_file1)
-        output_dir = output[:-4]
-        # sample_ids = rq.get('sample_ids')
-        # train_pd.txt test_pd.txt weights.txt output.pdf
-        # print result_dir
-        cmd = 'Rscript %s %s %s %s %s %s %s' % (
-            r_path,
-            input_file1,
-            input_file2,
-            os.path.join(output_dir, 'train_pd.txt'),
-            os.path.join(output_dir, 'test_pd.txt'),
-            os.path.join(output_dir, 'weights.txt'),
-            os.path.join(output_dir, 'output.pdf'),
-        )
-        return cmd, [dir1, rPathDir]
-    return tumor_app(
-        'randomforest',
-        rPath,
-        sort_pheatmap,
-        output_postfix='zip',
+def sort_randomForest(rq, r_path, output, result_dir, t):
+    input_file1 = sort_app_file('input1', 'input_file1', result_dir, t)
+    input_file2 = sort_app_file('input2', 'input_file2', result_dir, t)
+    dir1 = os.path.dirname(input_file1)
+    output_dir = output[:-4]
+    # sample_ids = rq.get('sample_ids')
+    # train_pd.txt test_pd.txt weights.txt output.pdf
+    # print result_dir
+    cmd = 'Rscript %s %s %s %s %s %s %s' % (
+        r_path,
+        input_file1,
+        input_file2,
+        os.path.join(output_dir, 'train_pd.txt'),
+        os.path.join(output_dir, 'test_pd.txt'),
+        os.path.join(output_dir, 'weights.txt'),
+        os.path.join(output_dir, 'output.pdf'),
     )
+    return cmd, [dir1]
 
 
-def tumor_dcTree():
-    rPath = '/public/jingdu/zss/Rscript-zss/app/dctree/dcTree.R'
-    rPathDir = os.path.dirname(rPath)
-    def sort_pheatmap(rq, r_path, output, result_dir, t):
-        input_file1 = sort_app_file('input1', 'input_file1', result_dir, t)
-        input_file2 = sort_app_file('input2', 'input_file2', result_dir, t)
-        dir1 = os.path.dirname(input_file1)
-        output_dir = output[:-4]
-        # sample_ids = rq.get('sample_ids')
-
-        cmd = 'Rscript %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s' % (
-            r_path,
-            input_file1,
-            input_file2,
-            os.path.join(output_dir, 'train.pd.prune.txt'),
-            os.path.join(output_dir, 'train.pd.nopr.txt'),
-            os.path.join(output_dir, 'test.pd.prune.txt'),
-            os.path.join(output_dir, 'test.pd.nopr.txt'),
-            os.path.join(output_dir, 'tree_nopr.png'),
-            os.path.join(output_dir, 'tree_prune2.png'),
-            os.path.join(output_dir, 'roc_nopr.png'),
-            os.path.join(output_dir, 'roc_prune.png'),
-            os.path.join(output_dir, 'test_roc_nopr.png'),
-            os.path.join(output_dir, 'test_roc_prune.png'),
-            os.path.join(output_dir, 'out_cp.table'),
-            (rq.get('cp_value') or '0.015'),
-        )
-        return cmd, [dir1, rPathDir]
-    return tumor_app(
-        'dcTree',
-        rPath,
-        sort_pheatmap,
-        output_postfix='zip',
+def sort_dcTree(rq, r_path, output, result_dir, t):
+    input_file1 = sort_app_file('input1', 'input_file1', result_dir, t)
+    input_file2 = sort_app_file('input2', 'input_file2', result_dir, t)
+    dir1 = os.path.dirname(input_file1)
+    output_dir = output[:-4]
+    cmd = 'Rscript %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s' % (
+        r_path,
+        input_file1,
+        input_file2,
+        os.path.join(output_dir, 'train.pd.prune.txt'),
+        os.path.join(output_dir, 'train.pd.nopr.txt'),
+        os.path.join(output_dir, 'test.pd.prune.txt'),
+        os.path.join(output_dir, 'test.pd.nopr.txt'),
+        os.path.join(output_dir, 'tree_nopr.png'),
+        os.path.join(output_dir, 'tree_prune2.png'),
+        os.path.join(output_dir, 'roc_nopr.png'),
+        os.path.join(output_dir, 'roc_prune.png'),
+        os.path.join(output_dir, 'test_roc_nopr.png'),
+        os.path.join(output_dir, 'test_roc_prune.png'),
+        os.path.join(output_dir, 'out_cp.table'),
+        (rq.get('cp_value') or '0.015'),
     )
-
-
-def tumor_siRNA():
-    rPath = '/data/siRNA/run_siRNA_auto.sh'
-    def sort_pheatmap(rq, r_path, output, result_dir, t):
-        input_file1 = sort_app_file('input1', 'input_file1', '/data/userdata', t)
-        dir1 = os.path.dirname(input_file1)
-        cmd = 'sh %s %s %s %s /data/siRNA' % (
-            r_path,
-            rq.get('filter_freq'),
-            input_file1,
-            result_dir
-        )
-        return cmd, [dir1]
-    return tumor_app_siRNA('siRNA', rPath, sort_pheatmap, output_postfix='png')
+    return cmd, [dir1]
 
 
 def sort_app_file(key, file_key, result_dir, t):
@@ -322,109 +201,6 @@ def sort_app_file(key, file_key, result_dir, t):
         input_file1 = os.path.join(result_dir, '%s_%s.txt' % (file_key, t))
         my_file.write(input_file1, rq.get(key))
     return input_file1
-
-
-def tumor_new_app(app_name='', r_path='', sort_func=None, output_postfix='txt', order1='--rm', bio='bio_r'):
-    env_key = 'AY_USER_DATA_DIR'
-    conf = read_conf()
-    if isinstance(conf, str):
-        return conf
-    env = conf.get('env')
-    JINGD_DATA_ROOT = os.environ.get(env_key) or conf.get('jingd_data_root')
-    r_dir = os.path.dirname(r_path)
-    output_dir = os.path.join(JINGD_DATA_ROOT, app_name)
-    if os.path.exists(output_dir) is False:
-        os.makedirs(output_dir)
-        # return jsonify({'message': 'Path not exists, %s' % path})
-    t = format_time(frm='%Y%m%d%H%M%S')
-    items = []
-    msg = ''
-    # a + 5
-    if request.method == 'POST':
-        rq = request.json
-        output_file = '%s.output.%s.%s' % (app_name, t, output_postfix)
-        output = output_dir.rstrip('/') + '/' + output_file
-        cmd_dev, dirs = sort_func(rq, output, output_dir, t)
-        dirs += [output_dir, r_dir]
-        # docker run -rm -v data_dir:/data -w /data bio_r
-        cmd = 'docker run %s' % order1
-        for i in list(set(dirs)):
-            cmd += ' -v %s:%s' % (i, i)
-        cmd += ' %s ' % bio
-        if env and env.startswith('Development'):
-            cmd = ''
-        cmd += cmd_dev
-        fileDir = output[:-4]
-        isZip = output_postfix == 'zip'
-        if isZip:
-            if os.path.exists(fileDir) is False:
-                os.makedirs(fileDir)
-            # print fileDir
-        print cmd
-        try:
-            code = os.system(cmd)
-            # print code, t
-            if code:
-                # 获取错误日志
-                try:
-                    # scheduler_order = "top -u ybtao"
-                    # os.system(cmd)
-                    return_info = subprocess.Popen(cmd, shell=True, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
-                    # next_line = return_info.stdout.readline()
-                    # msg = next_line.decode("utf-8", "ignore")
-                    # while True:
-                    #     next_line = return_info.stdout.readline()
-                    #     return_line = next_line.decode("utf-8", "ignore")
-                    #     if return_line == '' and return_info.poll() is not None:
-                    #         break
-                    #     if return_line:
-                    #         msg = return_line
-                    #         print 'ssdfdf', msg
-                    #         # break
-                    # returncode = return_info.wait()
-                    # if returncode:
-                    #     print 'read', return_info.stdout.read()
-                    #     raise subprocess.CalledProcessError(returncode, return_info)
-                    msg = return_info.communicate()[0].decode('utf-8', 'ignore')
-                except Exception, e:
-                    print 'Exception', e
-                    msg = traceback.format_exc()
-                    send_msg_by_dd('app\n\n%s' % msg)
-                    if isZip:
-                        os.removedirs(fileDir)
-                    # msg = traceback.format_exc()
-        except Exception, e:
-            # traceback.print_exc()
-            msg = cmd + traceback.format_exc()
-        rq.update({
-            'output': output,
-            'add_time': t,
-        })
-
-
-        # print app.logger.error()
-        # # demo signature zip start
-        # for i in range(3):
-        #     os.makedirs(os.path.join(fileDir, 's%s' % i))
-        #     fp = open(os.path.join(fileDir, '%s.txt' % i), 'w+')
-        #     fp.write('sdfdgkdfjgk%s' % i)
-        #     fp.close()
-        # # demo signature zip end
-        if isZip and os.path.exists(fileDir):
-            while True:
-                zipStatus = zip_dir('', fileDir, output)
-                if zipStatus == 5:
-                    break
-
-        if os.path.exists(output):
-            # data = my_file.read(output)
-            return jsonify({'data': {
-                'file_path': output, 'dir': output_dir, 'file_name': output_file,
-                'cmd': cmd,
-                'msg': msg
-            }, 'message': 'success', 'status': 100001})
-        return jsonify({'message': u'输出文件生成失败: %s' % msg, 'cmd': cmd})
-    return jsonify({'data': items, 'message': 'success'})
 
 
 def tumor_app(app_name, rPath, sortFunc, output_postfix='txt', order1='--rm', bio='bio_r'):
