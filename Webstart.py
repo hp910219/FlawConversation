@@ -448,12 +448,10 @@ def tumor_app_order(order):
         'ttest': {
             'rPath': '/public/jingdu/zss/Rscript-zss/app/wilcox_tTest/ttest/tTest.R',
             'sortFunc': sort_ttest,
-            'output_postfix': 'tsv'
         },
         'wilcoxonTest': {
             'rPath': '/public/jingdu/zss/Rscript-zss/app/wilcox_tTest/wilcoxTest/wilcoxonTest.R',
             'sortFunc': sort_ttest,
-            'output_postfix': 'tsv'
         },
     }
     if order in app_items:
