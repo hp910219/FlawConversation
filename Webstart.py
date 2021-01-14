@@ -444,12 +444,22 @@ def tumor_app_order(order):
             'rPath': '/public/jingdu/zss/Rscript-zss/app/fisher_chisqTest/chisqTest/chisqTest.R',
             'sortFunc': sort_test_app,
             'output_postfix': 'out'
-        }
+        },
+        'ttest': {
+            'rPath': '/public/jingdu/zss/Rscript-zss/app/wilcox_tTest/ttest/tTest.R',
+            'sortFunc': sort_ttest,
+            'output_postfix': 'tsv'
+        },
+        'wilcoxonTest': {
+            'rPath': '/public/jingdu/zss/Rscript-zss/app/wilcox_tTest/wilcoxTest/wilcoxonTest.R',
+            'sortFunc': sort_ttest,
+            'output_postfix': 'tsv'
+        },
     }
     if order in app_items:
         app_item = app_items[order]
         return tumor_app(order, **app_item)
-    return '该app待开发'
+    return jsonify({'message': 'app%s尚未开发' % order})
 
 
 @app.route('/tumor/siRNA/', methods=['GET', 'POST'])
