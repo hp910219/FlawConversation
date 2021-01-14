@@ -188,7 +188,7 @@ def sort_dcTree(rq, r_path, output, result_dir, t):
         os.path.join(output_dir, 'roc_prune.png'),
         os.path.join(output_dir, 'test_roc_nopr.png'),
         os.path.join(output_dir, 'test_roc_prune.png'),
-        os.path.join(output_dir, 'out_cp.table'),
+        os.path.join(output_dir, 'out_cp.txt'),
         (rq.get('cp_value') or '0.015'),
     )
     return cmd, [dir1]
