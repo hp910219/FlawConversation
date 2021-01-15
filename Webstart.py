@@ -454,6 +454,8 @@ def tumor_app_order(order):
             'sortFunc': sort_ttest,
         },
     }
+    if order in ['diffTest', 'fisherTest']:
+        order = request.json.get('method')
     if order in app_items:
         app_item = app_items[order]
         return tumor_app(order, **app_item)
