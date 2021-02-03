@@ -492,15 +492,27 @@ def auth_code_crud():
         items = create_strs(len(items) + int(rq.get('num')), rq.get('belong'))
         return jsonify(items)
     f_items = filter(lambda x: x['code'] == rq.get('code'), items)
-    if len(f_items) == 0:
-        return jsonify({'message': '邀请码不存在'})
-    f_item = f_items[0]
-    if request.method == 'GET':
-        return jsonify(f_item)
     if request.method == 'PUT':
-        f_item.update(rq)
-    my_file.write(auth_code_path, items)
-    return jsonify(f_item)
+        items2 = rq.get('items')
+        if isinstance(items2, list):
+            for item2 in items2:
+                f2 = filter(lambda x: x['code'] == item2.get('code'), items)
+                f2[0].update(item2)
+            my_file.write(auth_code_path, items)
+        else:
+            if len(f_items) == 0:
+                return jsonify({'message': '邀请码不存在'})
+            f_item = f_items[0]
+            f_item.update(rq)
+            my_file.write(auth_code_path, items)
+            return jsonify(f_item)
+    if request.method == 'GET':
+        if len(f_items) == 0:
+            return jsonify({'message': '邀请码不存在'})
+        f_item = f_items[0]
+        return jsonify(f_item)
+    return jsonify(items)
+
 
 
 @app.route("/jyweb/<action_name>/crud/", methods=["GET", "POST", "PUT", "DELETE"])
