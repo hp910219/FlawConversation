@@ -407,7 +407,7 @@ def write_item(item):
     if tag == 'upload':
         uploadText = '未上传'
         if value and value not in ['NA']:
-            if value.endswith('.png') or value.endswith('.jpg'):
+            if isinstance(value, str) and value.endswith('.png') or value.endswith('.jpg'):
                 info = get_img_info(value)
                 r_pic = r_tcm.picture(cy=8, rId=info.get('rId'), img_info=info)
                 paras += p.write(para_setting(line=24, spacing=[0, 12]), r_pic)
@@ -472,22 +472,27 @@ def write_item(item):
         }
     elif isinstance(value, list):
         item_items = display_control.get('items') or item.get('items') or []
-        for item_index, item_item in enumerate(item_items):
-            # print type(value[item_index])
-            item_item['ind'] = [2, 0]
-            item_item['item_name'] = item_item.get('label')
-            item_item['value'] = value[item_index] or 'NA'
-            item2 = write_item(item_item)
-            # print item_item.get('label'), value[item_index], item2
-            paras += item2.get('para')
-            imgs += item2.get('imgs')
-            files += item2.get('files')
-
-        return {
-            'para': paras,
-            'imgs': imgs,
-            'files': files
-        }
+        if tag in ['checkbox', 'select']:
+            value = ', '.join(value)
+        else:
+            for item_index, item_item in enumerate(item_items):
+                # print type(value[item_index])
+                if isinstance(item_item, dict):
+                    item_item['ind'] = [2, 0]
+                    item_item['item_name'] = item_item.get('label')
+                    item_item['value'] = value[item_index] or 'NA'
+                    item2 = write_item(item_item)
+                    # print item_item.get('label'), value[item_index], item2
+                    paras += item2.get('para')
+                    imgs += item2.get('imgs')
+                    files += item2.get('files')
+                else:
+                    print item_item
+            return {
+                'para': paras,
+                'imgs': imgs,
+                'files': files
+            }
     run = r_tcm.text(value, 10)
     return {
         'para': paras + p.write(para_setting(line=12, rule='auto', ind=ind), run),
