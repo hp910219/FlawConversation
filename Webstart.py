@@ -589,7 +589,7 @@ def remark_crud():
             item = my_file.read(path)
             items.append(item)
         except:
-            send_msg_by_dd('remark\n' + traceback.format_exc())
+            send_msg_by_dd('remark\n%s\n%s' % (path, traceback.format_exc()))
     account = rq.get('account')
     if account:
         items = filter(lambda x: x.get('account') == account, items)
