@@ -199,9 +199,6 @@ def sort_cox(rq, r_path, output, result_dir, t):
     input_file2 = sort_app_file('input2', 'input_file2', result_dir, t)
     dir1 = os.path.dirname(input_file1)
     output_dir = output[:-4]
-    # sample_ids = rq.get('sample_ids')
-    # train_pd.txt test_pd.txt weights.txt output.pdf
-    # print result_dir
     cmd = 'Rscript %s %s %s %s %s' % (
         r_path,
         input_file1,
