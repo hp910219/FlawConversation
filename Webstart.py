@@ -435,6 +435,11 @@ def tumor_app_order(order):
             'sortFunc': sort_dcTree,
             'output_postfix': 'zip',
         },
+        'cox': {
+            'rPath': '/public/jingdu/zss/Rscript-zss/app/cox/cox.R',
+            'sortFunc': sort_cox,
+            'output_postfix': 'zip',
+        },
         'fisherTest': {
             'rPath': '/public/jingdu/zss/Rscript-zss/app/fisher_chisqTest/fisherTest/fisherTest.R',
             'sortFunc': sort_test_app,
