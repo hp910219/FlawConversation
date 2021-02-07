@@ -206,7 +206,7 @@ def sort_cox(rq, r_path, output, result_dir, t):
         os.path.join(output_dir, 'cox.test.gene.tsv'),
         os.path.join(output_dir, 'merge.gene.tsv'),
     )
-    return cmd, [dir1]
+    return cmd, [dir1, os.path.dirname(input_file2)]
 
 
 def sort_ttest(rq, r_path, output, result_dir, t):
