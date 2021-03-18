@@ -323,7 +323,7 @@ def write_common(patient_detail, history_info):
         if item33.get('tag') == 'monthpicker':
             value = value.split('T')[0]
         item_tr = {'ws': w1, 'text': [item33.get('item_name'), value], 'weight': 0, 'jc': 'left'}
-        trs2 += write_gray_tr(item_tr) 
+        trs2 += write_gray_tr(item_tr)
     paras += table.write(trs2, [w] * 7, insideColor='black')
     return paras
 
@@ -407,32 +407,30 @@ def write_item(item):
     if tag == 'upload':
         uploadText = '未上传'
         if value and value not in ['NA']:
-            if isinstance(value, str) and (value.endswith('.png') or value.endswith('.jpg')):
-                info = get_img_info(value)
-                r_pic = r_tcm.picture(cy=8, rId=info.get('rId'), img_info=info)
-                paras += p.write(para_setting(line=24, spacing=[0, 12]), r_pic)
-                uploadText = ''
-                if info not in imgs:
-                    imgs.append(info)
-            else:
-                if os.path.exists(value) is False:
-                    dir_name = getFileDir(value)
-                    if os.path.exists(dir_name):
-                        value = os.path.join(dir_name, value)
-                elif isinstance(value, list):
-                    if len(value) > 0:
-                        value = value[0]
-                        if isinstance(value, dict):
-                            value = value.get('name')
-                            if os.path.exists(value) is False:
-                                dir_name = getFileDir(value)
-                                if os.path.exists(dir_name):
-                                    value = os.path.join(dir_name, value)
-                if os.path.exists(value):
+            if isinstance(value, list):
+                if len(value) > 0:
+                    value = value[0]
+                    if isinstance(value, dict):
+                        value = value.get('name')
+                        if os.path.exists(value) is False:
+                            dir_name = getFileDir(value)
+                            if os.path.exists(dir_name):
+                                value = os.path.join(dir_name, value)
+            elif os.path.exists(value) is False:
+                dir_name = getFileDir(value)
+                if os.path.exists(dir_name):
+                    value = os.path.join(dir_name, value)
+            if os.path.exists(value):
+                if isinstance(value, str) and (value.endswith('.png') or value.endswith('.jpg')):
+                    info = get_img_info(value)
+                    r_pic = r_tcm.picture(cy=8, rId=info.get('rId'), img_info=info)
+                    paras += p.write(para_setting(line=24, spacing=[0, 12]), r_pic)
+                    uploadText = ''
+                    if info not in imgs:
+                        imgs.append(info)
+                else:
                     uploadText = '见附件'
                     files.append(value)
-                else:
-                    print value, item_name, '========'
         if uploadText:
             paras += p.write(para_setting(line=12, rule='auto', ind=ind), r_tcm.text(uploadText, 10))
         return {

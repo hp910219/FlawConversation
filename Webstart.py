@@ -74,6 +74,7 @@ def upload_report():
         file_dir = conf.get('file_dir')
         if file_dir is None:
             return 'file_dir not in config.conf'
+        # print request.json.get('file')
         if len(request.files) == 0:
             return jsonify({"success": False, "message": 'select file'})
         for k in request.files:
@@ -150,8 +151,10 @@ def auth_down_report():
         return jsonify({'file_path': file_path})
     except:
         traceback.print_exc()
-        send_msg_by_dd(traceback.format_exc())
-        return '发生故障，已通知管理员，请稍后...'
+        msg = traceback.format_exc()
+        print msg
+        send_msg_by_dd(msg)
+        return '发生故障，已通知管理员，请稍后...%s' % msg
 
 
 @app.route("/tumor/download/report/", methods=["POST"])
@@ -800,6 +803,6 @@ if __name__ == '__main__':
 
     update_static(os.path.join(project_dir, 'TCM'))
     update_static(os.path.join(project_dir, 'KOBASWeb'), 'kobars')
-    update_static(os.path.join(project_dir, 'ncFANs'), 'ncFANs')
+    update_static(os.path.join(project_dir, 'ncfansgit'), 'ncFANs')
     # shutil.copytree(r'D:\pythonproject\KOBARSWeb\dist', r'D:\pythonproject\TCMWeb\templates\kobars')
     app.run(host=host_ip, port=port)
