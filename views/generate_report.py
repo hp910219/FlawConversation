@@ -407,7 +407,7 @@ def write_item(item):
     if tag == 'upload':
         uploadText = '未上传'
         if value and value not in ['NA']:
-            if isinstance(value, str) and value.endswith('.png') or value.endswith('.jpg'):
+            if isinstance(value, str) and (value.endswith('.png') or value.endswith('.jpg')):
                 info = get_img_info(value)
                 r_pic = r_tcm.picture(cy=8, rId=info.get('rId'), img_info=info)
                 paras += p.write(para_setting(line=24, spacing=[0, 12]), r_pic)
