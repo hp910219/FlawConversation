@@ -735,6 +735,7 @@ def post_annotate_visualization():
     dataSource = rq.get('dataSource') or []
     out_dir = rq.get('out_dir') or ''
     fileKey = rq.get('fileKey') or 'output_identify_clu'
+    kobas_app = rq.get('app')
     conf = read_conf()
     if isinstance(conf, str):
         return conf
@@ -744,7 +745,6 @@ def post_annotate_visualization():
     path = os.path.join(out_dir, output_identify_clu)
     print path
     try:
-
         import csv
         with open(path, 'w') as f:
             tsv_test = csv.writer(f, delimiter='\t', lineterminator='\n')
@@ -752,7 +752,9 @@ def post_annotate_visualization():
             if len(dataSource) > 0:
                 th = dataSource[0].keys()
                 th = 'Term	Database	ID	Input number	Background number	P-Value	Corrected P-Value	Input	Hyperlink'.split('\t')
-                if fileKey == 'output_identify_edge' or fileKey == 'output_edge_tmp':
+                if kobas_app == 'exp':
+                    th = 'GENE_SET	NAME	ENRICHMENT_RES	PROBABILITY	ENRICH_SCORE'.split('\t')
+                elif fileKey == 'output_identify_edge' or fileKey == 'output_edge_tmp':
                     th = 'pathway1	pathway2	cor	pathway1_ID	input1_number	background1_number	pvalue1	qvalue1	pathway2_ID	input2_number	background2_number	pvalue2	qvalue2'.split('\t')
                 # tsv_test.writerow('\t'.join(th))
                 tsv_test.writerow(th)
