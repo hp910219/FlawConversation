@@ -750,10 +750,12 @@ def post_annotate_visualization():
             tsv_test = csv.writer(f, delimiter='\t', lineterminator='\n')
             # tsv_test.writerow(dataSource)
             if len(dataSource) > 0:
-                th = dataSource[0].keys()
                 th = 'Term	Database	ID	Input number	Background number	P-Value	Corrected P-Value	Input	Hyperlink'.split('\t')
                 if kobas_app == 'exp_data':
-                    th = 'GENE_SET	NAME	ENRICHMENT_RES	PROBABILITY	ENRICH_SCORE'.split('\t')
+                    if fileKey in ['output_identify_edge', 'output_edge_tmp']:
+                        th = 'pathway1	pathway2	cor	pathway1_ID	pathway2_ID'.split('\t')
+                    else:
+                        th = 'GENE_SET	NAME	ENRICHMENT_RES	PROBABILITY	ENRICH_SCORE'.split('\t')
                 elif fileKey == 'output_identify_edge' or fileKey == 'output_edge_tmp':
                     th = 'pathway1	pathway2	cor	pathway1_ID	input1_number	background1_number	pvalue1	qvalue1	pathway2_ID	input2_number	background2_number	pvalue2	qvalue2'.split('\t')
                 # tsv_test.writerow('\t'.join(th))
