@@ -743,7 +743,6 @@ def post_annotate_visualization():
     if output_identify_clu is None:
         return '%s not in config.conf' % fileKey
     path = os.path.join(out_dir, output_identify_clu)
-    print path
     try:
         import csv
         with open(path, 'w') as f:
