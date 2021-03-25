@@ -61,9 +61,7 @@ def tcm_api():
     api_method = request.headers.get('API-METHOD')
     if api_method is not None:
         method = api_method
-    print request.headers
     response_data = sort_request1(method, url, api_service, data=data)
-    print response_data
     return jsonify(response_data)
 
 
