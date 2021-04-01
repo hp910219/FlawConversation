@@ -462,12 +462,12 @@ def tumor_app_order(order):
             'sortFunc': sort_ttest,
         },
         'surv_group': {
-            'rPath': '/public/jingdu/zss/Rscript-zss/app/survival/surv_cox/surv_cox.R',
+            'rPath': '/public/jingdu/zss/Rscript-zss/app/survival/surv_group/surv_group.R',
             'sortFunc': sort_surv_group,
             'output_postfix': 'pdf'
         },
         'surv_cox': {
-            'rPath': '/public/jingdu/zss/Rscript-zss/app/survival/surv_group/surv_group.R',
+            'rPath': '/public/jingdu/zss/Rscript-zss/app/survival/surv_cox/surv_cox.R',
             'sortFunc': sort_surv_cox,
             'output_postfix': 'tsv'
         },
