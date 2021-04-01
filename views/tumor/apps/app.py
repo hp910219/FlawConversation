@@ -224,6 +224,35 @@ def sort_ttest(rq, r_path, output, result_dir, t):
     return cmd, [dir1]
 
 
+def sort_surv_group(rq, r_path, output, result_dir, t):
+    input_file1 = sort_app_file('input1', 'input_file1', result_dir, t)
+    dir1 = os.path.dirname(input_file1)
+    variable = rq.get('variable')
+    cmd = 'Rscript %s %s %s %s' % (
+        r_path,
+        input_file1,
+        output,
+        variable
+    )
+    return cmd, [dir1]
+
+
+def sort_surv_cox(rq, r_path, output, result_dir, t):
+    exp_file = sort_app_file('input1', 'input_file1', result_dir, t)
+    surv_file = sort_app_file('input2', 'input_file2', result_dir, t)
+    dir1 = os.path.dirname(exp_file)
+    dir2 = os.path.dirname(surv_file)
+    cmd = 'Rscript %s %s %s %s %s %s' % (
+        r_path,
+        exp_file,
+        surv_file,
+        output,
+        rq.get('time'),
+        rq.get('status'),
+    )
+    return cmd, [dir1, dir2]
+
+
 def sort_app_file(key, file_key, result_dir, t):
     rq = request.json
     input_file1 = rq.get(file_key)
