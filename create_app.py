@@ -31,7 +31,7 @@ def sort_request1(method, url, api_service='api', auth=None, data=None, remote_a
         method = api_method
     if auth is None:
         auth = request.headers.get('Authorization')
-
+    xAuth = request.headers.get('X-Authorization')
     # start
     error_message = ''
     response_data = None
@@ -55,6 +55,8 @@ def sort_request1(method, url, api_service='api', auth=None, data=None, remote_a
         headers = {'Content-Type': 'application/json'}
         if auth:
             headers['authorization'] = auth
+        if xAuth:
+            headers['X-Authorization'] = xAuth
         request_params['headers'] = headers
         try:
             response = requests.request(method, api_url, **request_params)
@@ -90,6 +92,8 @@ def sort_request1(method, url, api_service='api', auth=None, data=None, remote_a
         error_message += ''
     # if self.is_print:
     #     print error_message
+    # print headers
+    # print error_message
     if 'success' not in error_message.lower():
         try:
             send_msg_by_dd(error_message, env=env)
@@ -113,7 +117,7 @@ def sort_request():
     api_method = request.headers.get('API-METHOD')
     if api_method is not None:
         method = api_method
-    auth = request.headers.get('Authorization')
+    auth = request.headers.get('X-Authorization') or request.headers.get('Authorization')
     # start
     error_message = ''
     response_data = None
