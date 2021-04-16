@@ -806,7 +806,7 @@ def update_static(src_dir, postfix1=''):
 if __name__ == '__main__':
 
     from jy_word.web_tool import get_host, killport
-    port = 9003
+    port = 9004
     host_info = get_host(port)
     text = '/detection/admin/'
     '98a749a93a86d15af5b9634c2db53f71'
@@ -819,3 +819,4 @@ if __name__ == '__main__':
     update_static(os.path.join(project_dir, 'ncfansgit'), 'ncFANs')
     # shutil.copytree(r'D:\pythonproject\KOBARSWeb\dist', r'D:\pythonproject\TCMWeb\templates\kobars')
     app.run(host=host_ip, port=port)
+
