@@ -36,9 +36,13 @@ project_dir = os.path.dirname(dir_name)
 # @app.route('')
 def hello_world():
     conf = read_conf()
+    full_path = request.full_path
+    KOBAS_PREFIX = request.path.rstrip('/')
+    if 'bioinfo' in full_path:
+        KOBAS_PREFIX = '/kobas3'
     system_name = conf.get('system_name')
     return render_template('index.html',
-                           KOBAS_PREFIX=request.path.rstrip('/'),
+                           KOBAS_PREFIX=KOBAS_PREFIX,
                            static_dir=static_dir.rstrip('/'),
                            restart_time=restart_time, system_name=system_name, conf=conf)
 
@@ -47,6 +51,7 @@ def hello_world():
 def page_not_found(e):
     conf = read_conf()
     system_name = conf.get('system_name')
+    print request.path
     # print 'system_name', system_name
     return render_template('index.html', static_dir=static_dir.rstrip('/'), restart_time=restart_time, system_name=system_name, conf=conf)
 
