@@ -38,6 +38,7 @@ def hello_world():
     conf = read_conf()
     system_name = conf.get('system_name')
     return render_template('index.html',
+                           KOBAS_PREFIX=request.path.rstrip('/'),
                            static_dir=static_dir.rstrip('/'),
                            restart_time=restart_time, system_name=system_name, conf=conf)
 
@@ -806,7 +807,7 @@ def update_static(src_dir, postfix1=''):
 if __name__ == '__main__':
 
     from jy_word.web_tool import get_host, killport
-    port = 9004
+    port = 9003
     host_info = get_host(port)
     text = '/detection/admin/'
     '98a749a93a86d15af5b9634c2db53f71'
