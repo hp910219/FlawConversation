@@ -26,6 +26,8 @@
         var restart_time = '{{ restart_time }}';
         var static_dir = '{{ static_dir }}';
         console.log('system_conf', system_conf);
+        if(location.hostname.indexOf('bioinfo') > -1) KOBAS_PREFIX = '/KOBAS3'
+
     </script>
 </head>
 <body>
