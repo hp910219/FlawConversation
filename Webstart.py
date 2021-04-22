@@ -32,14 +32,13 @@ project_dir = os.path.dirname(dir_name)
 
 @app.route('/kobas3/')
 @app.route('/kobas3')
+@app.route('/kobas')
 @app.route('/')
 # @app.route('')
 def hello_world():
     conf = read_conf()
     full_path = request.full_path
     KOBAS_PREFIX = request.path.rstrip('/')
-    if 'bioinfo' in full_path:
-        KOBAS_PREFIX = '/kobas3'
     system_name = conf.get('system_name')
     return render_template('index.html',
                            KOBAS_PREFIX=KOBAS_PREFIX,
@@ -372,7 +371,7 @@ def download_file():
     if isinstance(conf, str):
         return conf
     env = conf.get('env')
-    if env and env == 'KOBARS':
+    if env and env in ['KOBARS']:
         if file_path not in ['/gpfs/www/kobas3/site/kobas-2.1.1/kobas-2.1.1.tar.gz',
                              '/gpfs/www/kobas3/site/kobas-2.1.1/kobas-3.0.3.tar.gz']:
             if dir_name.startswith('/gpfs/user/budc/kobas_2019/data/example') is False \
@@ -708,6 +707,7 @@ def transfer_img():
     return json.dumps(data)
 
 
+@app.route('/kobas/avai/taxonomy/', methods=['GET'])
 @app.route('/kobas3/avai/taxonomy/', methods=['GET'])
 def get_avi_taxonomy():
     dir_name = os.path.dirname(__file__)
@@ -746,6 +746,7 @@ def get_avi_taxonomy():
 
 
 @app.route('/kobas3/annotate/visualization/', methods=['POST'])
+@app.route('/kobas/annotate/visualization/', methods=['POST'])
 def post_annotate_visualization():
     rq = request.json or {}
     dataSource = rq.get('dataSource') or []
