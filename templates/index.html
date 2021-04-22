@@ -1,11 +1,10 @@
 <!DOCTYPE html>
 <html>
 <head>
-
+    {% set KOBAS_PREFIX = conf.static_prefix or '' %}
     {% if conf.umi_name == 'umi_kobars' %}
 {#        <link rel="stylesheet" href="./kobas3/static/{{ conf.umi_name or 'umi' }}.css?t={{ restart_time }}">#}
-        <link rel="stylesheet" href="/static/{{ conf.umi_name or 'umi' }}.css?t={{ restart_time }}">
-        <link rel="stylesheet" href="/kobas3/static/{{ conf.umi_name or 'umi' }}.css?t={{ restart_time }}">
+        <link rel="stylesheet" href="{{ KOBAS_PREFIX }}/static/{{ conf.umi_name or 'umi' }}.css?t={{ restart_time }}">
     {% else %}
         <link rel="stylesheet" href="/static/{{ conf.umi_name or 'umi' }}.css?t={{ restart_time }}">
         <link rel="stylesheet" href="./static/{{ conf.umi_name or 'umi' }}.css?t={{ restart_time }}">
@@ -26,7 +25,6 @@
         var restart_time = '{{ restart_time }}';
         var static_dir = '{{ static_dir }}';
         console.log('system_conf', system_conf);
-        if(location.hostname.indexOf('bioinfo') > -1) KOBAS_PREFIX = '/kobas';
 
     </script>
 </head>
@@ -35,8 +33,7 @@
 
 {% if conf.umi_name == 'umi_kobars' %}
 {#    <script src="./kobas3/static/{{ conf.umi_name or 'umi' }}.js?t={{ restart_time }}"></script>#}
-    <script src="/static/{{ conf.umi_name or 'umi' }}.js?t={{ restart_time }}"></script>
-    <script src="/kobas3/static/{{ conf.umi_name or 'umi' }}.js?t={{ restart_time }}"></script>
+    <script src="{{ KOBAS_PREFIX }}/static/{{ conf.umi_name or 'umi' }}.js?t={{ restart_time }}"></script>
 {% else %}
     <script src="/static/{{ conf.umi_name or 'umi' }}.js?t={{ restart_time }}"></script>
     <script src="./static/{{ conf.umi_name or 'umi' }}.js?t={{ restart_time }}"></script>
