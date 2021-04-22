@@ -53,6 +53,8 @@ def page_not_found(e):
     return render_template('index.html', static_dir=static_dir.rstrip('/'), restart_time=restart_time, system_name=system_name, conf=conf)
 
 
+@app.route("/kobas3/tcm/api/", methods=["GET", "POST", "PUT", "DELETE"])
+@app.route("/kobas/tcm/api/", methods=["GET", "POST", "PUT", "DELETE"])
 @app.route("/en/tcm/api/", methods=["GET", "POST", "PUT", "DELETE"])
 @app.route("/tcm/api/", methods=["GET", "POST", "PUT", "DELETE"])
 def tcm_api():
