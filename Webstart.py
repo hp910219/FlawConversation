@@ -38,10 +38,8 @@ project_dir = os.path.dirname(dir_name)
 def hello_world():
     conf = read_conf()
     full_path = request.full_path
-    KOBAS_PREFIX = request.path.rstrip('/')
     system_name = conf.get('system_name')
     return render_template('index.html',
-                           KOBAS_PREFIX=KOBAS_PREFIX,
                            static_dir=static_dir.rstrip('/'),
                            restart_time=restart_time, system_name=system_name, conf=conf)
 
