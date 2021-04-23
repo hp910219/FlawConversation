@@ -707,6 +707,7 @@ def transfer_img():
     return json.dumps(data)
 
 
+@app.route('/avai/taxonomy/', methods=['GET'])
 @app.route('/kobas/avai/taxonomy/', methods=['GET'])
 @app.route('/kobas3/avai/taxonomy/', methods=['GET'])
 def get_avi_taxonomy():
@@ -745,6 +746,7 @@ def get_avi_taxonomy():
     return jsonify({'data': items3, 'message': 'success'})
 
 
+@app.route('/annotate/visualization/', methods=['POST'])
 @app.route('/kobas3/annotate/visualization/', methods=['POST'])
 @app.route('/kobas/annotate/visualization/', methods=['POST'])
 def post_annotate_visualization():
