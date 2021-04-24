@@ -33,7 +33,7 @@
 
 {% if conf.umi_name == 'umi_kobars' %}
 {#    <script src="./kobas3/static/{{ conf.umi_name or 'umi' }}.js?t={{ restart_time }}"></script>#}
-    <script src="{{ KOBAS_PREFIX }}/static/{{ conf.umi_name or 'umi' }}.js?t={{ restart_time }}" type=“text/javascript”></script>
+    <script src="{{ KOBAS_PREFIX }}/static/{{ conf.umi_name or 'umi' }}.js?t={{ restart_time }}"></script>
 {% else %}
     <script src="/static/{{ conf.umi_name or 'umi' }}.js?t={{ restart_time }}"></script>
     <script src="./static/{{ conf.umi_name or 'umi' }}.js?t={{ restart_time }}"></script>
