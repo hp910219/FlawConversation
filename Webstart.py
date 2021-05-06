@@ -661,6 +661,24 @@ def get_file():
     return jsonify(data)
 
 
+@app.route('/zip/dir/', methods=['POST'])
+def zip_dir_rq():
+    rq = request.json or {}
+    dir_name = rq.get('dir') or ''
+    parent_dir = os.path.dirname(dir_name)
+    file_name = rq.get('file_name') or ''
+    zip_name = os.path.relpath(dir_name, parent_dir) + '_'+ file_name
+    file_list = rq.get('file_list')
+    zip_path = os.path.join(parent_dir, zip_name)
+    # zip_path = parent_dir + '/' + zip_name
+    if os.path.exists(zip_path) is False:
+        while True:
+            zipStatus = zip_dir(parent_dir, dir_name, zip_name, file_list)
+            if zipStatus == 5:
+                break
+    return json.dumps({'message': 'success',  'file_path': zip_path})
+
+
 @app.route('/file/content/', methods=['POST'])
 def get_file_content():
     rq = request.json or {}
