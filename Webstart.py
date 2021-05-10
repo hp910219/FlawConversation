@@ -692,10 +692,13 @@ def get_file_content():
     to_json = True
     if 'to_json' in rq:
         to_json = rq.get('to_json')
+    to_string = False
+    if 'to_string' in rq:
+        to_string = rq.get('to_string')
     path = os.path.join(dir_name, file_name)
     if os.path.exists(path) is False:
         return json.dumps({'message': 'Path not exists, %s' % path})
-    data = my_file.read(path, to_json=to_json)
+    data = my_file.read(path, to_json=to_json, to_string=to_string)
     try:
         encoding = chardet.detect(data[0])['encoding']
         # print encoding
