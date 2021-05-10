@@ -466,6 +466,11 @@ def tumor_app_order(order):
             'rPath': '/public/jingdu/zss/Rscript-zss/app/wilcox_tTest/wilcoxTest/wilcoxonTest.R',
             'sortFunc': sort_ttest,
         },
+        'anova': {
+            'rPath': '/public/jingdu/zss/Rscript-zss/app/anova_kruskal/multGroups_diff.R',
+            'sortFunc': sort_annova,
+            'output_postfix': 'tsv'
+        },
         'surv_group': {
             'rPath': '/public/jingdu/zss/Rscript-zss/app/survival/surv_group/surv_group.R',
             'sortFunc': sort_surv_group,
