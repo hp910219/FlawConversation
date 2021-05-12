@@ -483,7 +483,7 @@ def tumor_app_order(order):
             'output_postfix': 'tsv'
         },
         'vcf2maf': {
-            'script_name': 'vcf2maf.sh',
+            'script_name': 'run_vcf2maf.sh',
             'sortFunc': sort_vcf2maf,
             'output_postfix': 'maf',
             'bio': 'bc_vcf2maf /bin/bash',
