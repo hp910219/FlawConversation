@@ -110,6 +110,19 @@ def sort_herbScore(rq, r_path, output, result_dir, t):
     return cmd, [dir1]
 
 
+def sort_vcf2maf(rq, r_path, output, result_dir, t):
+    input_file1 = sort_app_file('input1', 'input_file1', result_dir, t)
+    dir1 = os.path.dirname(input_file1)
+    cmd = 'sh %s %s %s %s %s' % (
+        r_path,
+        input_file1,
+        rq.get('tumor_id'),
+        rq.get('normal_id'),
+        output,
+    )
+    return cmd, [dir1]
+
+
 def sort_herbVisualization(rq, r_path, output, result_dir, t):
     input_file1 = sort_app_file('input1', 'input_file1', result_dir, t)
     dir1 = os.path.dirname(input_file1)
@@ -275,7 +288,7 @@ def sort_app_file(key, file_key, result_dir, t):
     return input_file1
 
 
-def tumor_app(app_name, rPath, sortFunc, output_postfix='txt', order1='--rm', bio='bio_r'):
+def tumor_app(app_name, rPath, sortFunc, output_postfix='txt', order1='--rm', bio='bio_r', script_name=''):
     env_key = 'AY_USER_DATA_DIR'
     conf = read_conf()
     if isinstance(conf, str):

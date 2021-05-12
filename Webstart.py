@@ -388,6 +388,7 @@ def download_file():
 
 @app.route('/tumor/app/<order>/', methods=['GET', 'POST'])
 def tumor_app_order(order):
+    JY_SX_REF_DIR = os.environ.get('JY_SX_REF_DIR')
     app_items = {
         'merge': {
             'rPath': '/public/jingdu/budechao/lecture/lec1_merge/merge_demo.R',
@@ -481,11 +482,27 @@ def tumor_app_order(order):
             'sortFunc': sort_surv_cox,
             'output_postfix': 'tsv'
         },
+        'vcf2maf': {
+            'script_name': 'vcf2maf.sh',
+            'sortFunc': sort_vcf2maf,
+            'output_postfix': 'maf',
+            'bio': 'bc_vcf2maf /bin/bash',
+            'order1': '-v %s:/db' % JY_SX_REF_DIR
+        },
     }
     if order in ['diffTest', 'fisherTest']:
         order = request.json.get('method')
     if order in app_items:
         app_item = app_items[order]
+        conf = read_conf()
+        if isinstance(conf, str):
+            return conf
+        scripts_dir = conf.get('scripts_dir')
+        if scripts_dir:
+            rPath = app_item.get('rPath')
+            rDir = os.path.dirname(rPath)
+            fileName = app_item.get('script_name') or os.path.relpath(rDir)
+            app_item['rPath'] = os.path.join(scripts_dir, fileName)
         return tumor_app(order, **app_item)
     return jsonify({'message': 'app%s尚未开发' % order})
 
