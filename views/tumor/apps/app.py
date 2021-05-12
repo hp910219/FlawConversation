@@ -288,7 +288,7 @@ def sort_app_file(key, file_key, result_dir, t):
     return input_file1
 
 
-def tumor_app(app_name, rPath, sortFunc, output_postfix='txt', order1='--rm', bio='bio_r', script_name=''):
+def tumor_app(app_name, rPath='', sortFunc=None, output_postfix='txt', order1='--rm', bio='bio_r', **kwargs):
     env_key = 'AY_USER_DATA_DIR'
     conf = read_conf()
     if isinstance(conf, str):
