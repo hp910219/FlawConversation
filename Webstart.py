@@ -492,19 +492,22 @@ def tumor_app_order(order):
     }
     if order in ['diffTest', 'fisherTest']:
         order = request.json.get('method')
-    if order in app_items:
-        app_item = app_items[order]
-        conf = read_conf()
-        if isinstance(conf, str):
-            return conf
-        scripts_dir = conf.get('scripts_dir')
-        if scripts_dir:
-            rPath = app_item.get('rPath')
-            rDir = os.path.dirname(rPath)
-            fileName = app_item.get('script_name') or os.path.relpath(rPath, rDir)
-            app_item['rPath'] = os.path.join(scripts_dir, fileName)
-        return tumor_app(order, **app_item)
-    return jsonify({'message': 'app%s尚未开发' % order})
+    try:
+        if order in app_items:
+            app_item = app_items[order]
+            conf = read_conf()
+            if isinstance(conf, str):
+                return conf
+            scripts_dir = conf.get('scripts_dir')
+            if scripts_dir:
+                rPath = app_item.get('rPath')
+                rDir = os.path.dirname(rPath)
+                fileName = app_item.get('script_name') or os.path.relpath(rPath, rDir)
+                app_item['rPath'] = os.path.join(scripts_dir, fileName)
+            return tumor_app(order, **app_item)
+        return jsonify({'message': 'app%s尚未开发' % order})
+    except:
+        return jsonify({'message': 'app%s运行出错：%s' % (order, traceback.format_exc())})
 
 
 @app.route('/tumor/siRNA/', methods=['GET', 'POST'])
