@@ -501,7 +501,6 @@ def tumor_app_order(order):
         if scripts_dir:
             rPath = app_item.get('rPath')
             rDir = os.path.dirname(rPath)
-
             fileName = app_item.get('script_name') or os.path.relpath(rPath, rDir)
             app_item['rPath'] = os.path.join(scripts_dir, fileName)
         return tumor_app(order, **app_item)
