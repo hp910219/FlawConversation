@@ -490,7 +490,7 @@ def tumor_app_order(order):
             'order1': '-v %s:/db' % JY_SX_REF_DIR
         },
         'probe2gene': {
-            'script_name': 'probe2gene.R',
+            'script_name': 'probe2gene/probe2gene.R',
             'sortFunc': sort_probe2gene,
             'output_postfix': 'zip',
         },
