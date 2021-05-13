@@ -486,8 +486,13 @@ def tumor_app_order(order):
             'script_name': 'run_vcf2maf.sh',
             'sortFunc': sort_vcf2maf,
             'output_postfix': 'maf',
-            'bio': 'bc_vcf2maf /bin/bash',
+            'bio': 'bc_vcf2maf',
             'order1': '-v %s:/db' % JY_SX_REF_DIR
+        },
+        'probe2gene': {
+            'script_name': 'probe2gene.R',
+            'sortFunc': sort_probe2gene,
+            'output_postfix': 'zip',
         },
     }
     if order in ['diffTest', 'fisherTest']:
@@ -516,7 +521,7 @@ def tumor_app_order(order):
 @app.route('/tumor/siRNA/', methods=['GET', 'POST'])
 def tumor_siRNA():
     rPath = '/data/siRNA/run_siRNA_auto.sh'
-    def sort_pheatmap(rq, r_path, output, result_dir, t):
+    def sort_siRNA(rq, r_path, output, result_dir, t):
         input_file1 = sort_app_file('input1', 'input_file1', '/data/userdata', t)
         dir1 = os.path.dirname(input_file1)
         cmd = 'sh %s %s %s %s /data/siRNA' % (
@@ -526,7 +531,7 @@ def tumor_siRNA():
             result_dir
         )
         return cmd, [dir1]
-    return tumor_app_siRNA('siRNA', rPath, sort_pheatmap, output_postfix='png')
+    return tumor_app_siRNA('siRNA', rPath, sort_siRNA, output_postfix='png')
 
 
 @app.route("/tcm/auth/code/", methods=["GET", "POST", 'OPTIONS'])
@@ -563,7 +568,6 @@ def auth_code_crud():
         f_item = f_items[0]
         return jsonify(f_item)
     return jsonify(items)
-
 
 
 @app.route("/jyweb/<action_name>/crud/", methods=["GET", "POST", "PUT", "DELETE"])
