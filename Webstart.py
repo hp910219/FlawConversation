@@ -8,6 +8,7 @@ import traceback
 import json
 
 from flask import jsonify, request, render_template, send_from_directory, redirect
+# from celery import Celery
 from config import read_conf
 from jy_word.web_tool import send_msg_by_dd, format_time, zip_dir
 from jy_word.File import File
@@ -24,6 +25,16 @@ reload(sys)
 sys.setdefaultencoding('utf-8')
 
 app = create_app()
+
+# # 配置消息代理的路径，如果是在远程服务器上，则配置远程服务器中redis的URL
+# app.config['CELERY_BROKER_URL'] = 'redis://localhost:6379/0'
+# # 要存储 Celery 任务的状态或运行结果时就必须要配置
+# app.config['CELERY_RESULT_BACKEND'] = 'redis://localhost:6379/0'
+# # 初始化Celery
+# celery = Celery(app.name, broker=app.config['CELERY_BROKER_URL'])
+# # 将Flask中的配置直接传递给Celery
+# celery.conf.update(app.config)
+
 restart_time = format_time(frm='%Y-%m%d-%H:%M:%S')
 dir_name = os.path.dirname(__file__)
 static_dir = os.path.join(dir_name, 'static')
@@ -493,6 +504,11 @@ def tumor_app_order(order):
             'script_name': 'probe2gene/probe2gene.R',
             'sortFunc': sort_probe2gene,
             'output_postfix': 'zip',
+        },
+        'ssGSEA': {
+            'script_name': 'ssGSEA/ssGSEA.R ',
+            'sortFunc': sort_annova,
+            'output_postfix': 'tsv'
         },
     }
     if order in ['diffTest', 'fisherTest']:
