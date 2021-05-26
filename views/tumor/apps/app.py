@@ -303,6 +303,130 @@ def sort_app_file(key, file_key, result_dir, t):
     return input_file1
 
 
+def tumor_app1(app_name, rPath='', sortFunc=None, output_postfix='txt', order1='--rm', bio='bio_r', **kwargs):
+    env_key = 'AY_USER_DATA_DIR'
+    conf = read_conf()
+    if isinstance(conf, str):
+        return conf
+    env = conf.get('env')
+    JINGD_DATA_ROOT = os.environ.get(env_key) or conf.get('jingd_data_root')
+    r_dir = os.path.dirname(rPath)
+    output_dir = os.path.join(JINGD_DATA_ROOT, app_name)
+    if os.path.exists(output_dir) is False:
+        os.makedirs(output_dir)
+        # return jsonify({'message': 'Path not exists, %s' % path})
+    t = format_time(frm='%Y%m%d%H%M%S')
+    items = []
+    msg = ''
+    # a + 5
+    if request.method == 'POST':
+        rq = request.json
+        taskid = rq.get('taskid')
+        if taskid:
+            output_dir = os.path.join(output_dir, taskid)
+        if os.path.exists(output_dir) is False:
+            os.makedirs(output_dir)
+        output_file = '%s.output.%s.%s' % (app_name, t, output_postfix)
+        output = output_dir.rstrip('/') + '/' + output_file
+        cmd_dev, dirs = sortFunc(rq, rPath, output, output_dir, t)
+        dirs += [output_dir, r_dir]
+        # docker run -rm -v data_dir:/data -w /data bio_r
+        cmd = 'docker run %s' % order1
+        for i in list(set(dirs)):
+            cmd += ' -v %s:%s' % (i, i)
+        cmd += ' %s ' % bio
+        if env and env.startswith('Development'):
+            cmd = ''
+        cmd += cmd_dev
+        return jsonify({'data': {
+            'app_name': app_name,
+            'postfix': output_postfix,
+            'file_path': output,
+            'dir': output_dir, 'file_name': output_file,
+            'cmd': cmd,
+            'msg': msg
+        }, 'message': 'success', 'status': 100001})
+    return jsonify({'data': items, 'message': 'success'})
+
+
+def tumor_app2():
+    msg = ''
+    rq = request.json
+    output = rq.get('file_path')
+    cmd = rq.get('cmd')
+    output_dir = rq.get('dir')
+    file_name = rq.get('file_name')
+
+    zip_file_dir = output[:-4]
+    output_postfix = rq.get('postfix')
+    isZip = output_postfix == 'zip'
+    if isZip:
+        if os.path.exists(zip_file_dir) is False:
+            os.makedirs(zip_file_dir)
+        # print fileDir
+    print cmd
+    try:
+        code = os.system(cmd)
+        # print code, t
+        if code:
+            # 获取错误日志
+            try:
+                # scheduler_order = "top -u ybtao"
+                # os.system(cmd)
+                return_info = subprocess.Popen(cmd, shell=True, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
+                # next_line = return_info.stdout.readline()
+                # msg = next_line.decode("utf-8", "ignore")
+                # while True:
+                #     next_line = return_info.stdout.readline()
+                #     return_line = next_line.decode("utf-8", "ignore")
+                #     if return_line == '' and return_info.poll() is not None:
+                #         break
+                #     if return_line:
+                #         msg = return_line
+                #         print 'ssdfdf', msg
+                #         # break
+                # returncode = return_info.wait()
+                # if returncode:
+                #     print 'read', return_info.stdout.read()
+                #     raise subprocess.CalledProcessError(returncode, return_info)
+                msg = return_info.communicate()[0].decode('utf-8', 'ignore')
+            except Exception, e:
+                print 'Exception', e
+                msg = traceback.format_exc()
+                send_msg_by_dd('app\n\n%s' % msg)
+                if isZip:
+                    os.removedirs(zip_file_dir)
+                # msg = traceback.format_exc()
+    except Exception, e:
+        # traceback.print_exc()
+        msg = cmd + traceback.format_exc()
+
+
+
+    # print app.logger.error()
+    # # demo signature zip start
+    # for i in range(3):
+    #     os.makedirs(os.path.join(fileDir, 's%s' % i))
+    #     fp = open(os.path.join(fileDir, '%s.txt' % i), 'w+')
+    #     fp.write('sdfdgkdfjgk%s' % i)
+    #     fp.close()
+    # # demo signature zip end
+    if isZip and os.path.exists(zip_file_dir):
+        while True:
+            zipStatus = zip_dir('', zip_file_dir, output)
+            if zipStatus == 5:
+                break
+
+    if os.path.exists(output):
+        # data = my_file.read(output)
+        return jsonify({'data': {
+            'file_path': output, 'dir': output_dir, 'file_name': file_name,
+            'cmd': cmd,
+            'msg': msg
+        }, 'message': 'success', 'status': 100001})
+    return jsonify({'message': u'输出文件生成失败: %s' % msg, 'cmd': cmd})
+
+
 def tumor_app(app_name, rPath='', sortFunc=None, output_postfix='txt', order1='--rm', bio='bio_r', **kwargs):
     env_key = 'AY_USER_DATA_DIR'
     conf = read_conf()
@@ -321,6 +445,11 @@ def tumor_app(app_name, rPath='', sortFunc=None, output_postfix='txt', order1='-
     # a + 5
     if request.method == 'POST':
         rq = request.json
+        taskid = rq.get('taskid')
+        if taskid:
+            output_dir = os.path.join(output_dir, taskid)
+        if os.path.exists(output_dir) is False:
+            os.makedirs(output_dir)
         output_file = '%s.output.%s.%s' % (app_name, t, output_postfix)
         output = output_dir.rstrip('/') + '/' + output_file
         cmd_dev, dirs = sortFunc(rq, rPath, output, output_dir, t)

@@ -397,8 +397,8 @@ def download_file():
     return send_from_directory(dir_name, file_name, as_attachment=True, attachment_filename=attachment_filename)
 
 
-@app.route('/tumor/app/<order>/', methods=['GET', 'POST'])
-def tumor_app_order(order):
+@app.route('/tumor/app/<order>/1/', methods=['GET', 'POST'])
+def tumor_app_order1(order):
     JY_SX_REF_DIR = os.environ.get('JY_SX_REF_DIR')
     app_items = {
         'merge': {
@@ -479,7 +479,7 @@ def tumor_app_order(order):
             'sortFunc': sort_ttest,
         },
         'anova': {
-            'rPath': '/public/jingdu/zss/Rscript-zss/app/anova_kruskal/multGroups_diff.R',
+            'script_name': 'multGroups_diff.R',
             'sortFunc': sort_annova,
             'output_postfix': 'tsv'
         },
@@ -528,8 +528,16 @@ def tumor_app_order(order):
                 else:
                     fileName = app_item.get('script_name')
                 app_item['rPath'] = os.path.join(scripts_dir, fileName)
-            return tumor_app(order, **app_item)
+            return tumor_app1(order, **app_item)
         return jsonify({'message': 'app%s尚未开发' % order})
+    except:
+        return jsonify({'message': 'app%s运行出错：%s' % (order, traceback.format_exc())})
+
+
+@app.route('/tumor/app/<order>/2/', methods=['GET', 'POST'])
+def tumor_app_order2(order):
+    try:
+        return tumor_app2()
     except:
         return jsonify({'message': 'app%s运行出错：%s' % (order, traceback.format_exc())})
 
