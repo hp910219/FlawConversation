@@ -166,6 +166,7 @@ def sort_randomForest(rq, r_path, output, result_dir, t):
     input_file1 = sort_app_file('input1', 'input_file1', result_dir, t)
     input_file2 = sort_app_file('input2', 'input_file2', result_dir, t)
     dir1 = os.path.dirname(input_file1)
+    dir2 = os.path.dirname(input_file2)
     output_dir = output[:-4]
     # sample_ids = rq.get('sample_ids')
     # train_pd.txt test_pd.txt weights.txt output.pdf
@@ -179,13 +180,14 @@ def sort_randomForest(rq, r_path, output, result_dir, t):
         os.path.join(output_dir, 'weights.txt'),
         os.path.join(output_dir, 'output.pdf'),
     )
-    return cmd, [dir1]
+    return cmd, [dir1, dir2]
 
 
 def sort_dcTree(rq, r_path, output, result_dir, t):
     input_file1 = sort_app_file('input1', 'input_file1', result_dir, t)
     input_file2 = sort_app_file('input2', 'input_file2', result_dir, t)
     dir1 = os.path.dirname(input_file1)
+    dir2 = os.path.dirname(input_file2)
     output_dir = output[:-4]
     cmd = 'Rscript %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s' % (
         r_path,
@@ -204,7 +206,7 @@ def sort_dcTree(rq, r_path, output, result_dir, t):
         os.path.join(output_dir, 'out_cp.txt'),
         (rq.get('cp_value') or '0.015'),
     )
-    return cmd, [dir1]
+    return cmd, [dir1, dir2]
 
 
 def sort_cox(rq, r_path, output, result_dir, t):
@@ -226,6 +228,7 @@ def sort_ttest(rq, r_path, output, result_dir, t):
     input_file1 = sort_app_file('input1', 'input_file1', result_dir, t)
     input_file2 = sort_app_file('input2', 'input_file2', result_dir, t)
     dir1 = os.path.dirname(input_file1)
+    dir2 = os.path.dirname(input_file2)
     cmd = 'Rscript %s %s %s %s %s %s' % (
         r_path,
         input_file1,
@@ -234,20 +237,21 @@ def sort_ttest(rq, r_path, output, result_dir, t):
         rq.get('groupB_name'),
         output
     )
-    return cmd, [dir1]
+    return cmd, [dir1, dir2]
 
 
 def sort_annova(rq, r_path, output, result_dir, t):
     input_file1 = sort_app_file('input1', 'input_file1', result_dir, t)
     input_file2 = sort_app_file('input2', 'input_file2', result_dir, t)
     dir1 = os.path.dirname(input_file1)
+    dir2 = os.path.dirname(input_file2)
     cmd = 'Rscript %s %s %s %s' % (
         r_path,
         input_file1,
         input_file2,
         output
     )
-    return cmd, [dir1]
+    return cmd, [dir1, dir2]
 
 
 def sort_surv_group(rq, r_path, output, result_dir, t):
@@ -283,6 +287,7 @@ def sort_probe2gene(rq, r_path, output, result_dir, t):
     input_file1 = sort_app_file('input1', 'input_file1', result_dir, t)
     input_file2 = sort_app_file('input2', 'input_file2', result_dir, t)
     dir1 = os.path.dirname(input_file1)
+    dir2 = os.path.dirname(input_file2)
     output_dir = output[:-4]
     cmd = 'Rscript %s %s %s %s %s' % (
         r_path,
@@ -291,7 +296,7 @@ def sort_probe2gene(rq, r_path, output, result_dir, t):
         os.path.join(output_dir, 'out_symbol.tsv'),
         os.path.join(output_dir, 'out_entrez.tsv')
     )
-    return cmd, [dir1]
+    return cmd, [dir1, dir2]
 
 
 def sort_app_file(key, file_key, result_dir, t):

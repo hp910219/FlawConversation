@@ -506,7 +506,7 @@ def tumor_app_order1(order):
             'output_postfix': 'zip',
         },
         'ssGSEA': {
-            'script_name': 'ssGSEA/ssGSEA.R ',
+            'script_name': 'ssGSEA/ssGSEA.R',
             'sortFunc': sort_annova,
             'output_postfix': 'tsv'
         },
