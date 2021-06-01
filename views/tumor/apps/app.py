@@ -333,7 +333,7 @@ def tumor_app1(app_name, rPath='', sortFunc=None, output_postfix='txt', order1='
     env = conf.get('env')
     JINGD_DATA_ROOT = os.environ.get(env_key) or conf.get('jingd_data_root')
     r_dir = os.path.dirname(rPath)
-    output_dir = os.path.join(JINGD_DATA_ROOT, app_name)
+    output_dir = os.path.join(JINGD_DATA_ROOT, 'app', 'output', app_name)
     if os.path.exists(output_dir) is False:
         os.makedirs(output_dir)
         # return jsonify({'message': 'Path not exists, %s' % path})
