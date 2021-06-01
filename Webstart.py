@@ -510,6 +510,11 @@ def tumor_app_order1(order):
             'sortFunc': sort_annova,
             'output_postfix': 'tsv'
         },
+        'naivebayes': {
+            'script_name': 'naivebayes/run_naivebayes.R',
+            'sortFunc': sort_naivebayes,
+            'output_postfix': 'zip'
+        },
     }
     if order in ['diffTest', 'fisherTest']:
         order = request.json.get('method')
@@ -712,6 +717,7 @@ def get_file():
         return jsonify({'message': 'Path not exists, %s' % path})
     file2 = File(path)
     data = file2.get_file_list('s', '', postfix=postfix)
+    data['data']['create_time'] = int(os.path.getctime(path) * 1000)
     data['data']['data_root'] = JINGD_DATA_ROOT
     data['data']['sep'] = os.path.sep
     return jsonify(data)
