@@ -94,9 +94,9 @@ def sort_request1(method, url, api_service='api', auth=None, data=None, remote_a
     #     print error_message
     # print headers
     # print error_message
-    if 'success' not in error_message.lower():
-        try:
-            send_msg_by_dd(error_message, env=env)
-        except:
-            print(error_message)
+    # if 'success' not in error_message.lower():
+    #     try:
+    #         send_msg_by_dd(error_message, env=env)
+    #     except:
+    #         print(error_message)
     return response_data
