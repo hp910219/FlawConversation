@@ -5,15 +5,6 @@
     {% if conf.umi_name == 'umi_kobars' %}
 {#        <link rel="stylesheet" href="./kobas3/static/{{ conf.umi_name or 'umi' }}.css?t={{ restart_time }}">#}
         <link rel="stylesheet" href="{{ KOBAS_PREFIX }}/static/{{ conf.umi_name or 'umi' }}.css?t={{ restart_time }}">
-        <script>
-            var _hmt = _hmt || [];
-            (function() {
-                var hm = document.createElement("script");
-                hm.src = "https://hm.baidu.com/hm.js?{{conf.baidu_statistic}}";
-                var s = document.getElementsByTagName("script")[0];
-                s.parentNode.insertBefore(hm, s);
-            })();
-        </script>
     {% else %}
         <link rel="stylesheet" href="/static/{{ conf.umi_name or 'umi' }}.css?t={{ restart_time }}">
         <link rel="stylesheet" href="./static/{{ conf.umi_name or 'umi' }}.css?t={{ restart_time }}">
@@ -43,6 +34,15 @@
 {% if conf.umi_name == 'umi_kobars' %}
 {#    <script src="./kobas3/static/{{ conf.umi_name or 'umi' }}.js?t={{ restart_time }}"></script>#}
     <script src="{{ KOBAS_PREFIX }}/static/{{ conf.umi_name or 'umi' }}.js?t={{ restart_time }}"></script>
+    <script>
+        var _hmt = _hmt || [];
+        (function() {
+            var hm = document.createElement("script");
+            hm.src = "https://hm.baidu.com/hm.js?{{conf.baidu_statistic}}";
+            var s = document.getElementsByTagName("script")[0];
+            s.parentNode.insertBefore(hm, s);
+        })();
+    </script>
 {% else %}
     <script src="/static/{{ conf.umi_name or 'umi' }}.js?t={{ restart_time }}"></script>
     <script src="./static/{{ conf.umi_name or 'umi' }}.js?t={{ restart_time }}"></script>
