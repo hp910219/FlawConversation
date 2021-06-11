@@ -515,6 +515,10 @@ def tumor_app_order1(order):
             'sortFunc': sort_naivebayes,
             'output_postfix': 'zip'
         },
+        'TCGAanalyze_DEA': {
+            'script_name': 'TCGAanalyze_DEA/TCGAanalyze_DEA.R',
+            'sortFunc': sort_TCGAanalyze_DEA,
+        },
     }
     if order in ['diffTest', 'fisherTest']:
         order = request.json.get('method')

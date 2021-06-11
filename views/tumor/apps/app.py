@@ -162,6 +162,23 @@ def sort_test_app(rq, rPath, output, result_dir, t):
     return cmd, [dir1]
 
 
+def sort_TCGAanalyze_DEA(rq, rPath, output, result_dir, t):
+    input_file1 = sort_app_file('input1', 'input_file1', result_dir, t)
+    input_file2 = sort_app_file('input2', 'input_file2', result_dir, t)
+    dir1 = os.path.dirname(input_file1)
+    dir2 = os.path.dirname(input_file2)
+    cmd = 'Rscript %s %s %s %s %s %s %s' % (
+        rPath,
+        input_file1,
+        input_file2,
+        rq.get('group1_name'),
+        rq.get('group2_name'),
+        output,
+        rq.get('type'),
+    )
+    return cmd, [dir1, dir2]
+
+
 def sort_randomForest(rq, r_path, output, result_dir, t):
     input_file1 = sort_app_file('input1', 'input_file1', result_dir, t)
     input_file2 = sort_app_file('input2', 'input_file2', result_dir, t)
