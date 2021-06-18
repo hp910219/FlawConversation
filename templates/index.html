@@ -34,6 +34,13 @@
 {% if conf.umi_name == 'umi_kobars' %}
 {#    <script src="./kobas3/static/{{ conf.umi_name or 'umi' }}.js?t={{ restart_time }}"></script>#}
     <script src="{{ KOBAS_PREFIX }}/static/{{ conf.umi_name or 'umi' }}.js?t={{ restart_time }}"></script>
+{% else %}
+    <script src="/static/{{ conf.umi_name or 'umi' }}.js?t={{ restart_time }}"></script>
+    <script src="./static/{{ conf.umi_name or 'umi' }}.js?t={{ restart_time }}"></script>
+    <script src="/en/static/{{ conf.umi_name or 'umi' }}.js?t={{ restart_time }}"></script>
+    <script src="./en/static/{{ conf.umi_name or 'umi' }}.js?t={{ restart_time }}"></script>
+{% endif %}
+{% if conf.baidu_statistic %}
     <script>
         var _hmt = _hmt || [];
         (function() {
@@ -43,11 +50,6 @@
             s.parentNode.insertBefore(hm, s);
         })();
     </script>
-{% else %}
-    <script src="/static/{{ conf.umi_name or 'umi' }}.js?t={{ restart_time }}"></script>
-    <script src="./static/{{ conf.umi_name or 'umi' }}.js?t={{ restart_time }}"></script>
-    <script src="/en/static/{{ conf.umi_name or 'umi' }}.js?t={{ restart_time }}"></script>
-    <script src="./en/static/{{ conf.umi_name or 'umi' }}.js?t={{ restart_time }}"></script>
 {% endif %}
 </body>
 </html>
