@@ -253,7 +253,7 @@ def sort_dcTree2(rq, r_path, output, result_dir, t):
         output,
         r_dir
     )
-    return cmd, [dir1]
+    return cmd, [dir1, r_dir]
 
 
 def sort_cox(rq, r_path, output, result_dir, t):
