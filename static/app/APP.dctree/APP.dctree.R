@@ -1,6 +1,6 @@
 library(rpart)
-dctree<-function(test_file,output_predict_test_prune){
-  data<-load("dctree_train.RData")
+dctree<-function(test_file,output_predict_test_prune,work_dir){
+  data<-load(paste(work_dir,"dctree_train.RData",sep="/"))
   train_data<-eval(parse(text=data))
   test_data<-read.table(test_file, sep="\t", header=T,row.names = 1,check.names = F)
   test_data$TMB=apply(test_data,1,sum)/0.47
@@ -20,14 +20,15 @@ dctree<-function(test_file,output_predict_test_prune){
   predtree<-predict(prune_tree,newdata=test_data,type="class") 
   predict_test=data.frame(ID=row.names(test_data),ID2=names(predtree),cluster=test_data$cluster,predtree=predtree)
   predtree_prob<-predict(prune_tree,newdata=test_data,type="prob") 
-  data_f=cbind(predict_test[,-c(2,3)],predtree_prob)
-  colnames(data_f)[2:5]<-c("cluster","score_S_I","score_S_II","score_S_III")
-  write.table(data_f,output_predict_test_prune,sep="\t",quote=F,col.names = T,row.names = F)
+  data_f=cbind(predict_test[,-2],predtree_prob)
+  colnames(data_f)[4:6]<-c("score_S_I","score_S_II","score_S_III")
+  write.table(data_f,output_predict_test_prune,sep="\t",col.names = T,row.names = F)
 }
 
 args <- commandArgs(TRUE)
 test_file<-args[1]
 output_predict_test_prune<-args[2]
-dctree(test_file,output_predict_test_prune)
+work_dir=args[3]
+dctree(test_file,output_predict_test_prune,work_dir)
 
 
