@@ -538,9 +538,10 @@ def tumor_app_order1(order):
             'sortFunc': sort_CMS,
             'output_postfix': 'zip',
         },
-        'CMS2': {
-            'script_name': 'TCGAanalyze_DEA/TCGAanalyze_DEA.R',
-            'sortFunc': sort_TCGAanalyze_DEA,
+        'dcTree2': {
+            'script_name': 'dctree/APP.dctree.R',
+            'sortFunc': sort_dcTree2,
+            'output_postfix': 'tsv',
         },
     }
     if order in ['diffTest', 'fisherTest']:
