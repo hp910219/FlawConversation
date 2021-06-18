@@ -226,6 +226,23 @@ def sort_dcTree(rq, r_path, output, result_dir, t):
     return cmd, [dir1, dir2]
 
 
+def sort_CMS(rq, r_path, output, result_dir, t):
+    input_file1 = sort_app_file('input1', 'input_file1', result_dir, t)
+    input_file2 = sort_app_file('input2', 'input_file2', result_dir, t)
+    dir1 = os.path.dirname(input_file1)
+    dir2 = os.path.dirname(input_file2)
+    output_dir = output[:-4]
+    cmd = 'Rscript %s %s %s %s %s %s' % (
+        r_path,
+        input_file1,
+        input_file2,
+        os.path.join(output_dir, 'alterations.clustering.pdf'),
+        os.path.join(output_dir, 'alterations.pheatmap.pdf'),
+        os.path.join(output_dir, 'samples.clustering.tsv'),
+    )
+    return cmd, [dir1, dir2]
+
+
 def sort_cox(rq, r_path, output, result_dir, t):
     input_file1 = sort_app_file('input1', 'input_file1', result_dir, t)
     input_file2 = sort_app_file('input2', 'input_file2', result_dir, t)

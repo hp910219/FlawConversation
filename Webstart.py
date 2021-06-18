@@ -17,6 +17,7 @@ from jy_word.Word import pic_b64encode
 from create_app import create_app, sort_request1
 from create_auth_code import create_strs, my_file, auth_code_path
 from views.generate_report import generate_word
+from views.tcm.report_study import down_study
 from views.tumor.report_panel import down_panel
 from views.tumor.report_aiyi import filter_sv, float2percent
 from views.tumor.apps.app import *
@@ -171,6 +172,19 @@ def auth_down_report():
         print msg
         send_msg_by_dd(msg)
         return '发生故障，已通知管理员，请稍后...%s' % msg
+
+
+@app.route("/tcm/download/study/report/", methods=["POST"])
+def tcm_download_study():
+    rq = request.json
+    try:
+        file_path = down_study(rq or {})
+        return jsonify({'file_path': file_path})
+    except:
+        message = '下载报告遇到问题，已通知管理员。%s' % traceback.format_exc()
+        traceback.print_exc()
+        send_msg_by_dd(message)
+        return {'message': message}
 
 
 @app.route("/tumor/download/report/", methods=["POST"])
@@ -516,6 +530,15 @@ def tumor_app_order1(order):
             'output_postfix': 'zip'
         },
         'TCGAanalyze_DEA': {
+            'script_name': 'TCGAanalyze_DEA/TCGAanalyze_DEA.R',
+            'sortFunc': sort_TCGAanalyze_DEA,
+        },
+        'CMS': {
+            'script_name': 'cms/APP.CMS.R',
+            'sortFunc': sort_CMS,
+            'output_postfix': 'zip',
+        },
+        'CMS2': {
             'script_name': 'TCGAanalyze_DEA/TCGAanalyze_DEA.R',
             'sortFunc': sort_TCGAanalyze_DEA,
         },
@@ -913,6 +936,7 @@ if __name__ == '__main__':
     update_static(os.path.join(project_dir, 'TCM'))
     update_static(os.path.join(project_dir, 'KOBASWeb'), 'kobars')
     update_static(os.path.join(project_dir, 'ncfansgit'), 'ncFANs')
+    update_static(os.path.join(project_dir, 'CRC'), 'CRC')
     # shutil.copytree(r'D:\pythonproject\KOBARSWeb\dist', r'D:\pythonproject\TCMWeb\templates\kobars')
     app.run(host=host_ip, port=port)
 
