@@ -5,6 +5,8 @@
     {% if conf.umi_name == 'umi_kobars' %}
 {#        <link rel="stylesheet" href="./kobas3/static/{{ conf.umi_name or 'umi' }}.css?t={{ restart_time }}">#}
         <link rel="stylesheet" href="{{ KOBAS_PREFIX }}/static/{{ conf.umi_name or 'umi' }}.css?t={{ restart_time }}">
+    {% elif conf.umi_prefix %}
+        <link rel="stylesheet" href="{{ conf.umi_prefix }}/static/{{ conf.umi_name or 'umi' }}.css?t={{ restart_time }}">
     {% else %}
         <link rel="stylesheet" href="/static/{{ conf.umi_name or 'umi' }}.css?t={{ restart_time }}">
         <link rel="stylesheet" href="./static/{{ conf.umi_name or 'umi' }}.css?t={{ restart_time }}">
