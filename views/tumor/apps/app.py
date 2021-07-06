@@ -265,8 +265,8 @@ def sort_pathway_DI(rq, r_path, output, result_dir, t):
     cmd = 'Rscript %s %s %s %s' % (
         r_path,
         input_file1,
+        input_file2,
         output,
-        r_dir
     )
     return cmd, [dir1, dir2]
 
