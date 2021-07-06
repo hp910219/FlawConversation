@@ -543,6 +543,11 @@ def tumor_app_order1(order):
             'sortFunc': sort_dcTree2,
             'output_postfix': 'tsv',
         },
+        'pathway_DI': {
+            'script_name': 'APP_pathway_DI/APP_pathway_DI.R',
+            'sortFunc': sort_pathway_DI,
+            'output_postfix': 'tsv',
+        },
     }
     if order in ['diffTest', 'fisherTest']:
         order = request.json.get('method')
