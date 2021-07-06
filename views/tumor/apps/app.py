@@ -98,16 +98,17 @@ def sort_table2matrix(rq, r_path, output, result_dir, t):
 
 def sort_herbScore(rq, r_path, output, result_dir, t):
     input_file1 = sort_app_file('input1', 'input_file1', result_dir, t)
+    r_path_dir = os.path.dirname(r_path)
     dir1 = os.path.dirname(input_file1)
     cmd = 'sh %s %s %s %s %s %s' % (
         r_path,
-        '/public/jingdu/zss/Rscript-zss/app/herb/',
-        '/public/jingdu/zss/Rscript-zss/app/herb',
+        result_dir,
+        r_path_dir,
         input_file1,
         output,
         rq.get('top_value')
     )
-    return cmd, [dir1]
+    return cmd, [dir1, result_dir, r_path_dir]
 
 
 def sort_vcf2maf(rq, r_path, output, result_dir, t):
