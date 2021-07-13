@@ -548,6 +548,11 @@ def tumor_app_order1(order):
             'sortFunc': sort_pathway_DI,
             'output_postfix': 'tsv',
         },
+        'zscore_scale': {
+            'script_name': 'zscore/zscore_scale.R',
+            'sortFunc': sort_zscore_scale,
+            'output_postfix': 'tsv',
+        },
     }
     if order in ['diffTest', 'fisherTest']:
         order = request.json.get('method')
