@@ -233,13 +233,16 @@ def write_introduce(data):
     p_set = para_setting(line=12, rule='auto')
 
     for i, item in enumerate(items):
-        paras += write_title('医案%s (%s分， 优秀)' % (i+1, item.get('score')))
+        item = item or {}
+        rq = item.get('rq') or {}
+        answer = item.get('answer') or {}
+        paras += write_title('医案%s (%s分， 优秀)' % (i+1, answer.get('score')))
         values = item.get('values')
-        paras += p.write(p_set, r_panel.text('四诊信息: %s' % values.get('sizhen')))
+        paras += p.write(p_set, r_panel.text('四诊信息: %s' % item.get('diagnostic')))
         sss = [
-            {'title': '证型', 'key': 'zhengxing'},
-            {'title': '治法', 'key': 'zhifa'},
-            {'title': '方剂', 'key': 'fangjimingcheng'},
+            {'title': '证型', 'key': 'tcm_type'},
+            {'title': '治法', 'key': 'treatment_method'},
+            {'title': '方剂', 'key': 'recipe_name'},
         ]
         run = ''
         run1 = ''
@@ -247,12 +250,12 @@ def write_introduce(data):
         for s in sss:
             title = s.get('title')
             key = s.get('key')
-            run += r_panel.text('%s: %s  ' % (title, values.get(key)), space=True)
-            run1 += r_panel.text('%s: %s  ' % (title, item.get(key)), space=True, color=green)
+            run += r_panel.text('%s: %s  ' % (title, rq.get(key)), space=True)
+            run1 += r_panel.text('%s: %s  ' % (title, answer.get(key)), space=True, color='red')
         paras += p.write(p_set, run)
         paras += p.write(p_set, run1)
-        paras += p.write(p_set, r_panel.text('处方信息：%s' % values.get('chufang')))
-        paras += p.write(p_set, r_panel.text('名医处方：%s' % item.get('chufangxinxi'), color=green))
+        paras += p.write(p_set, r_panel.text('处方信息：%s' % rq.get('recipe')))
+        paras += p.write(p_set, r_panel.text('名医处方：%s' % answer.get('recipe'), color='red'))
     paras += p.write(p_set, r_panel.text('本次学习很优秀，祝好好学习，天天向上，将中医发扬光大，给患者带来新的希望！', normal_size))
     return paras
 
