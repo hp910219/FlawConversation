@@ -561,7 +561,7 @@ def tumor_app_order1(order):
         'pathway_mut': {
             'script_name': 'Pathway_Mut/APP.cal_pathway_mut.R',
             'sortFunc': sort_pathway_mut,
-            'output_postfix': 'tsv',
+            'output_postfix': 'zip',
         },
     }
     if order in ['diffTest', 'fisherTest']:
