@@ -558,6 +558,11 @@ def tumor_app_order1(order):
             'sortFunc': sort_mcpcounter,
             'output_postfix': 'tsv',
         },
+        'pathway_mut': {
+            'script_name': 'Pathway_Mut/APP.cal_pathway_mut.R',
+            'sortFunc': sort_pathway_mut,
+            'output_postfix': 'tsv',
+        },
     }
     if order in ['diffTest', 'fisherTest']:
         order = request.json.get('method')
