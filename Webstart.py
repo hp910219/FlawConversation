@@ -583,6 +583,11 @@ def tumor_app_order1(order):
             'sortFunc': sort_mut_pair,
             'output_postfix': 'zip',
         },
+        'pathway_di_samples': {
+            'script_name': 'pathway_di_samples/APP_pathway_DI_samples.R',
+            'sortFunc': sort_pathway_di_samples,
+            'output_postfix': 'tsv',
+        },
     }
     if order in ['diffTest', 'fisherTest']:
         order = request.json.get('method')
