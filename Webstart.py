@@ -580,7 +580,7 @@ def tumor_app_order1(order):
         },
         'mut_pair': {
             'script_name': 'mut_pair/APP_mut_pair.R',
-            'sortFunc': sort_mut2matrix,
+            'sortFunc': sort_mut_pair,
             'output_postfix': 'zip',
         },
     }

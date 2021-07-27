@@ -313,6 +313,19 @@ def sort_pathway_mut(rq, r_path, output, result_dir, t):
     return cmd, [dir1, dir2]
 
 
+def sort_mut_pair(rq, r_path, output, result_dir, t):
+    input_file1 = sort_app_file('input1', 'input_file1', result_dir, t)
+    dir1 = os.path.dirname(input_file1)
+    output_dir = output[:-4]
+    cmd = 'Rscript %s %s %s %s' % (
+        r_path,
+        input_file1,
+        os.path.join(output_dir, 'out_mut_table.tsv'),
+        os.path.join(output_dir, 'out_mut_matrix.tsv'),
+    )
+    return cmd, [dir1]
+
+
 def sort_igraph_layout_coor(rq, r_path, output, result_dir, t):
     input_file1 = sort_app_file('input1', 'input_file1', result_dir, t)
     input_file2 = sort_app_file('input2', 'input_file2', result_dir, t)
