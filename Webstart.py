@@ -568,6 +568,21 @@ def tumor_app_order1(order):
             'sortFunc': sort_igraph_layout_coor,
             'output_postfix': 'tsv',
         },
+        'mut2matrix': {
+            'script_name': 'mut2matrix/APP_mut2matrix.R',
+            'sortFunc': sort_mut2matrix,
+            'output_postfix': 'tsv',
+        },
+        'matrix2mut': {
+            'script_name': 'matrix2mut/APP_matrix2mut.R',
+            'sortFunc': sort_mut2matrix,
+            'output_postfix': 'tsv',
+        },
+        'mut_pair': {
+            'script_name': 'mut_pair/APP_mut_pair.R',
+            'sortFunc': sort_mut2matrix,
+            'output_postfix': 'zip',
+        },
     }
     if order in ['diffTest', 'fisherTest']:
         order = request.json.get('method')
