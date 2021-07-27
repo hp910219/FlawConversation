@@ -563,6 +563,11 @@ def tumor_app_order1(order):
             'sortFunc': sort_pathway_mut,
             'output_postfix': 'zip',
         },
+        'igraph_layout_coor': {
+            'script_name': 'igraph_layout/get_coor_igraph.R',
+            'sortFunc': sort_igraph_layout_coor,
+            'output_postfix': 'tsv',
+        },
     }
     if order in ['diffTest', 'fisherTest']:
         order = request.json.get('method')

@@ -313,6 +313,21 @@ def sort_pathway_mut(rq, r_path, output, result_dir, t):
     return cmd, [dir1, dir2]
 
 
+def sort_igraph_layout_coor(rq, r_path, output, result_dir, t):
+    input_file1 = sort_app_file('input1', 'input_file1', result_dir, t)
+    input_file2 = sort_app_file('input2', 'input_file2', result_dir, t)
+    dir1 = os.path.dirname(input_file1)
+    dir2 = os.path.dirname(input_file2)
+    cmd = 'Rscript %s %s %s %s %s' % (
+        r_path,
+        input_file1,
+        input_file2,
+        rq.get('method'),
+        output
+    )
+    return cmd, [dir1, dir2]
+
+
 def sort_cox(rq, r_path, output, result_dir, t):
     input_file1 = sort_app_file('input1', 'input_file1', result_dir, t)
     input_file2 = sort_app_file('input2', 'input_file2', result_dir, t)
