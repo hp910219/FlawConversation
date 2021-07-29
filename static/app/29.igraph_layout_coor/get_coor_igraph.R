@@ -1,7 +1,7 @@
 library(igraph)
 
 get_coor<-function(edges,nodes,method){
-  g <- graph_from_data_frame(edges, directed=T, vertices=nodes$ID)
+  g <- graph_from_data_frame(edges, directed=T, vertices=nodes$Herb)
   if(method=="fr"){
     co<-layout_with_fr(g)
   }else if(method=="kk"){
@@ -47,8 +47,8 @@ co<-get_coor(edges,nodes,method)
 
 nodes_final<-cbind(nodes,co)
 if(method=="sphere"){
-  colnames(nodes_final)[5:7]<-c("x","y","z")
-}else{colnames(nodes_final)[5:6]<-c("x","y")}
+  colnames(nodes_final)[4:6]<-c("x","y","z")
+}else{colnames(nodes_final)[4:5]<-c("x","y")}
 
 write.table(nodes_final,outf,row.names = F,col.names = T,sep = "\t",quote = F)
 
