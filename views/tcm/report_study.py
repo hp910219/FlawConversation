@@ -225,19 +225,22 @@ def write_cover(data):
 
 def write_introduce(data):
     paras = ''
-    items = data.get('items') or []
+    items = data.get('items') or data.get('test_detail')
     n = len(items)
-    average_score = data.get('average_score')
+    average_score = data.get('average_score') or data.get('score')
     taste_time = data.get('taste_time')
-    paras += write_title('本次学习医案%s份，平均得分%s， 用时%s。' % (n, average_score, taste_time))
+
+    tag = get_score_tag(average_score)
+    paras += write_title('本次学习医案%s份，平均得分%s， 用时%s， 成绩%s。' % (n, average_score, taste_time, tag))
     p_set = para_setting(line=12, rule='auto')
 
     for i, item in enumerate(items):
         item = item or {}
-        rq = item.get('rq') or {}
+        rq = item.get('rq') or item
         answer = item.get('answer') or {}
-        paras += write_title('医案%s (%s分， 优秀)' % (i+1, answer.get('score')))
-        values = item.get('values')
+        score1 = item.get('score') or answer.get('score')
+        tag1 = get_score_tag(score1)
+        paras += write_title('医案%s (%s分， %s)' % (i+1, score1, tag1))
         paras += p.write(p_set, r_panel.text('四诊信息: %s' % item.get('diagnostic')))
         sss = [
             {'title': '证型', 'key': 'tcm_type'},
@@ -246,7 +249,6 @@ def write_introduce(data):
         ]
         run = ''
         run1 = ''
-        print item.keys()
         for s in sss:
             title = s.get('title')
             key = s.get('key')
@@ -254,8 +256,8 @@ def write_introduce(data):
             run1 += r_panel.text('%s: %s  ' % (title, answer.get(key)), space=True, color='red')
         paras += p.write(p_set, run)
         paras += p.write(p_set, run1)
-        paras += p.write(p_set, r_panel.text('处方信息：%s' % rq.get('recipe')))
-        paras += p.write(p_set, r_panel.text('名医处方：%s' % answer.get('recipe'), color='red'))
+        paras += p.write(p_set, r_panel.text('名医处方信息：%s' % answer.get('recipe'), color='red'))
+        paras += p.write(p_set, r_panel.text('您的处方信息：%s' % rq.get('recipe')))
     paras += p.write(p_set, r_panel.text('本次学习很优秀，祝好好学习，天天向上，将中医发扬光大，给患者带来新的希望！', normal_size))
     return paras
 
@@ -313,6 +315,16 @@ def down_common(data, sort_func):
 
 def down_study(data):
     return down_common(data, sort_study_data)
+
+
+def get_score_tag(score):
+    if score >= 90:
+        return '优秀'
+    if score >= 80:
+        return '良好'
+    if score >= 60:
+        return '及格'
+    return '不及格'
 
 
 if __name__ == "__main__":

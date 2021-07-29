@@ -1,4 +1,4 @@
-node1	node2	value	Herb_pair	pValue	Co_event	Ex_event	Total_event	Co_level	Prob_1to2	Prob_2to1	
+Herb1	Herb2	Co_ratio	Herb_pair	pValue	Co_event	Ex_event	Total_event	Co_level	Prob_1to2	Prob_2to1
 大枣	生姜	0.836363636	"大枣, 生姜"	1.80E-22	46/9	46	9	55	4	0.901960784	0.92
 淡豆豉	栀子	0.666666667	"淡豆豉, 栀子"	1.89E-06	4/2	4	2	6	4	1	0.666666667
 牡蛎	龙骨	0.666666667	"龙骨, 牡蛎"	0.00042729	2/1	2	1	3	4	0.666666667	1
