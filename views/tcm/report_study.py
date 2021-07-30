@@ -258,7 +258,6 @@ def write_introduce(data):
         paras += p.write(p_set, run1)
         paras += p.write(p_set, r_panel.text('名医处方信息：%s' % answer.get('recipe'), color='red'))
         paras += p.write(p_set, r_panel.text('您的处方信息：%s' % rq.get('recipe')))
-    paras += p.write(p_set, r_panel.text('本次学习很优秀，祝好好学习，天天向上，将中医发扬光大，给患者带来新的希望！', normal_size))
     return paras
 
 
