@@ -114,8 +114,8 @@ def para_setting(**settings):
     return p.set(**default_options)
 
 
-def write_title(title, jc='left'):
-    return p.write(para_setting(jc=jc, line=12, rule='auto', spacing=[0, 1]), r_panel.text(title, 10.5, 1, color=green))
+def write_title(title, jc='left', size=12):
+    return p.write(para_setting(jc=jc, line=12, rule='auto', spacing=[0, 1]), r_panel.text(title, size, 1, color=green))
 
 
 def header_panel(title, bm_name='', line=12, size='三号', spacing=[0, 0], jc='left'):
@@ -222,6 +222,8 @@ def write_cover(data):
     paras += write_cover_line('报告日期', text=format_time())
     return paras
 
+blue = '#e6f7ff'
+pink = '#fff1f0'
 
 def write_introduce(data):
     paras = ''
@@ -231,7 +233,7 @@ def write_introduce(data):
     taste_time = data.get('taste_time')
 
     tag = get_score_tag(average_score)
-    paras += write_title('本次学习医案%s份，平均得分%s， 用时%s， 成绩%s。' % (n, average_score, taste_time, tag))
+    paras += write_title('本次学习医案%s份，平均得分%s， 用时%s， 成绩%s。' % (n, average_score, taste_time, tag), size=14)
     p_set = para_setting(line=12, rule='auto')
 
     for i, item in enumerate(items):
@@ -240,7 +242,7 @@ def write_introduce(data):
         answer = item.get('answer') or {}
         score1 = item.get('score') or answer.get('score')
         tag1 = get_score_tag(score1)
-        paras += write_title('医案%s (%s分， %s)' % (i+1, score1, tag1))
+        paras += write_title('医案%s (%s分， %s)' % (i+1, score1, tag1), size=12)
         paras += p.write(p_set, r_panel.text('四诊信息: %s' % item.get('diagnostic')))
         sss = [
             {'title': '证型', 'key': 'tcm_type'},
@@ -254,10 +256,13 @@ def write_introduce(data):
             key = s.get('key')
             run += r_panel.text('%s: %s  ' % (title, rq.get(key)), space=True)
             run1 += r_panel.text('%s: %s  ' % (title, answer.get(key)), space=True, color='red')
-        paras += p.write(p_set, run)
+        paras += p.write(p_set, r_panel.text('名医信息', weight=1))
         paras += p.write(p_set, run1)
-        paras += p.write(p_set, r_panel.text('名医处方信息：%s' % answer.get('recipe'), color='red'))
-        paras += p.write(p_set, r_panel.text('您的处方信息：%s' % rq.get('recipe')))
+        paras += p.write(p_set, r_panel.text('处方信息：%s' % answer.get('recipe'), color='red'))
+        paras += p.write(p_set, r_panel.text('您的信息', weight=1))
+        paras += p.write(p_set, run)
+        paras += p.write(p_set, r_panel.text('处方信息：%s' % rq.get('recipe')))
+        paras += p.write()
     return paras
 
 
