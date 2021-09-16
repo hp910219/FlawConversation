@@ -339,7 +339,7 @@ def sort_rank_gene_cluster(rq, r_path, output, result_dir, t):
         input_file1,
         input_file2,
         input_file3,
-        result_dir,
+        output_dir + '/',
         rq.get('pre_name')
     )
     return cmd, [dir1, dir2, dir3]
