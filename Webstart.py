@@ -588,6 +588,11 @@ def tumor_app_order1(order):
             'sortFunc': sort_pathway_di_samples,
             'output_postfix': 'tsv',
         },
+        'rank_gene_cluster': {
+            'script_name': 'RankGeneCluster/RankGeneCluster.R',
+            'sortFunc': sort_rank_gene_cluster,
+            'output_postfix': 'zip',
+        },
     }
     if order in ['diffTest', 'fisherTest']:
         order = request.json.get('method')
