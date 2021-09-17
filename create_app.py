@@ -99,4 +99,6 @@ def sort_request1(method, url, api_service='api', auth=None, data=None, remote_a
     #         send_msg_by_dd(error_message, env=env)
     #     except:
     #         print(error_message)
+    if response_data is None:
+        response_data = {'message': '请求接口返回异常：\n%s' % error_message, 'status': -1}
     return response_data
