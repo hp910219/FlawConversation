@@ -593,6 +593,12 @@ def tumor_app_order1(order):
             'sortFunc': sort_rank_gene_cluster,
             'output_postfix': 'zip',
         },
+        'intersected_bed': {
+            'script_name': 'intersectBed/intersectBed.sh',
+            'sortFunc': sort_intersected_bed,
+            'output_postfix': 'bed',
+            'bio': 'docker.io/meisanggou/bc'
+        },
     }
     if order in ['diffTest', 'fisherTest']:
         order = request.json.get('method')
