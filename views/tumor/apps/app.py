@@ -509,6 +509,17 @@ def sort_intersected_bed(rq, r_path, output, result_dir, t):
     return cmd, [dir1, dir2]
 
 
+def sort_cnv_seg2gene(rq, r_path, output, result_dir, t):
+    input_file1 = sort_app_file('input1', 'input_file1', result_dir, t)
+    dir1 = os.path.dirname(input_file1)
+    cmd = 'Rscript %s %s %s' % (
+        r_path,
+        input_file1,
+        output
+    )
+    return cmd, [dir1]
+
+
 def sort_app_file(key, file_key, result_dir, t):
     rq = request.json
     input_file1 = rq.get(file_key)

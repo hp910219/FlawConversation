@@ -599,6 +599,11 @@ def tumor_app_order1(order):
             'output_postfix': 'bed',
             'bio': 'docker.io/meisanggou/bc'
         },
+        'cnv_seg2gene': {
+            'script_name': 'CNVseg2gene/CNVseg2gene.R',
+            'sortFunc': sort_cnv_seg2gene,
+            'output_postfix': 'tsv',
+        },
     }
     if order in ['diffTest', 'fisherTest']:
         order = request.json.get('method')
