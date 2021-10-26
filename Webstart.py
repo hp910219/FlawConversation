@@ -600,7 +600,7 @@ def tumor_app_order1(order):
             'bio': 'docker.io/meisanggou/bc'
         },
         'cnv_seg2gene': {
-            'script_name': 'CNVseg2gene/CNVseg2gene.R',
+            'script_name': 'CnvSeg2gene/CNVseg2gene.R',
             'sortFunc': sort_cnv_seg2gene,
             'output_postfix': 'tsv',
         },
@@ -1000,6 +1000,7 @@ if __name__ == '__main__':
     update_static(os.path.join(project_dir, 'ncfansgit'), 'ncFANs')
     update_static(os.path.join(project_dir, 'CRC'), 'CRC')
     update_static(os.path.join(project_dir, 'DeepTCM'), 'DeepTCM')
+    update_static(os.path.join(project_dir, 'ZhaoLab'), 'ZhaoLab')
     # shutil.copytree(r'D:\pythonproject\KOBARSWeb\dist', r'D:\pythonproject\TCMWeb\templates\kobars')
     app.run(host=host_ip, port=port)
 
