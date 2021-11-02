@@ -611,6 +611,7 @@ def tumor_app_order1(order):
         'colon_cancer': {
             'script_name': 'colon_cancer/run_colon_cancer.sh',
             'sortFunc': sort_colon_cancer,
+            'bio': 'jingege315/robot:0.2.1',
             'order1': '-w %s/colon_cancer -e PYTHONPATH=%s/colon_cancer' % (scripts_dir, scripts_dir),
             'output_postfix': 'xlsx',
         },
