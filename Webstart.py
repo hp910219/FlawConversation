@@ -414,6 +414,10 @@ def download_file():
 @app.route('/tumor/app/<order>/1/', methods=['GET', 'POST'])
 def tumor_app_order1(order):
     JY_SX_REF_DIR = os.environ.get('JY_SX_REF_DIR')
+    conf = read_conf()
+    if isinstance(conf, str):
+        return conf
+    scripts_dir = conf.get('scripts_dir')
     app_items = {
         'merge': {
             'rPath': '/public/jingdu/budechao/lecture/lec1_merge/merge_demo.R',
@@ -604,16 +608,19 @@ def tumor_app_order1(order):
             'sortFunc': sort_cnv_seg2gene,
             'output_postfix': 'tsv',
         },
+        'colon_cancer': {
+            'script_name': 'colon_cancer/run_colon_cancer.sh',
+            'sortFunc': sort_colon_cancer,
+            'order1': '-w %s/colon_cancer -e PYTHONPATH=%s/colon_cancer' % (scripts_dir, scripts_dir),
+            'output_postfix': 'xlsx',
+        },
     }
     if order in ['diffTest', 'fisherTest']:
         order = request.json.get('method')
     try:
         if order in app_items:
             app_item = app_items[order]
-            conf = read_conf()
-            if isinstance(conf, str):
-                return conf
-            scripts_dir = conf.get('scripts_dir')
+
             if scripts_dir:
                 rPath = app_item.get('rPath')
                 if rPath is not None:
