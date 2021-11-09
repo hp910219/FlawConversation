@@ -615,6 +615,11 @@ def tumor_app_order1(order):
             'order1': '-w /scripts/colon_cancer -e PYTHONPATH=/scripts/colon_cancer -v %s:/scripts' % (scripts_dir),
             'output_postfix': 'xlsx',
         },
+        'merge_snv_cnv': {
+            'script_name': 'merge_snv_cnv/getUnion.R',
+            'sortFunc': sort_merge_snv_cnv,
+            'output_postfix': 'tsv',
+        },
     }
     if order in ['diffTest', 'fisherTest']:
         order = request.json.get('method')
@@ -990,6 +995,7 @@ def get_deepnp_grn():
             url = folder.get('url')
             children1 = []
             item1 = {'label': file_name1, 'value': url}
+            value1 = []
             file2 = File(url)
             data2 = file2.get_file_list('s', '') or {}
             data2 = data2.get('data') or {}
@@ -998,18 +1004,23 @@ def get_deepnp_grn():
                 file_name2 = f2.get('file_name')
                 url2 = f2.get('url')
                 children2 = []
+                value2 = []
                 item2 = {'label': file_name2, 'value': url2}
                 file3 = File(url2)
                 data3 = file3.get_file_list('s', '', ['.txt']) or {}
                 data3 = data3.get('data') or {}
                 file3 = data3.get('file') or []
                 for f3 in file3:
-                    file_name2 = f3.get('file_name')
+                    file_name2 = f3.get('file_name').rstrip('.txt')
                     url3 = f3.get('url')
                     children2.append({'label': file_name2, 'value': url3})
+                    value2.append(url3)
                 item2['children'] = children2
+                item2['value'] = ','.join(value2)
+                value1 += value2
                 children1.append(item2)
             item1['children'] = children1
+            item1['value'] = ','.join(value1)
             items.append(item1)
         return jsonify(items)
     except:
@@ -1057,6 +1068,7 @@ if __name__ == '__main__':
     update_static(os.path.join(project_dir, 'CRC'), 'CRC')
     update_static(os.path.join(project_dir, 'DeepTCM'), 'DeepTCM')
     update_static(os.path.join(project_dir, 'ZhaoLab'), 'ZhaoLab')
+    update_static(os.path.join(project_dir, 'DeepNP'), 'DeepNP')
     # shutil.copytree(r'D:\pythonproject\KOBARSWeb\dist', r'D:\pythonproject\TCMWeb\templates\kobars')
     app.run(host=host_ip, port=port)
 
