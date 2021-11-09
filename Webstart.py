@@ -1007,11 +1007,11 @@ def get_deepnp_grn():
                 value2 = []
                 item2 = {'label': file_name2, 'value': url2}
                 file3 = File(url2)
-                data3 = file3.get_file_list('s', '', ['.txt']) or {}
+                data3 = file3.get_file_list('s', '', ['.tsv']) or {}
                 data3 = data3.get('data') or {}
                 file3 = data3.get('file') or []
                 for f3 in file3:
-                    file_name2 = f3.get('file_name').rstrip('.txt')
+                    file_name2 = f3.get('file_name').rstrip('.tsv')
                     url3 = f3.get('url')
                     children2.append({'label': file_name2, 'value': url3})
                     value2.append(url3)
