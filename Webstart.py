@@ -970,6 +970,54 @@ def post_annotate_visualization():
         return jsonify({'message': msg})
 
 
+@app.route('/deepnp/grn/', methods=['GET'])
+def get_deepnp_grn():
+    fileKey = 'grn_dir'
+    conf = read_conf()
+    if isinstance(conf, str):
+        return conf
+    grn_dir = conf.get(fileKey)
+    if grn_dir is None:
+        return '%s not in config.conf' % fileKey
+    file1 = File(grn_dir)
+    try:
+        data1 = file1.get_file_list('s', '') or {}
+        data1 = data1.get('data') or {}
+        folder1 = data1.get('folder') or []
+        items = []
+        for folder in folder1:
+            file_name1 = folder.get('file_name')
+            url = folder.get('url')
+            children1 = []
+            item1 = {'label': file_name1, 'value': url}
+            file2 = File(url)
+            data2 = file2.get_file_list('s', '') or {}
+            data2 = data2.get('data') or {}
+            folder2 = data2.get('folder') or []
+            for f2 in folder2:
+                file_name2 = f2.get('file_name')
+                url2 = f2.get('url')
+                children2 = []
+                item2 = {'label': file_name2, 'value': url2}
+                file3 = File(url2)
+                data3 = file3.get_file_list('s', '', ['.txt']) or {}
+                data3 = data3.get('data') or {}
+                file3 = data3.get('file') or []
+                for f3 in file3:
+                    file_name2 = f3.get('file_name')
+                    url3 = f3.get('url')
+                    children2.append({'label': file_name2, 'value': url3})
+                item2['children'] = children2
+                children1.append(item2)
+            item1['children'] = children1
+            items.append(item1)
+        return jsonify(items)
+    except:
+        msg = traceback.format_exc()
+        send_msg_by_dd(msg)
+        return jsonify({'message': msg})
+
+
 def update_static(src_dir, postfix1=''):
     import shutil
     src_dist_dir = os.path.join(src_dir, 'dist')
