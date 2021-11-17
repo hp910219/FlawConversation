@@ -620,6 +620,11 @@ def tumor_app_order1(order):
             'sortFunc': sort_merge_snv_cnv,
             'output_postfix': 'tsv',
         },
+        'table_cat': {
+            'script_name': 'TableCat/run_table_cat.sh',
+            'sortFunc': sort_table_cat,
+            'output_postfix': 'tsv',
+        },
     }
     if order in ['diffTest', 'fisherTest']:
         order = request.json.get('method')
