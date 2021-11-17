@@ -536,7 +536,7 @@ def sort_colon_cancer(rq, r_path, output, result_dir, t):
     return cmd, [dir1]
 
 
-def sort_table_cat(rq, r_path, output):
+def sort_table_cat(rq, r_path, output, result_dir, t):
     input_file1 = rq.get('input_file1')
     dir1 = [os.path.dirname(x) for x in input_file1]
     cmd = '/bin/bash %s %s %s' % (
