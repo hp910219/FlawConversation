@@ -569,6 +569,8 @@ def sort_lecture1(rq, r_path, output, result_dir, t):
         input_file1,
         output,
     )
+    print cmd
+    print r_path
     return cmd, [dir1]
 
 
