@@ -669,7 +669,8 @@ def tumor_app1(app_name, rPath='', sortFunc=None, output_postfix='txt', order1='
         # docker run -rm -v data_dir:/data -w /data bio_r
         cmd = 'docker run %s' % order1
         for i in list(set(dirs)):
-            cmd += ' -v %s:%s' % (i, i)
+            if i:
+                cmd += ' -v %s:%s' % (i, i)
         cmd += ' %s ' % bio
         if env and env.startswith('Development'):
             cmd = ''
@@ -793,7 +794,8 @@ def tumor_app(app_name, rPath='', sortFunc=None, output_postfix='txt', order1='-
         # docker run -rm -v data_dir:/data -w /data bio_r
         cmd = 'docker run %s' % order1
         for i in list(set(dirs)):
-            cmd += ' -v %s:%s' % (i, i)
+            if i:
+                cmd += ' -v %s:%s' % (i, i)
         cmd += ' %s ' % bio
         if env and env.startswith('Development'):
             cmd = ''
