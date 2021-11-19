@@ -625,6 +625,47 @@ def tumor_app_order1(order):
             'sortFunc': sort_table_cat,
             'output_postfix': 'tsv',
         },
+        'lecture1': {
+            'script_name': 'lecture/lecture1/单核苷酸变异.R',
+            'sortFunc': sort_lecture1,
+            'output_postfix': 'tsv',
+        },
+        'lecture3': {
+            'script_name': 'lecture/lecture3/基因突变谱瀑布图可视化.R',
+            'sortFunc': sort_lecture1,
+            'output_postfix': 'pdf',
+        },
+        'lecture4': {
+            'script_name': 'lecture/lecture4/突变特征.R',
+            'sortFunc': sort_lecture4,
+            'output_postfix': 'zip',
+            'bio': 'bc_deconstructsigs'
+        },
+        'lecture6': {
+            'script_name': 'lecture/lecture6/pheatmap.R',
+            'sortFunc': sort_lecture6,
+            'output_postfix': 'pdf',
+        },
+        'lecture7': {
+            'script_name': 'lecture/lecture7/MCPcounter免疫细胞评分.R',
+            'sortFunc': sort_lecture1,
+            'output_postfix': 'pdf',
+        },
+        'lecture8': {
+            'script_name': 'lecture/lecture8/生存分析.R',
+            'sortFunc': sort_lecture1,
+            'output_postfix': 'pdf',
+        },
+        'lecture9': {
+            'script_name': 'lecture/lecture9/批量突变生存分析.R',
+            'sortFunc': sort_lecture9,
+            'output_postfix': 'zip',
+        },
+        'lecture10': {
+            'script_name': 'lecture/lecture10/批量表达生存分析.R',
+            'sortFunc': sort_lecture10,
+            'output_postfix': 'tsv',
+        },
     }
     if order in ['diffTest', 'fisherTest']:
         order = request.json.get('method')
