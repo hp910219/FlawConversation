@@ -569,8 +569,6 @@ def sort_lecture1(rq, r_path, output, result_dir, t):
         input_file1,
         output,
     )
-    print cmd
-    print r_path
     return cmd, [dir1]
 
 
@@ -580,7 +578,7 @@ def sort_lecture4(rq, r_path, output, result_dir, t):
     cmd = 'Rscript %s %s %s %s' % (
         r_path,
         input_file1,
-        os.path.dirname(output),
+        output[:-4],
         rq.get('BSg_type')
     )
     return cmd, [dir1]
@@ -605,7 +603,7 @@ def sort_lecture9(rq, r_path, output, result_dir, t):
     input_file2 = sort_app_file('input2', 'input_file2', result_dir, t)
     dir1 = os.path.dirname(input_file1)
     dir2 = os.path.dirname(input_file2)
-    output_dir = os.path.dirname(output)
+    output_dir = output[:-4]
     cmd = 'Rscript %s %s %s %s %s' % (
         r_path,
         input_file1,
