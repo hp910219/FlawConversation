@@ -462,6 +462,20 @@ def sort_surv_cox(rq, r_path, output, result_dir, t):
     return cmd, [dir1, dir2]
 
 
+def sort_survival_cutoff(rq, r_path, output, result_dir, t):
+    exp_file = sort_app_file('input1', 'input_file1', result_dir, t)
+    cmd = 'Rscript %s %s %s %s %s %s' % (
+        r_path,
+        exp_file,
+        rq.get('time'),
+        rq.get('event'),
+        rq.get('variables'),
+        output,
+    )
+    dir1 = os.path.dirname(exp_file)
+    return cmd, [dir1]
+
+
 def sort_probe2gene(rq, r_path, output, result_dir, t):
     input_file1 = sort_app_file('input1', 'input_file1', result_dir, t)
     input_file2 = sort_app_file('input2', 'input_file2', result_dir, t)
