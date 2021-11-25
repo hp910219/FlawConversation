@@ -625,8 +625,13 @@ def tumor_app_order1(order):
             'sortFunc': sort_table_cat,
             'output_postfix': 'tsv',
         },
+        'survival_cutoff': {
+            'script_name': 'survival_cutoff/survival_cutoff_2.R',
+            'sortFunc': sort_survival_cutoff,
+            'output_postfix': 'tsv',
+        },
         'lecture1': {
-            'script_name': 'lecture/lecture1/单核苷酸变异.R',
+            'script_name': r'lecture/lecture1/单核苷酸变异.R',
             'sortFunc': sort_lecture1,
             'output_postfix': 'tsv',
         },
@@ -672,7 +677,6 @@ def tumor_app_order1(order):
     try:
         if order in app_items:
             app_item = app_items[order]
-
             if scripts_dir:
                 rPath = app_item.get('rPath')
                 if rPath is not None:
