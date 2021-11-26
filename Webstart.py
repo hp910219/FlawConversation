@@ -898,13 +898,14 @@ def get_file_content():
     rq = request.json or {}
     dir_name = rq.get('dir') or ''
     file_name = rq.get('file_name') or ''
+    file_path = rq.get('file_path') or ''
     to_json = True
     if 'to_json' in rq:
         to_json = rq.get('to_json')
     to_string = False
     if 'to_string' in rq:
         to_string = rq.get('to_string')
-    path = os.path.join(dir_name, file_name)
+    path = file_path or os.path.join(dir_name, file_name)
     if os.path.exists(path) is False:
         return json.dumps({'message': 'Path not exists, %s' % path})
     data = my_file.read(path, to_json=to_json, to_string=to_string)
