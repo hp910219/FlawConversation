@@ -1004,7 +1004,7 @@ def post_annotate_visualization():
             tsv_test = csv.writer(f, delimiter='\t', lineterminator='\n')
             # tsv_test.writerow(dataSource)
             if len(dataSource) > 0:
-                th = 'Term	Database	ID	Input number	Background number	P-Value	Corrected P-Value	Input	Hyperlink'.split('\t')
+                th = rq.get('th') or 'Term	Database	ID	Input number	Background number	P-Value	Corrected P-Value	Input	Hyperlink'.split('\t')
                 if kobas_app == 'exp_data':
                     if fileKey in ['output_identify_edge', 'output_edge_tmp']:
                         th = 'pathway1	pathway2	cor	pathway1_ID	pathway2_ID'.split('\t')
@@ -1016,7 +1016,7 @@ def post_annotate_visualization():
                 tsv_test.writerow(th)
                 for item in dataSource:
                     # tsv_test.writerow('\t'.join(item.values()))
-                    tr = [item[k.replace(' ', '')] for k in th]
+                    tr = item if isinstance(item, list) else [item[k.replace(' ', '')] for k in th]
                     tsv_test.writerow(tr)
         # my_file.write('sss.json', items3)
         return jsonify({'data': path, 'message': 'success'})
