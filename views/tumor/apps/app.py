@@ -345,6 +345,24 @@ def sort_rank_gene_cluster(rq, r_path, output, result_dir, t):
     return cmd, [dir1, dir2, dir3]
 
 
+def sort_siRNA_mismatch(rq, script_path, output, result_dir, t):
+    input_file1 = sort_app_file('input1', 'input_file1', result_dir, t)
+    input_file2 = sort_app_file('input2', 'input_file2', result_dir, t)
+    work_dir = os.path.dirname(input_file1)
+    dir2 = os.path.dirname(input_file2)
+    scripts_dir = os.path.dirname(script_path)
+    output_dir = output[:-4]  #zip
+    cmd = 'sh %s %s %s %s %s %s' % (
+        script_path,
+        scripts_dir,
+        work_dir,
+        input_file1,
+        input_file2,
+        output_dir + '/',
+    )
+    return cmd, [work_dir, dir2]
+
+
 def sort_pathway_di_samples(rq, r_path, output, result_dir, t):
     input_file1 = sort_app_file('input1', 'input_file1', result_dir, t)
     input_file2 = sort_app_file('input2', 'input_file2', result_dir, t)
