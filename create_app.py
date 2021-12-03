@@ -18,7 +18,7 @@ def create_app():
     return my_app
 
 
-def sort_request1(method, url, api_service='api', auth=None, data=None, remote_addr='', rq_url=''):
+def sort_request1(method, url, api_service='api', auth=None, data=None, remote_addr='', rq_url='', files=None):
     # 配置文件
     conf = read_conf()
     ports = conf.get('ports')
@@ -48,8 +48,10 @@ def sort_request1(method, url, api_service='api', auth=None, data=None, remote_a
             port = conf.get('port')
         if conf.get(api_service):
             port = conf.get(api_service)
-        # if
-        api_url = endpoint + ':' + port + url
+        if url.startswith('http://') or url.startswith('https://'):
+            api_url = url
+        else:
+            api_url = endpoint + ':' + port + url
         data = data or {}
         request_params = {'json': data} if method != 'GET' else {'params': data}
         headers = {'Content-Type': 'application/json'}
@@ -57,6 +59,14 @@ def sort_request1(method, url, api_service='api', auth=None, data=None, remote_a
             headers['authorization'] = auth
         if xAuth:
             headers['X-Authorization'] = xAuth
+
+        if files:
+            request_params = {'data': data} if method != 'GET' else {'params': data}
+            request_params['files'] = files
+        else:
+            request_params = {'json': data} if method != 'GET' else {'params': data}
+            # headers = {}
+            # headers['Content-Type'] = 'application/x-www-form-urlencoded; charset=UTF-8'
         request_params['headers'] = headers
         try:
             response = requests.request(method, api_url, **request_params)
@@ -65,6 +75,7 @@ def sort_request1(method, url, api_service='api', auth=None, data=None, remote_a
             response = None
         if response is not None:
             if response.status_code != 200:
+                # print 'body', response.text.body
                 error_message = "%s %s %d %s\n" % (api_url, "POST", response.status_code, response.text)
             else:
                 try:
