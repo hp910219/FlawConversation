@@ -630,6 +630,11 @@ def tumor_app_order1(order):
             'sortFunc': sort_survival_cutoff,
             'output_postfix': 'tsv',
         },
+        'siRNA_mismatch': {
+            'script_name': 'siRNA_mismatch/scripts/run_flow.sh',
+            'sortFunc': sort_siRNA_mismatch,
+            'output_postfix': 'zip',
+        },
         'lecture1': {
             'script_name': r'lecture/lecture1/单核苷酸变异.R',
             'sortFunc': sort_lecture1,
