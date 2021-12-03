@@ -1080,6 +1080,49 @@ def get_deepnp_grn():
         return jsonify({'message': msg})
 
 
+@app.route('/deepnp/rank/', methods=['POST'])
+def post_deepnp_rank():
+    import requests
+    rq = request.json
+    nodes_path = rq.get('nodePath')
+    edges_path = rq.get('edgePath')
+    # content_type = 'application/x-www-form-urlencoded; charset=UTF-8'
+    # content_type = 'application/octet-stream'
+    content_type = 'application/x-www-form-urlencoded'
+    files = {
+        'nodes': (nodes_path.split('/')[-1], open(nodes_path, 'r'), content_type),
+        'links': (edges_path.split('/')[-1], open(edges_path, 'r'), content_type),
+    }
+    # print files
+    data = rq.get('data') or {
+        'range_num': 100.2,
+        'symbolSize': 10,
+        'range_round': 50.6,
+    }
+
+    try:
+        res = requests.request(
+            'post', 'http://101.34.103.67:8001/network_api/file/upload/none',
+            data=data, files=files,
+            # headers={'Content-Type': content_type}
+        )
+        res_data = res.json() or {'message': res.text}
+
+        # res = sort_request1(
+        #     'post', 'http://101.34.103.67:8001/network_api/file/upload/none',
+        #     data=data,
+        #     files=files
+        # )
+        # print res.get('message')
+        items = []
+
+        return jsonify(res_data)
+    except:
+        msg = traceback.format_exc()
+        send_msg_by_dd(msg)
+        return jsonify({'message': msg})
+
+
 def update_static(src_dir, postfix1=''):
     import shutil
     src_dist_dir = os.path.join(src_dir, 'dist')
