@@ -1084,7 +1084,6 @@ def get_deepnp_grn():
                         value3.append(url4)
                     item3['children'] = children3
                     item3['value'] = ','.join(value3)
-                    print item3, value3
                     value2 += value3
                     children2.append(item3)
                 item2['children'] = children2
