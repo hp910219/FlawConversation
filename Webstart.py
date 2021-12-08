@@ -1063,14 +1063,30 @@ def get_deepnp_grn():
                 value2 = []
                 item2 = {'label': file_name2, 'value': url2}
                 file3 = File(url2)
-                data3 = file3.get_file_list('s', '', ['.tsv']) or {}
+                data3 = file3.get_file_list('s', '') or {}
                 data3 = data3.get('data') or {}
-                file3 = data3.get('file') or []
-                for f3 in file3:
-                    file_name2 = f3.get('file_name').rstrip('.tsv')
+                folder3 = data3.get('folder') or []
+                for f3 in folder3:
+                    file_name3 = f3.get('file_name')
                     url3 = f3.get('url')
-                    children2.append({'label': file_name2, 'value': url3})
-                    value2.append(url3)
+                    children3 = []
+                    value3 = []
+                    item3 = {'label': file_name3, 'value': url3}
+
+                    files4 = File(url3)
+                    data4 = files4.get_file_list('s', '', ['.tsv']) or {}
+                    data4 = data4.get('data') or {}
+                    files4 = data4.get('file') or []
+                    for data4 in files4:
+                        file_name4 = data4.get('file_name').rstrip('.tsv')
+                        url4 = data4.get('url')
+                        children3.append({'label': file_name4, 'value': url4})
+                        value3.append(url4)
+                    item3['children'] = children3
+                    item3['value'] = ','.join(value3)
+                    print item3, value3
+                    value2 += value3
+                    children2.append(item3)
                 item2['children'] = children2
                 item2['value'] = ','.join(value2)
                 value1 += value2
