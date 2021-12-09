@@ -703,7 +703,10 @@ def tumor_app1(app_name, rPath='', sortFunc=None, output_postfix='txt', order1='
         for i in list(set(dirs)):
             if i:
                 cmd += ' -v %s:%s' % (i, i)
-        cmd += ' %s ' % bio
+        if bio:
+            cmd += ' %s ' % bio
+        else:
+            cmd = ''
         if env and env.startswith('Development'):
             cmd = ''
         cmd += cmd_dev
