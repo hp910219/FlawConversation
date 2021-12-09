@@ -634,6 +634,7 @@ def tumor_app_order1(order):
             'script_name': 'siRNA_mismatch/scripts/run_flow.sh',
             'sortFunc': sort_siRNA_mismatch,
             'output_postfix': 'zip',
+            'bio': ''
         },
         'lecture1': {
             'script_name': r'lecture/lecture1/单核苷酸变异.R',
