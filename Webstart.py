@@ -1056,7 +1056,7 @@ def get_deepnp_grn():
             file_name1 = folder.get('file_name')
             url = folder.get('url')
             children1 = []
-            item1 = {'label': file_name1, 'value': url}
+            item1 = {'label': ' '.join(file_name1[1:].split('_')), 'value': url}
             value1 = []
             file2 = File(url)
             data2 = file2.get_file_list('s', '') or {}
@@ -1067,7 +1067,7 @@ def get_deepnp_grn():
                 url2 = f2.get('url')
                 children2 = []
                 value2 = []
-                item2 = {'label': file_name2, 'value': url2}
+                item2 = {'label': ' '.join(file_name2.split('_')), 'value': url2}
                 file3 = File(url2)
                 data3 = file3.get_file_list('s', '') or {}
                 data3 = data3.get('data') or {}
@@ -1077,7 +1077,7 @@ def get_deepnp_grn():
                     url3 = f3.get('url')
                     children3 = []
                     value3 = []
-                    item3 = {'label': file_name3, 'value': url3}
+                    item3 = {'label': ' '.join(file_name3.split('_')), 'value': url3}
 
                     files4 = File(url3)
                     data4 = files4.get_file_list('s', '', ['.tsv']) or {}
@@ -1086,7 +1086,7 @@ def get_deepnp_grn():
                     for data4 in files4:
                         file_name4 = data4.get('file_name').rstrip('.tsv')
                         url4 = data4.get('url')
-                        children3.append({'label': file_name4, 'value': url4})
+                        children3.append({'label': ' '.join(file_name4.split('_')), 'value': url4})
                         value3.append(url4)
                     item3['children'] = children3
                     item3['value'] = ','.join(value3)
