@@ -636,6 +636,11 @@ def tumor_app_order1(order):
             'output_postfix': 'zip',
             'bio': ''
         },
+        'combination_ggplot': {
+            'script_name': 'combination_ggplot/combination_ggplot.R',
+            'sortFunc': sort_combination_ggplot,
+            'output_postfix': 'pdf',
+        },
         'lecture1': {
             'script_name': r'lecture/lecture1/单核苷酸变异.R',
             'sortFunc': sort_lecture1,

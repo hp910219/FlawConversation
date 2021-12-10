@@ -593,6 +593,17 @@ def sort_merge_snv_cnv(rq, r_path, output, result_dir, t):
     return cmd, [dir1, dir2]
 
 
+def sort_combination_ggplot(rq, r_path, output, result_dir, t):
+    input_file1 = sort_app_file('input1', 'input_file1', result_dir, t)
+    dir1 = os.path.dirname(input_file1)
+    cmd = 'Rscript %s %s %s' % (
+        r_path,
+        input_file1,
+        output,
+    )
+    return cmd, [dir1]
+
+
 def sort_lecture1(rq, r_path, output, result_dir, t):
     input_file1 = sort_app_file('input1', 'input_file1', result_dir, t)
     dir1 = os.path.dirname(input_file1)
