@@ -551,8 +551,8 @@ def sort_cnv_seg2gene(rq, r_path, output, result_dir, t):
         input_file1,
         input_file2,
         output,
-        rq.get('amp_fold'),
-        rq.get('del_fold'),
+        rq.get('amp_cutoff'),
+        rq.get('del_cutoff'),
     )
     return cmd, [dir1, dir2]
 
