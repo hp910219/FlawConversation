@@ -1056,7 +1056,7 @@ def get_deepnp_grn():
             file_name1 = folder.get('file_name')
             url = folder.get('url')
             children1 = []
-            item1 = {'label': ' '.join(file_name1[1:].split('_')), 'value': url}
+            item1 = {'label': ' '.join(file_name1[2:].split('_')), 'value': url}
             value1 = []
             file2 = File(url)
             data2 = file2.get_file_list('s', '') or {}
