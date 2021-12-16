@@ -1053,7 +1053,6 @@ def get_deepnp_grn():
         if is_refresh is None:
             data = my_file.read(grn_path)
             return jsonify(data)
-    print is_refresh
     file1 = File(grn_dir)
     try:
         data1 = file1.get_file_list('s', '') or {}
