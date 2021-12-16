@@ -1039,13 +1039,20 @@ def post_annotate_visualization():
 
 @app.route('/deepnp/grn/', methods=['GET'])
 def get_deepnp_grn():
+    rq = request.args or {}
+    is_refresh = rq.get('is_refresh')
     fileKey = 'grn_dir'
     conf = read_conf()
     if isinstance(conf, str):
         return conf
     grn_dir = conf.get(fileKey)
+    grn_path = conf.get('grn_path')
     if grn_dir is None:
         return '%s not in config.conf' % fileKey
+    if os.path.exists(grn_path):
+        data = my_file.read(grn_path)
+        if is_refresh is None:
+            return jsonify(data)
     file1 = File(grn_dir)
     try:
         data1 = file1.get_file_list('s', '') or {}
@@ -1099,6 +1106,8 @@ def get_deepnp_grn():
             item1['children'] = children1
             item1['value'] = ','.join(value1)
             items.append(item1)
+        # my_file.write()
+        my_file.write(grn_path, items)
         return jsonify(items)
     except:
         msg = traceback.format_exc()
