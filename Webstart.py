@@ -1063,8 +1063,7 @@ def get_deepnp_grn():
             file_name1 = folder.get('file_name')
             url = folder.get('url')
             children1 = []
-            item1 = {'label': ' '.join(file_name1[2:].split('_')), 'value': url}
-            value1 = []
+            item1 = {'label': ' '.join(file_name1[2:].split('_')), 'value': file_name1}
             file2 = File(url)
             data2 = file2.get_file_list('s', '') or {}
             data2 = data2.get('data') or {}
@@ -1073,8 +1072,7 @@ def get_deepnp_grn():
                 file_name2 = f2.get('file_name')
                 url2 = f2.get('url')
                 children2 = []
-                value2 = []
-                item2 = {'label': ' '.join(file_name2.split('_')), 'value': url2}
+                item2 = {'label': ' '.join(file_name2.split('_')), 'value': file_name2}
                 file3 = File(url2)
                 data3 = file3.get_file_list('s', '') or {}
                 data3 = data3.get('data') or {}
@@ -1083,8 +1081,7 @@ def get_deepnp_grn():
                     file_name3 = f3.get('file_name')
                     url3 = f3.get('url')
                     children3 = []
-                    value3 = []
-                    item3 = {'label': ' '.join(file_name3.split('_')), 'value': url3}
+                    item3 = {'label': ' '.join(file_name3.split('_')), 'value': file_name3}
 
                     files4 = File(url3)
                     data4 = files4.get_file_list('s', '', ['.tsv']) or {}
@@ -1092,24 +1089,19 @@ def get_deepnp_grn():
                     files4 = data4.get('file') or []
                     for data4 in files4:
                         file_name4 = data4.get('file_name').rstrip('.tsv')
-                        url4 = data4.get('url')
-                        children3.append({'label': ' '.join(file_name4.split('_')), 'value': url4})
-                        value3.append(url4)
+                        children3.append({'label': ' '.join(file_name4.split('_')), 'value': file_name4})
                     item3['children'] = children3
-                    item3['value'] = ','.join(value3)
-                    value2 += value3
                     children2.append(item3)
                 item2['children'] = children2
-                item2['value'] = ','.join(value2)
-                value1 += value2
                 children1.append(item2)
             item1['children'] = children1
-            item1['value'] = ','.join(value1)
+            # item1['value'] = ','.join(value1)
             items.append(item1)
         # my_file.write()
         my_file.write(grn_path, items)
         return jsonify(items)
     except:
+        traceback.print_exc()
         msg = traceback.format_exc()
         send_msg_by_dd(msg)
         return jsonify({'message': msg})
