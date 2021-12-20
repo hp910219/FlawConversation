@@ -1,6 +1,7 @@
 #! /usr/bin/env python
 # coding: utf-8
 import chardet
+import cgi
 import os
 import sys
 import subprocess
@@ -909,6 +910,7 @@ def get_file_content():
     rq = request.json or {}
     dir_name = rq.get('dir') or ''
     file_name = rq.get('file_name') or ''
+    file_name = cgi.escape(file_name)
     file_path = rq.get('file_path') or ''
     to_json = True
     if 'to_json' in rq:
