@@ -921,6 +921,8 @@ def get_file_content():
     path = file_path or os.path.join(dir_name, file_name)
     if os.path.exists(path) is False:
         return json.dumps({'message': 'Path not exists, %s' % path})
+    if '../' in path:
+        return json.dumps({'message': 'Path is illegal, %s' % path})
     data = my_file.read(path, to_json=to_json, to_string=to_string)
     try:
         encoding = chardet.detect(data[0])['encoding']
