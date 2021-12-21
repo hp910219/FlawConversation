@@ -384,6 +384,7 @@ def download_file():
     file_path = rq.get('file_path')
     if file_path is None:
         return 'Sorry, no path.'
+    file_path = cgi.escape(file_path)
     dir_name = os.path.dirname(file_path)
     file_name = os.path.relpath(file_path, dir_name)
     # file_name = rq.get('file_name')
@@ -404,6 +405,9 @@ def download_file():
                     and dir_name.startswith('/gpfs/user/budc/kobas_2019/data/online') is False \
                     and dir_name.startswith('/gpfs/user/budc/app/app_data/output/') is False:
                 return 'Sorry, unavailable path.'
+    available_path_prefix = conf.get('available_path_prefix')
+    if dir_name.startswith(available_path_prefix) is False:
+        return 'Sorry, unavailable path.'
     if attachment_filename is None:
         file_names = file_name.split('.')
         attachment_filename = '%s_%s.%s' % ('.'.join(file_names[:-1]), t, file_names[-1])
