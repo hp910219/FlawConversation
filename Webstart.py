@@ -405,9 +405,16 @@ def download_file():
                     and dir_name.startswith('/gpfs/user/budc/kobas_2019/data/online') is False \
                     and dir_name.startswith('/gpfs/user/budc/app/app_data/output/') is False:
                 return 'Sorry, unavailable path.'
-    available_path_prefix = conf.get('available_path_prefix')
-    if dir_name.startswith(available_path_prefix) is False:
-        return 'Sorry, unavailable path.'
+    available_path_prefix = conf.get('available_path_prefix') or ''
+    available_path_prefixs = available_path_prefix.split(',')
+    if len(available_path_prefixs) > 0:
+        error = True
+        for prefix in available_path_prefixs:
+            if dir_name.startswith(prefix):
+                error = False
+                break
+        if error:
+            return 'Sorry, unavailable path.'
     if attachment_filename is None:
         file_names = file_name.split('.')
         attachment_filename = '%s_%s.%s' % ('.'.join(file_names[:-1]), t, file_names[-1])
