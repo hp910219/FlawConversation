@@ -3,6 +3,7 @@
 import os
 import sys
 import subprocess
+import shutil
 import traceback
 
 from flask import jsonify, request
@@ -349,18 +350,23 @@ def sort_siRNA_mismatch(rq, script_path, output, result_dir, t):
     input_file1 = sort_app_file('input1', 'input_file1', result_dir, t)
     input_file2 = sort_app_file('input2', 'input_file2', result_dir, t)
     work_dir = os.path.dirname(input_file1)
+    file_name1 = os.path.relpath(input_file1, work_dir)
     dir2 = os.path.dirname(input_file2)
+    file_name2 = os.path.relpath(input_file2, dir2)
+    shutil.move(input_file2, os.path.join(work_dir, file_name2))
+    # input_file2 = os.path.relpath(dir2, work_dir)
+
     scripts_dir = os.path.dirname(script_path)
     output_dir = output[:-4]  #zip
     cmd = 'sh %s %s %s %s %s %s' % (
         script_path,
         scripts_dir,
         work_dir,
-        input_file1,
-        input_file2,
+        file_name1,
+        file_name2,
         output_dir + '/',
     )
-    return cmd, [work_dir, dir2]
+    return cmd, [work_dir]
 
 
 def sort_pathway_di_samples(rq, r_path, output, result_dir, t):
