@@ -674,7 +674,7 @@ def tumor_app_order1(order):
             'sortFunc': sort_sirna_extract_seq,
             'output_postfix': 'csv',
             'bio': 'bio_py',
-            'order1': '-rm %s:/scripts' % (scripts_dir),
+            'order1': '--rm %s:/scripts' % (scripts_dir),
             # 'order1': '-w %s'
         },
         'lecture1': {
