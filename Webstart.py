@@ -653,6 +653,30 @@ def tumor_app_order1(order):
             'sortFunc': sort_combination_ggplot,
             'output_postfix': 'pdf',
         },
+        'miRNA': {
+            'script_name': 'mirna/predictive_tool.py',
+            'sortFunc': sort_miRNA,
+            'output_postfix': 'xlsx',
+            'bio': 'bio_py',
+            'order1': '-w /scripts/mirna -v %s:/scripts' % (scripts_dir),
+            # 'order1': '-w %s'
+        },
+        'siRNA': {
+            'script_name': 'siRNA/run_siRNA_auto.sh',
+            'sortFunc': sort_siRNA,
+            'output_postfix': 'zip',
+            'bio': 'bc_biosoft',
+            'order1': '-v %s:/scripts' % (scripts_dir),
+            # 'order1': '-w %s'
+        },
+        'sirna_extract_seq': {
+            'script_name': 'sirna_extract_seq/network.py',
+            'sortFunc': sort_sirna_extract_seq,
+            'output_postfix': 'csv',
+            'bio': 'bio_py',
+            'order1': '-rm %s:/scripts' % (scripts_dir),
+            # 'order1': '-w %s'
+        },
         'lecture1': {
             'script_name': r'lecture/lecture1/单核苷酸变异.R',
             'sortFunc': sort_lecture1,
