@@ -610,6 +610,42 @@ def sort_combination_ggplot(rq, r_path, output, result_dir, t):
     return cmd, [dir1]
 
 
+def sort_miRNA(rq, r_path, output, result_dir, t):
+    input_file1 = sort_app_file('input1', 'input_file1', result_dir, t)
+    dir1 = os.path.dirname(input_file1)
+    cmd = 'python %s --db %s.db %s -o %s' % (
+        r_path,
+        rq.get('db_type'),
+        input_file1,
+        output,
+    )
+    return cmd, [dir1]
+
+
+def sort_siRNA(rq, r_path, output, result_dir, t):
+    input_file1 = sort_app_file('input1', 'input_file1', result_dir, t)
+    dir1 = os.path.dirname(input_file1)
+    cmd = 'sh %s %s %s %s' % (
+        r_path,
+        rq.get('filter_freq'),
+        input_file1,
+        output[:-4],
+    )
+    return cmd, [dir1]
+
+
+def sort_sirna_extract_seq(rq, r_path, output, result_dir, t):
+    input_file1 = sort_app_file('input1', 'input_file1', result_dir, t)
+    dir1 = os.path.dirname(input_file1)
+    cmd = 'python3 %s %s %s %s' % (
+        r_path,
+        input_file1,
+        rq.get('input_seq'),
+        output,
+    )
+    return cmd, [dir1]
+
+
 def sort_lecture1(rq, r_path, output, result_dir, t):
     input_file1 = sort_app_file('input1', 'input_file1', result_dir, t)
     dir1 = os.path.dirname(input_file1)
