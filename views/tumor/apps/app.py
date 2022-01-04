@@ -796,24 +796,7 @@ def tumor_app2():
         if code:
             # 获取错误日志
             try:
-                # scheduler_order = "top -u ybtao"
-                # os.system(cmd)
                 return_info = subprocess.Popen(cmd, shell=True, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
-                # next_line = return_info.stdout.readline()
-                # msg = next_line.decode("utf-8", "ignore")
-                # while True:
-                #     next_line = return_info.stdout.readline()
-                #     return_line = next_line.decode("utf-8", "ignore")
-                #     if return_line == '' and return_info.poll() is not None:
-                #         break
-                #     if return_line:
-                #         msg = return_line
-                #         print 'ssdfdf', msg
-                #         # break
-                # returncode = return_info.wait()
-                # if returncode:
-                #     print 'read', return_info.stdout.read()
-                #     raise subprocess.CalledProcessError(returncode, return_info)
                 msg = return_info.communicate()[0].decode('utf-8', 'ignore')
             except Exception, e:
                 print 'Exception', e
@@ -825,26 +808,19 @@ def tumor_app2():
     except Exception, e:
         # traceback.print_exc()
         msg = cmd + traceback.format_exc()
-
-
-
-    # print app.logger.error()
-    # # demo signature zip start
-    # for i in range(3):
-    #     os.makedirs(os.path.join(fileDir, 's%s' % i))
-    #     fp = open(os.path.join(fileDir, '%s.txt' % i), 'w+')
-    #     fp.write('sdfdgkdfjgk%s' % i)
-    #     fp.close()
-    # # demo signature zip end
     if isZip and os.path.exists(zip_file_dir):
         while True:
             zipStatus = zip_dir('', zip_file_dir, output)
             if zipStatus == 5:
                 break
-
     if os.path.exists(output):
         # data = my_file.read(output)
+        try:
+            size = os.path.getsize(output)
+        except:
+            size = None
         return jsonify({'data': {
+            'size': size,
             'file_path': output, 'dir': output_dir, 'file_name': file_name,
             'cmd': cmd,
             'msg': msg
