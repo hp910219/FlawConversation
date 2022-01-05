@@ -565,13 +565,16 @@ def sort_cnv_seg2gene(rq, r_path, output, result_dir, t):
 
 def sort_colon_cancer(rq, r_path, output, result_dir, t):
     input_file1 = sort_app_file('input1', 'input_file1', result_dir, t)
+    input_file2 = sort_app_file('input2', 'input_file2', result_dir, t)
     dir1 = os.path.dirname(input_file1)
-    cmd = '/bin/bash %s %s %s' % (
+    dir2 = os.path.dirname(input_file2)
+    cmd = '/bin/bash %s %s %s %s' % (
         r_path,
         input_file1,
+        input_file2,
         output,
     )
-    return cmd, [dir1]
+    return cmd, [dir1, dir2]
 
 
 def sort_table_cat(rq, r_path, output, result_dir, t):
