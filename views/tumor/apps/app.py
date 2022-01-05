@@ -571,8 +571,8 @@ def sort_colon_cancer(rq, r_path, output, result_dir, t):
     cmd = '/bin/bash %s %s %s %s' % (
         r_path,
         input_file1,
-        input_file2,
         output,
+        input_file2,
     )
     return cmd, [dir1, dir2]
 
