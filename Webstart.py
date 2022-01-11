@@ -653,6 +653,11 @@ def tumor_app_order1(order):
             'sortFunc': sort_combination_ggplot,
             'output_postfix': 'pdf',
         },
+        'cor': {
+            'script_name': 'cor/APP_cor.R',
+            'sortFunc': sort_cor,
+            'output_postfix': 'tsv',
+        },
         'miRNA': {
             'script_name': 'mirna/predictive_tool.py',
             'sortFunc': sort_miRNA,
