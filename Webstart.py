@@ -663,6 +663,7 @@ def tumor_app_order1(order):
             'script_name': 'GSEA/GSEABase_pathway.R',
             'sortFunc': sort_gsea,
             'output_postfix': 'zip',
+            'bio': 'deepnp'
         },
         'miRNA': {
             'script_name': 'mirna/predictive_tool.py',
