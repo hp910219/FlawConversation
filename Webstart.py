@@ -410,6 +410,7 @@ def download_file():
     if len(available_path_prefixs) > 0:
         error = True
         for prefix in available_path_prefixs:
+            prefix = prefix.rstrip('/')
             if dir_name.startswith(prefix):
                 error = False
                 break
@@ -657,6 +658,11 @@ def tumor_app_order1(order):
             'script_name': 'cor/APP_cor.R',
             'sortFunc': sort_cor,
             'output_postfix': 'tsv',
+        },
+        'gsea': {
+            'script_name': 'GSEA/GSEABase_pathway.R',
+            'sortFunc': sort_gsea,
+            'output_postfix': 'zip',
         },
         'miRNA': {
             'script_name': 'mirna/predictive_tool.py',
