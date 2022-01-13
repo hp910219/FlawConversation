@@ -665,6 +665,12 @@ def tumor_app_order1(order):
             'output_postfix': 'zip',
             'bio': 'deepnp'
         },
+        'gsea_plot': {
+            'script_name': 'Ridgeplot/gsea_plot.R',
+            'sortFunc': sort_gsea_plot,
+            'output_postfix': 'zip',
+            'bio': 'deepnp'
+        },
         'miRNA': {
             'script_name': 'mirna/predictive_tool.py',
             'sortFunc': sort_miRNA,
