@@ -632,7 +632,7 @@ def tumor_app_order1(order):
             'script_name': 'MLP/MLP.py',
             'sortFunc': sort_colon_cancer_mlp,
             'bio': 'jingege315/robot:0.2.1',
-            'order1': '-it -e PYTHONPATH=/scripts/colon_cancer',
+            'order1': '-e PYTHONPATH=/scripts/colon_cancer',
             'output_postfix': 'csv',
         },
         'merge_snv_cnv': {
