@@ -130,8 +130,8 @@ def save_file():
         if os.path.exists(dir_path) is False:
             os.makedirs(dir_path)
         file_name = rq.get('file_name') or ''
-
-        file_name = '%s%s.txt' % (file_name, format_time(frm='%Y%m%d%H%M%S'))
+        postfix = rq.get('postfix') or 'txt'
+        file_name = '%s%s.%s' % (file_name, format_time(frm='%Y%m%d%H%M%S'), postfix)
         path = os.path.join(dir_path, file_name)
         print path
         my_file.write(path, content)
@@ -983,7 +983,8 @@ def get_file_content():
         return json.dumps({'message': 'Path not exists, %s' % path})
     if '../' in path:
         return json.dumps({'message': 'Path is illegal, %s' % path})
-    data = my_file.read(path, to_json=to_json, to_string=to_string)
+    sheet_name = rq.get('sheet_name')
+    data = my_file.read(path, to_json=to_json, to_string=to_string, sheet_name=sheet_name)
     try:
         encoding = chardet.detect(data[0])['encoding']
         # print encoding
@@ -1228,6 +1229,8 @@ def update_static(src_dir, postfix1=''):
         if os.path.exists(src):
             print src, des
             shutil.copy(src, des)
+        else:
+            print 'error', src, des
     if os.path.exists(src_static_dir):
         for i in os.listdir(src_static_dir):
             src = os.path.join(src_static_dir, i)
@@ -1254,6 +1257,7 @@ if __name__ == '__main__':
     update_static(os.path.join(project_dir, 'DeepTCM'), 'DeepTCM')
     update_static(os.path.join(project_dir, 'ZhaoLab'), 'ZhaoLab')
     update_static(os.path.join(project_dir, 'DeepNP'), 'OmixNP')
+    update_static(os.path.join(project_dir, 'TGFEx'), 'TGFEx')
     # shutil.copytree(r'D:\pythonproject\KOBARSWeb\dist', r'D:\pythonproject\TCMWeb\templates\kobars')
     app.run(host=host_ip, port=port)
 
