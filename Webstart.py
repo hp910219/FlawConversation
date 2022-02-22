@@ -650,12 +650,6 @@ def tumor_app_order1(order):
             'sortFunc': sort_survival_cutoff,
             'output_postfix': 'tsv',
         },
-        'siRNA_mismatch': {
-            'script_name': 'siRNA_mismatch/scripts/run_flow.sh',
-            'sortFunc': sort_siRNA_mismatch,
-            'output_postfix': 'zip',
-            'bio': ''
-        },
         'combination_ggplot': {
             'script_name': 'combination_ggplot/combination_ggplot.R',
             'sortFunc': sort_combination_ggplot,
@@ -677,6 +671,22 @@ def tumor_app_order1(order):
             'sortFunc': sort_gsea_plot,
             'output_postfix': 'zip',
             'bio': 'deepnp'
+        },
+        'box_plot': {
+            'script_name': 'boxplot/boxplot.R',
+            'sortFunc': sort_box_plot,
+            'output_postfix': 'pdf',
+        },
+        'point_cluster': {
+            'script_name': 'point_cluster/point_cluster.R',
+            'sortFunc': sort_box_plot,
+            'output_postfix': 'pdf',
+        },
+        'siRNA_mismatch': {
+            'script_name': 'siRNA_mismatch/scripts/run_flow.sh',
+            'sortFunc': sort_siRNA_mismatch,
+            'output_postfix': 'zip',
+            'bio': ''
         },
         'miRNA': {
             'script_name': 'mirna/predictive_tool.py',
