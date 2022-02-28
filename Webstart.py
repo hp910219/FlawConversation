@@ -713,7 +713,7 @@ def tumor_app_order1(order):
             # 'order1': '-w %s'
         },
         'sirna_bba': {
-            'script_name': 'sirna_extract_seq/network.py',
+            'script_name': 'BBA/scripts/run_blast_flow.sh',
             'sortFunc': sort_sirna_bba,
             'output_postfix': 'csv',
             'bio': '',
