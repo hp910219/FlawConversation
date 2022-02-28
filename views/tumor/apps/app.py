@@ -715,11 +715,11 @@ def sort_sirna_bba(rq, r_path, output, result_dir, t):
     input_file1 = sort_app_file('input1', 'input_file1', result_dir, t)
     dir1 = os.path.dirname(input_file1)
     scripts_dir = os.path.dirname(r_path)
-    cmd = 'sh %s %s %s %s %s %s %s %s' % (
+    cmd = 'sh %s %s %s/ %s %s %s/ %s %s' % (
         r_path,
         scripts_dir,
         dir1,
-        input_file1,
+        input_file1.split('/')[:-1],
         rq.get('species'),
         result_dir,
         db_dir,
