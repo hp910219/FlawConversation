@@ -715,7 +715,7 @@ def tumor_app_order1(order):
         'sirna_bba': {
             'script_name': 'BBA/scripts/run_blast_flow.sh',
             'sortFunc': sort_sirna_bba,
-            'output_postfix': 'csv',
+            'output_postfix': 'zip',
             'bio': '',
             'order1': '--rm',
             # 'order1': '-w %s'
