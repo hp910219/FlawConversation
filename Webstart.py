@@ -712,6 +712,14 @@ def tumor_app_order1(order):
             'order1': '--rm',
             # 'order1': '-w %s'
         },
+        'sirna_bba': {
+            'script_name': 'sirna_extract_seq/network.py',
+            'sortFunc': sort_sirna_bba,
+            'output_postfix': 'csv',
+            'bio': 'bio_py',
+            'order1': '--rm',
+            # 'order1': '-w %s'
+        },
         'lecture1': {
             'script_name': r'lecture/lecture1/单核苷酸变异.R',
             'sortFunc': sort_lecture1,
