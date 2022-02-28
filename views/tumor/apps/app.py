@@ -707,6 +707,27 @@ def sort_siRNA(rq, r_path, output, result_dir, t):
     return cmd, [dir1]
 
 
+def sort_sirna_bba(rq, r_path, output, result_dir, t):
+    conf = read_conf()
+    if isinstance(conf, str):
+        return conf
+    db_dir = conf.get('bba_db_dir')
+    input_file1 = sort_app_file('input1', 'input_file1', result_dir, t)
+    dir1 = os.path.dirname(input_file1)
+    scripts_dir = os.path.dirname(r_path)
+    cmd = 'sh %s %s %s %s %s %s %s %s' % (
+        r_path,
+        scripts_dir,
+        dir1,
+        input_file1,
+        rq.get('species'),
+        result_dir,
+        db_dir,
+        rq.get('baseNumb'),
+    )
+    return cmd, [dir1]
+
+
 def sort_sirna_extract_seq(rq, r_path, output, result_dir, t):
     input_file1 = sort_app_file('input1', 'input_file1', result_dir, t)
     dir1 = os.path.dirname(input_file1)
