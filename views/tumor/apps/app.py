@@ -719,7 +719,7 @@ def sort_sirna_bba(rq, r_path, output, result_dir, t):
         r_path,
         scripts_dir,
         dir1,
-        input_file1.split('/')[:-1],
+        input_file1.split('/')[-1],
         rq.get('species'),
         result_dir,
         db_dir,
