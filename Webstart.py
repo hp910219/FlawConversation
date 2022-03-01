@@ -682,6 +682,12 @@ def tumor_app_order1(order):
             'sortFunc': sort_box_plot,
             'output_postfix': 'pdf',
         },
+        'maf2feature': {
+            'script_name': 'maf2feature/seg2result.py',
+            'sortFunc': sort_maf2feature,
+            'output_postfix': 'tsv',
+            'bio': 'bc_deconstructsigs'
+        },
         'siRNA_mismatch': {
             'script_name': 'siRNA_mismatch/scripts/run_flow.sh',
             'sortFunc': sort_siRNA_mismatch,

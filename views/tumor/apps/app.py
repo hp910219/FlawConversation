@@ -683,6 +683,17 @@ def sort_box_plot(rq, r_path, output, result_dir, t):
     return cmd, [dir1]
 
 
+def sort_maf2feature(rq, r_path, output, result_dir, t):
+    input_file1 = sort_app_file('input1', 'input_file1', result_dir, t)
+    dir1 = os.path.dirname(input_file1)
+    cmd = 'python %s %s %s' % (
+        r_path,
+        input_file1,
+        output,
+    )
+    return cmd, [dir1]
+
+
 def sort_miRNA(rq, r_path, output, result_dir, t):
     input_file1 = sort_app_file('input1', 'input_file1', result_dir, t)
     dir1 = os.path.dirname(input_file1)
