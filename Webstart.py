@@ -687,7 +687,7 @@ def tumor_app_order1(order):
             'sortFunc': sort_maf2feature,
             'output_postfix': 'tsv',
             'bio': 'bc_deconstructsigs',
-            'order1': '-it -v %s:/scripts' % (scripts_dir)
+            'order1': '-it -v %s:%s' % (scripts_dir, scripts_dir)
         },
         'siRNA_mismatch': {
             'script_name': 'siRNA_mismatch/scripts/run_flow.sh',
