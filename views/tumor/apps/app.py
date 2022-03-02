@@ -686,10 +686,11 @@ def sort_box_plot(rq, r_path, output, result_dir, t):
 def sort_maf2feature(rq, r_path, output, result_dir, t):
     input_file1 = sort_app_file('input1', 'input_file1', result_dir, t)
     dir1 = os.path.dirname(input_file1)
-    cmd = 'python %s %s %s' % (
+    cmd = 'python %s %s %s %s' % (
         r_path,
         input_file1,
         output,
+        rq.get('ucsc_version'),
     )
     return cmd, [dir1]
 
