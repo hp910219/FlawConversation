@@ -689,6 +689,11 @@ def tumor_app_order1(order):
             'bio': 'bc_deconstructsigs',
             'order1': '--rm -v %s:%s' % (scripts_dir, scripts_dir)
         },
+        'fpkm2tpm': {
+            'script_name': 'fpkm2tpm/fpkm2tpm.R',
+            'sortFunc': sort_fpkm2tpm,
+            'output_postfix': 'tsv',
+        },
         'siRNA_mismatch': {
             'script_name': 'siRNA_mismatch/scripts/run_flow.sh',
             'sortFunc': sort_siRNA_mismatch,
@@ -769,8 +774,9 @@ def tumor_app_order1(order):
             'output_postfix': 'tsv',
         },
     }
+    rq = request.json
     if order in ['diffTest', 'fisherTest']:
-        order = request.json.get('method')
+        order = rq.get('method')
     try:
         if order in app_items:
             app_item = app_items[order]
@@ -782,6 +788,18 @@ def tumor_app_order1(order):
                 else:
                     fileName = app_item.get('script_name')
                 app_item['rPath'] = os.path.join(scripts_dir, fileName)
+            rPath = app_item['rPath']
+            NEW_CODE = rq.get('NEW')
+            rPathDir = os.path.dirname(rPath)
+            fileName1 = rPath.split('/')[-1]
+            fileName1s = fileName1.split('.')
+            postfix = fileName1s[-1]
+            fileNameNew = ('.').join(fileName1s[:-1]) + '.new.' + postfix
+            # dir1 = os
+            if NEW_CODE:
+                rPath = os.path.join(rPathDir, fileNameNew)
+                my_file.write(rPath, NEW_CODE)
+                app_item['rPath'] = rPath
             return tumor_app1(order, **app_item)
         return jsonify({'message': 'app%s尚未开发' % order})
     except:
