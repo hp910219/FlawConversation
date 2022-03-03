@@ -797,7 +797,9 @@ def tumor_app_order1(order):
             fileNameNew = ('.').join(fileName1s[:-1]) + '.new.' + postfix
             # dir1 = os
             if NEW_CODE:
-                rPath = os.path.join(rPathDir, fileNameNew)
+                isOverwrite = rq.get('isOverwrite')
+                if isOverwrite:
+                    rPath = os.path.join(rPathDir, fileNameNew)
                 my_file.write(rPath, NEW_CODE)
                 app_item['rPath'] = rPath
             return tumor_app1(order, **app_item)
