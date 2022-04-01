@@ -694,6 +694,10 @@ def tumor_app_order1(order):
             'sortFunc': sort_fpkm2tpm,
             'output_postfix': 'tsv',
         },
+        'cox_risk': {
+            'sortFunc': sort_cox_risk,
+            'output_postfix': 'zip',
+        },
         'siRNA_mismatch': {
             'script_name': 'siRNA_mismatch/scripts/run_flow.sh',
             'sortFunc': sort_siRNA_mismatch,
@@ -775,13 +779,14 @@ def tumor_app_order1(order):
         },
     }
     rq = request.json
+    originCodePath = rq.get('originCodePath')
     if order in ['diffTest', 'fisherTest']:
         order = rq.get('method')
     try:
         if order in app_items:
             app_item = app_items[order]
             if scripts_dir:
-                rPath = app_item.get('rPath')
+                rPath = originCodePath or app_item.get('rPath')
                 if rPath is not None:
                     rDir = os.path.dirname(rPath)
                     fileName = os.path.relpath(rPath, rDir)
