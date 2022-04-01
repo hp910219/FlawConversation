@@ -695,6 +695,7 @@ def tumor_app_order1(order):
             'output_postfix': 'tsv',
         },
         'cox_risk': {
+            'script_name': 'cox_risk/TCGA_cox.R',
             'sortFunc': sort_cox_risk,
             'output_postfix': 'zip',
         },
@@ -787,12 +788,10 @@ def tumor_app_order1(order):
             app_item = app_items[order]
             if scripts_dir:
                 rPath = originCodePath or app_item.get('rPath')
-                if rPath is not None:
-                    rDir = os.path.dirname(rPath)
-                    fileName = os.path.relpath(rPath, rDir)
-                else:
+                if rPath is None:
                     fileName = app_item.get('script_name')
-                app_item['rPath'] = os.path.join(scripts_dir, fileName)
+                    rPath = os.path.join(scripts_dir, fileName)
+                app_item['rPath'] = rPath
             rPath = app_item['rPath']
             NEW_CODE = rq.get('NEW')
             rPathDir = os.path.dirname(rPath)
