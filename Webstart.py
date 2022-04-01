@@ -792,7 +792,9 @@ def tumor_app_order1(order):
                     fileName = os.path.relpath(rPath, rDir)
                 else:
                     fileName = app_item.get('script_name')
-                app_item['rPath'] = os.path.join(scripts_dir, fileName)
+                if fileName:
+                    rPath = os.path.join(scripts_dir, fileName)
+                app_item['rPath'] = rPath
             rPath = app_item['rPath']
             NEW_CODE = rq.get('NEW')
             rPathDir = os.path.dirname(rPath)
