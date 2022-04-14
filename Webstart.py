@@ -1202,7 +1202,6 @@ def get_deepnp_grn():
                     url3 = f3.get('url')
                     children3 = []
                     item3 = {'label': ' '.join(file_name3.split('_')), 'value': file_name3}
-
                     files4 = File(url3)
                     data4 = files4.get_file_list('s', '', ['.tsv']) or {}
                     data4 = data4.get('data') or {}
