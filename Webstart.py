@@ -1310,7 +1310,7 @@ if __name__ == '__main__':
     update_static(os.path.join(project_dir, 'CRC'), 'CRC')
     update_static(os.path.join(project_dir, 'DeepTCM'), 'DeepTCM')
     update_static(os.path.join(project_dir, 'ZhaoLab'), 'ZhaoLab')
-    update_static(os.path.join(project_dir, 'DeepNP'), 'OmixNP')
+    update_static(os.path.join(project_dir, 'DeepNP'), 'point')
     update_static(os.path.join(project_dir, 'TGFEx'), 'TGFEx')
     # shutil.copytree(r'D:\pythonproject\KOBARSWeb\dist', r'D:\pythonproject\TCMWeb\templates\kobars')
     app.run(host=host_ip, port=port)
