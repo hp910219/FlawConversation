@@ -699,6 +699,12 @@ def tumor_app_order1(order):
             'sortFunc': sort_cox_risk,
             'output_postfix': 'zip',
         },
+        'paired_deg': {
+            'script_name': 'paired_deg/deseq.R',
+            'sortFunc': sort_paired_deg,
+            'output_postfix': 'tsv',
+        },
+
         'siRNA_mismatch': {
             'script_name': 'siRNA_mismatch/scripts/run_flow.sh',
             'sortFunc': sort_siRNA_mismatch,
@@ -737,6 +743,7 @@ def tumor_app_order1(order):
             'order1': '--rm',
             # 'order1': '-w %s'
         },
+
         'lecture1': {
             'script_name': r'lecture/lecture1/单核苷酸变异.R',
             'sortFunc': sort_lecture1,
