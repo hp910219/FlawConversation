@@ -1041,10 +1041,15 @@ def get_file_content():
     if 'to_string' in rq:
         to_string = rq.get('to_string')
     path = file_path or os.path.join(dir_name, file_name)
+    path = cgi.escape(path)
     if os.path.exists(path) is False:
         return json.dumps({'message': 'Path not exists, %s' % path})
     if '../' in path:
         return json.dumps({'message': 'Path is illegal, %s' % path})
+    if '..' in dir_name or 'password' in path:
+        return 'Sorry, unavailable path.'
+    if 'passwd' in path:
+        return 'Sorry, unavailable path.'
     sheet_name = rq.get('sheet_name')
     data = my_file.read(path, to_json=to_json, to_string=to_string, sheet_name=sheet_name)
     try:
