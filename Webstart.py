@@ -1046,7 +1046,7 @@ def get_file_content():
         return json.dumps({'message': 'Path not exists, %s' % path})
     if '../' in path:
         return json.dumps({'message': 'Path is illegal, %s' % path})
-    if '..' in dir_name or 'password' in path:
+    if '..' in path or 'password' in path:
         return 'Sorry, unavailable path.'
     if 'passwd' in path:
         return 'Sorry, unavailable path.'
