@@ -704,6 +704,18 @@ def tumor_app_order1(order):
             'sortFunc': sort_paired_deg,
             'output_postfix': 'tsv',
         },
+        'net_view': {
+            'script_name': 'NetView/main.py',
+            'sortFunc': sort_net_view,
+            'output_postfix': 'zip',
+            'bio': 'bio_py'
+        },
+        'column_division': {
+            'script_name': 'column_division/column_division.py',
+            'sortFunc': sort_column_division,
+            'output_postfix': 'tsv',
+            'bio': 'bio_py'
+        },
 
         'siRNA_mismatch': {
             'script_name': 'siRNA_mismatch/scripts/run_flow.sh',
@@ -1061,6 +1073,31 @@ def get_file_content():
     return json.dumps({'message': 'success', 'data': data, 'file_path': path})
 
 
+@app.route('/file/origin/<file_name>', methods=['GET', 'POST'])
+def get_file_origin(file_name):
+    rq = request.json or {}
+    conf = read_conf()
+    if isinstance(conf, str):
+        return conf
+    # print conf
+    # JINGD_DATA_ROOT = os.environ.get('JINGD_DATA_ROOT') or conf.get('jingd_data_root')
+    dir_name = conf.get('fasta_dir') or ''
+
+    file_name = file_name or ''
+
+    path = os.path.join(dir_name, file_name)
+    path = cgi.escape(path)
+    if os.path.exists(path) is False:
+        return json.dumps({'message': 'Path not exists, %s' % path})
+    if '../' in path:
+        return json.dumps({'message': 'Path is illegal, %s' % path})
+    if '..' in path or 'password' in path:
+        return 'Sorry, unavailable path.'
+    if 'passwd' in path:
+        return 'Sorry, unavailable path.'
+    return send_from_directory(dir_name, file_name, as_attachment=True, attachment_filename=file_name)
+
+
 @app.route('/transfer/img/', methods=['POST'])
 def transfer_img():
     rq = request.json
@@ -1265,15 +1302,6 @@ def post_deepnp_rank():
             # headers={'Content-Type': content_type}
         )
         res_data = res.json() or {'message': res.text}
-
-        # res = sort_request1(
-        #     'post', 'http://101.34.103.67:8001/network_api/file/upload/none',
-        #     data=data,
-        #     files=files
-        # )
-        # print res.get('message')
-        items = []
-
         return jsonify(res_data)
     except:
         msg = traceback.format_exc()
@@ -1324,6 +1352,7 @@ if __name__ == '__main__':
     update_static(os.path.join(project_dir, 'ZhaoLab'), 'ZhaoLab')
     update_static(os.path.join(project_dir, 'DeepNP'), 'point')
     update_static(os.path.join(project_dir, 'TGFEx'), 'TGFEx')
+    update_static(os.path.join(project_dir, 'YiNet'), 'YiNet')
     # shutil.copytree(r'D:\pythonproject\KOBARSWeb\dist', r'D:\pythonproject\TCMWeb\templates\kobars')
     app.run(host=host_ip, port=port)
 

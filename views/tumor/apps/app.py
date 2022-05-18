@@ -738,6 +738,38 @@ def sort_paired_deg(rq, r_path, output, result_dir, t):
     return cmd, [dir1, dir2]
 
 
+def sort_net_view(rq, r_path, output, result_dir, t):
+    input_file1 = sort_app_file('input1', 'input_file1', result_dir, t)
+    input_file2 = sort_app_file('input2', 'input_file2', result_dir, t)
+    dir1 = os.path.dirname(input_file1)
+    dir2 = os.path.dirname(input_file2)
+    cmd = 'python3 %s %s %s %s %s %s %s %s %s' % (
+        r_path,
+        input_file1,
+        input_file2,
+        rq.get('point_distance'),
+        rq.get('other_distance'),
+        rq.get('point_name'),
+        rq.get('point_size'),
+        rq.get('other_size'),
+        output[:-4],
+    )
+    return cmd, [dir1, dir2]
+
+
+def sort_column_division(rq, r_path, output, result_dir, t):
+    input_file1 = sort_app_file('input1', 'input_file1', result_dir, t)
+    dir1 = os.path.dirname(input_file1)
+    cmd = "python3 %s %s '%s' %s %s" % (
+        r_path,
+        input_file1,
+        rq.get('split_symbol'),
+        rq.get('col_name'),
+        output,
+    )
+    return cmd, [dir1]
+
+
 def sort_miRNA(rq, r_path, output, result_dir, t):
     input_file1 = sort_app_file('input1', 'input_file1', result_dir, t)
     dir1 = os.path.dirname(input_file1)
