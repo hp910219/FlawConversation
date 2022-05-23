@@ -943,7 +943,7 @@ def tumor_app1(app_name, rPath='', sortFunc=None, output_postfix='txt', order1='
             cmd = ''
         if env and env.startswith('Development'):
             cmd = ''
-        cmd += cmd_dev
+        cmd += u'%s' % cmd_dev
         return jsonify({'data': {
             'app_name': app_name,
             'postfix': output_postfix,
@@ -970,6 +970,7 @@ def tumor_app2():
         if os.path.exists(zip_file_dir) is False:
             os.makedirs(zip_file_dir)
         # print fileDir
+
     print cmd
     try:
         code = os.system(cmd)
