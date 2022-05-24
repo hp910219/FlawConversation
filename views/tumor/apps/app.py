@@ -943,7 +943,7 @@ def tumor_app1(app_name, rPath='', sortFunc=None, output_postfix='txt', order1='
             cmd = ''
         if env and env.startswith('Development'):
             cmd = ''
-        cmd += u'%s' % cmd_dev
+        cmd += '%s' % cmd_dev
         return jsonify({'data': {
             'app_name': app_name,
             'postfix': output_postfix,
