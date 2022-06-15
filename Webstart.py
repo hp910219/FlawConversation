@@ -716,6 +716,12 @@ def tumor_app_order1(order):
             'output_postfix': 'tsv',
             'bio': 'bio_py'
         },
+        'cross_validation': {
+            'script_name': 'CrossValidation/detect.py',
+            'sortFunc': sort_cross_validation,
+            'output_postfix': 'zip',
+            'bio': 'bio_py'
+        },
 
         'siRNA_mismatch': {
             'script_name': 'siRNA_mismatch/scripts/run_flow.sh',

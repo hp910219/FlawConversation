@@ -757,6 +757,21 @@ def sort_net_view(rq, r_path, output, result_dir, t):
     return cmd, [dir1, dir2]
 
 
+def sort_cross_validation(rq, r_path, output, result_dir, t):
+    input_file1 = sort_app_file('input1', 'input_file1', result_dir, t)
+    input_file2 = sort_app_file('input2', 'input_file2', result_dir, t)
+    dir1 = os.path.dirname(input_file1)
+    dir2 = os.path.dirname(input_file2)
+    cmd = 'python3 %s %s %s %s %s' % (
+        r_path,
+        rq.get('classifier'),
+        input_file1,
+        input_file2,
+        output[:-4],
+    )
+    return cmd, [dir1, dir2]
+
+
 def sort_column_division(rq, r_path, output, result_dir, t):
     input_file1 = sort_app_file('input1', 'input_file1', result_dir, t)
     dir1 = os.path.dirname(input_file1)
