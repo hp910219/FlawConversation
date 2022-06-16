@@ -720,7 +720,8 @@ def tumor_app_order1(order):
             'script_name': 'CrossValidation/detect.py',
             'sortFunc': sort_cross_validation,
             'output_postfix': 'zip',
-            'bio': 'bio_py'
+            'bio': 'bio_py',
+            'order1': '-w %s/CrossValidation -v %s/CrossValidation:%s/CrossValidation' % (scripts_dir, scripts_dir, scripts_dir),
         },
 
         'siRNA_mismatch': {
