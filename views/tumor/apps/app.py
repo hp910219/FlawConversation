@@ -762,12 +762,14 @@ def sort_cross_validation(rq, r_path, output, result_dir, t):
     input_file2 = sort_app_file('input2', 'input_file2', result_dir, t)
     dir1 = os.path.dirname(input_file1)
     dir2 = os.path.dirname(input_file2)
-    cmd = 'python3 %s %s %s %s %s' % (
+    output_dir = output[:-4]
+    cmd = 'python3 %s --clf %s --train_file %s __test_file %s --acc_path %s --predict_path %s' % (
         r_path,
         rq.get('classifier'),
         input_file1,
         input_file2,
-        output[:-4],
+        os.path.join(output_dir, 'out_train.tsv'),
+        os.path.join(output_dir, 'predict.tsv'),
     )
     return cmd, [dir1, dir2]
 
