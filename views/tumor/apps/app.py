@@ -763,7 +763,7 @@ def sort_cross_validation(rq, r_path, output, result_dir, t):
     dir1 = os.path.dirname(input_file1)
     dir2 = os.path.dirname(input_file2)
     output_dir = output[:-4]
-    cmd = 'python3 %s --clf %s --train_file %s __test_file %s --acc_path %s --predict_path %s' % (
+    cmd = 'python3 %s --clf %s --train_file %s --test_file %s --acc_path %s --predict_path %s' % (
         r_path,
         rq.get('classifier'),
         input_file1,
