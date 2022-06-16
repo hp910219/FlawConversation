@@ -768,7 +768,7 @@ def sort_cross_validation(rq, r_path, output, result_dir, t):
         rq.get('classifier'),
         input_file1,
         input_file2,
-        os.path.join(output_dir, 'out_train.tsv'),
+        os.path.join(output_dir, 'acc.tsv'),
         os.path.join(output_dir, 'predict.tsv'),
     )
     return cmd, [dir1, dir2]
