@@ -5,7 +5,7 @@
     {% if conf.umi_name == 'umi_kobars' %}
 {#        <link rel="stylesheet" href="./kobas3/static/{{ conf.umi_name or 'umi' }}.css?t={{ restart_time }}">#}
         <link rel="stylesheet" href="{{ KOBAS_PREFIX }}/static/{{ conf.umi_name or 'umi' }}.css?t={{ restart_time }}">
-    {% elif conf.umi_prefix %}
+    {% elif conf.umi_name %}
         <link rel="stylesheet" href="{{ conf.umi_prefix }}/static/{{ conf.umi_name or 'umi' }}.css?t={{ restart_time }}">
     {% else %}
         <link rel="stylesheet" href="/static/{{ conf.umi_name or 'umi' }}.css?t={{ restart_time }}">
@@ -36,7 +36,7 @@
 {% if conf.umi_name == 'umi_kobars' %}
 {#    <script src="./kobas3/static/{{ conf.umi_name or 'umi' }}.js?t={{ restart_time }}"></script>#}
     <script src="{{ KOBAS_PREFIX }}/static/{{ conf.umi_name or 'umi' }}.js?t={{ restart_time }}"></script>
-{% elif conf.umi_prefix %}
+{% elif conf.umi_name %}
 {#    <script src="./kobas3/static/{{ conf.umi_name or 'umi' }}.js?t={{ restart_time }}"></script>#}
     <script src="{{ conf.umi_prefix }}/static/{{ conf.umi_name or 'umi' }}.js?t={{ restart_time }}"></script>
 {% else %}

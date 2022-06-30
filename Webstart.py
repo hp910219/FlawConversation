@@ -1360,7 +1360,7 @@ if __name__ == '__main__':
     update_static(os.path.join(project_dir, 'DeepNP'), 'point')
     update_static(os.path.join(project_dir, 'TGFEx'), 'TGFEx')
     update_static(os.path.join(project_dir, 'YiNet'), 'YiNet')
-    update_static(os.path.join(project_dir, 'SRAS'), 'RNADrug')
+    update_static(os.path.join(project_dir, 'RNADrug'), 'RNADrug')
     # shutil.copytree(r'D:\pythonproject\KOBARSWeb\dist', r'D:\pythonproject\TCMWeb\templates\kobars')
     app.run(host=host_ip, port=port)
 
