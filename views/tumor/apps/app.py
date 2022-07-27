@@ -774,6 +774,22 @@ def sort_cross_validation(rq, r_path, output, result_dir, t):
     return cmd, [dir1, dir2]
 
 
+def sort_TCM_syndrome(rq, r_path, output, result_dir, t):
+    input_file1 = sort_app_file('input1', 'input_file1', result_dir, t)
+    input_file2 = sort_app_file('input2', 'input_file2', result_dir, t)
+    dir1 = os.path.dirname(input_file1)
+    dir2 = os.path.dirname(input_file2)
+    output_dir = output[:-4]
+    cmd = 'python3 %s --train_file %s --test_file %s --acc_path %s --predict_path %s' % (
+        r_path,
+        input_file1,
+        input_file2,
+        os.path.join(output_dir, 'acc.tsv'),
+        os.path.join(output_dir, 'predict.tsv'),
+    )
+    return cmd, [dir1, dir2]
+
+
 def sort_column_division(rq, r_path, output, result_dir, t):
     input_file1 = sort_app_file('input1', 'input_file1', result_dir, t)
     dir1 = os.path.dirname(input_file1)

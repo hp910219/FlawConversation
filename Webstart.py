@@ -723,6 +723,13 @@ def tumor_app_order1(order):
             'bio': 'bio_py',
             'order1': '--rm -w %s/CrossValidation' % (scripts_dir),
         },
+        'TCM_syndrome': {
+            'script_name': 'TCM_syndrome/detect.py',
+            'sortFunc': sort_TCM_syndrome,
+            'output_postfix': 'zip',
+            'bio': 'bio_py',
+            'order1': '--rm -w %s/TCM_syndrome' % (scripts_dir),
+        },
 
         'siRNA_mismatch': {
             'script_name': 'siRNA_mismatch/scripts/run_flow.sh',
