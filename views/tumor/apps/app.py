@@ -348,7 +348,7 @@ def sort_rank_gene_cluster(rq, r_path, output, result_dir, t):
 
 def sort_siRNA_mismatch(rq, script_path, output, result_dir, t):
     input_file1 = sort_app_file('input1', 'input_file1', result_dir, t)
-    input_file2 = sort_app_file('input2', 'input_file2', result_dir, t)
+    input_file2 = sort_app_file('input2', 'input_file2', result_dir, t, 'fasta')
     work_dir = os.path.dirname(input_file1)
     file_name1 = os.path.relpath(input_file1, work_dir)
     dir2 = os.path.dirname(input_file2)
@@ -816,7 +816,7 @@ def sort_miRNA(rq, r_path, output, result_dir, t):
 
 
 def sort_siRNA(rq, r_path, output, result_dir, t):
-    input_file1 = sort_app_file('input1', 'input_file1', result_dir, t)
+    input_file1 = sort_app_file('input1', 'input_file1', result_dir, t, 'fa')
     dir1 = os.path.dirname(input_file1)
     cmd = 'sh %s %s %s %s' % (
         r_path,
@@ -929,11 +929,11 @@ def sort_lecture10(rq, r_path, output, result_dir, t):
     return cmd, [dir1, dir2]
 
 
-def sort_app_file(key, file_key, result_dir, t):
+def sort_app_file(key, file_key, result_dir, t, postfix='txt'):
     rq = request.json
     input_file1 = rq.get(file_key)
     if input_file1 is None:
-        input_file1 = os.path.join(result_dir, '%s_%s.txt' % (file_key, t))
+        input_file1 = os.path.join(result_dir, '%s_%s.%s' % (file_key, t, postfix))
         my_file.write(input_file1, rq.get(key))
     return input_file1
 
