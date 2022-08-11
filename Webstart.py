@@ -738,6 +738,7 @@ def tumor_app_order1(order):
             'bio': ''
         },
         'miRNA': {
+            # 'rPath': '/public/jingdu/budechao/lecture/lec1_merge/merge_demo.R',
             'script_name': 'mirna/predictive_tool.py',
             'sortFunc': sort_miRNA,
             'output_postfix': 'xlsx',
