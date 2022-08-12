@@ -730,6 +730,13 @@ def tumor_app_order1(order):
             'bio': 'bio_py',
             'order1': '--rm -w %s/TCM_syndrome' % (scripts_dir),
         },
+        'circFunMap': {
+            'script_name': 'circFunMap/run_kegg_visualisation.py',
+            'sortFunc': sort_circFunMap,
+            'output_postfix': 'zip',
+            'bio': 'bc_vis',
+            'out_dir': ' -w '
+        },
 
         'siRNA_mismatch': {
             'script_name': 'siRNA_mismatch/scripts/run_flow.sh',
