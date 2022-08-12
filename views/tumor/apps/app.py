@@ -672,6 +672,18 @@ def sort_gsea_plot(rq, r_path, output, result_dir, t):
     return cmd, [dir1, dir2]
 
 
+def sort_circFunMap(rq, r_path, output, result_dir, t):
+    input_file1 = sort_app_file('input1', 'input_file1', result_dir, t)
+    dir1 = os.path.dirname(input_file1)
+    cmd = 'python %s -i %s -t visualisation -a gene_list -s %s -d %s' % (
+        r_path,
+        input_file1,
+        rq.get('species') or 'hsa',
+        rq.get('dbtype') or 'K',
+    )
+    return cmd, [dir1]
+
+
 def sort_box_plot(rq, r_path, output, result_dir, t):
     input_file1 = sort_app_file('input1', 'input_file1', result_dir, t)
     dir1 = os.path.dirname(input_file1)
@@ -967,6 +979,8 @@ def tumor_app1(app_name, rPath='', sortFunc=None, output_postfix='txt', order1='
         dirs += [output_dir, r_dir]
         # docker run -rm -v data_dir:/data -w /data bio_r
         cmd = 'docker run %s' % order1
+        if 'out_dir' in kwargs:
+            cmd += kwargs['out_dir'] + output_dir
         for i in list(set(dirs)):
             if i:
                 cmd += ' -v %s:%s' % (i, i)
