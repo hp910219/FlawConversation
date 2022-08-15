@@ -980,7 +980,10 @@ def tumor_app1(app_name, rPath='', sortFunc=None, output_postfix='txt', order1='
         # docker run -rm -v data_dir:/data -w /data bio_r
         cmd = 'docker run %s' % order1
         if 'out_dir' in kwargs:
-            cmd += kwargs['out_dir'] + output_dir
+            isZip = output_postfix == 'zip'
+            zip_file_dir = output[:-4]
+            output_postfix = rq.get('postfix')
+            cmd += kwargs['out_dir'] + (zip_file_dir if isZip else output_dir)
         for i in list(set(dirs)):
             if i:
                 cmd += ' -v %s:%s' % (i, i)
