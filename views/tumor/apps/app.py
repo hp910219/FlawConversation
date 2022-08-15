@@ -1042,11 +1042,14 @@ def tumor_app2():
     except Exception, e:
         # traceback.print_exc()
         msg = cmd + traceback.format_exc()
-    if isZip and os.path.exists(zip_file_dir):
-        while True:
-            zipStatus = zip_dir('', zip_file_dir, output)
-            if zipStatus == 5:
-                break
+    if isZip:
+        if os.path.exists(zip_file_dir):
+            while True:
+                zipStatus = zip_dir('', zip_file_dir, output)
+                if zipStatus == 5:
+                    break
+        else:
+            msg = u'压缩文件目录不存在，%s' % zip_file_dir
     if os.path.exists(output):
         # data = my_file.read(output)
         try:
