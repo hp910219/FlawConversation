@@ -982,6 +982,8 @@ def tumor_app1(app_name, rPath='', sortFunc=None, output_postfix='txt', order1='
         if 'out_dir' in kwargs:
             isZip = output_postfix == 'zip'
             zip_file_dir = output[:-4]
+            if os.path.exists(zip_file_dir) is False:
+                os.makedirs(zip_file_dir)
             output_postfix = rq.get('postfix')
             cmd += kwargs['out_dir'] + (zip_file_dir if isZip else output_dir)
         for i in list(set(dirs)):
