@@ -681,7 +681,7 @@ def sort_circFunMap(rq, r_path, output, result_dir, t):
         rq.get('species') or 'hsa',
         rq.get('dbtype') or 'K',
     )
-    return cmd, [dir1]
+    return cmd, [dir1, os.path.dirname(r_path)]
 
 
 def sort_box_plot(rq, r_path, output, result_dir, t):
@@ -1082,6 +1082,11 @@ def tumor_app(app_name, rPath='', sortFunc=None, output_postfix='txt', order1='-
             os.makedirs(output_dir)
         output_file = '%s.output.%s.%s' % (app_name, t, output_postfix)
         output = output_dir.rstrip('/') + '/' + output_file
+        fileDir = output[:-4]
+        isZip = output_postfix == 'zip'
+        if isZip:
+            if os.path.exists(fileDir) is False:
+                os.makedirs(fileDir)
         cmd_dev, dirs = sortFunc(rq, rPath, output, output_dir, t)
         dirs += [output_dir, r_dir]
         # docker run -rm -v data_dir:/data -w /data bio_r
@@ -1093,11 +1098,7 @@ def tumor_app(app_name, rPath='', sortFunc=None, output_postfix='txt', order1='-
         if env and env.startswith('Development'):
             cmd = ''
         cmd += cmd_dev
-        fileDir = output[:-4]
-        isZip = output_postfix == 'zip'
-        if isZip:
-            if os.path.exists(fileDir) is False:
-                os.makedirs(fileDir)
+
             # print fileDir
         print cmd
         try:
