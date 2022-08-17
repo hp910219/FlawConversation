@@ -675,9 +675,15 @@ def sort_gsea_plot(rq, r_path, output, result_dir, t):
 def sort_circFunMap(rq, r_path, output, result_dir, t):
     input_file1 = sort_app_file('input1', 'input_file1', result_dir, t)
     dir1 = os.path.dirname(input_file1)
-    cmd = 'python %s -i %s -t visualisation -a %s -s %s -d %s' % (
+    rebuildParam = ''
+    enrich_edge_file = rq.get('enrich_edge_file')
+    if enrich_edge_file:
+        rebuildParam = '-e %s ' % enrich_edge_file
+    cmd = 'python %s -i %s -t %s %s-a %s -s %s -d %s' % (
         r_path,
         input_file1,
+        rq.get('run_type') or 'visualisation',
+        rebuildParam,
         rq.get('data_source') or 'gene_list',
         rq.get('species') or 'hsa',
         rq.get('dbtype') or 'K',
