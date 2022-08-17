@@ -680,7 +680,7 @@ def sort_circFunMap(rq, r_path, output, result_dir, t):
     dir2 = []
     if enrich_edge_file:
         # des = os.path.join(dir1)
-        dir2 += os.path.dirname(dir2)
+        dir2 += [os.path.dirname(enrich_edge_file)]
         # shutil.copy(enrich_edge_file, des)
         rebuildParam = '-e %s ' % enrich_edge_file
     cmd = 'python %s -i %s -t %s %s-a %s -s %s -d %s' % (
