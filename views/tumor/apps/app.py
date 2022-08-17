@@ -677,7 +677,11 @@ def sort_circFunMap(rq, r_path, output, result_dir, t):
     dir1 = os.path.dirname(input_file1)
     rebuildParam = ''
     enrich_edge_file = rq.get('enrich_edge_file')
+    dir2 = []
     if enrich_edge_file:
+        # des = os.path.join(dir1)
+        dir2 += os.path.dirname(dir2)
+        # shutil.copy(enrich_edge_file, des)
         rebuildParam = '-e %s ' % enrich_edge_file
     cmd = 'python %s -i %s -t %s %s-a %s -s %s -d %s' % (
         r_path,
@@ -688,7 +692,7 @@ def sort_circFunMap(rq, r_path, output, result_dir, t):
         rq.get('species') or 'hsa',
         rq.get('dbtype') or 'K',
     )
-    return cmd, [dir1, os.path.dirname(r_path)]
+    return cmd, [dir1, os.path.dirname(r_path)] + dir2
 
 
 def sort_box_plot(rq, r_path, output, result_dir, t):
