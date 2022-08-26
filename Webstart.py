@@ -491,6 +491,11 @@ def tumor_app_order1(order):
             'sortFunc': sort_cox,
             'output_postfix': 'zip',
         },
+        'cor2table': {
+            'script_name': 'cor2table/cor2table.R',
+            'sortFunc': sort_cor2table,
+            'output_postfix': 'tsv',
+        },
         'fisherTest': {
             'rPath': '/public/jingdu/zss/Rscript-zss/app/fisher_chisqTest/fisherTest/fisherTest.R',
             'sortFunc': sort_test_app,

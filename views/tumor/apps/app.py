@@ -427,6 +427,21 @@ def sort_cox(rq, r_path, output, result_dir, t):
     return cmd, [dir1, os.path.dirname(input_file2)]
 
 
+def sort_cor2table(rq, r_path, output, result_dir, t):
+    input_file1 = sort_app_file('input1', 'input_file1', result_dir, t)
+    input_file2 = sort_app_file('input2', 'input_file2', result_dir, t)
+    dir1 = os.path.dirname(input_file1)
+    cmd = 'Rscript %s %s %s %s %s %s' % (
+        r_path,
+        input_file1,
+        input_file2,
+        rq.get('var1'),
+        rq.get('var2'),
+        output,
+    )
+    return cmd, [dir1, os.path.dirname(input_file2)]
+
+
 def sort_ttest(rq, r_path, output, result_dir, t):
     input_file1 = sort_app_file('input1', 'input_file1', result_dir, t)
     input_file2 = sort_app_file('input2', 'input_file2', result_dir, t)
