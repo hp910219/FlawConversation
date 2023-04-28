@@ -1,4 +1,0 @@
-""	"gene"	"HR"	"CI1"	"CI2"	"pvalue"	"logtest"	"waldtest"	"sctest"
-"1"	"cluster"	1.56	1.1	2.22	0.072	"NA"	"NA"	"NA"
-"2"	"time"	3.19761381313013e+54	8.90494089920368e+44	1.14820909129615e+64	0	"NA"	"NA"	"NA"
-"3"	"cens"	22.09	16.15	30.21	0	"NA"	"NA"	"NA"
