@@ -68,6 +68,8 @@ def sort_request1(method, url, api_service='api', auth=None, data=None, remote_a
             # headers = {}
             # headers['Content-Type'] = 'application/x-www-form-urlencoded; charset=UTF-8'
         request_params['headers'] = headers
+        request_params['stream'] = data.get('stream')
+
         try:
             response = requests.request(method, api_url, **request_params)
         except Exception, e:
