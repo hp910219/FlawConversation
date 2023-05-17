@@ -138,5 +138,7 @@ def sort_request1(method, url, api_service='api', auth=None, data=None, remote_a
         #         res_message += fetch_data
         #     yield fetch_data
 
-        return Response(generate(), mimetype="text/event-stream")
+        # return Response(generate(), mimetype="text/event-stream")
+        return response
+
     return response_data
