@@ -59,6 +59,7 @@ def page_not_found(e):
 def tcm_api():
     method = request.method
     data = request.args if method == 'GET' else request.json
+    data = data or {}
     url = request.headers.get('API-URL')
     api_service = request.headers.get('API-SERVICE')
     success_status = request.headers.get('SUCCESS-STATUS')
@@ -66,7 +67,11 @@ def tcm_api():
     if api_method is not None:
         method = api_method
     response_data = sort_request1(method, url, api_service, data=data)
-    return jsonify(response_data)
+    stream = data.get('stream')
+    if stream:
+        return response_data
+    else:
+        return jsonify(response_data)
 
 
 @app.route("/tcm/upload/file/", methods=["POST", 'OPTIONS'])
