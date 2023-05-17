@@ -3,7 +3,7 @@
 import base64
 import json
 import requests
-from flask import Flask, request
+from flask import Flask, request, Response
 from flask_cors import CORS
 from jy_word.web_tool import send_msg_by_dd
 from config import read_conf
@@ -36,6 +36,8 @@ def sort_request1(method, url, api_service='api', auth=None, data=None, remote_a
     error_message = ''
     response_data = None
     status = None
+    data = data or {}
+    stream = data.get('stream')
     if isinstance(conf, str):
         error_message = conf
     if ports is None:
@@ -52,7 +54,7 @@ def sort_request1(method, url, api_service='api', auth=None, data=None, remote_a
             api_url = url
         else:
             api_url = endpoint + ':' + port + url
-        data = data or {}
+
         request_params = {'json': data} if method != 'GET' else {'params': data}
         headers = {'Content-Type': 'application/json'}
         if auth:
@@ -68,7 +70,8 @@ def sort_request1(method, url, api_service='api', auth=None, data=None, remote_a
             # headers = {}
             # headers['Content-Type'] = 'application/x-www-form-urlencoded; charset=UTF-8'
         request_params['headers'] = headers
-        request_params['stream'] = data.get('stream')
+
+        request_params['stream'] = stream
 
         try:
             response = requests.request(method, api_url, **request_params)
@@ -80,10 +83,11 @@ def sort_request1(method, url, api_service='api', auth=None, data=None, remote_a
                 # print 'body', response.text.body
                 error_message = "%s %s %d %s\n" % (api_url, "POST", response.status_code, response.text)
             else:
-                try:
-                    response_data = response.json()
-                except:
-                    return {'data': response.text}
+                if stream is False:
+                    try:
+                        response_data = response.json()
+                    except:
+                        return {'data': response.text}
                 status = response_data.get('status')
         error_message += u'【请求服务】：%s\n' % api_service
         error_message += u'【api】：%s\n' % api_url
@@ -114,4 +118,24 @@ def sort_request1(method, url, api_service='api', auth=None, data=None, remote_a
     #         print(error_message)
     if response_data is None:
         response_data = {'message': '请求接口返回异常：\n%s' % error_message, 'status': -1}
+    if stream:
+        def generate():
+            for chunk in response.iter_content(chunk_size=128):
+                text = chunk.decode('utf-8')
+                yield text
+        # for trunk in res:
+        #     trunk_d = trunk
+        #     if api_proxy is True:
+        #         if trunk.data == '[DONE]':
+        #             continue
+        #         trunk_d = json.loads(trunk.data)
+        #     if trunk_d['choices'][0]['finish_reason'] is not None:
+        #         fetch_data = '[DONE]'
+        #         extend_history(history_data, query, res_message)
+        #     else:
+        #         fetch_data = trunk_d['choices'][0]['delta'].get('content', '')
+        #         res_message += fetch_data
+        #     yield fetch_data
+
+        return Response(generate(), mimetype="text/event-stream")
     return response_data
