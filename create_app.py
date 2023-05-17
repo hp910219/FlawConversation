@@ -89,6 +89,8 @@ def sort_request1(method, url, api_service='api', auth=None, data=None, remote_a
                         status = response_data.get('status')
                     except:
                         return {'data': response.text}
+                else:
+                    return response
 
         error_message += u'【请求服务】：%s\n' % api_service
         error_message += u'【api】：%s\n' % api_url
@@ -119,26 +121,6 @@ def sort_request1(method, url, api_service='api', auth=None, data=None, remote_a
     #         print(error_message)
     if response_data is None:
         response_data = {'message': '请求接口返回异常：\n%s' % error_message, 'status': -1}
-    if stream:
-        def generate():
-            for chunk in response.iter_content(chunk_size=128):
-                text = chunk.decode('utf-8')
-                yield text
-        # for trunk in res:
-        #     trunk_d = trunk
-        #     if api_proxy is True:
-        #         if trunk.data == '[DONE]':
-        #             continue
-        #         trunk_d = json.loads(trunk.data)
-        #     if trunk_d['choices'][0]['finish_reason'] is not None:
-        #         fetch_data = '[DONE]'
-        #         extend_history(history_data, query, res_message)
-        #     else:
-        #         fetch_data = trunk_d['choices'][0]['delta'].get('content', '')
-        #         res_message += fetch_data
-        #     yield fetch_data
 
-        # return Response(generate(), mimetype="text/event-stream")
-        return response
 
     return response_data
