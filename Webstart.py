@@ -70,8 +70,7 @@ def tcm_api():
     stream = data.get('stream')
     if stream:
         return response_data
-    else:
-        return jsonify(response_data)
+    return jsonify(response_data)
 
 
 @app.route("/tcm/upload/file/", methods=["POST", 'OPTIONS'])
