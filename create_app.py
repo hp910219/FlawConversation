@@ -83,17 +83,17 @@ def sort_request1(method, url, api_service='api', auth=None, data=None, remote_a
                 # print 'body', response.text.body
                 error_message = "%s %s %d %s\n" % (api_url, "POST", response.status_code, response.text)
             else:
-                if stream is False:
+                if stream:
+                    def generate():
+                        for chunk in response.iter_content(chunk_size=128):
+                            yield chunk.decode('utf-8')
+                    return Response(generate(), mimetype="text/event-stream")
+                else:
                     try:
                         response_data = response.json()
                         status = response_data.get('status')
                     except:
                         return {'data': response.text}
-                else:
-                    def generate():
-                        for chunk in response.iter_content(chunk_size=128):
-                            yield chunk.decode('utf-8')
-                    return Response(generate(), mimetype="text/event-stream")
 
         error_message += u'【请求服务】：%s\n' % api_service
         error_message += u'【api】：%s\n' % api_url
