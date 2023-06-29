@@ -90,7 +90,10 @@ def sort_request1(method, url, api_service='api', auth=None, data=None, remote_a
                     except:
                         return {'data': response.text}
                 else:
-                    return response
+                    def generate():
+                        for chunk in response.iter_content(chunk_size=128):
+                            yield chunk.decode('utf-8')
+                    return Response(generate(), mimetype="text/event-stream")
 
         error_message += u'【请求服务】：%s\n' % api_service
         error_message += u'【api】：%s\n' % api_url
@@ -121,6 +124,4 @@ def sort_request1(method, url, api_service='api', auth=None, data=None, remote_a
     #         print(error_message)
     if response_data is None:
         response_data = {'message': '请求接口返回异常：\n%s' % error_message, 'status': -1}
-
-
     return response_data

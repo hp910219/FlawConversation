@@ -70,8 +70,7 @@ def tcm_api():
     stream = data.get('stream')
     if stream:
         return response_data
-    else:
-        return jsonify(response_data)
+    return jsonify(response_data)
 
 
 @app.route("/tcm/upload/file/", methods=["POST", 'OPTIONS'])
@@ -474,5 +473,6 @@ if __name__ == '__main__':
     host_ip = host_info.get('ip')
     killport(port)    # host_ip = '192.168.105.66'
     update_static(os.path.join(project_dir, 'FlawFront'), 'FlawFront')
+    update_static(os.path.join(project_dir, 'AIInterview'), 'AIInterview')
     app.run(host=host_ip, port=port)
 
