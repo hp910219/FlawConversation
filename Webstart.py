@@ -473,5 +473,6 @@ if __name__ == '__main__':
     host_ip = host_info.get('ip')
     killport(port)    # host_ip = '192.168.105.66'
     update_static(os.path.join(project_dir, 'FlawFront'), 'FlawFront')
+    update_static(os.path.join(project_dir, 'AIInterview'), 'AIInterview')
     app.run(host=host_ip, port=port)
 
